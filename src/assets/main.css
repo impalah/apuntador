@@ -1,0 +1,49 @@
+@import './base.css';
+
+#app {
+  /* Elimina el max-width para permitir que ocupe todo el ancho */
+  width: 100%;
+  margin: 0;
+  padding: 2rem;
+  font-weight: normal;
+}
+
+@media (min-width: 1024px) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    /* Ajusta para que se mantenga la estructura en pantallas grandes */
+    display: block;
+    padding: 0 2rem;
+  }
+}
+
+.general {
+  background-color: #000;
+}
+
+.navbar {
+  width: 100%;
+  height: 40px; /* Ajusta según sea necesario */
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: hsla(160, 100%, 37%, 1);
+  transition: 0.4s;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: hsla(160, 100%, 37%, 0.2);
+  }
+}
