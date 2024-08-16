@@ -1,6 +1,21 @@
-# tp-two
+# Apuntador
 
-This template should help get you started developing with Vue 3 in Vite.
+Just an open source teleprompter.
+
+## Requirements
+
+- Node JS v20.16.0 or higher
+
+nvm is recomended.
+
+## Quickstart
+
+```sh
+npm install
+npm run dev
+```
+
+Visit: http://localhost:5173/
 
 ## Recommended IDE Setup
 

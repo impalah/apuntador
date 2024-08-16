@@ -11,9 +11,13 @@
       v-if="!store.isEditing"
       ref="scrollContainer"
       class="text-display"
-      :style="{ textAlign: store.textAlign }"
+      :class="{
+        'text-align-left': store.textAlign === 'left',
+        'text-align-center': store.textAlign === 'center',
+        'text-align-right': store.textAlign === 'right'
+      }"
     >
-      <p v-html="formattedTextContent"></p>
+      <div v-html="formattedTextContent"></div>
     </div>
     <textarea
       v-else
@@ -27,6 +31,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { usePrompterStore } from '@/stores/prompterStore'
+import { marked } from 'marked'
 
 const store = usePrompterStore()
 const scrollContainer = ref<HTMLElement | null>(null)
@@ -36,7 +41,7 @@ const editedContent = ref(store.textContent)
 const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
-  return store.textContent.replace(/\n/g, '<br>')
+  return marked(store.textContent)
 })
 
 watch(
@@ -97,6 +102,19 @@ watch(
   }
 )
 
+watch(
+  () => store.scrollSpeed,
+  (newSpeed) => {
+    console.log('scrollSpeed changed to:', newSpeed)
+    if (store.isPlaying) {
+      if (scrollInterval !== undefined) {
+        clearInterval(scrollInterval)
+      }
+      scrollInterval = window.setInterval(scrollText, newSpeed)
+    }
+  }
+)
+
 onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -140,6 +158,17 @@ onUnmounted(() => {
   padding: 10px;
   box-sizing: border-box;
   background-color: #000000;
-  border: none;
+}
+
+.text-align-left {
+  text-align: left;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.text-align-right {
+  text-align: right;
 }
 </style>
