@@ -3,14 +3,15 @@ import { defineStore } from 'pinia'
 export const usePrompterStore = defineStore('prompter', {
   state: () => ({
     fontSize: 40,
-    textColor: '#ffffff', // Color de texto claro por defecto
+    textColor: '#ffffff', // Text color white by default
     isEditing: false,
     textContent: 'This is the initial prompter text.',
     isPlaying: false,
-    scrollSpeed: 10, // Velocidad inicial del scroll
-    isMirrored: false, // Controla el espejo horizontal
-    isReversed: false, // Controla el volteo vertical y dirección del scroll4
-    scrollPosition: 0 // Posición inicial del scroll
+    scrollSpeed: 10, // Initial scroll speed
+    isMirrored: false, // Controls the horizontal flip of the text
+    isReversed: false, // Controls the vertical flip of the text
+    scrollPosition: 0, // Initial scroll position
+    textAlign: 'center'
   }),
   actions: {
     setFontSize(size: number) {
@@ -39,9 +40,13 @@ export const usePrompterStore = defineStore('prompter', {
       this.isReversed = !this.isReversed
       console.log('ToggleReversed: ', this.isReversed)
     },
-    resetScrollPosition() {
+    stopScrolling() {
+      console.log('Stop scrolling: ', this.scrollPosition)
+      this.isPlaying = false
       this.scrollPosition = 0
-      console.log('Scroll position reset to:', this.scrollPosition)
+    },
+    setTextAlign(align: string) {
+      this.textAlign = align
     }
   }
 })

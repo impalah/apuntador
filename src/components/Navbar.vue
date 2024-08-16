@@ -31,23 +31,27 @@
       </button>
     </div>
 
-    <button class="play-btn" @click="togglePlay">
-      <span v-if="!isPlayingComputed">▶️</span>
-      <span v-else>⏸️</span>
-    </button>
+    <div class="control play-stop-group">
+      <button class="play-btn" @click="togglePlay">
+        <span v-if="!isPlayingComputed">▶️</span>
+        <span v-else>⏸️</span>
+      </button>
 
-    <button class="stop-btn" @click="stopScrolling">⏹️</button>
+      <button class="stop-btn" @click="stopScrolling">⏹️</button>
+    </div>
 
-    <div class="control">
-      <label for="mirrorButton">Mirror Mode</label>
+    <div class="control align-group">
+      <button id="alignLeftButton" class="align-btn" @click="alignLeft">⬅️</button>
+      <button id="alignCenterButton" class="align-btn" @click="alignCenter">🔲</button>
+      <button id="alignRightButton" class="align-btn" @click="alignRight">➡️</button>
+    </div>
+
+    <div class="control mirror-reverse-group">
+      <label>Mirror/Reverse Mode</label>
       <button id="mirrorButton" class="mirror-btn" @click="toggleMirror">
         <span v-if="!isMirrored">🔄</span>
         <span v-else>🔁</span>
       </button>
-    </div>
-
-    <div class="control">
-      <label for="reverseButton">Reverse Mode</label>
       <button id="reverseButton" class="reverse-btn" @click="toggleReverse">
         <span v-if="!isReversed">⤵️</span>
         <span v-else>⤴️</span>
@@ -69,6 +73,7 @@ const isEditing = ref(store.isEditing)
 const isPlaying = ref(store.isPlaying)
 const isMirrored = ref(store.isMirrored)
 const isReversed = ref(store.isReversed)
+const textAlign = ref(store.textAlign)
 
 const fontSizes = [40, 60, 80, 100, 120, 150, 200]
 
@@ -95,10 +100,7 @@ const togglePlay = () => {
 }
 
 const stopScrolling = () => {
-  if (store.isPlaying) {
-    store.togglePlay() // Detener el scrolling si está en ejecución
-  }
-  store.resetScrollPosition() // Reiniciar la posición del texto
+  store.stopScrolling() // Reset the scroll position
 }
 
 const toggleMirror = () => {
@@ -109,6 +111,18 @@ const toggleMirror = () => {
 const toggleReverse = () => {
   store.toggleReverse()
   isReversed.value = store.isReversed
+}
+
+const alignLeft = () => {
+  store.setTextAlign('left')
+}
+
+const alignCenter = () => {
+  store.setTextAlign('center')
+}
+
+const alignRight = () => {
+  store.setTextAlign('right')
 }
 
 const isPlayingComputed = computed(() => store.isPlaying)
@@ -129,8 +143,15 @@ const isPlayingComputed = computed(() => store.isPlaying)
   align-items: center;
 }
 
+.align-group,
+.mirror-reverse-group,
+.play-stop-group {
+  display: flex;
+  gap: 1px; /* Ajusta el espacio entre los botones */
+}
+
 label {
-  margin-right: 10px;
+  margin-right: 3px;
 }
 
 select,
@@ -144,7 +165,8 @@ input[type='color'] {
 .play-btn,
 .stop-btn,
 .mirror-btn,
-.reverse-btn {
+.reverse-btn,
+.align-btn {
   background: none;
   border: none;
   cursor: pointer;
