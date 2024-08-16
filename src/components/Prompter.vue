@@ -7,7 +7,12 @@
       transform: `${store.isMirrored ? 'scaleX(-1)' : 'scaleX(1)'} ${store.isReversed ? 'scaleY(-1)' : 'scaleY(1)'}`
     }"
   >
-    <div v-if="!store.isEditing" ref="scrollContainer" class="text-display">
+    <div
+      v-if="!store.isEditing"
+      ref="scrollContainer"
+      class="text-display"
+      :style="{ textAlign: store.textAlign }"
+    >
       <p v-html="formattedTextContent"></p>
     </div>
     <textarea
@@ -28,6 +33,7 @@ const scrollContainer = ref<HTMLElement | null>(null)
 let scrollInterval: number | undefined = undefined
 
 const editedContent = ref(store.textContent)
+const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
   return store.textContent.replace(/\n/g, '<br>')
@@ -42,49 +48,35 @@ watch(
   }
 )
 
+watch(textAlign, (newAlign) => {
+  store.setTextAlign(newAlign)
+})
+
 const updateTextContent = () => {
   store.setTextContent(editedContent.value)
 }
 
-// const scrollText = () => {
-//   if (scrollContainer.value) {
-//     // Incrementamos scrollTop con un factor mayor
-//     // scrollContainer.value.scrollTop += store.scrollSpeed / 5
-//     scrollContainer.value.scrollTop += 2
-//     console.log('scrollText ', scrollContainer.value.scrollTop)
-//   } else {
-//     console.log('scrollText no scrollContainer', scrollContainer.value)
-//   }
-// }
-
 const scrollText = () => {
   if (scrollContainer.value) {
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
-
-    // console.log('scrollText ', scrollTop, scrollHeight, clientHeight)
 
     if (scrollTop + clientHeight + 2 >= scrollHeight) {
       store.togglePlay()
       clearInterval(scrollInterval)
       console.log('Reached the end, stopping play')
     } else {
-      scrollContainer.value.scrollTop += 2
+      store.scrollPosition = scrollContainer.value.scrollTop + 2
     }
-    //   } else {
-    //     console.log('scrollText no scrollContainer', scrollContainer.value)
   }
 }
 
-// Watch para actualizar scrollTop cuando scrollPosition cambie
+// Update scrollTop when scrollPosition changes
 watch(
   () => store.scrollPosition,
   (newVal) => {
     console.log('scrollPosition changed to:', newVal)
     if (scrollContainer.value) {
       scrollContainer.value.scrollTop = newVal
-      if (scrollInterval !== undefined) {
-        clearInterval(scrollInterval)
-      }
       console.log('scrollPosition updated to:', newVal)
     }
   }
@@ -93,8 +85,9 @@ watch(
 watch(
   () => store.isPlaying,
   (newVal) => {
+    console.log('isPlaying changed to:', newVal)
     if (newVal) {
-      // Reducimos el intervalo para un desplazamiento más rápido
+      // Reduce the scroll speed by 10% to avoid reaching the end of the text
       scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
     } else {
       if (scrollInterval !== undefined) {
@@ -136,14 +129,14 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   overflow-y: hidden;
-  color: inherit; /* Heredar el color desde el div padre */
+  color: inherit; /* Inherits color from parent div */
 }
 
 .text-area {
   width: 100%;
   height: 100%;
   font-size: inherit;
-  color: inherit; /* Heredar el color desde el div padre */
+  color: inherit; /* Inherits color from parent div */
   padding: 10px;
   box-sizing: border-box;
   background-color: #000000;
