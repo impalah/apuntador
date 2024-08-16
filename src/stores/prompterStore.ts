@@ -5,7 +5,30 @@ export const usePrompterStore = defineStore('prompter', {
     fontSize: 40,
     textColor: '#ffffff', // Text color white by default
     isEditing: false,
-    textContent: 'This is the initial prompter text.',
+    textContent: `# I am a big title
+This is the initial prompter text.
+This is another line of text for multiline testing.
+This is a third _line of text_ for **multiline** testing with *some effects*.
+This is a fourth __line of text for multiline__ testing combining effects.
+
+---
+This is a line of text with a line break.
+
+## This is a subtitle
+
+> This is a quote
+
+- Element 1
+- Element 2
+- Element 3
+
+1. Element 1
+2. Element 2
+3. Element 3
+
+This is the final line of text
+    
+    `,
     isPlaying: false,
     scrollSpeed: 10, // Initial scroll speed
     isMirrored: false, // Controls the horizontal flip of the text
