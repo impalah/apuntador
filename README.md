@@ -78,6 +78,48 @@ npm run test:e2e -- --debug
 npm run lint
 ```
 
+## CI/CD
+
+### Workflow configuration
+
+To be able to create a release the GITHUB_TOKEN should have read and write permissions on the repository.
+
+- On the github page go to Settings -> Actions -> General.
+- Go to the section "Workflow Permissions" and change tto "Read and write permissions".
+- Save the settings.
+
+### Create service account on aws
+
+A service account will be used to access AWS services from github and terraform. By default AdminsitratorAccess is granted but the permissions can be restricted using a custom policy.
+
+```bash
+# Create IAM user
+aws iam create-user --user-name service-account
+
+# Assing the policy AdministratorAccess to the user
+aws iam attach-user-policy --user-name service-account --policy-arn arn:aws:iam::aws:policy/AdministratorAccess
+
+# Create security credentials
+aws iam create-access-key --user-name service-account
+
+
+```
+
+Store the access key and secret access key returne by the last command securely.
+
+### CD variable configuration
+
+To use the manual deployment workflow you need to set some variables and secrets on the repository.
+
+- Go to Settings -> Environments.
+- Create as many environments as you wish (dev, staging, prod ...).
+- Access every environment and configure the secrets:
+  - AWS_ACCESS_KEY_ID
+  - AWS_SECRET_ACCESS_KEY
+- Configure every variable as well:
+  - AWS_REGION
+  - S3_BUCKET
+
 ## Infrastructure
 
 Deploy on AWS using Terraform.
