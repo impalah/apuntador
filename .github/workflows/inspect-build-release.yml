@@ -50,15 +50,27 @@ jobs:
       #   run: npm test -- --watch=false --browsers=ChromeHeadlessCI --code-coverage --reporters="junit,jasmine-order"
       #   working-directory: ${{ github.workspace }}
 
+      - name: npm update patch version
+        run: |
+          npm version patch
+
+      - name: Commit and push version update
+        run: |
+          git config --global user.name 'GitHub Action'
+          git config --global user.email 'action@github.com'
+          git add pyproject.toml
+          git commit -m "Update version" || echo "No changes to commit"
+          git push origin HEAD
+
       - name: npm build
         run: |
           npm run build
 
-      - name: Read VERSION.txt and set ImageTag
+      - name: Read VERSION and set ImageTag
         id: version
         run: |
-          VERSION=$(cat ${{ github.workspace }}/VERSION.txt)
-          echo "IMAGE_TAG=${VERSION}.${{ github.run_number }}" >> $GITHUB_ENV
+          VERSION=$(node -p "require('./package.json').version")
+          echo "IMAGE_TAG=${VERSION}" >> $GITHUB_ENV
 
       - name: Compress dist directory
         env:
