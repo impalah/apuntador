@@ -70,6 +70,15 @@ This is the final line of text
     },
     setTextAlign(align: string) {
       this.textAlign = align
+    },
+    getLineHeight() {
+      return this.fontSize * 1.2
+    },
+    scrollUp() {
+      this.scrollPosition -= this.getLineHeight()
+    },
+    scrollDown() {
+      this.scrollPosition += this.getLineHeight()
     }
   }
 })
