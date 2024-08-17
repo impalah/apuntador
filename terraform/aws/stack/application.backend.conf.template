@@ -1,0 +1,4 @@
+bucket = "my-bucket-name"
+region = "eu-west-1"
+key    = "apuntador.io/application/terraform.tfstate"
+
