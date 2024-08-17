@@ -40,6 +40,11 @@
       <button class="stop-btn" @click="stopScrolling">⏹️</button>
     </div>
 
+    <div class="control scroll-group">
+      <button class="scroll-btn" @click="store.scrollUp">⬆️</button>
+      <button class="scroll-btn" @click="store.scrollDown">⬇️</button>
+    </div>
+
     <div class="control align-group">
       <button id="alignLeftButton" class="align-btn" @click="alignLeft">⬅️</button>
       <button id="alignCenterButton" class="align-btn" @click="alignCenter">🔲</button>
@@ -145,7 +150,8 @@ const isPlayingComputed = computed(() => store.isPlaying)
 
 .align-group,
 .mirror-reverse-group,
-.play-stop-group {
+.play-stop-group,
+.scroll-group {
   display: flex;
   gap: 1px; /* Ajusta el espacio entre los botones */
 }
