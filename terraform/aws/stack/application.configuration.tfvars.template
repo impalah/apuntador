@@ -1,0 +1,12 @@
+# Tags
+owner       = "Someone"
+project     = "MyProjectName"
+cost_center = "MyCostCenter"
+environment = "dev"
+region      = "eu-west-1"
+
+frontend_bucket_name = "bucket-name"
+
+domain_name = "my-domain.com"
+alternative_domain_names = [ "*.my-domain.com" ]
+cdn_domains = [ "my-domain.com", "*.my-domain.com" ]

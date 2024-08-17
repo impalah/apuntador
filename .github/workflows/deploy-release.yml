@@ -1,0 +1,94 @@
+name: Deploy Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      release_tag:
+        description: 'Release Tag to Deploy'
+        required: true
+        default: '1.0.0'
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - pre
+          - pro
+        default: 'dev'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.event.inputs.environment }}
+
+    steps:
+      - name: Set ASSET_NAME
+        run: |
+          echo "ASSET_NAME=${{ github.event.inputs.release_tag }}.zip" >> $GITHUB_ENV
+
+      - name: Download Artifact
+        run: |
+          RELEASE_TAG="${{ github.event.inputs.release_tag }}"
+          ASSET_NAME="${RELEASE_TAG}.zip"
+          # Get artifact url based from release tag
+          ASSET_URL=$(curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/vnd.github.v3+json" \
+          "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}" \
+          | jq -r ".assets[] | select(.name == \"${{env.ASSET_NAME}}\").url")
+          # Download artifact
+          curl -sL -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+          -H "Accept: application/octet-stream" \
+          -o ${{env.ASSET_NAME}} ${ASSET_URL}
+
+      - name: List directory root
+        run: |
+          echo "Listing directory:"
+          ls -la ${{ github.workspace }}
+
+      - name: Ensure destination directory exists
+        run: mkdir -p ${{ github.workspace }}/extract
+
+      - name: Unzip Artifact
+        run: unzip -q ${{env.ASSET_NAME}} -d ${{ github.workspace }}/extract/
+
+      - name: List directory extract
+        run: |
+          echo "Listing directory:"
+          ls -la ${{ github.workspace }}/extract
+
+      - name: Set up AWS CLI
+        uses: aws-actions/configure-aws-credentials@v4
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      # - name: Configure application
+      #   env:
+      #     API_URL: ${{ vars.API_URL }}
+      #     AUTH_URL: ${{ vars.AUTH_URL }}
+      #     AUTH_CLIENT_ID: ${{ vars.AUTH_CLIENT_ID }}
+      #   run: |
+      #     echo "API_URL: ${API_URL} AUTH_URL: ${AUTH_URL} AUTH_CLIENT_ID: ${AUTH_CLIENT_ID}"
+      #     find "${{ github.workspace }}/extract" -type f -exec sed -i "s|<API-URL>|${API_URL}|g" {} +
+      #     find "${{ github.workspace }}/extract" -type f -exec sed -i "s|<AUTH-URL>|${AUTH_URL}|g" {} +
+      #     find "${{ github.workspace }}/extract" -type f -exec sed -i "s|<AUTH-CLIENT-ID>|${AUTH_CLIENT_ID}|g" {} +
+
+      - name: Clean S3
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+        run: aws s3 rm s3://${S3_BUCKET} --recursive
+
+      - name: Deploy to AWS S3
+        env:
+          S3_BUCKET: ${{ vars.S3_BUCKET }}
+        run: aws s3 sync ${{ github.workspace }}/extract/cloud/browser s3://${S3_BUCKET} --delete

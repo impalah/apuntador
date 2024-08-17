@@ -77,3 +77,25 @@ npm run test:e2e -- --debug
 ```sh
 npm run lint
 ```
+
+## Infrastructure
+
+Deploy on AWS using Terraform.
+
+### Requirements
+
+- AWS Account and credentials (access key and secret key).
+- A working domain.
+- AWS cli installed and configured
+- Terraform installed
+
+### Steps
+
+Create the files application.backend.conf and configuration.tfvars and set the variables.
+
+```bash
+terraform init -backend-config="application.backend.conf"
+
+terraform apply -var-file="application.configuration.tfvars"
+
+```
