@@ -10,12 +10,20 @@ nvm is recomended.
 
 ## Quickstart
 
-```sh
+### Run as a web application
+
+```bash
 npm install
 npm run dev
 ```
 
-Visit: http://localhost:5173/
+Visit: http://localhost:3000/
+
+### Run as a desktop application
+
+```bash
+npm run electron:dev
+```
 
 ## Recommended IDE Setup
 
@@ -76,6 +84,16 @@ npm run test:e2e -- --debug
 
 ```sh
 npm run lint
+```
+
+## Build
+
+### Desktop Application
+
+On Windows use Administrator mode in Powershell
+
+```sh
+npm run electron:build
 ```
 
 ## CI/CD
