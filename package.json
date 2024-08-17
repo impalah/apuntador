@@ -1,8 +1,11 @@
 {
-  "name": "tp-two",
-  "version": "0.0.0",
+  "name": "apuntador",
+  "version": "1.0.0",
   "private": true,
   "type": "module",
+  "main": "main.js",
+  "description": "A Teleprompter application",
+  "author": "Impalah <impalah@gmail.com>",
   "scripts": {
     "dev": "vite",
     "build": "run-p type-check \"build-only {@}\" --",
@@ -12,7 +15,9 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3000 && npx electron .\"",
+    "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
     "marked": "^14.0.0",
@@ -32,6 +37,9 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.5.1",
+    "concurrently": "^8.2.2",
+    "electron": "^31.4.0",
+    "electron-builder": "^24.13.3",
     "eslint": "^8.57.0",
     "eslint-plugin-playwright": "^1.6.2",
     "eslint-plugin-vue": "^9.23.0",
@@ -41,6 +49,82 @@
     "typescript": "~5.4.0",
     "vite": "^5.3.1",
     "vitest": "^1.6.0",
-    "vue-tsc": "^2.0.21"
+    "vue-tsc": "^2.0.21",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "app.apuntador.io",
+    "productName": "Apuntador",
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "dist/**/*",
+      "main.js",
+      "preload.js"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "public/favicon.ico"
+    },
+    "mac": {
+      "target": [
+        {
+          "target": "dmg",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "zip",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icon.icns"
+    },
+    "linux": {
+      "target": [
+        {
+          "target": "AppImage",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "deb",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        },
+        {
+          "target": "rpm",
+          "arch": [
+            "x64",
+            "arm64"
+          ]
+        }
+      ],
+      "icon": "public/icon.png",
+      "category": "Utility"
+    }
   }
 }
