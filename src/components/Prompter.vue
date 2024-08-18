@@ -20,7 +20,9 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
-      <div v-html="formattedTextContent"></div>
+      <div class="highlight-overlay" :style="{ top: `${store.highlightPosition}%` }"></div>
+
+      <div class="text-content" v-html="formattedTextContent"></div>
     </div>
     <textarea
       v-else
@@ -125,6 +127,13 @@ watch(
   }
 )
 
+watch(
+  () => store.highlightPosition,
+  (newPosition) => {
+    console.log('highlightPosition changed to:', newPosition)
+  }
+)
+
 onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -157,6 +166,7 @@ onUnmounted(() => {
   height: 100%;
   overflow-y: hidden;
   color: inherit; /* Inherits color from parent div */
+  line-height: 1.4; /* Ajusta el interlineado */
 }
 
 .text-area {
@@ -179,5 +189,26 @@ onUnmounted(() => {
 
 .text-align-right {
   text-align: right;
+}
+
+.highlight-overlay {
+  position: absolute;
+  /* top: 50%; */
+  left: 0;
+  width: 100%;
+  height: calc(3 * 1em); /* Altura de tres líneas de texto */
+  background-color: rgb(147, 159, 123, 0.3); /* Fondo con transparencia */
+  transform: translateY(-50%); /* Centrar verticalmente */
+  pointer-events: none; /* Permitir clics a través de la overlay */
+}
+
+/* Nueva clase para el texto difuminado */
+.blurred-text {
+  filter: blur(2px) opacity(0.5); /* Aplica desenfoque y reduce opacidad */
+}
+
+/* Estilo para el texto bajo la highlight-overlay */
+.highlight-overlay ~ .text-content {
+  filter: none; /* Remueve el desenfoque y la opacidad reducida */
 }
 </style>

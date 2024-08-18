@@ -74,6 +74,18 @@
         <span v-else>⤴️</span>
       </button>
     </div>
+
+    <div class="control">
+      <label for="highlightPosition">Highlight Position</label>
+      <input
+        type="range"
+        id="highlightPosition"
+        min="0"
+        max="100"
+        v-model="highlightPosition"
+        @input="updateHighlightPosition"
+      />
+    </div>
   </div>
 </template>
 
@@ -92,6 +104,7 @@ const isMirrored = ref(store.isMirrored)
 const isReversed = ref(store.isReversed)
 const textAlign = ref(store.textAlign)
 const lateralMargin = ref(store.lateralMargin)
+const highlightPosition = ref(store.highlightPosition)
 
 const fontSizes = [40, 60, 80, 100, 120, 150, 200]
 
@@ -110,6 +123,10 @@ const updateScrollSpeed = () => {
 
 const updateLateralMargin = () => {
   store.setLateralMargin(lateralMargin.value)
+}
+
+const updateHighlightPosition = () => {
+  store.setHighlightPosition(highlightPosition.value)
 }
 
 const toggleEditMode = () => {
