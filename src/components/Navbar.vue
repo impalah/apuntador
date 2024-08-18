@@ -1,5 +1,5 @@
 <template>
-  <div class="navbar">
+  <div class="navbar" @keydown="handleKeydown" tabindex="0">
     <div class="control">
       <label for="fontSize">Font Size</label>
       <select id="fontSize" v-model="fontSize" @change="updateFontSize">
@@ -35,43 +35,54 @@
     </div>
 
     <div class="control">
-      <label for="editButton">Edit</label>
-
-      <button class="edit-btn" id="editButton" @click="toggleEditMode">
-        <span v-if="!isEditing">✏️</span>
-        <span v-else>❌</span>
+      <!-- <label for="editButton">Edit</label> -->
+      <button class="edit-btn" id="editButton" @click="toggleEditMode" title="Toggle Edit Mode">
+        <font-awesome-icon :icon="isEditing ? 'times' : 'pen'" class="icon-color" />
       </button>
     </div>
 
     <div class="control play-stop-group">
-      <button class="play-btn" @click="togglePlay">
-        <span v-if="!isPlayingComputed">▶️</span>
-        <span v-else>⏸️</span>
+      <button class="play-btn" @click="togglePlay" title="Play/Pause">
+        <font-awesome-icon :icon="isPlayingComputed ? 'pause' : 'play'" class="icon-color" />
       </button>
-
-      <button class="stop-btn" @click="stopScrolling">⏹️</button>
+      <button class="stop-btn" @click="stopScrolling" title="Stop">
+        <font-awesome-icon icon="stop" class="icon-color" />
+      </button>
     </div>
 
     <div class="control scroll-group">
-      <button class="scroll-btn" @click="store.scrollUp">⬆️</button>
-      <button class="scroll-btn" @click="store.scrollDown">⬇️</button>
+      <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up">
+        <font-awesome-icon icon="arrow-up" class="icon-color" />
+      </button>
+      <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down">
+        <font-awesome-icon icon="arrow-down" class="icon-color" />
+      </button>
     </div>
 
     <div class="control align-group">
-      <button id="alignLeftButton" class="align-btn" @click="alignLeft">⬅️</button>
-      <button id="alignCenterButton" class="align-btn" @click="alignCenter">🔲</button>
-      <button id="alignRightButton" class="align-btn" @click="alignRight">➡️</button>
+      <button id="alignLeftButton" class="align-btn" @click="alignLeft" title="Align Left">
+        <font-awesome-icon icon="align-left" class="icon-color" />
+      </button>
+      <button id="alignCenterButton" class="align-btn" @click="alignCenter" title="Align Center">
+        <font-awesome-icon icon="align-center" class="icon-color" />
+      </button>
+      <button id="alignRightButton" class="align-btn" @click="alignRight" title="Align Right">
+        <font-awesome-icon icon="align-right" class="icon-color" />
+      </button>
     </div>
 
     <div class="control mirror-reverse-group">
       <label>Mirror/Reverse Mode</label>
-      <button id="mirrorButton" class="mirror-btn" @click="toggleMirror">
-        <span v-if="!isMirrored">🔄</span>
-        <span v-else>🔁</span>
+      <button id="mirrorButton" class="mirror-btn" @click="toggleMirror" title="Toggle Mirror Mode">
+        <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
       </button>
-      <button id="reverseButton" class="reverse-btn" @click="toggleReverse">
-        <span v-if="!isReversed">⤵️</span>
-        <span v-else>⤴️</span>
+      <button
+        id="reverseButton"
+        class="reverse-btn"
+        @click="toggleReverse"
+        title="Toggle Reverse Mode"
+      >
+        <font-awesome-icon :icon="isReversed ? 'angles-up' : 'angles-down'" class="icon-color" />
       </button>
     </div>
 
@@ -90,7 +101,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
 import { usePrompterStore } from '@/stores/prompterStore'
 
 const store = usePrompterStore()
@@ -165,16 +176,75 @@ const alignRight = () => {
 }
 
 const isPlayingComputed = computed(() => store.isPlaying)
+
+const handleKeydown = (event: KeyboardEvent) => {
+  if (isEditing.value) {
+    return
+  }
+
+  switch (event.key) {
+    case 'ArrowUp':
+      store.scrollUp()
+      break
+    case 'ArrowDown':
+      store.scrollDown()
+      break
+    case 'ArrowLeft':
+      if (scrollSpeed.value > 1) {
+        scrollSpeed.value -= 1
+        updateScrollSpeed()
+      }
+      break
+    case 'ArrowRight':
+      if (scrollSpeed.value < 30) {
+        scrollSpeed.value += 1
+        updateScrollSpeed()
+      }
+      break
+    case 'PageDown':
+      if (highlightPosition.value < 100) {
+        highlightPosition.value += 1
+        updateHighlightPosition()
+      }
+      break
+    case 'PageUp':
+      if (highlightPosition.value > 0) {
+        highlightPosition.value -= 1
+        updateHighlightPosition()
+      }
+      break
+    case ' ':
+      togglePlay()
+      break
+    case 'Home':
+      stopScrolling()
+      break
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeydown)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('keydown', handleKeydown)
+})
 </script>
 
 <style lang="scss" scoped>
-$navbar-height: 40px;
+$navbar-height: 45px;
 $navbar-bg-color: #191818;
 $button-gap: 1px;
 $label-margin-right: 3px;
 $input-padding: 5px;
 $input-font-size: 14px;
-$button-font-size: 18px;
+$button-font-size: 28px; /* Aumenta el tamaño de la fuente de los botones */
+$button-padding: 10px; /* Añade padding a los botones para hacerlos más grandes */
+$icon-color: #ffffff; /* Cambia este valor al color deseado */
+
+.icon-color {
+  color: $icon-color;
+}
 
 .navbar {
   width: 100%;
@@ -183,6 +253,7 @@ $button-font-size: 18px;
   display: flex;
   align-items: center;
   justify-content: space-around;
+  outline: none; /* Para evitar el borde de enfoque */
 }
 
 .control {
@@ -214,10 +285,12 @@ input[type='color'] {
 .stop-btn,
 .mirror-btn,
 .reverse-btn,
+.scroll-btn,
 .align-btn {
   background: none;
   border: none;
   cursor: pointer;
   font-size: $button-font-size;
+  padding: $button-padding;
 }
 </style>
