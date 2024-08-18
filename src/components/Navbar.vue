@@ -1,17 +1,19 @@
 <template>
   <div class="navbar" @keydown="handleKeydown" tabindex="0">
     <div class="control">
-      <label for="fontSize">Font Size</label>
+      <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
       <select id="fontSize" v-model="fontSize" @change="updateFontSize">
         <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
       </select>
     </div>
+
     <div class="control">
-      <label for="textColor">Text Color</label>
+      <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
       <input type="color" id="textColor" v-model="textColor" />
     </div>
+
     <div class="control">
-      <label for="scrollSpeed">Speed</label>
+      <font-awesome-icon icon="gauge" class="icon-label icon-color" title="Scroll speed" />
       <input
         type="range"
         id="scrollSpeed"
@@ -23,7 +25,7 @@
     </div>
 
     <div class="control">
-      <label for="lateralMargin">Lateral Margin</label>
+      <font-awesome-icon icon="left-right" class="icon-label icon-color" title="Lateral margin" />
       <input
         type="range"
         id="lateralMargin"
@@ -72,7 +74,7 @@
     </div>
 
     <div class="control mirror-reverse-group">
-      <label>Mirror/Reverse Mode</label>
+      <!-- <label>Mirror/Reverse Mode</label> -->
       <button id="mirrorButton" class="mirror-btn" @click="toggleMirror" title="Toggle Mirror Mode">
         <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
       </button>
@@ -87,7 +89,11 @@
     </div>
 
     <div class="control">
-      <label for="highlightPosition">Highlight Position</label>
+      <font-awesome-icon
+        icon="highlighter"
+        class="icon-label icon-color"
+        title="Highlight position"
+      />
       <input
         type="range"
         id="highlightPosition"
@@ -238,7 +244,7 @@ $button-gap: 1px;
 $label-margin-right: 3px;
 $input-padding: 5px;
 $input-font-size: 14px;
-$button-font-size: 28px; /* Aumenta el tamaño de la fuente de los botones */
+$button-font-size: 24px; /* Aumenta el tamaño de la fuente de los botones */
 $button-padding: 10px; /* Añade padding a los botones para hacerlos más grandes */
 $icon-color: #ffffff; /* Cambia este valor al color deseado */
 
@@ -278,6 +284,13 @@ input[type='range'],
 input[type='color'] {
   padding: $input-padding;
   font-size: $input-font-size;
+}
+
+.icon-label {
+  background: none;
+  border: none;
+  font-size: $button-font-size;
+  padding: $button-padding;
 }
 
 .edit-btn,
