@@ -167,11 +167,19 @@ const alignRight = () => {
 const isPlayingComputed = computed(() => store.isPlaying)
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$navbar-height: 40px;
+$navbar-bg-color: #191818;
+$button-gap: 1px;
+$label-margin-right: 3px;
+$input-padding: 5px;
+$input-font-size: 14px;
+$button-font-size: 18px;
+
 .navbar {
   width: 100%;
-  height: 40px;
-  background-color: #191818;
+  height: $navbar-height;
+  background-color: $navbar-bg-color;
   display: flex;
   align-items: center;
   justify-content: space-around;
@@ -187,18 +195,18 @@ const isPlayingComputed = computed(() => store.isPlaying)
 .play-stop-group,
 .scroll-group {
   display: flex;
-  gap: 1px; /* Ajusta el espacio entre los botones */
+  gap: $button-gap; /* Ajusta el espacio entre los botones */
 }
 
 label {
-  margin-right: 3px;
+  margin-right: $label-margin-right;
 }
 
 select,
 input[type='range'],
 input[type='color'] {
-  padding: 5px;
-  font-size: 14px;
+  padding: $input-padding;
+  font-size: $input-font-size;
 }
 
 .edit-btn,
@@ -210,6 +218,6 @@ input[type='color'] {
   background: none;
   border: none;
   cursor: pointer;
-  font-size: 18px;
+  font-size: $button-font-size;
 }
 </style>
