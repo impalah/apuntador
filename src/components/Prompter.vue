@@ -4,7 +4,10 @@
     :style="{
       fontSize: `${store.fontSize}px`,
       color: store.textColor,
-      transform: `${store.isMirrored ? 'scaleX(-1)' : 'scaleX(1)'} ${store.isReversed ? 'scaleY(-1)' : 'scaleY(1)'}`
+      transform: `${store.isMirrored ? 'scaleX(-1)' : 'scaleX(1)'} ${store.isReversed ? 'scaleY(-1)' : 'scaleY(1)'}`,
+      marginLeft: `${store.lateralMargin}%`,
+      marginRight: `${store.lateralMargin}%`,
+      width: `calc(100% - ${2 * store.lateralMargin}%)`
     }"
   >
     <div
@@ -115,6 +118,13 @@ watch(
   }
 )
 
+watch(
+  () => store.lateralMargin,
+  (newMargin) => {
+    console.log('lateralMargin changed to:', newMargin)
+  }
+)
+
 onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -130,9 +140,8 @@ onUnmounted(() => {
 
 <style scoped>
 .prompter {
-  width: calc(100% - 40px);
   height: calc(100vh - 60px);
-  margin: 20px;
+  margin: 20px auto;
   display: flex;
   align-items: center;
   justify-content: center;

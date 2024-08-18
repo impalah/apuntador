@@ -16,9 +16,21 @@
         type="range"
         id="scrollSpeed"
         min="1"
-        max="50"
+        max="30"
         v-model="scrollSpeed"
         @input="updateScrollSpeed"
+      />
+    </div>
+
+    <div class="control">
+      <label for="lateralMargin">Lateral Margin</label>
+      <input
+        type="range"
+        id="lateralMargin"
+        min="0"
+        max="50"
+        v-model="lateralMargin"
+        @input="updateLateralMargin"
       />
     </div>
 
@@ -73,12 +85,13 @@ const store = usePrompterStore()
 
 const fontSize = ref(store.fontSize)
 const textColor = ref(store.textColor)
-const scrollSpeed = ref(store.scrollSpeed)
+const scrollSpeed = ref(31 - store.scrollSpeed)
 const isEditing = ref(store.isEditing)
 const isPlaying = ref(store.isPlaying)
 const isMirrored = ref(store.isMirrored)
 const isReversed = ref(store.isReversed)
 const textAlign = ref(store.textAlign)
+const lateralMargin = ref(store.lateralMargin)
 
 const fontSizes = [40, 60, 80, 100, 120, 150, 200]
 
@@ -92,7 +105,11 @@ watch(textColor, (newColor) => {
 })
 
 const updateScrollSpeed = () => {
-  store.setScrollSpeed(scrollSpeed.value)
+  store.setScrollSpeed(31 - scrollSpeed.value) // Invert value before setting
+}
+
+const updateLateralMargin = () => {
+  store.setLateralMargin(lateralMargin.value)
 }
 
 const toggleEditMode = () => {

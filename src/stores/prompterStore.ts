@@ -34,7 +34,8 @@ This is the final line of text
     isMirrored: false, // Controls the horizontal flip of the text
     isReversed: false, // Controls the vertical flip of the text
     scrollPosition: 0, // Initial scroll position
-    textAlign: 'center'
+    textAlign: 'center',
+    lateralMargin: 0 // New state for lateral margin
   }),
   actions: {
     setFontSize(size: number) {
@@ -71,6 +72,10 @@ This is the final line of text
     setTextAlign(align: string) {
       this.textAlign = align
     },
+    setLateralMargin(margin: number) {
+      this.lateralMargin = margin
+    },
+
     getLineHeight() {
       return this.fontSize * 1.2
     },
