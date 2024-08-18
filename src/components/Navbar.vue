@@ -1,21 +1,26 @@
 <template>
   <div class="navbar" @keydown="handleKeydown" tabindex="0">
     <div class="control">
-      <button class="fullscreen-btn" @click="toggleFullScreen" title="Toggle Full Screen">
+      <button
+        class="fullscreen-btn"
+        @click="toggleFullScreen"
+        title="Toggle Full Screen"
+        tabindex="-1"
+      >
         <font-awesome-icon icon="expand" class="icon-color" />
       </button>
     </div>
 
     <div class="control">
       <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
-      <select id="fontSize" v-model="fontSize" @change="updateFontSize">
+      <select id="fontSize" v-model="fontSize" @change="updateFontSize" tabindex="-1">
         <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
       </select>
     </div>
 
     <div class="control">
       <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
-      <input type="color" id="textColor" v-model="textColor" />
+      <input type="color" id="textColor" v-model="textColor" tabindex="-1" />
     </div>
 
     <div class="control">
@@ -27,6 +32,7 @@
         max="30"
         v-model="scrollSpeed"
         @input="updateScrollSpeed"
+        tabindex="-1"
       />
     </div>
 
@@ -39,49 +45,78 @@
         max="50"
         v-model="lateralMargin"
         @input="updateLateralMargin"
+        tabindex="-1"
       />
     </div>
 
     <div class="control">
-      <!-- <label for="editButton">Edit</label> -->
-      <button class="edit-btn" id="editButton" @click="toggleEditMode" title="Toggle Edit Mode">
+      <button
+        class="edit-btn"
+        id="editButton"
+        @click="toggleEditMode"
+        title="Toggle Edit Mode"
+        tabindex="-1"
+      >
         <font-awesome-icon :icon="isEditing ? 'times' : 'pen'" class="icon-color" />
       </button>
     </div>
 
     <div class="control play-stop-group">
-      <button class="play-btn" @click="togglePlay" title="Play/Pause">
+      <button class="play-btn" @click="togglePlay" title="Play/Pause" tabindex="-1">
         <font-awesome-icon :icon="isPlayingComputed ? 'pause' : 'play'" class="icon-color" />
       </button>
-      <button class="stop-btn" @click="stopScrolling" title="Stop">
+      <button class="stop-btn" @click="stopScrolling" title="Stop" tabindex="-1">
         <font-awesome-icon icon="stop" class="icon-color" />
       </button>
     </div>
 
     <div class="control scroll-group">
-      <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up">
+      <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
         <font-awesome-icon icon="arrow-up" class="icon-color" />
       </button>
-      <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down">
+      <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
         <font-awesome-icon icon="arrow-down" class="icon-color" />
       </button>
     </div>
 
     <div class="control align-group">
-      <button id="alignLeftButton" class="align-btn" @click="alignLeft" title="Align Left">
+      <button
+        id="alignLeftButton"
+        class="align-btn"
+        @click="alignLeft"
+        title="Align Left"
+        tabindex="-1"
+      >
         <font-awesome-icon icon="align-left" class="icon-color" />
       </button>
-      <button id="alignCenterButton" class="align-btn" @click="alignCenter" title="Align Center">
+      <button
+        id="alignCenterButton"
+        class="align-btn"
+        @click="alignCenter"
+        title="Align Center"
+        tabindex="-1"
+      >
         <font-awesome-icon icon="align-center" class="icon-color" />
       </button>
-      <button id="alignRightButton" class="align-btn" @click="alignRight" title="Align Right">
+      <button
+        id="alignRightButton"
+        class="align-btn"
+        @click="alignRight"
+        title="Align Right"
+        tabindex="-1"
+      >
         <font-awesome-icon icon="align-right" class="icon-color" />
       </button>
     </div>
 
     <div class="control mirror-reverse-group">
-      <!-- <label>Mirror/Reverse Mode</label> -->
-      <button id="mirrorButton" class="mirror-btn" @click="toggleMirror" title="Toggle Mirror Mode">
+      <button
+        id="mirrorButton"
+        class="mirror-btn"
+        @click="toggleMirror"
+        title="Toggle Mirror Mode"
+        tabindex="-1"
+      >
         <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
       </button>
       <button
@@ -89,6 +124,7 @@
         class="reverse-btn"
         @click="toggleReverse"
         title="Toggle Reverse Mode"
+        tabindex="-1"
       >
         <font-awesome-icon :icon="isReversed ? 'angles-up' : 'angles-down'" class="icon-color" />
       </button>
@@ -107,6 +143,7 @@
         max="100"
         v-model="highlightPosition"
         @input="updateHighlightPosition"
+        tabindex="-1"
       />
     </div>
   </div>
@@ -225,7 +262,7 @@ const handleKeydown = (event: KeyboardEvent) => {
         updateHighlightPosition()
       }
       break
-    case ' ':
+    case 'End':
       togglePlay()
       break
     case 'Home':
