@@ -1,6 +1,12 @@
 <template>
   <div class="navbar" @keydown="handleKeydown" tabindex="0">
     <div class="control">
+      <button class="fullscreen-btn" @click="toggleFullScreen" title="Toggle Full Screen">
+        <font-awesome-icon icon="expand" class="icon-color" />
+      </button>
+    </div>
+
+    <div class="control">
       <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
       <select id="fontSize" v-model="fontSize" @change="updateFontSize">
         <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
@@ -228,6 +234,16 @@ const handleKeydown = (event: KeyboardEvent) => {
   }
 }
 
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
+    })
+  } else {
+    document.exitFullscreen()
+  }
+}
+
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
 })
@@ -299,7 +315,8 @@ input[type='color'] {
 .mirror-btn,
 .reverse-btn,
 .scroll-btn,
-.align-btn {
+.align-btn,
+.fullscreen-btn {
   background: none;
   border: none;
   cursor: pointer;
