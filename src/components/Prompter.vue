@@ -147,7 +147,14 @@ onUnmounted(() => {
 })
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+$highlight-color: rgba(147, 159, 123, 0.3);
+$background-color: #000000;
+$text-color: inherit;
+$line-height: 1.4;
+$blur-opacity: 0.5;
+$blur-amount: 2px;
+
 .prompter {
   height: calc(100vh - 60px);
   margin: 20px auto;
@@ -156,7 +163,7 @@ onUnmounted(() => {
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  background-color: #000000;
+  background-color: $background-color;
   overflow: hidden;
 }
 
@@ -165,18 +172,18 @@ onUnmounted(() => {
   width: 100%;
   height: 100%;
   overflow-y: hidden;
-  color: inherit; /* Inherits color from parent div */
-  line-height: 1.4; /* Ajusta el interlineado */
+  color: $text-color; /* Inherits color from parent div */
+  line-height: $line-height; /* Ajusta el interlineado */
 }
 
 .text-area {
   width: 100%;
   height: 100%;
   font-size: inherit;
-  color: inherit; /* Inherits color from parent div */
+  color: $text-color; /* Inherits color from parent div */
   padding: 10px;
   box-sizing: border-box;
-  background-color: #000000;
+  background-color: $background-color;
 }
 
 .text-align-left {
@@ -197,14 +204,14 @@ onUnmounted(() => {
   left: 0;
   width: 100%;
   height: calc(3 * 1em); /* Altura de tres líneas de texto */
-  background-color: rgb(147, 159, 123, 0.3); /* Fondo con transparencia */
+  background-color: $highlight-color; /* Fondo con transparencia */
   transform: translateY(-50%); /* Centrar verticalmente */
   pointer-events: none; /* Permitir clics a través de la overlay */
 }
 
 /* Nueva clase para el texto difuminado */
 .blurred-text {
-  filter: blur(2px) opacity(0.5); /* Aplica desenfoque y reduce opacidad */
+  filter: blur($blur-amount) opacity($blur-opacity); /* Aplica desenfoque y reduce opacidad */
 }
 
 /* Estilo para el texto bajo la highlight-overlay */

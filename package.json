@@ -1,6 +1,6 @@
 {
   "name": "apuntador",
-  "version": "1.0.6",
+  "version": "1.1.0",
   "private": true,
   "type": "module",
   "main": "main.js",
@@ -20,6 +20,9 @@
     "electron:build": "vite build && electron-builder"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^6.6.0",
+    "@fortawesome/free-solid-svg-icons": "^6.6.0",
+    "@fortawesome/vue-fontawesome": "^3.0.8",
     "marked": "^14.0.0",
     "pinia": "^2.1.7",
     "vue": "^3.4.29",
@@ -46,6 +49,8 @@
     "jsdom": "^24.1.0",
     "npm-run-all2": "^6.2.0",
     "prettier": "^3.2.5",
+    "sass": "^1.77.8",
+    "sass-loader": "^16.0.0",
     "typescript": "~5.4.0",
     "vite": "^5.3.1",
     "vitest": "^1.6.0",
