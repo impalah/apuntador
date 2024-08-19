@@ -1,6 +1,13 @@
 <template>
   <div>
     <div class="navbar" @keydown="handleKeydown" tabindex="0">
+      <div class="logo-container">
+        <a href="https://apuntador.io" target="_blank" rel="noopener noreferrer">
+          <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
+          <span class="app-name">apuntador</span>
+        </a>
+      </div>
+
       <div class="control">
         <button
           class="fullscreen-btn"
@@ -330,10 +337,34 @@ body {
   background-color: $navbar-bg-color;
   display: flex;
   align-items: center;
-  justify-content: space-around;
+  justify-content: space-between; /* Cambiado de space-around a space-between */
   outline: none; /* Para evitar el borde de enfoque */
   z-index: 1000; /* Asegura que el navbar esté por encima de otros elementos */
   border-bottom: 2px solid $border-color; /* Añade un borde al navbar */
+  padding: 0 10px; /* Añade padding a los lados del navbar */
+}
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo-container a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.app-logo {
+  width: 48px;
+  height: 48px;
+  margin-right: 10px;
+}
+
+.app-name {
+  color: $icon-color;
+  font-size: 24px;
+  font-weight: bold;
 }
 
 .control {
