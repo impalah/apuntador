@@ -68,6 +68,14 @@ variable "frontend_bucket_name" {
   default     = null
 }
 
+# Web Frontend
+variable "web_frontend_bucket_name" {
+  description = "Web Bucket name"
+  type        = string
+  default     = null
+}
+
+
 variable "frontend_s3_endpoint" {
   description = "S3 endpoint"
   type        = string
@@ -102,3 +110,10 @@ variable "cdn_domains" {
   type        = list(string)
   default     = []
 }
+
+variable "web_cdn_domains" {
+  description = "Domains for Cloudfront Web"
+  type        = list(string)
+  default     = []
+}
+
