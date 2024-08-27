@@ -62,14 +62,11 @@ Brought to you by [Impalah](https://github.com/impalah)
     },
     toggleMirror() {
       this.isMirrored = !this.isMirrored
-      console.log('ToggleMirrored: ', this.isMirrored)
     },
     toggleReverse() {
       this.isReversed = !this.isReversed
-      console.log('ToggleReversed: ', this.isReversed)
     },
     stopScrolling() {
-      console.log('Stop scrolling: ', this.scrollPosition)
       this.isPlaying = false
       this.scrollPosition = 0
     },

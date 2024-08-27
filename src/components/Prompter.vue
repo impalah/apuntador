@@ -77,7 +77,6 @@ const scrollText = () => {
     if (scrollTop + clientHeight + 2 >= scrollHeight) {
       store.togglePlay()
       clearInterval(scrollInterval)
-      console.log('Reached the end, stopping play')
     } else {
       store.scrollPosition = scrollContainer.value.scrollTop + 2
     }
@@ -88,10 +87,8 @@ const scrollText = () => {
 watch(
   () => store.scrollPosition,
   (newVal) => {
-    console.log('scrollPosition changed to:', newVal)
     if (scrollContainer.value) {
       scrollContainer.value.scrollTop = newVal
-      console.log('scrollPosition updated to:', newVal)
     }
   }
 )
@@ -99,7 +96,6 @@ watch(
 watch(
   () => store.isPlaying,
   (newVal) => {
-    console.log('isPlaying changed to:', newVal)
     if (newVal) {
       // Reduce the scroll speed by 10% to avoid reaching the end of the text
       scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -114,27 +110,12 @@ watch(
 watch(
   () => store.scrollSpeed,
   (newSpeed) => {
-    console.log('scrollSpeed changed to:', newSpeed)
     if (store.isPlaying) {
       if (scrollInterval !== undefined) {
         clearInterval(scrollInterval)
       }
       scrollInterval = window.setInterval(scrollText, newSpeed)
     }
-  }
-)
-
-watch(
-  () => store.lateralMargin,
-  (newMargin) => {
-    console.log('lateralMargin changed to:', newMargin)
-  }
-)
-
-watch(
-  () => store.highlightPosition,
-  (newPosition) => {
-    console.log('highlightPosition changed to:', newPosition)
   }
 )
 
