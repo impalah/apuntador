@@ -1,11 +1,15 @@
 import { defineStore } from 'pinia'
+import { useDefaultsStore } from './defaults'
 
-export const usePrompterStore = defineStore('prompter', {
-  state: () => ({
-    fontSize: 40,
-    textColor: '#ffffff', // Text color white by default
-    isEditing: false,
-    textContent: `# Welcome to Apuntador!!!
+export const useSettingsStore = defineStore('settings', {
+  state: () => {
+    const defaultsStore = useDefaultsStore()
+    return {
+      fontSize: defaultsStore.fontSize.default,
+      textColor: defaultsStore.textColor.default,
+      scrollSpeed: defaultsStore.scrollSpeed.default,
+      textAlign: defaultsStore.textAlignment.default,
+      textContent: `# Welcome to Apuntador!!!
 
 Apuntador can be used to display text in a teleprompter-like fashion.
 It is designed to be used in a secondary screen, while you are recording yourself with a camera in the main screen.
@@ -28,15 +32,15 @@ To start editing a text, first click on the "Advanced" button and then on the "E
 Brought to you by [Impalah](https://github.com/impalah)
     
     `,
-    isPlaying: false,
-    scrollSpeed: 20, // Initial scroll speed
-    isMirrored: false, // Controls the horizontal flip of the text
-    isReversed: false, // Controls the vertical flip of the text
-    scrollPosition: 0, // Initial scroll position
-    textAlign: 'center',
-    lateralMargin: 0, // New state for lateral margin
-    highlightPosition: 0 // New state for highlight position
-  }),
+      isEditing: false,
+      isPlaying: false,
+      isMirrored: false, // Controls the horizontal flip of the text
+      isReversed: false, // Controls the vertical flip of the text
+      scrollPosition: 0, // Initial scroll position
+      lateralMargin: 0, // New state for lateral margin
+      highlightPosition: 0 // New state for highlight position
+    }
+  },
   actions: {
     setFontSize(size: number) {
       this.fontSize = size

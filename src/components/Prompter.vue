@@ -35,10 +35,14 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
-import { usePrompterStore } from '@/stores/prompterStore'
+import { useSettingsStore } from '@/stores/settings'
+import { useDefaultsStore } from '@/stores/defaults'
+
 import { marked } from 'marked'
 
-const store = usePrompterStore()
+const store = useSettingsStore()
+const defaults = useDefaultsStore()
+
 const scrollContainer = ref<HTMLElement | null>(null)
 let scrollInterval: number | undefined = undefined
 

@@ -24,8 +24,8 @@
         <input
           type="range"
           id="scrollSpeed"
-          min="1"
-          max="30"
+          :min="defaults.scrollSpeed.min"
+          :max="defaults.scrollSpeed.max"
           v-model="scrollSpeed"
           @input="updateScrollSpeed"
           tabindex="-1"
@@ -66,7 +66,7 @@
     <div v-if="showAdvanced" class="advanced-options">
       <div class="control">
         <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
-        <input type="color" id="textColor" v-model="textColor" tabindex="-1" />
+        <input type="color" id="textColor" v-model="textColor" @change="updateTextColor" tabindex="-1" />
       </div>
 
       <div class="control">
@@ -93,7 +93,7 @@
         <button
           id="alignLeftButton"
           class="align-btn"
-          @click="alignLeft"
+          @click="setTextAlign('left')"
           title="Align Left"
           tabindex="-1"
         >
@@ -102,7 +102,7 @@
         <button
           id="alignCenterButton"
           class="align-btn"
-          @click="alignCenter"
+          @click="setTextAlign('center')"
           title="Align Center"
           tabindex="-1"
         >
@@ -111,7 +111,7 @@
         <button
           id="alignRightButton"
           class="align-btn"
-          @click="alignRight"
+          @click="setTextAlign('right')"
           title="Align Right"
           tabindex="-1"
         >
@@ -149,26 +149,48 @@
         <input
           type="range"
           id="highlightPosition"
-          min="0"
-          max="100"
+          :min="defaults.highlightPosition.min"
+          :max="defaults.highlightPosition.max"
           v-model="highlightPosition"
           @input="updateHighlightPosition"
           tabindex="-1"
         />
       </div>
+
+      <div class="control">
+        <font-awesome-icon
+          icon="arrows-alt-h"
+          class="icon-label icon-color"
+          title="Margin"
+        />
+        <input
+          type="range"
+          id="margin"
+          :min="defaults.margin.min"
+          :max="defaults.margin.max"
+          v-model="lateralMargin"
+          @input="updateLateralMargin"
+          tabindex="-1"
+        />      
+      </div>
+
+
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { usePrompterStore } from '@/stores/prompterStore'
+import { useSettingsStore } from '@/stores/settings'
+import { useDefaultsStore } from '@/stores/defaults'
 
-const store = usePrompterStore()
+const store = useSettingsStore()
+const defaults = useDefaultsStore()
 
 const fontSize = ref(store.fontSize)
 const textColor = ref(store.textColor)
-const scrollSpeed = ref(31 - store.scrollSpeed)
+const scrollSpeed = ref(defaults.scrollSpeed.maxConstant - store.scrollSpeed)
 const isEditing = ref(store.isEditing)
 const isPlaying = ref(store.isPlaying)
 const isMirrored = ref(store.isMirrored)
@@ -178,19 +200,19 @@ const lateralMargin = ref(store.lateralMargin)
 const highlightPosition = ref(store.highlightPosition)
 const showAdvanced = ref(false)
 
-const fontSizes = [40, 60, 80, 100, 120, 150, 200]
+const fontSizes = defaults.fontSize.values
 
 const updateFontSize = () => {
   store.setFontSize(fontSize.value)
 }
 
-watch(textColor, (newColor) => {
-  console.log('newColor', newColor)
-  store.setTextColor(newColor)
-})
+const updateTextColor = () => {
+  console.log('newColor', textColor.value)
+  store.setTextColor(textColor.value)
+}
 
 const updateScrollSpeed = () => {
-  store.setScrollSpeed(31 - scrollSpeed.value) // Invert value before setting
+  store.setScrollSpeed(defaults.scrollSpeed.maxConstant - scrollSpeed.value) // Invert value before setting
 }
 
 const updateLateralMargin = () => {
@@ -224,16 +246,8 @@ const toggleReverse = () => {
   isReversed.value = store.isReversed
 }
 
-const alignLeft = () => {
-  store.setTextAlign('left')
-}
-
-const alignCenter = () => {
-  store.setTextAlign('center')
-}
-
-const alignRight = () => {
-  store.setTextAlign('right')
+const setTextAlign = (align: string) => {
+  store.setTextAlign(align)
 }
 
 const isPlayingComputed = computed(() => store.isPlaying)
