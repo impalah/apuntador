@@ -38,7 +38,11 @@ import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
 
-import { marked } from 'marked'
+import { showdown } from 'vue-showdown';
+
+
+
+
 
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
@@ -50,7 +54,8 @@ const editedContent = ref(store.textContent)
 const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
-  return marked(store.textContent)
+  const converter = new showdown.Converter()
+  return converter.makeHtml(store.textContent);
 })
 
 watch(
