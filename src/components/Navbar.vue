@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="navbar" @keydown="handleKeydown" tabindex="0">
+    <div class="navbar" @keydown="handleKeydown">
       <div class="logo-container">
         <a href="https://apuntador.io" target="_blank" rel="noopener noreferrer">
           <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
