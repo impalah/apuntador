@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="navbar" @keydown="handleKeydown" tabindex="0">
+    <div class="navbar" @keydown="handleKeydown">
       <div class="logo-container">
         <a href="https://apuntador.io" target="_blank" rel="noopener noreferrer">
           <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
@@ -24,19 +24,27 @@
         <input
           type="range"
           id="scrollSpeed"
-          min="1"
-          max="30"
+          :min="defaults.scrollSpeed.min"
+          :max="defaults.scrollSpeed.max"
           v-model="scrollSpeed"
-          @input="updateScrollSpeed"
+          @input="invoker.addCommand(new UpdateScrollSpeedCommand(store, scrollSpeed, defaults.scrollSpeed.maxConstant)); invoker.executeCommands();"
           tabindex="-1"
         />
       </div>
 
       <div class="control play-stop-group">
-        <button class="play-btn" @click="togglePlay" title="Play/Pause" tabindex="-1">
-          <font-awesome-icon :icon="isPlayingComputed ? 'pause' : 'play'" class="icon-color" />
+        <button
+          class="play-btn"
+          @click="invoker.addCommand(new TogglePlayCommand(store)); invoker.executeCommands();"
+          title="Play/Pause"
+          tabindex="-1">
+          <font-awesome-icon :icon="isPlaying ? 'pause' : 'play'" class="icon-color" />
         </button>
-        <button class="stop-btn" @click="stopScrolling" title="Stop" tabindex="-1">
+        <button
+          class="stop-btn"
+          @click="invoker.addCommand(new StopScrollingCommand(store)); invoker.executeCommands();"
+          title="Stop"
+          tabindex="-1">
           <font-awesome-icon icon="stop" class="icon-color" />
         </button>
       </div>
@@ -66,12 +74,22 @@
     <div v-if="showAdvanced" class="advanced-options">
       <div class="control">
         <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
-        <input type="color" id="textColor" v-model="textColor" tabindex="-1" />
+        <input
+          type="color"
+          id="textColor"
+          v-model="textColor"
+          @change="invoker.addCommand(new UpdateTextColorCommand(store, textColor)); invoker.executeCommands();"
+          tabindex="-1"
+        >
       </div>
 
       <div class="control">
         <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
-        <select id="fontSize" v-model="fontSize" @change="updateFontSize" tabindex="-1">
+        <select
+          id="fontSize"
+          v-model="fontSize"
+          @change="invoker.addCommand(new UpdateFontSizeCommand(store, fontSize)); invoker.executeCommands();"
+          tabindex="-1">
           <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
         </select>
       </div>
@@ -80,7 +98,7 @@
         <button
           class="edit-btn"
           id="editButton"
-          @click="toggleEditMode"
+          @click="invoker.addCommand(new ToggleEditModeCommand(store, isEditing)); invoker.executeCommands();"
           title="Toggle Edit Mode"
           tabindex="-1"
         >
@@ -93,7 +111,7 @@
         <button
           id="alignLeftButton"
           class="align-btn"
-          @click="alignLeft"
+          @click="invoker.addCommand(new SetTextAlignCommand(store, 'left')); invoker.executeCommands();"
           title="Align Left"
           tabindex="-1"
         >
@@ -102,7 +120,7 @@
         <button
           id="alignCenterButton"
           class="align-btn"
-          @click="alignCenter"
+          @click="invoker.addCommand(new SetTextAlignCommand(store, 'center')); invoker.executeCommands();"
           title="Align Center"
           tabindex="-1"
         >
@@ -111,7 +129,7 @@
         <button
           id="alignRightButton"
           class="align-btn"
-          @click="alignRight"
+          @click="invoker.addCommand(new SetTextAlignCommand(store, 'right')); invoker.executeCommands();"
           title="Align Right"
           tabindex="-1"
         >
@@ -123,7 +141,7 @@
         <button
           id="mirrorButton"
           class="mirror-btn"
-          @click="toggleMirror"
+          @click="invoker.addCommand(new ToggleMirrorCommand(store)); invoker.executeCommands();"
           title="Toggle Mirror Mode"
           tabindex="-1"
         >
@@ -132,7 +150,7 @@
         <button
           id="reverseButton"
           class="reverse-btn"
-          @click="toggleReverse"
+          @click="invoker.addCommand(new ToggleReverseCommand(store)); invoker.executeCommands();"
           title="Toggle Reverse Mode"
           tabindex="-1"
         >
@@ -149,94 +167,96 @@
         <input
           type="range"
           id="highlightPosition"
-          min="0"
-          max="100"
+          :min="defaults.highlightPosition.min"
+          :max="defaults.highlightPosition.max"
           v-model="highlightPosition"
-          @input="updateHighlightPosition"
+          @input="invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition)); invoker.executeCommands();"
           tabindex="-1"
         />
       </div>
+
+      <div class="control">
+        <font-awesome-icon
+          icon="arrows-alt-h"
+          class="icon-label icon-color"
+          title="Margin"
+        />
+        <input
+          type="range"
+          id="margin"
+          :min="defaults.margin.min"
+          :max="defaults.margin.max"
+          v-model="lateralMargin"
+          @input="invoker.addCommand(new UpdateLateralMarginCommand(store, lateralMargin)); invoker.executeCommands();"
+          tabindex="-1"
+        />      
+      </div>
+
+
+
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { usePrompterStore } from '@/stores/prompterStore'
+import { useSettingsStore } from '@/stores/settings'
+import { useDefaultsStore } from '@/stores/defaults'
 
-const store = usePrompterStore()
+import { CommandInvoker } from '@/commands/CommandInvoker'
+import { UpdateFontSizeCommand } from '@/commands/UpdateFontSizeCommand'
+import { UpdateTextColorCommand } from '@/commands/UpdateTextColorCommand'
+import { UpdateScrollSpeedCommand } from '@/commands/UpdateScrollSpeedCommand'
+import { SetTextAlignCommand } from '@/commands/SetTextAlignCommand'
+import { UpdateLateralMarginCommand } from '@/commands/UpdateLateralMarginCommand'
+import { UpdateHighlightPositionCommand } from '@/commands/UpdateHighlightPositionCommand'
+import { ToggleEditModeCommand } from '@/commands/ToggleEditModeCommand'
+import { TogglePlayCommand } from '@/commands/TogglePlayCommand'
+import { StopScrollingCommand } from '@/commands/StopScrollingCommand'
+import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
+import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
+
+
+
+const store = useSettingsStore()
+const defaults = useDefaultsStore()
+
+const invoker = new CommandInvoker();
+
 
 const fontSize = ref(store.fontSize)
 const textColor = ref(store.textColor)
-const scrollSpeed = ref(31 - store.scrollSpeed)
+const scrollSpeed = ref(defaults.scrollSpeed.maxConstant - store.scrollSpeed)
 const isEditing = ref(store.isEditing)
-const isPlaying = ref(store.isPlaying)
 const isMirrored = ref(store.isMirrored)
 const isReversed = ref(store.isReversed)
-const textAlign = ref(store.textAlign)
 const lateralMargin = ref(store.lateralMargin)
 const highlightPosition = ref(store.highlightPosition)
 const showAdvanced = ref(false)
 
-const fontSizes = [40, 60, 80, 100, 120, 150, 200]
+const fontSizes = defaults.fontSize.values
 
-const updateFontSize = () => {
-  store.setFontSize(fontSize.value)
+
+
+
+const toggleFullScreen = () => {
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().catch((err) => {
+      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
+    })
+  } else {
+    document.exitFullscreen()
+  }
 }
 
-watch(textColor, (newColor) => {
-  console.log('newColor', newColor)
-  store.setTextColor(newColor)
-})
-
-const updateScrollSpeed = () => {
-  store.setScrollSpeed(31 - scrollSpeed.value) // Invert value before setting
+const toggleAdvanced = () => {
+  showAdvanced.value = !showAdvanced.value
 }
 
-const updateLateralMargin = () => {
-  store.setLateralMargin(lateralMargin.value)
-}
 
-const updateHighlightPosition = () => {
-  store.setHighlightPosition(highlightPosition.value)
-}
 
-const toggleEditMode = () => {
-  isEditing.value = !isEditing.value
-  store.setEditingMode(isEditing.value)
-}
 
-const togglePlay = () => {
-  store.togglePlay()
-}
-
-const stopScrolling = () => {
-  store.stopScrolling() // Reset the scroll position
-}
-
-const toggleMirror = () => {
-  store.toggleMirror()
-  isMirrored.value = store.isMirrored
-}
-
-const toggleReverse = () => {
-  store.toggleReverse()
-  isReversed.value = store.isReversed
-}
-
-const alignLeft = () => {
-  store.setTextAlign('left')
-}
-
-const alignCenter = () => {
-  store.setTextAlign('center')
-}
-
-const alignRight = () => {
-  store.setTextAlign('right')
-}
-
-const isPlayingComputed = computed(() => store.isPlaying)
+const isPlaying = computed(() => store.isPlaying)
 
 const handleKeydown = (event: KeyboardEvent) => {
   if (isEditing.value) {
@@ -253,48 +273,40 @@ const handleKeydown = (event: KeyboardEvent) => {
     case 'ArrowLeft':
       if (scrollSpeed.value > 1) {
         scrollSpeed.value -= 1
-        updateScrollSpeed()
+        invoker.addCommand(new UpdateScrollSpeedCommand(store, scrollSpeed.value, defaults.scrollSpeed.maxConstant))
+        invoker.executeCommands();
       }
       break
     case 'ArrowRight':
       if (scrollSpeed.value < 30) {
         scrollSpeed.value += 1
-        updateScrollSpeed()
+        invoker.addCommand(new UpdateScrollSpeedCommand(store, scrollSpeed.value, defaults.scrollSpeed.maxConstant))
+        invoker.executeCommands();
       }
       break
     case 'PageDown':
       if (highlightPosition.value < 100) {
         highlightPosition.value += 1
-        updateHighlightPosition()
+        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
+        invoker.executeCommands()
       }
       break
     case 'PageUp':
       if (highlightPosition.value > 0) {
         highlightPosition.value -= 1
-        updateHighlightPosition()
+        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
+        invoker.executeCommands()
       }
       break
     case 'End':
-      togglePlay()
+      invoker.addCommand(new TogglePlayCommand(store))
+      invoker.executeCommands()
       break
     case 'Home':
-      stopScrolling()
+      invoker.addCommand(new StopScrollingCommand(store))
+      invoker.executeCommands()
       break
   }
-}
-
-const toggleFullScreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch((err) => {
-      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
-    })
-  } else {
-    document.exitFullscreen()
-  }
-}
-
-const toggleAdvanced = () => {
-  showAdvanced.value = !showAdvanced.value
 }
 
 onMounted(() => {
