@@ -1,12 +1,47 @@
 <template>
   <div>
     <div class="navbar" @keydown="handleKeydown">
+
       <div class="logo-container">
-        <a href="https://apuntador.io" target="_blank" rel="noopener noreferrer">
+        
+        <a href="https://apuntador.io" class="link-with-margin" target="_blank" rel="noopener noreferrer">
           <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
           <span class="app-name">apuntador</span>
         </a>
+
+        <div class="control">
+          <button
+            class="advanced-btn"
+            id="advancedButton"
+            :class="{ 'active-btn': showAdvanced }"
+            @click="toggleAdvanced"
+            title="Toggle Advanced Options"
+            tabindex="-1"
+          >
+            <font-awesome-icon icon="cogs" class="icon-color" />
+          </button>
+        </div>
+
+        <div class="control">
+          <button
+            class="edit-btn"
+            id="editButton"
+            :class="{ 'active-btn': isEditing }"
+            @click="isEditing=!isEditing; invoker.addCommand(new ToggleEditModeCommand(store, isEditing)); invoker.executeCommands();"
+            title="Toggle Edit Mode"
+            tabindex="-1"
+          >
+            <font-awesome-icon icon="pen" class="icon-color" />
+
+            <!-- <font-awesome-icon :icon="isEditing ? 'times' : 'pen'" class="icon-color" /> -->
+          </button>
+        </div>
+
+
       </div>
+
+
+
 
       <div class="control">
         <button
@@ -58,17 +93,6 @@
         </button>
       </div>
 
-      <div class="control">
-        <button
-          class="advanced-btn"
-          @click="toggleAdvanced"
-          title="Toggle Advanced Options"
-          tabindex="-1"
-        >
-          <font-awesome-icon icon="cogs" class="icon-color" />
-        </button>
-        <span v-if="showAdvanced" class="advanced-mode-label">Advanced Mode. Click to close</span>
-      </div>
     </div>
 
     <div v-if="showAdvanced" class="advanced-options">
@@ -94,18 +118,6 @@
         </select>
       </div>
 
-      <div class="control">
-        <button
-          class="edit-btn"
-          id="editButton"
-          @click="invoker.addCommand(new ToggleEditModeCommand(store, isEditing)); invoker.executeCommands();"
-          title="Toggle Edit Mode"
-          tabindex="-1"
-        >
-          <font-awesome-icon :icon="isEditing ? 'times' : 'pen'" class="icon-color" />
-        </button>
-        <span v-if="isEditing" class="edit-mode-label">Edit mode</span>
-      </div>
 
       <div class="control">
         <button
@@ -321,6 +333,7 @@ onBeforeUnmount(() => {
 <style lang="scss" scoped>
 $navbar-height: 45px;
 $navbar-bg-color: #191818;
+$navbar-padding: 15px;
 $button-gap: 1px;
 $label-margin-right: 3px;
 $input-padding: 5px;
@@ -329,10 +342,24 @@ $button-font-size: 24px; /* Aumenta el tamaño de la fuente de los botones */
 $button-padding: 10px; /* Añade padding a los botones para hacerlos más grandes */
 $icon-color: #ffffff; /* Cambia este valor al color deseado */
 $border-color: #ffffff; /* Color del borde */
+$control-margin: 10px;
+$icon-hover-color: hsla(160, 100%, 37%, 0.2);
+$icon-padding: 5px;
+$active-button-color: hsla(160, 100%, 37%, 0.2);
+$active-button-text-color: white;
+
 
 .icon-color {
   color: $icon-color;
+  padding: $button-padding;
 }
+
+@media (hover: hover) {
+  .icon-color:hover {
+    background-color: $icon-hover-color
+  }
+}
+
 
 html,
 body {
@@ -349,11 +376,13 @@ body {
   background-color: $navbar-bg-color;
   display: flex;
   align-items: center;
-  justify-content: space-between; /* Cambiado de space-around a space-between */
-  outline: none; /* Para evitar el borde de enfoque */
-  z-index: 1000; /* Asegura que el navbar esté por encima de otros elementos */
-  border-bottom: 2px solid $border-color; /* Añade un borde al navbar */
-  padding: 0 10px; /* Añade padding a los lados del navbar */
+  justify-content: space-between;
+  outline: none;
+  z-index: 1000;
+  border-bottom: 2px solid $border-color;
+  padding-left: $navbar-padding;
+  padding-right: $navbar-padding;
+
 }
 
 .logo-container {
@@ -382,7 +411,14 @@ body {
 .control {
   display: flex;
   align-items: center;
+  margin-left: $control-margin;
+  margin-right: $control-margin;
 }
+
+.link-with-margin {
+  margin-right: $control-margin;
+}
+
 
 .align-group,
 .mirror-reverse-group,
@@ -454,4 +490,10 @@ input[type='color'] {
   margin-left: 10px;
   font-weight: bold;
 }
+
+.active-btn {
+  background-color: $active-button-color;
+  color: $active-button-text-color;
+}
+
 </style>
