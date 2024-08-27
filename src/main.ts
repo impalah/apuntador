@@ -1,4 +1,4 @@
-import './assets/main.css'
+import './assets/main.scss'
 
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
@@ -10,11 +10,22 @@ import router from './router'
 import { library } from '@fortawesome/fontawesome-svg-core'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
 import { fas } from '@fortawesome/free-solid-svg-icons'
+import { VueShowdownPlugin, showdown } from 'vue-showdown';
+
 
 // Añade todos los iconos sólidos a la biblioteca
 library.add(fas)
 
 const app = createApp(App)
+
+app.use(VueShowdownPlugin, {
+    // set default flavor of showdown
+    flavor: 'github',
+    // set default options of showdown (will override the flavor options)
+    options: {
+      emoji: true,
+    },
+});
 
 app.use(createPinia())
 app.use(router)

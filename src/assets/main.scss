@@ -1,0 +1,60 @@
+// Variables
+$base-padding: 2rem;
+$base-background-color: #000;
+$navbar-height: 40px;
+$navbar-background-color: #f0f0f0;
+$link-color: hsla(160, 100%, 37%, 1);
+$link-hover-background-color: hsla(160, 100%, 37%, 0.2);
+$transition-duration: 0.4s;
+$media-query-min-width: 1024px;
+
+// Import base styles
+@import './base.scss';
+
+#app {
+  // Elimina el max-width para permitir que ocupe todo el ancho
+  width: 100%;
+  margin: 0;
+  padding: $base-padding;
+  // font-weight: normal;
+}
+
+@media (min-width: $media-query-min-width) {
+  body {
+    display: flex;
+    place-items: center;
+  }
+
+  #app {
+    // Ajusta para que se mantenga la estructura en pantallas grandes
+    display: block;
+    padding: 0 $base-padding;
+  }
+}
+
+.general {
+  background-color: $base-background-color;
+}
+
+.navbar {
+  width: 100%;
+  height: $navbar-height; // Ajusta según sea necesario
+  background-color: $navbar-background-color;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+}
+
+a,
+.green {
+  text-decoration: none;
+  color: $link-color;
+  transition: $transition-duration;
+  padding: 3px;
+}
+
+@media (hover: hover) {
+  a:hover {
+    background-color: $link-hover-background-color;
+  }
+}
