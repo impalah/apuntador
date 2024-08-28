@@ -20,6 +20,7 @@ export const useSettingsStore = defineStore('settings', {
       highlightPosition: defaultsStore.highlightPosition.default,
       highlightBackgroundColor: defaultsStore.highlightBackgroundColor,
       highlightArrowColor: defaultsStore.highlightArrowColor.default,
+      highlightArrowSize: defaultsStore.highlightArrowSize.default,
       maxTop: 0
     }
   },
@@ -69,6 +70,9 @@ export const useSettingsStore = defineStore('settings', {
     // },
     setHighlightArrowColor(color: string) {
       this.highlightArrowColor = color
+    },
+    setHighlightArrowSize(size: string) {
+      this.highlightArrowSize = size
     },
     getLineHeight() {
       return this.fontSize * 1.2

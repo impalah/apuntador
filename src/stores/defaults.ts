@@ -33,6 +33,9 @@ export const useDefaultsStore = defineStore('defaults', {
     highlightArrowColor: {
       default: "#007bff"
     },
+    highlightArrowSize: {
+      default: "2em"
+    },
     textAlignment: {
         default: 'center'
     },

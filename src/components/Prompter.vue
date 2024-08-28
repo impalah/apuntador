@@ -32,14 +32,16 @@
           icon="caret-right"
           class="left-arrow"
           :style="{
-            color: store.highlightArrowColor
+            color: store.highlightArrowColor,
+            fontSize: store.highlightArrowSize
           }"
         />
         <font-awesome-icon
           icon="caret-left"
           class="right-arrow"
           :style="{
-            color: store.highlightArrowColor
+            color: store.highlightArrowColor,
+            fontSize: store.highlightArrowSize
           }"
         />
       </div>
@@ -189,8 +191,6 @@ onMounted(() => {
 
 <style lang="scss" scoped>
 $text-color: inherit;
-$highlight-arrow-color: #007bff;
-$highlight-arrow-size: 2em;
 $line-height: 1.4;
 $blur-opacity: 0.5;
 $blur-amount: 2px;
@@ -249,11 +249,6 @@ $text-content-margin: 1em;
   align-items: center;
   justify-content: space-between;
   padding: 0 10px; /* Pequeña separación de los bordes verticales */
-}
-
-.left-arrow,
-.right-arrow {
-  font-size: $highlight-arrow-size; /* Ajusta el tamaño según sea necesario */
 }
 
 .left-arrow {
