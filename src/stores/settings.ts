@@ -16,7 +16,7 @@ export const useSettingsStore = defineStore('settings', {
       isReversed: false, // Controls the vertical flip of the text
       scrollPosition: 0, // Initial scroll position
       lateralMargin: 0, // New state for lateral margin
-      highlightPosition: 0 // New state for highlight position
+      highlightPosition: defaultsStore.highlightPosition.default
     }
   },
   actions: {
@@ -56,6 +56,7 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     setHighlightPosition(position: number) {
+      console.log('Setting highlight position to', position)
       this.highlightPosition = position
     },
     getLineHeight() {

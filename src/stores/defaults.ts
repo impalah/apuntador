@@ -7,8 +7,8 @@ export const useDefaultsStore = defineStore('defaults', {
       max: 50
     },
     highlightPosition: {
-      min: 0,
-      max: 100,
+      min: 4,
+      max: 94,
       default: 50
     },
     scrollSpeed: {

@@ -20,7 +20,10 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
-      <div class="highlight-overlay" :style="{ top: `${store.highlightPosition}%` }"></div>
+      <div class="highlight-overlay" :style="{ top: `${store.highlightPosition}%` }">
+        <font-awesome-icon icon="caret-right" class="left-arrow" />
+        <font-awesome-icon icon="caret-left" class="right-arrow" />
+      </div>
 
       <div class="text-content" v-html="formattedTextContent"></div>
     </div>
@@ -39,10 +42,6 @@ import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
 
 import { showdown } from 'vue-showdown';
-
-
-
-
 
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
@@ -141,9 +140,12 @@ onUnmounted(() => {
 $highlight-color: rgba(147, 159, 123, 0.3);
 $background-color: #000000;
 $text-color: inherit;
+$highlight-arrow-color: #007bff;
+$highlight-arrow-size: 2em;
 $line-height: 1.4;
 $blur-opacity: 0.5;
 $blur-amount: 2px;
+$text-content-margin: 1em;
 
 .prompter {
   height: calc(100vh - 60px);
@@ -190,14 +192,36 @@ $blur-amount: 2px;
 
 .highlight-overlay {
   position: absolute;
-  /* top: 50%; */
   left: 0;
   width: 100%;
   height: calc(3 * 1em); /* Altura de tres líneas de texto */
   background-color: $highlight-color; /* Fondo con transparencia */
   transform: translateY(-50%); /* Centrar verticalmente */
   pointer-events: none; /* Permitir clics a través de la overlay */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px; /* Pequeña separación de los bordes verticales */
 }
+
+.left-arrow,
+.right-arrow {
+  color: $highlight-arrow-color;
+  font-size: $highlight-arrow-size; /* Ajusta el tamaño según sea necesario */
+}
+
+.left-arrow {
+  margin-right: 0;
+}
+
+.right-arrow {
+  margin-left: 0;
+}
+
+.text-content {
+  margin: $text-content-margin; /* Fixed margins around the div */
+}
+
 
 /* Nueva clase para el texto difuminado */
 .blurred-text {
