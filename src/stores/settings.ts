@@ -16,7 +16,8 @@ export const useSettingsStore = defineStore('settings', {
       isReversed: false, // Controls the vertical flip of the text
       scrollPosition: 0, // Initial scroll position
       lateralMargin: 0, // New state for lateral margin
-      highlightPosition: defaultsStore.highlightPosition.default
+      highlightPosition: defaultsStore.highlightPosition.default,
+      maxTop: 0
     }
   },
   actions: {
@@ -44,9 +45,12 @@ export const useSettingsStore = defineStore('settings', {
     toggleReverse() {
       this.isReversed = !this.isReversed
     },
-    stopScrolling() {
+    scrollBegin() {
       this.isPlaying = false
       this.scrollPosition = 0
+    },
+    scrollEnd() {
+      this.scrollPosition = this.maxTop - 1
     },
     setTextAlign(align: string) {
       this.textAlign = align
@@ -56,7 +60,6 @@ export const useSettingsStore = defineStore('settings', {
     },
 
     setHighlightPosition(position: number) {
-      console.log('Setting highlight position to', position)
       this.highlightPosition = position
     },
     getLineHeight() {
@@ -64,9 +67,20 @@ export const useSettingsStore = defineStore('settings', {
     },
     scrollUp() {
       this.scrollPosition -= this.getLineHeight()
+      if (this.scrollPosition < 0) {
+        this.scrollPosition = 0
+      }
     },
     scrollDown() {
+      if (this.scrollPosition + this.getLineHeight() > this.maxTop) {
+        this.scrollPosition = this.maxTop
+        return
+      }
       this.scrollPosition += this.getLineHeight()
-    }
+    },
+    setMaxTop(position: number) {
+      this.maxTop = position
+    },
+
   }
 })

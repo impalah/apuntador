@@ -76,9 +76,10 @@ const updateTextContent = () => {
 
 const scrollText = () => {
   if (scrollContainer.value) {
+
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
 
-    if (scrollTop + clientHeight + 2 >= scrollHeight) {
+    if (scrollTop +2 >= store.maxTop) {
       store.togglePlay()
       clearInterval(scrollInterval)
     } else {
@@ -91,8 +92,17 @@ const scrollText = () => {
 watch(
   () => store.scrollPosition,
   (newVal) => {
+
     if (scrollContainer.value) {
-      scrollContainer.value.scrollTop = newVal
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+      const maxTop = scrollHeight - clientHeight - 2
+
+      // Check if the scroll is at the end
+      if (newVal < maxTop) {
+        scrollContainer.value.scrollTop = newVal
+      }
+
     }
   }
 )
@@ -127,12 +137,34 @@ onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
   }
-})
 
-onUnmounted(() => {
-  if (scrollInterval !== undefined) {
-    clearInterval(scrollInterval)
+  // Initialize ResizeObserver
+  const resizeObserver = new ResizeObserver(() => {
+    // Command to execute when scrollContainer changes size
+    if (scrollContainer.value) {
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+      const maxTop = scrollHeight - clientHeight - 2
+
+      store.setMaxTop(maxTop)
+
+
   }
+
+
+
+  });
+
+  if (scrollContainer.value) {
+    resizeObserver.observe(scrollContainer.value);
+  }
+
+  onUnmounted(() => {
+    if (scrollInterval !== undefined) {
+      clearInterval(scrollInterval)
+    }
+    resizeObserver.disconnect();
+  });
 })
 </script>
 
@@ -221,7 +253,6 @@ $text-content-margin: 1em;
 .text-content {
   margin: $text-content-margin; /* Fixed margins around the div */
 }
-
 
 /* Nueva clase para el texto difuminado */
 .blurred-text {
