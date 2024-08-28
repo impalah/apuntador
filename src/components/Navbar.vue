@@ -37,13 +37,7 @@
           </button>
         </div>
 
-
-      </div>
-
-
-
-
-      <div class="control">
+        <div class="control">
         <button
           class="fullscreen-btn"
           @click="toggleFullScreen"
@@ -53,6 +47,12 @@
           <font-awesome-icon icon="expand" class="icon-color" />
         </button>
       </div>
+
+
+
+      </div>
+
+
 
       <div class="control play-stop-group">
         <button

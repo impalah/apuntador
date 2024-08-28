@@ -4,6 +4,7 @@
     :style="{
       fontSize: `${store.fontSize}px`,
       color: store.textColor,
+      backgroundColor: store.backgroundColor,
       transform: `${store.isMirrored ? 'scaleX(-1)' : 'scaleX(1)'} ${store.isReversed ? 'scaleY(-1)' : 'scaleY(1)'}`,
       marginLeft: `${store.lateralMargin}%`,
       marginRight: `${store.lateralMargin}%`,
@@ -20,9 +21,27 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
-      <div class="highlight-overlay" :style="{ top: `${store.highlightPosition}%` }">
-        <font-awesome-icon icon="caret-right" class="left-arrow" />
-        <font-awesome-icon icon="caret-left" class="right-arrow" />
+      <div
+        class="highlight-overlay"
+        :style="{
+          top: `${store.highlightPosition}%`,
+          backgroundColor: store.highlightBackgroundColor.default
+        }"
+        >
+        <font-awesome-icon
+          icon="caret-right"
+          class="left-arrow"
+          :style="{
+            color: store.highlightArrowColor
+          }"
+        />
+        <font-awesome-icon
+          icon="caret-left"
+          class="right-arrow"
+          :style="{
+            color: store.highlightArrowColor
+          }"
+        />
       </div>
 
       <div class="text-content" v-html="formattedTextContent"></div>
@@ -169,8 +188,6 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-$highlight-color: rgba(147, 159, 123, 0.3);
-$background-color: #000000;
 $text-color: inherit;
 $highlight-arrow-color: #007bff;
 $highlight-arrow-size: 2em;
@@ -187,7 +204,6 @@ $text-content-margin: 1em;
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  background-color: $background-color;
   overflow: hidden;
 }
 
@@ -207,7 +223,7 @@ $text-content-margin: 1em;
   color: $text-color; /* Inherits color from parent div */
   padding: 10px;
   box-sizing: border-box;
-  background-color: $background-color;
+  background-color: inherit;
 }
 
 .text-align-left {
@@ -227,7 +243,6 @@ $text-content-margin: 1em;
   left: 0;
   width: 100%;
   height: calc(3 * 1em); /* Altura de tres líneas de texto */
-  background-color: $highlight-color; /* Fondo con transparencia */
   transform: translateY(-50%); /* Centrar verticalmente */
   pointer-events: none; /* Permitir clics a través de la overlay */
   display: flex;
@@ -238,7 +253,6 @@ $text-content-margin: 1em;
 
 .left-arrow,
 .right-arrow {
-  color: $highlight-arrow-color;
   font-size: $highlight-arrow-size; /* Ajusta el tamaño según sea necesario */
 }
 

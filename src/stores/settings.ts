@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore('settings', {
     return {
       fontSize: defaultsStore.fontSize.default,
       textColor: defaultsStore.textColor.default,
+      backgroundColor: defaultsStore.backgroundColor.default,
       scrollSpeed: defaultsStore.scrollSpeed.default,
       textAlign: defaultsStore.textAlignment.default,
       textContent: defaultsStore.textContent,
@@ -17,6 +18,8 @@ export const useSettingsStore = defineStore('settings', {
       scrollPosition: 0, // Initial scroll position
       lateralMargin: 0, // New state for lateral margin
       highlightPosition: defaultsStore.highlightPosition.default,
+      highlightBackgroundColor: defaultsStore.highlightBackgroundColor,
+      highlightArrowColor: defaultsStore.highlightArrowColor.default,
       maxTop: 0
     }
   },
@@ -58,9 +61,14 @@ export const useSettingsStore = defineStore('settings', {
     setLateralMargin(margin: number) {
       this.lateralMargin = margin
     },
-
     setHighlightPosition(position: number) {
       this.highlightPosition = position
+    },
+    // setHighlightBackgroundColor(color: string) {
+    //   this.highlightBackgroundColor = color
+    // },
+    setHighlightArrowColor(color: string) {
+      this.highlightArrowColor = color
     },
     getLineHeight() {
       return this.fontSize * 1.2

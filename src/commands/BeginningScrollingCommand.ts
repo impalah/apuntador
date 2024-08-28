@@ -1,4 +1,4 @@
-// src/commands/StopScrollingCommand.ts
+// src/commands/BeginningScrollingCommand.ts
 import type { Command } from './Command';
 
 export class BeginningScrollingCommand implements Command {
