@@ -4,6 +4,7 @@
     :style="{
       fontSize: `${store.fontSize}px`,
       color: store.textColor,
+      backgroundColor: store.backgroundColor,
       transform: `${store.isMirrored ? 'scaleX(-1)' : 'scaleX(1)'} ${store.isReversed ? 'scaleY(-1)' : 'scaleY(1)'}`,
       marginLeft: `${store.lateralMargin}%`,
       marginRight: `${store.lateralMargin}%`,
@@ -20,7 +21,30 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
-      <div class="highlight-overlay" :style="{ top: `${store.highlightPosition}%` }"></div>
+      <div
+        class="highlight-overlay"
+        :style="{
+          top: `${store.highlightPosition}%`,
+          backgroundColor: store.highlightBackgroundColor.default
+        }"
+        >
+        <font-awesome-icon
+          icon="caret-right"
+          class="left-arrow"
+          :style="{
+            color: store.highlightArrowColor,
+            fontSize: store.highlightArrowSize
+          }"
+        />
+        <font-awesome-icon
+          icon="caret-left"
+          class="right-arrow"
+          :style="{
+            color: store.highlightArrowColor,
+            fontSize: store.highlightArrowSize
+          }"
+        />
+      </div>
 
       <div class="text-content" v-html="formattedTextContent"></div>
     </div>
@@ -39,10 +63,6 @@ import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
 
 import { showdown } from 'vue-showdown';
-
-
-
-
 
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
@@ -77,9 +97,10 @@ const updateTextContent = () => {
 
 const scrollText = () => {
   if (scrollContainer.value) {
+
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
 
-    if (scrollTop + clientHeight + 2 >= scrollHeight) {
+    if (scrollTop +2 >= store.maxTop) {
       store.togglePlay()
       clearInterval(scrollInterval)
     } else {
@@ -92,8 +113,17 @@ const scrollText = () => {
 watch(
   () => store.scrollPosition,
   (newVal) => {
+
     if (scrollContainer.value) {
-      scrollContainer.value.scrollTop = newVal
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+      const maxTop = scrollHeight - clientHeight - 2
+
+      // Check if the scroll is at the end
+      if (newVal < maxTop) {
+        scrollContainer.value.scrollTop = newVal
+      }
+
     }
   }
 )
@@ -128,22 +158,43 @@ onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
   }
-})
 
-onUnmounted(() => {
-  if (scrollInterval !== undefined) {
-    clearInterval(scrollInterval)
+  // Initialize ResizeObserver
+  const resizeObserver = new ResizeObserver(() => {
+    // Command to execute when scrollContainer changes size
+    if (scrollContainer.value) {
+
+      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+      const maxTop = scrollHeight - clientHeight - 2
+
+      store.setMaxTop(maxTop)
+
+
   }
+
+
+
+  });
+
+  if (scrollContainer.value) {
+    resizeObserver.observe(scrollContainer.value);
+  }
+
+  onUnmounted(() => {
+    if (scrollInterval !== undefined) {
+      clearInterval(scrollInterval)
+    }
+    resizeObserver.disconnect();
+  });
 })
 </script>
 
 <style lang="scss" scoped>
-$highlight-color: rgba(147, 159, 123, 0.3);
-$background-color: #000000;
 $text-color: inherit;
 $line-height: 1.4;
 $blur-opacity: 0.5;
 $blur-amount: 2px;
+$text-content-margin: 1em;
 
 .prompter {
   height: calc(100vh - 60px);
@@ -153,7 +204,6 @@ $blur-amount: 2px;
   justify-content: center;
   padding: 20px;
   box-sizing: border-box;
-  background-color: $background-color;
   overflow: hidden;
 }
 
@@ -173,7 +223,7 @@ $blur-amount: 2px;
   color: $text-color; /* Inherits color from parent div */
   padding: 10px;
   box-sizing: border-box;
-  background-color: $background-color;
+  background-color: inherit;
 }
 
 .text-align-left {
@@ -190,13 +240,27 @@ $blur-amount: 2px;
 
 .highlight-overlay {
   position: absolute;
-  /* top: 50%; */
   left: 0;
   width: 100%;
   height: calc(3 * 1em); /* Altura de tres líneas de texto */
-  background-color: $highlight-color; /* Fondo con transparencia */
   transform: translateY(-50%); /* Centrar verticalmente */
   pointer-events: none; /* Permitir clics a través de la overlay */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px; /* Pequeña separación de los bordes verticales */
+}
+
+.left-arrow {
+  margin-right: 0;
+}
+
+.right-arrow {
+  margin-left: 0;
+}
+
+.text-content {
+  margin: $text-content-margin; /* Fixed margins around the div */
 }
 
 /* Nueva clase para el texto difuminado */

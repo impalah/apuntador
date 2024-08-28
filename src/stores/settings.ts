@@ -7,6 +7,7 @@ export const useSettingsStore = defineStore('settings', {
     return {
       fontSize: defaultsStore.fontSize.default,
       textColor: defaultsStore.textColor.default,
+      backgroundColor: defaultsStore.backgroundColor.default,
       scrollSpeed: defaultsStore.scrollSpeed.default,
       textAlign: defaultsStore.textAlignment.default,
       textContent: defaultsStore.textContent,
@@ -16,7 +17,11 @@ export const useSettingsStore = defineStore('settings', {
       isReversed: false, // Controls the vertical flip of the text
       scrollPosition: 0, // Initial scroll position
       lateralMargin: 0, // New state for lateral margin
-      highlightPosition: 0 // New state for highlight position
+      highlightPosition: defaultsStore.highlightPosition.default,
+      highlightBackgroundColor: defaultsStore.highlightBackgroundColor,
+      highlightArrowColor: defaultsStore.highlightArrowColor.default,
+      highlightArrowSize: defaultsStore.highlightArrowSize.default,
+      maxTop: 0
     }
   },
   actions: {
@@ -44,9 +49,12 @@ export const useSettingsStore = defineStore('settings', {
     toggleReverse() {
       this.isReversed = !this.isReversed
     },
-    stopScrolling() {
+    scrollBegin() {
       this.isPlaying = false
       this.scrollPosition = 0
+    },
+    scrollEnd() {
+      this.scrollPosition = this.maxTop - 1
     },
     setTextAlign(align: string) {
       this.textAlign = align
@@ -54,18 +62,37 @@ export const useSettingsStore = defineStore('settings', {
     setLateralMargin(margin: number) {
       this.lateralMargin = margin
     },
-
     setHighlightPosition(position: number) {
       this.highlightPosition = position
+    },
+    // setHighlightBackgroundColor(color: string) {
+    //   this.highlightBackgroundColor = color
+    // },
+    setHighlightArrowColor(color: string) {
+      this.highlightArrowColor = color
+    },
+    setHighlightArrowSize(size: string) {
+      this.highlightArrowSize = size
     },
     getLineHeight() {
       return this.fontSize * 1.2
     },
     scrollUp() {
       this.scrollPosition -= this.getLineHeight()
+      if (this.scrollPosition < 0) {
+        this.scrollPosition = 0
+      }
     },
     scrollDown() {
+      if (this.scrollPosition + this.getLineHeight() > this.maxTop) {
+        this.scrollPosition = this.maxTop
+        return
+      }
       this.scrollPosition += this.getLineHeight()
-    }
+    },
+    setMaxTop(position: number) {
+      this.maxTop = position
+    },
+
   }
 })

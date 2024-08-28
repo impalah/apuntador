@@ -37,13 +37,7 @@
           </button>
         </div>
 
-
-      </div>
-
-
-
-
-      <div class="control">
+        <div class="control">
         <button
           class="fullscreen-btn"
           @click="toggleFullScreen"
@@ -52,6 +46,51 @@
         >
           <font-awesome-icon icon="expand" class="icon-color" />
         </button>
+      </div>
+
+
+
+      </div>
+
+
+
+      <div class="control play-stop-group">
+        <button
+          class="stop-btn"
+          @click="invoker.addCommand(new BeginningScrollingCommand(store)); invoker.executeCommands();"
+          title="Beginning"
+          tabindex="-1">
+          <font-awesome-icon icon="backward-step" class="icon-color" />
+        </button>
+
+        <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
+          <font-awesome-icon icon="backward" class="icon-color" />
+        </button>
+
+        <button
+          class="play-btn"
+          @click="invoker.addCommand(new TogglePlayCommand(store)); invoker.executeCommands();"
+          title="Play/Pause"
+          tabindex="-1">
+          <font-awesome-icon :icon="isPlaying ? 'pause' : 'play'" class="icon-color" />
+        </button>
+        
+
+        <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
+          <font-awesome-icon icon="forward" class="icon-color" />
+        </button>
+
+
+        <button
+          class="stop-btn"
+          @click="invoker.addCommand(new EndingScrollingCommand(store)); invoker.executeCommands();"
+          title="Ending"
+          tabindex="-1">
+          <font-awesome-icon icon="forward-step" class="icon-color" />
+        </button>
+
+
+
       </div>
 
       <div class="control">
@@ -67,31 +106,7 @@
         />
       </div>
 
-      <div class="control play-stop-group">
-        <button
-          class="play-btn"
-          @click="invoker.addCommand(new TogglePlayCommand(store)); invoker.executeCommands();"
-          title="Play/Pause"
-          tabindex="-1">
-          <font-awesome-icon :icon="isPlaying ? 'pause' : 'play'" class="icon-color" />
-        </button>
-        <button
-          class="stop-btn"
-          @click="invoker.addCommand(new StopScrollingCommand(store)); invoker.executeCommands();"
-          title="Stop"
-          tabindex="-1">
-          <font-awesome-icon icon="stop" class="icon-color" />
-        </button>
-      </div>
 
-      <div class="control scroll-group">
-        <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
-          <font-awesome-icon icon="arrow-up" class="icon-color" />
-        </button>
-        <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
-          <font-awesome-icon icon="arrow-down" class="icon-color" />
-        </button>
-      </div>
 
     </div>
 
@@ -224,7 +239,8 @@ import { UpdateLateralMarginCommand } from '@/commands/UpdateLateralMarginComman
 import { UpdateHighlightPositionCommand } from '@/commands/UpdateHighlightPositionCommand'
 import { ToggleEditModeCommand } from '@/commands/ToggleEditModeCommand'
 import { TogglePlayCommand } from '@/commands/TogglePlayCommand'
-import { StopScrollingCommand } from '@/commands/StopScrollingCommand'
+import { BeginningScrollingCommand } from '@/commands/BeginningScrollingCommand'
+import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
 import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
 import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
 
@@ -315,7 +331,7 @@ const handleKeydown = (event: KeyboardEvent) => {
       invoker.executeCommands()
       break
     case 'Home':
-      invoker.addCommand(new StopScrollingCommand(store))
+      invoker.addCommand(new BeginningScrollingCommand(store))
       invoker.executeCommands()
       break
   }

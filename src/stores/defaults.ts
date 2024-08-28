@@ -7,8 +7,8 @@ export const useDefaultsStore = defineStore('defaults', {
       max: 50
     },
     highlightPosition: {
-      min: 0,
-      max: 100,
+      min: 4,
+      max: 94,
       default: 50
     },
     scrollSpeed: {
@@ -24,6 +24,18 @@ export const useDefaultsStore = defineStore('defaults', {
     textColor: {
         default: "#ffffff"
     },
+    backgroundColor: {
+      default: "#000000"
+    },
+    highlightBackgroundColor: {
+      default: "rgba(147, 159, 123, 0.3)"
+    },
+    highlightArrowColor: {
+      default: "#007bff"
+    },
+    highlightArrowSize: {
+      default: "2em"
+    },
     textAlignment: {
         default: 'center'
     },
@@ -31,8 +43,6 @@ export const useDefaultsStore = defineStore('defaults', {
 
 Apuntador can be used to display text in a teleprompter-like fashion.
 It is designed to be used in a secondary screen, while you are recording yourself with a camera in the main screen.
-
-To start editing a text, first click on the "Advanced" button and then on the "Edit" button.
 
 ---
 
