@@ -61,8 +61,7 @@
 import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
-
-import { showdown } from 'vue-showdown';
+import showdown from 'showdown'
 
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
@@ -75,7 +74,10 @@ const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
   const converter = new showdown.Converter()
-  return converter.makeHtml(store.textContent);
+  const textLines = defaults.prompter.textLinesExtra || 0
+  const blankLines = '<br>'.repeat(textLines)
+  const formattedText = converter.makeHtml(store.textContent)
+  return `${blankLines}${formattedText}${blankLines}`
 })
 
 watch(
@@ -97,10 +99,9 @@ const updateTextContent = () => {
 
 const scrollText = () => {
   if (scrollContainer.value) {
-
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
 
-    if (scrollTop +2 >= store.maxTop) {
+    if (scrollTop + 2 >= store.maxTop) {
       store.togglePlay()
       clearInterval(scrollInterval)
     } else {
@@ -113,9 +114,7 @@ const scrollText = () => {
 watch(
   () => store.scrollPosition,
   (newVal) => {
-
     if (scrollContainer.value) {
-
       const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
       const maxTop = scrollHeight - clientHeight - 2
 
@@ -123,7 +122,6 @@ watch(
       if (newVal < maxTop) {
         scrollContainer.value.scrollTop = newVal
       }
-
     }
   }
 )
@@ -154,6 +152,28 @@ watch(
   }
 )
 
+const updateMaxTop = () => {
+  if (scrollContainer.value) {
+    const { scrollHeight, clientHeight } = scrollContainer.value
+    const maxTop = scrollHeight - clientHeight - 2
+    store.setMaxTop(maxTop)
+  }
+}
+
+watch(
+  () => store.textContent,
+  () => {
+    updateMaxTop()
+  }
+)
+
+watch(
+  () => store.fontSize,
+  () => {
+    updateMaxTop()
+  }
+)
+
 onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -161,33 +181,22 @@ onMounted(() => {
 
   // Initialize ResizeObserver
   const resizeObserver = new ResizeObserver(() => {
-    // Command to execute when scrollContainer changes size
-    if (scrollContainer.value) {
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
-      const maxTop = scrollHeight - clientHeight - 2
-
-      store.setMaxTop(maxTop)
-
-
-  }
-
-
-
-  });
+    updateMaxTop()
+  })
 
   if (scrollContainer.value) {
-    resizeObserver.observe(scrollContainer.value);
+    resizeObserver.observe(scrollContainer.value)
   }
 
   onUnmounted(() => {
     if (scrollInterval !== undefined) {
       clearInterval(scrollInterval)
     }
-    resizeObserver.disconnect();
-  });
+    resizeObserver.disconnect()
+  })
 })
 </script>
+
 
 <style lang="scss" scoped>
 $text-color: inherit;

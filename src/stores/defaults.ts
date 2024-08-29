@@ -2,6 +2,9 @@ import { defineStore } from 'pinia'
 
 export const useDefaultsStore = defineStore('defaults', {
   state: () => ({
+    prompter: {
+      textLinesExtra: 5
+    },
     margin: {
       min: 0,
       max: 50
