@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
 import { useDefaultsStore } from './defaults'
+import logger from '@/core/logger'
 
 export const useSettingsStore = defineStore('settings', {
   state: () => {
@@ -32,6 +33,7 @@ export const useSettingsStore = defineStore('settings', {
       this.textColor = color
     },
     setEditingMode(isEditing: boolean) {
+      logger.debug(`store.setEditingMode: Setting isEditing to, ${isEditing}`)
       this.isEditing = isEditing
     },
     setTextContent(content: string) {
@@ -50,10 +52,16 @@ export const useSettingsStore = defineStore('settings', {
       this.isReversed = !this.isReversed
     },
     scrollBegin() {
+      logger.debug('Scrolling to the beginning')
+      logger.debug(`- Max top is, ${this.maxTop}`)
+      logger.debug(`- scrollPosition is, ${this.scrollPosition}`)
       this.isPlaying = false
       this.scrollPosition = 0
     },
     scrollEnd() {
+      logger.debug('Scrolling to the end')
+      logger.debug(`- Max top is, ${this.maxTop}`)
+      logger.debug(`- scrollPosition is, ${this.scrollPosition}`)
       this.scrollPosition = this.maxTop - 1
     },
     setTextAlign(align: string) {
@@ -78,12 +86,14 @@ export const useSettingsStore = defineStore('settings', {
       return this.fontSize * 1.2
     },
     scrollUp() {
+      logger.debug('store.Scrolling up')
       this.scrollPosition -= this.getLineHeight()
       if (this.scrollPosition < 0) {
         this.scrollPosition = 0
       }
     },
     scrollDown() {
+      logger.debug('store.Scrolling down')
       if (this.scrollPosition + this.getLineHeight() > this.maxTop) {
         this.scrollPosition = this.maxTop
         return
@@ -91,6 +101,7 @@ export const useSettingsStore = defineStore('settings', {
       this.scrollPosition += this.getLineHeight()
     },
     setMaxTop(position: number) {
+      logger.debug(`store.setMaxTop: Setting maxTop to, ${position}`)
       this.maxTop = position
     },
 

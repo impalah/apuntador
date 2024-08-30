@@ -252,6 +252,8 @@ import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
 import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
 import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
 
+import logger from '@/core/logger'
+
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
 
@@ -272,7 +274,7 @@ const fontSizes = defaults.fontSize.values
 const toggleFullScreen = () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch((err) => {
-      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
+      logger.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
     })
   } else {
     document.exitFullscreen()
