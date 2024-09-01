@@ -58,11 +58,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue'
+import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
-
-import { showdown } from 'vue-showdown';
+import showdown from 'showdown'
+import logger from '@/core/logger'
 
 const store = useSettingsStore()
 const defaults = useDefaultsStore()
@@ -74,15 +74,30 @@ const editedContent = ref(store.textContent)
 const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
+
+  logger.info('formattedTextContent called')
+
   const converter = new showdown.Converter()
-  return converter.makeHtml(store.textContent);
+  const textLines = defaults.prompter.textLinesExtra || 0
+  const blankLines = '<br>'.repeat(textLines)
+  const formattedText = converter.makeHtml(store.textContent)
+  return `${blankLines}${formattedText}${blankLines}`
+
 })
 
 watch(
   () => store.isEditing,
   (newVal) => {
+    logger.debug(`watch store.isEditing called ${newVal}`)
     if (!newVal) {
+      logger.debug('- setting new value')
       store.setTextContent(editedContent.value)
+
+      nextTick(() => {
+        logger.debug('- nextTick')
+        updateMaxTop()
+      })
+
     }
   }
 )
@@ -97,10 +112,15 @@ const updateTextContent = () => {
 
 const scrollText = () => {
   if (scrollContainer.value) {
-
     const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
 
-    if (scrollTop +2 >= store.maxTop) {
+    logger.debug('scrollText called')
+    logger.debug(`- scrollTop', ${scrollTop}`)
+    logger.debug(`- scrollHeight', ${scrollHeight}`)
+    logger.debug(`- clientHeight', ${clientHeight}`)
+
+    if (scrollTop + 2 >= store.maxTop) {
+      logger.debug(`- STOPPING scrollTop + 2 >= store.maxTop ', ${scrollTop} + 2, ${store.maxTop}`)      
       store.togglePlay()
       clearInterval(scrollInterval)
     } else {
@@ -113,15 +133,23 @@ const scrollText = () => {
 watch(
   () => store.scrollPosition,
   (newVal) => {
-
     if (scrollContainer.value) {
-
       const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
-      const maxTop = scrollHeight - clientHeight - 2
+      // const maxTop = scrollHeight - clientHeight - 2
+      logger.debug('scrollPosition called')
+
+      logger.debug(`- maxTop', ${store.maxTop}`)
+      logger.debug(`- newVal', ${newVal}`)
+      logger.debug(`- scrollTop', ${scrollTop}`)
+      logger.debug(`- scrollHeight', ${scrollHeight}`)
+      logger.debug(`- clientHeight', ${clientHeight}`)
 
       // Check if the scroll is at the end
-      if (newVal < maxTop) {
+      if (newVal < store.maxTop) {
+        logger.debug(`- newVal < maxTop ', ${newVal}, ${store.maxTop}`)
         scrollContainer.value.scrollTop = newVal
+      } else {
+        logger.debug(`- at the end newVal >= maxTop ', ${newVal}, ${store.maxTop}`)
       }
 
     }
@@ -154,6 +182,48 @@ watch(
   }
 )
 
+const updateMaxTop = () => {
+  if (scrollContainer.value) {
+    const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
+    logger.debug('updateMaxTop called')
+    logger.debug(`- scrollContainer.scrollTop', ${scrollTop}`)
+    logger.debug(`- scrollContainer.scrollHeight', ${scrollHeight}`)
+    logger.debug(`- scrollContainer.clientHeight', ${clientHeight}`)
+
+    const maxTop = scrollHeight - clientHeight - 2
+
+    logger.debug(`- maxTop', ${maxTop}`)    
+    store.setMaxTop(maxTop)
+  } else {
+    logger.debug('updateMaxTop scrollContainer.value is null')
+  }
+}
+
+watch(
+  () => store.textContent,
+  () => {
+    logger.debug('watch store.textContent: updateMaxTop')
+
+    editedContent.value = store.textContent
+    
+    nextTick(() => {
+      logger.debug('watch store.textContent: updateMaxTop nextTick')
+      updateMaxTop()
+    })
+  }
+)
+
+watch(
+  () => store.fontSize,
+  () => {
+    logger.debug('watch store.fontSize: updateMaxTop. New font size:', store.fontSize)
+    nextTick(() => {
+      logger.debug('watch store.fontSize: updateMaxTop nextTick')
+      updateMaxTop()
+    })
+  }
+)
+
 onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
@@ -161,33 +231,24 @@ onMounted(() => {
 
   // Initialize ResizeObserver
   const resizeObserver = new ResizeObserver(() => {
-    // Command to execute when scrollContainer changes size
-    if (scrollContainer.value) {
-
-      const { scrollTop, scrollHeight, clientHeight } = scrollContainer.value
-      const maxTop = scrollHeight - clientHeight - 2
-
-      store.setMaxTop(maxTop)
-
-
-  }
-
-
-
-  });
+    logger.debug('resizeObserver.create: updateMaxTop')
+    updateMaxTop()
+  })
 
   if (scrollContainer.value) {
-    resizeObserver.observe(scrollContainer.value);
+    logger.debug('resizeObserver.observe(scrollContainer.value)')
+    resizeObserver.observe(scrollContainer.value)
   }
 
   onUnmounted(() => {
     if (scrollInterval !== undefined) {
       clearInterval(scrollInterval)
     }
-    resizeObserver.disconnect();
-  });
+    resizeObserver.disconnect()
+  })
 })
 </script>
+
 
 <style lang="scss" scoped>
 $text-color: inherit;

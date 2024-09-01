@@ -3,24 +3,17 @@
     <div class="navbar" @keydown="handleKeydown">
 
       <div class="logo-container">
-        
+
+        <div class="control">
+          <button class="sidebar-toggle-btn" @click="toggleSidebar" title="Toggle Sidebar" tabindex="-1">
+            <font-awesome-icon icon="bars" class="icon-color" />
+          </button>
+        </div>
+
         <a href="https://apuntador.io" class="link-with-margin" target="_blank" rel="noopener noreferrer">
           <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
           <span class="app-name">apuntador</span>
         </a>
-
-        <div class="control">
-          <button
-            class="advanced-btn"
-            id="advancedButton"
-            :class="{ 'active-btn': showAdvanced }"
-            @click="toggleAdvanced"
-            title="Toggle Advanced Options"
-            tabindex="-1"
-          >
-            <font-awesome-icon icon="cogs" class="icon-color" />
-          </button>
-        </div>
 
         <div class="control">
           <button
@@ -32,27 +25,20 @@
             tabindex="-1"
           >
             <font-awesome-icon icon="pen" class="icon-color" />
-
-            <!-- <font-awesome-icon :icon="isEditing ? 'times' : 'pen'" class="icon-color" /> -->
           </button>
         </div>
 
         <div class="control">
-        <button
-          class="fullscreen-btn"
-          @click="toggleFullScreen"
-          title="Toggle Full Screen"
-          tabindex="-1"
-        >
-          <font-awesome-icon icon="expand" class="icon-color" />
-        </button>
+          <button
+            class="fullscreen-btn"
+            @click="toggleFullScreen"
+            title="Toggle Full Screen"
+            tabindex="-1"
+          >
+            <font-awesome-icon icon="expand" class="icon-color" />
+          </button>
+        </div>
       </div>
-
-
-
-      </div>
-
-
 
       <div class="control play-stop-group">
         <button
@@ -74,12 +60,10 @@
           tabindex="-1">
           <font-awesome-icon :icon="isPlaying ? 'pause' : 'play'" class="icon-color" />
         </button>
-        
 
         <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
           <font-awesome-icon icon="forward" class="icon-color" />
         </button>
-
 
         <button
           class="stop-btn"
@@ -88,9 +72,6 @@
           tabindex="-1">
           <font-awesome-icon icon="forward-step" class="icon-color" />
         </button>
-
-
-
       </div>
 
       <div class="control">
@@ -105,123 +86,211 @@
           tabindex="-1"
         />
       </div>
+    </div> <!-- End of Navbar -->
 
 
 
-    </div>
+    <!-- Sidebar -->
+    <div :class="['sidebar', { 'sidebar-visible': isSidebarVisible }]">
+      <div class="sidebar-content">
 
-    <div v-if="showAdvanced" class="advanced-options">
-      <div class="control">
-        <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
-        <input
-          type="color"
-          id="textColor"
-          v-model="textColor"
-          @change="invoker.addCommand(new UpdateTextColorCommand(store, textColor)); invoker.executeCommands();"
-          tabindex="-1"
-        >
-      </div>
+        <div class="accordion">
 
-      <div class="control">
-        <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
-        <select
-          id="fontSize"
-          v-model="fontSize"
-          @change="invoker.addCommand(new UpdateFontSizeCommand(store, fontSize)); invoker.executeCommands();"
-          tabindex="-1">
-          <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
-        </select>
-      </div>
+          <!-- File management -->
+          <div class="accordion-item">
 
+            <h3 @click="toggleAccordion('fileManagement')">File Management</h3>
+            <div v-if="activeAccordion === 'fileManagement'" class="accordion-content">
 
-      <div class="control">
-        <button
-          id="alignLeftButton"
-          class="align-btn"
-          @click="invoker.addCommand(new SetTextAlignCommand(store, 'left')); invoker.executeCommands();"
-          title="Align Left"
-          tabindex="-1"
-        >
-          <font-awesome-icon icon="align-left" class="icon-color" />
-        </button>
-        <button
-          id="alignCenterButton"
-          class="align-btn"
-          @click="invoker.addCommand(new SetTextAlignCommand(store, 'center')); invoker.executeCommands();"
-          title="Align Center"
-          tabindex="-1"
-        >
-          <font-awesome-icon icon="align-center" class="icon-color" />
-        </button>
-        <button
-          id="alignRightButton"
-          class="align-btn"
-          @click="invoker.addCommand(new SetTextAlignCommand(store, 'right')); invoker.executeCommands();"
-          title="Align Right"
-          tabindex="-1"
-        >
-          <font-awesome-icon icon="align-right" class="icon-color" />
-        </button>
-      </div>
+              <div class="control-group">
+                <div class="control">
+                  <button
+                    id="openFile"
+                    class="align-btn"
+                    @click="invoker.addCommand(new OpenLocalFileCommand(store)); invoker.executeCommands();"
+                    title="Open Local File"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="file-arrow-down" class="icon-color" />
+                  </button>
 
-      <div class="control">
-        <button
-          id="mirrorButton"
-          class="mirror-btn"
-          @click="invoker.addCommand(new ToggleMirrorCommand(store)); invoker.executeCommands();"
-          title="Toggle Mirror Mode"
-          tabindex="-1"
-        >
-          <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
-        </button>
-        <button
-          id="reverseButton"
-          class="reverse-btn"
-          @click="invoker.addCommand(new ToggleReverseCommand(store)); invoker.executeCommands();"
-          title="Toggle Reverse Mode"
-          tabindex="-1"
-        >
-          <font-awesome-icon :icon="isReversed ? 'angles-up' : 'angles-down'" class="icon-color" />
-        </button>
-      </div>
+                  <button
+                    id="openCloudFile"
+                    class="align-btn"
+                    @click="invoker.addCommand(new OpenCloudFileCommand(store)); invoker.executeCommands();"
+                    title="Open Cloud File"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="cloud-arrow-down" class="icon-color" />
+                  </button>
 
-      <div class="control">
-        <font-awesome-icon
-          icon="highlighter"
-          class="icon-label icon-color"
-          title="Highlight position"
-        />
-        <input
-          type="range"
-          id="highlightPosition"
-          :min="defaults.highlightPosition.min"
-          :max="defaults.highlightPosition.max"
-          v-model="highlightPosition"
-          @input="invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition)); invoker.executeCommands();"
-          tabindex="-1"
-        />
-      </div>
-
-      <div class="control">
-        <font-awesome-icon
-          icon="arrows-alt-h"
-          class="icon-label icon-color"
-          title="Margin"
-        />
-        <input
-          type="range"
-          id="margin"
-          :min="defaults.margin.min"
-          :max="defaults.margin.max"
-          v-model="lateralMargin"
-          @input="invoker.addCommand(new UpdateLateralMarginCommand(store, lateralMargin)); invoker.executeCommands();"
-          tabindex="-1"
-        />      
-      </div>
+                  <button
+                    id="saveFile"
+                    class="align-btn"
+                    @click="invoker.addCommand(new SaveLocalFileCommand(store)); invoker.executeCommands();"
+                    title="Save File"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="file-arrow-up" class="icon-color" />
+                  </button>
 
 
+                </div> <!-- End of Control -->
 
-    </div>
+              </div> <!-- End of Control Group -->
+
+            </div> <!-- End of File management Accordion Content -->
+
+          </div> <!-- End of File management Accordion Item -->
+
+          <!-- Settings -->
+          <div class="accordion-item">
+
+            <h3 @click="toggleAccordion('settings')">Settings</h3>
+            <div v-if="activeAccordion === 'settings'" class="accordion-content">
+
+
+              <!-- Text Configuration -->
+              <h3>Text Configuration</h3>
+              <div class="control-group">
+                <div class="control">
+                  <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
+                  <input
+                    type="color"
+                    id="textColor"
+                    v-model="textColor"
+                    @change="invoker.addCommand(new UpdateTextColorCommand(store, textColor)); invoker.executeCommands();"
+                    tabindex="-1"
+                  >
+                </div>
+
+                <div class="control">
+                  <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
+                  <select
+                    id="fontSize"
+                    v-model="fontSize"
+                    @change="invoker.addCommand(new UpdateFontSizeCommand(store, fontSize)); invoker.executeCommands();"
+                    tabindex="-1">
+                    <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
+                  </select>
+                </div>
+              </div>
+
+              <hr class="separator">
+
+              <!-- Alignment and Margin -->
+              <h3>Alignment and Margin</h3>
+              <div class="control-group">
+                <div class="control">
+                  <button
+                    id="alignLeftButton"
+                    class="align-btn"
+                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'left')); invoker.executeCommands();"
+                    title="Align Left"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="align-left" class="icon-color" />
+                  </button>
+                  <button
+                    id="alignCenterButton"
+                    class="align-btn"
+                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'center')); invoker.executeCommands();"
+                    title="Align Center"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="align-center" class="icon-color" />
+                  </button>
+                  <button
+                    id="alignRightButton"
+                    class="align-btn"
+                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'right')); invoker.executeCommands();"
+                    title="Align Right"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="align-right" class="icon-color" />
+                  </button>
+                </div>
+
+                <div class="control">
+                  <font-awesome-icon
+                    icon="arrows-alt-h"
+                    class="icon-label icon-color"
+                    title="Margin"
+                  />
+                  <input
+                    type="range"
+                    id="margin"
+                    :min="defaults.margin.min"
+                    :max="defaults.margin.max"
+                    v-model="lateralMargin"
+                    @input="invoker.addCommand(new UpdateLateralMarginCommand(store, lateralMargin)); invoker.executeCommands();"
+                    tabindex="-1"
+                  />      
+                </div>
+              </div>
+
+              <hr class="separator">
+
+              <!-- Highlight -->
+              <h3>Highlight</h3>
+              <div class="control-group">
+                <div class="control">
+                  <font-awesome-icon
+                    icon="highlighter"
+                    class="icon-label icon-color"
+                    title="Highlight position"
+                  />
+                  <input
+                    type="range"
+                    id="highlightPosition"
+                    :min="defaults.highlightPosition.min"
+                    :max="defaults.highlightPosition.max"
+                    v-model="highlightPosition"
+                    @input="invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition)); invoker.executeCommands();"
+                    tabindex="-1"
+                  />
+                </div>
+              </div>
+
+              <hr class="separator">
+
+              <!-- View Mode -->
+              <h3>View Mode</h3>
+              <div class="control-group">
+                <div class="control">
+                  <button
+                    id="mirrorButton"
+                    class="mirror-btn"
+                    @click="invoker.addCommand(new ToggleMirrorCommand(store)); invoker.executeCommands();"
+                    title="Toggle Mirror Mode"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
+                  </button>
+                  <button
+                    id="reverseButton"
+                    class="reverse-btn"
+                    @click="invoker.addCommand(new ToggleReverseCommand(store)); invoker.executeCommands();"
+                    title="Toggle Reverse Mode"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon :icon="isReversed ? 'angles-up' : 'angles-down'" class="icon-color" />
+                  </button>
+                </div>
+              </div>
+
+              
+            </div> <!-- End of Settings Accordion Content -->
+          </div> <!-- End of Settings Accordion Item -->
+
+        </div> <!-- End of Accordion -->
+
+      </div> <!-- End of Sidebar Content -->
+    </div> <!-- End of Sidebar -->
+
+
+
+
   </div>
 </template>
 
@@ -243,7 +312,11 @@ import { BeginningScrollingCommand } from '@/commands/BeginningScrollingCommand'
 import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
 import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
 import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
+import { OpenLocalFileCommand } from '@/commands/OpenLocalFileCommand'
+import { SaveLocalFileCommand } from '@/commands/SaveLocalFileCommand'
+import { OpenCloudFileCommand } from '@/commands/OpenCloudFileCommand'
 
+import logger from '@/core/logger'
 
 
 const store = useSettingsStore()
@@ -251,7 +324,7 @@ const defaults = useDefaultsStore()
 
 const invoker = new CommandInvoker();
 
-
+const activeAccordion = ref<string | null>(null);
 const fontSize = ref(store.fontSize)
 const textColor = ref(store.textColor)
 const scrollSpeed = ref(defaults.scrollSpeed.maxConstant - store.scrollSpeed)
@@ -260,9 +333,14 @@ const isMirrored = ref(store.isMirrored)
 const isReversed = ref(store.isReversed)
 const lateralMargin = ref(store.lateralMargin)
 const highlightPosition = ref(store.highlightPosition)
-const showAdvanced = ref(false)
+const isSidebarVisible = ref(false)
 
 const fontSizes = defaults.fontSize.values
+
+
+const toggleAccordion = (section: string) => {
+  activeAccordion.value = activeAccordion.value === section ? null : section;
+};
 
 
 
@@ -270,19 +348,16 @@ const fontSizes = defaults.fontSize.values
 const toggleFullScreen = () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen().catch((err) => {
-      console.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
+      logger.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
     })
   } else {
     document.exitFullscreen()
   }
 }
 
-const toggleAdvanced = () => {
-  showAdvanced.value = !showAdvanced.value
+const toggleSidebar = () => {
+  isSidebarVisible.value = !isSidebarVisible.value
 }
-
-
-
 
 const isPlaying = computed(() => store.isPlaying)
 
@@ -363,7 +438,8 @@ $icon-hover-color: hsla(160, 100%, 37%, 0.2);
 $icon-padding: 5px;
 $active-button-color: hsla(160, 100%, 37%, 0.2);
 $active-button-text-color: white;
-
+$control-margin-bottom: 10px;
+$control-margin-top: 10px;
 
 .icon-color {
   color: $icon-color;
@@ -373,9 +449,9 @@ $active-button-text-color: white;
 @media (hover: hover) {
   .icon-color:hover {
     background-color: $icon-hover-color
+    // background-color: $navbar-bg-color;
   }
 }
-
 
 html,
 body {
@@ -398,7 +474,6 @@ body {
   border-bottom: 2px solid $border-color;
   padding-left: $navbar-padding;
   padding-right: $navbar-padding;
-
 }
 
 .logo-container {
@@ -429,12 +504,14 @@ body {
   align-items: center;
   margin-left: $control-margin;
   margin-right: $control-margin;
+  margin-bottom: $control-margin-bottom;
+  margin-top: $control-margin-top;
+
 }
 
 .link-with-margin {
   margin-right: $control-margin;
 }
-
 
 .align-group,
 .mirror-reverse-group,
@@ -470,7 +547,7 @@ input[type='color'] {
 .scroll-btn,
 .align-btn,
 .fullscreen-btn,
-.advanced-btn {
+.sidebar-toggle-btn {
   background: none;
   border: none;
   cursor: pointer;
@@ -511,5 +588,93 @@ input[type='color'] {
   background-color: $active-button-color;
   color: $active-button-text-color;
 }
+
+/* Estilos para la sidebar */
+.sidebar {
+  position: fixed;
+  top: $navbar-height;
+  left: -250px; /* Oculta la sidebar fuera de la vista */
+  width: 250px;
+  height: 100%;
+  background-color: $navbar-bg-color;
+  overflow-x: hidden;
+  transition: 0.3s;
+  z-index: 1002; /* Asegura que la sidebar esté por encima del navbar */
+  // padding-top: 60px; /* Añade padding para evitar el navbar */
+}
+
+.sidebar-visible {
+  left: 0; /* Muestra la sidebar */
+}
+
+.sidebar-content {
+  padding: 15px;
+  color: $icon-color;
+}
+
+.sidebar-content h2 {
+  margin-bottom: 30px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 20px; /* Espacio entre grupos */
+}
+
+h3 {
+  text-align: left;
+  width: 100%;
+  padding-left: 15px; /* Alinea el título a la izquierda */
+  color: $icon-color;
+}
+
+.separator {
+  border: 0;
+  height: 1px;
+  background: $border-color;
+  margin: 20px 0; /* Espacio alrededor del separador */
+}
+
+.accordion {
+  .accordion-item {
+    margin-bottom: 10px;
+
+    h3 {
+      cursor: pointer;
+      padding: 10px;
+      background-color: $navbar-bg-color;
+      color: $icon-color;
+      border: 1px solid $border-color;
+      border-radius: 5px;
+      margin: 0;
+    }
+
+    .accordion-content {
+      padding: 10px;
+      border: 1px solid $border-color;
+      border-top: none;
+      background-color: darken($navbar-bg-color, 5%);
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 5px 0;
+      background-color: transparent; // Fondo transparente
+      color: $icon-color;
+      border: none; // Sin borde
+      cursor: pointer;
+      text-align: left; // Alinear texto a la izquierda
+
+      // &:hover {
+      //   background-color: lighten($navbar-bg-color, 10%); // Fondo más claro al pasar el ratón
+      // }
+    }
+  }
+}
+
 
 </style>
