@@ -1,7 +1,7 @@
 import log from 'loglevel';
 
 // Configurar el nivel de logging
-log.setLevel('info');
+log.setLevel('debug');
 
 // Exportar el logger
 export default log;

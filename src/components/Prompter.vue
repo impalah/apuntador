@@ -74,11 +74,15 @@ const editedContent = ref(store.textContent)
 const textAlign = ref(store.textAlign)
 
 const formattedTextContent = computed(() => {
+
+  logger.info('formattedTextContent called')
+
   const converter = new showdown.Converter()
   const textLines = defaults.prompter.textLinesExtra || 0
   const blankLines = '<br>'.repeat(textLines)
   const formattedText = converter.makeHtml(store.textContent)
   return `${blankLines}${formattedText}${blankLines}`
+
 })
 
 watch(
@@ -199,6 +203,9 @@ watch(
   () => store.textContent,
   () => {
     logger.debug('watch store.textContent: updateMaxTop')
+
+    editedContent.value = store.textContent
+    
     nextTick(() => {
       logger.debug('watch store.textContent: updateMaxTop nextTick')
       updateMaxTop()

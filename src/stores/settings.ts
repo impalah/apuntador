@@ -22,7 +22,8 @@ export const useSettingsStore = defineStore('settings', {
       highlightBackgroundColor: defaultsStore.highlightBackgroundColor,
       highlightArrowColor: defaultsStore.highlightArrowColor.default,
       highlightArrowSize: defaultsStore.highlightArrowSize.default,
-      maxTop: 0
+      maxTop: 0,
+      openedFile: ''
     }
   },
   actions: {
@@ -104,6 +105,9 @@ export const useSettingsStore = defineStore('settings', {
       logger.debug(`store.setMaxTop: Setting maxTop to, ${position}`)
       this.maxTop = position
     },
+    setOpenedFile(file: string) {
+      this.openedFile = file
+    }
 
   }
 })

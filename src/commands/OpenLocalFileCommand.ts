@@ -20,10 +20,12 @@ export class OpenLocalFileCommand implements Command {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length > 0) {
         const file = target.files[0];
+        logger.info('File selected:', file);
         const reader = new FileReader();
 
         reader.onload = () => {
           const content = reader.result as string;
+          this.store.setOpenedFile(`file://${file.name}`);
           this.store.setTextContent(content);
         };
 

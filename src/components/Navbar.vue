@@ -113,28 +113,30 @@
                   >
                     <font-awesome-icon icon="file-arrow-down" class="icon-color" />
                   </button>
-                </div> <!-- End of Control -->
 
-                <div class="control">
+                  <button
+                    id="openCloudFile"
+                    class="align-btn"
+                    @click="invoker.addCommand(new OpenCloudFileCommand(store)); invoker.executeCommands();"
+                    title="Open Cloud File"
+                    tabindex="-1"
+                  >
+                    <font-awesome-icon icon="cloud-arrow-down" class="icon-color" />
+                  </button>
+
                   <button
                     id="saveFile"
                     class="align-btn"
-                    @click="saveFile"
+                    @click="invoker.addCommand(new SaveLocalFileCommand(store)); invoker.executeCommands();"
                     title="Save File"
                     tabindex="-1"
                   >
                     <font-awesome-icon icon="file-arrow-up" class="icon-color" />
                   </button>
-                  <button
-                    id="saveFileAs"
-                    class="align-btn"
-                    @click="saveFile"
-                    title="Save File As"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="file-export" class="icon-color" />
-                  </button>
+
+
                 </div> <!-- End of Control -->
+
               </div> <!-- End of Control Group -->
 
             </div> <!-- End of File management Accordion Content -->
@@ -311,6 +313,8 @@ import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
 import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
 import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
 import { OpenLocalFileCommand } from '@/commands/OpenLocalFileCommand'
+import { SaveLocalFileCommand } from '@/commands/SaveLocalFileCommand'
+import { OpenCloudFileCommand } from '@/commands/OpenCloudFileCommand'
 
 import logger from '@/core/logger'
 
@@ -338,11 +342,6 @@ const toggleAccordion = (section: string) => {
   activeAccordion.value = activeAccordion.value === section ? null : section;
 };
 
-
-const saveFile = () => {
-  logger.info('Save file clicked');
-  // Implement save file logic
-};
 
 
 
