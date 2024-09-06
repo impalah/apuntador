@@ -172,21 +172,10 @@ const handleKeydown = (event: KeyboardEvent) => {
         invoker.executeCommands();
       }
       break
-    case 'PageDown':
-      if (highlightPosition.value < 100) {
-        highlightPosition.value += 1
-        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
-        invoker.executeCommands()
-      }
-      break
-    case 'PageUp':
-      if (highlightPosition.value > 0) {
-        highlightPosition.value -= 1
-        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
-        invoker.executeCommands()
-      }
-      break
-    case 'End':
+    case ' ':
+    case 'Space':
+      logger.debug('Space key pressed')
+      event.preventDefault()
       invoker.addCommand(new TogglePlayCommand(store))
       invoker.executeCommands()
       break
@@ -194,6 +183,11 @@ const handleKeydown = (event: KeyboardEvent) => {
       invoker.addCommand(new BeginningScrollingCommand(store))
       invoker.executeCommands()
       break
+    case 'End':
+      invoker.addCommand(new EndingScrollingCommand(store))
+      invoker.executeCommands()
+      break
+
   }
 }
 
@@ -291,24 +285,21 @@ const handleGamepadInput = (gamepad: Gamepad) => {
 }
 
 
-
-
-
 onMounted(() => {
-  // document.addEventListener('keydown', handleKeydown)
+  document.addEventListener('keydown', handleKeydown)
 
-  window.addEventListener('gamepadconnected', onGamepadConnected);
-  window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
-  pollGamepad();
+  // window.addEventListener('gamepadconnected', onGamepadConnected);
+  // window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
+  // pollGamepad();
 
 
 })
 
 onBeforeUnmount(() => {
-  // document.removeEventListener('keydown', handleKeydown)
+  document.removeEventListener('keydown', handleKeydown)
 
-  window.removeEventListener('gamepadconnected', onGamepadConnected);
-  window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
+  // window.removeEventListener('gamepadconnected', onGamepadConnected);
+  // window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
 
 })
 </script>
