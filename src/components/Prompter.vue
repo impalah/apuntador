@@ -46,7 +46,12 @@
         />
       </div>
 
-      <div class="text-content" v-html="formattedTextContent"></div>
+      <div
+        ref="textContent"
+        class="text-content"
+        v-html="formattedTextContent"
+      >
+      </div>
     </div>
     <textarea
       v-else
@@ -72,6 +77,31 @@ let scrollInterval: number | undefined = undefined
 
 const editedContent = ref(store.textContent)
 const textAlign = ref(store.textAlign)
+
+
+
+const textContent = ref<HTMLElement | null>(null)
+
+
+const scrollToElement = (tagName: string) => {
+  const elements = (textContent.value as HTMLElement | null)?.querySelectorAll(tagName)
+  if (elements && elements.length > 0) {
+    logger.debug(`scrollToElement called for ${tagName}`)
+    const firstElement = elements[0]
+    const scrollContainerTop = scrollContainer.value?.getBoundingClientRect().top || 0
+    const elementTop = firstElement.getBoundingClientRect().top
+    const offset = elementTop - scrollContainerTop
+    if (scrollContainer.value) {
+      store.scrollPosition = scrollContainer.value.scrollTop + offset
+      scrollContainer.value.scrollTop += offset
+    }
+  }
+}
+
+
+
+
+
 
 const formattedTextContent = computed(() => {
 
@@ -194,6 +224,7 @@ const updateMaxTop = () => {
 
     logger.debug(`- maxTop', ${maxTop}`)    
     store.setMaxTop(maxTop)
+
   } else {
     logger.debug('updateMaxTop scrollContainer.value is null')
   }
@@ -203,12 +234,14 @@ watch(
   () => store.textContent,
   () => {
     logger.debug('watch store.textContent: updateMaxTop')
-
     editedContent.value = store.textContent
-    
+
     nextTick(() => {
       logger.debug('watch store.textContent: updateMaxTop nextTick')
       updateMaxTop()
+
+      
+
     })
   }
 )
@@ -228,6 +261,8 @@ onMounted(() => {
   if (store.isPlaying) {
     scrollInterval = window.setInterval(scrollText, store.scrollSpeed)
   }
+
+  // scrollToElement('h3') // Example usage
 
   // Initialize ResizeObserver
   const resizeObserver = new ResizeObserver(() => {
