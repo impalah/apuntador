@@ -15,6 +15,15 @@
           <span class="app-name">apuntador</span>
         </a>
 
+        <!-- <div class="control">
+          <div>
+            <p>Press a button on your gamepad to see the output:</p>
+            <p>{{ message }}</p>
+          </div>          
+
+        </div> -->
+
+
         <div class="control">
           <button
             class="edit-btn"
@@ -31,7 +40,7 @@
         <div class="control">
           <button
             class="fullscreen-btn"
-            @click="toggleFullScreen"
+            @click="invoker.addCommand(new ToggleFullScreenCommand()); invoker.executeCommands();"
             title="Toggle Full Screen"
             tabindex="-1"
           >
@@ -88,207 +97,8 @@
       </div>
     </div> <!-- End of Navbar -->
 
-
-
     <!-- Sidebar -->
-    <div :class="['sidebar', { 'sidebar-visible': isSidebarVisible }]">
-      <div class="sidebar-content">
-
-        <div class="accordion">
-
-          <!-- File management -->
-          <div class="accordion-item">
-
-            <h3 @click="toggleAccordion('fileManagement')">File Management</h3>
-            <div v-if="activeAccordion === 'fileManagement'" class="accordion-content">
-
-              <div class="control-group">
-                <div class="control">
-                  <button
-                    id="openFile"
-                    class="align-btn"
-                    @click="invoker.addCommand(new OpenLocalFileCommand(store)); invoker.executeCommands();"
-                    title="Open Local File"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="file-arrow-down" class="icon-color" />
-                  </button>
-
-                  <button
-                    id="openCloudFile"
-                    class="align-btn"
-                    @click="invoker.addCommand(new OpenCloudFileCommand(store)); invoker.executeCommands();"
-                    title="Open Cloud File"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="cloud-arrow-down" class="icon-color" />
-                  </button>
-
-                  <button
-                    id="saveFile"
-                    class="align-btn"
-                    @click="invoker.addCommand(new SaveLocalFileCommand(store)); invoker.executeCommands();"
-                    title="Save File"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="file-arrow-up" class="icon-color" />
-                  </button>
-
-
-                </div> <!-- End of Control -->
-
-              </div> <!-- End of Control Group -->
-
-            </div> <!-- End of File management Accordion Content -->
-
-          </div> <!-- End of File management Accordion Item -->
-
-          <!-- Settings -->
-          <div class="accordion-item">
-
-            <h3 @click="toggleAccordion('settings')">Settings</h3>
-            <div v-if="activeAccordion === 'settings'" class="accordion-content">
-
-
-              <!-- Text Configuration -->
-              <h3>Text Configuration</h3>
-              <div class="control-group">
-                <div class="control">
-                  <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
-                  <input
-                    type="color"
-                    id="textColor"
-                    v-model="textColor"
-                    @change="invoker.addCommand(new UpdateTextColorCommand(store, textColor)); invoker.executeCommands();"
-                    tabindex="-1"
-                  >
-                </div>
-
-                <div class="control">
-                  <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
-                  <select
-                    id="fontSize"
-                    v-model="fontSize"
-                    @change="invoker.addCommand(new UpdateFontSizeCommand(store, fontSize)); invoker.executeCommands();"
-                    tabindex="-1">
-                    <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
-                  </select>
-                </div>
-              </div>
-
-              <hr class="separator">
-
-              <!-- Alignment and Margin -->
-              <h3>Alignment and Margin</h3>
-              <div class="control-group">
-                <div class="control">
-                  <button
-                    id="alignLeftButton"
-                    class="align-btn"
-                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'left')); invoker.executeCommands();"
-                    title="Align Left"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="align-left" class="icon-color" />
-                  </button>
-                  <button
-                    id="alignCenterButton"
-                    class="align-btn"
-                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'center')); invoker.executeCommands();"
-                    title="Align Center"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="align-center" class="icon-color" />
-                  </button>
-                  <button
-                    id="alignRightButton"
-                    class="align-btn"
-                    @click="invoker.addCommand(new SetTextAlignCommand(store, 'right')); invoker.executeCommands();"
-                    title="Align Right"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon icon="align-right" class="icon-color" />
-                  </button>
-                </div>
-
-                <div class="control">
-                  <font-awesome-icon
-                    icon="arrows-alt-h"
-                    class="icon-label icon-color"
-                    title="Margin"
-                  />
-                  <input
-                    type="range"
-                    id="margin"
-                    :min="defaults.margin.min"
-                    :max="defaults.margin.max"
-                    v-model="lateralMargin"
-                    @input="invoker.addCommand(new UpdateLateralMarginCommand(store, lateralMargin)); invoker.executeCommands();"
-                    tabindex="-1"
-                  />      
-                </div>
-              </div>
-
-              <hr class="separator">
-
-              <!-- Highlight -->
-              <h3>Highlight</h3>
-              <div class="control-group">
-                <div class="control">
-                  <font-awesome-icon
-                    icon="highlighter"
-                    class="icon-label icon-color"
-                    title="Highlight position"
-                  />
-                  <input
-                    type="range"
-                    id="highlightPosition"
-                    :min="defaults.highlightPosition.min"
-                    :max="defaults.highlightPosition.max"
-                    v-model="highlightPosition"
-                    @input="invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition)); invoker.executeCommands();"
-                    tabindex="-1"
-                  />
-                </div>
-              </div>
-
-              <hr class="separator">
-
-              <!-- View Mode -->
-              <h3>View Mode</h3>
-              <div class="control-group">
-                <div class="control">
-                  <button
-                    id="mirrorButton"
-                    class="mirror-btn"
-                    @click="invoker.addCommand(new ToggleMirrorCommand(store)); invoker.executeCommands();"
-                    title="Toggle Mirror Mode"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon :icon="isMirrored ? 'redo' : 'sync'" class="icon-color" />
-                  </button>
-                  <button
-                    id="reverseButton"
-                    class="reverse-btn"
-                    @click="invoker.addCommand(new ToggleReverseCommand(store)); invoker.executeCommands();"
-                    title="Toggle Reverse Mode"
-                    tabindex="-1"
-                  >
-                    <font-awesome-icon :icon="isReversed ? 'angles-up' : 'angles-down'" class="icon-color" />
-                  </button>
-                </div>
-              </div>
-
-              
-            </div> <!-- End of Settings Accordion Content -->
-          </div> <!-- End of Settings Accordion Item -->
-
-        </div> <!-- End of Accordion -->
-
-      </div> <!-- End of Sidebar Content -->
-    </div> <!-- End of Sidebar -->
-
-
+    <Sidebar :isSidebarVisible="isSidebarVisible" />
 
 
   </div>
@@ -300,23 +110,21 @@ import { useSettingsStore } from '@/stores/settings'
 import { useDefaultsStore } from '@/stores/defaults'
 
 import { CommandInvoker } from '@/commands/CommandInvoker'
-import { UpdateFontSizeCommand } from '@/commands/UpdateFontSizeCommand'
-import { UpdateTextColorCommand } from '@/commands/UpdateTextColorCommand'
 import { UpdateScrollSpeedCommand } from '@/commands/UpdateScrollSpeedCommand'
-import { SetTextAlignCommand } from '@/commands/SetTextAlignCommand'
-import { UpdateLateralMarginCommand } from '@/commands/UpdateLateralMarginCommand'
 import { UpdateHighlightPositionCommand } from '@/commands/UpdateHighlightPositionCommand'
 import { ToggleEditModeCommand } from '@/commands/ToggleEditModeCommand'
 import { TogglePlayCommand } from '@/commands/TogglePlayCommand'
 import { BeginningScrollingCommand } from '@/commands/BeginningScrollingCommand'
 import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
-import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand'
-import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand'
-import { OpenLocalFileCommand } from '@/commands/OpenLocalFileCommand'
-import { SaveLocalFileCommand } from '@/commands/SaveLocalFileCommand'
-import { OpenCloudFileCommand } from '@/commands/OpenCloudFileCommand'
+import { ToggleFullScreenCommand } from '@/commands/ToggleFullScreenCommand'
+
+import Sidebar from '@/components/Sidebar.vue';
 
 import logger from '@/core/logger'
+
+
+const message = ref('')
+const gamepadIndex = ref<number | null>(null)
 
 
 const store = useSettingsStore()
@@ -324,38 +132,15 @@ const defaults = useDefaultsStore()
 
 const invoker = new CommandInvoker();
 
-const activeAccordion = ref<string | null>(null);
-const fontSize = ref(store.fontSize)
-const textColor = ref(store.textColor)
 const scrollSpeed = ref(defaults.scrollSpeed.maxConstant - store.scrollSpeed)
 const isEditing = ref(store.isEditing)
-const isMirrored = ref(store.isMirrored)
-const isReversed = ref(store.isReversed)
-const lateralMargin = ref(store.lateralMargin)
 const highlightPosition = ref(store.highlightPosition)
 const isSidebarVisible = ref(false)
 
-const fontSizes = defaults.fontSize.values
 
-
-const toggleAccordion = (section: string) => {
-  activeAccordion.value = activeAccordion.value === section ? null : section;
-};
-
-
-
-
-const toggleFullScreen = () => {
-  if (!document.fullscreenElement) {
-    document.documentElement.requestFullscreen().catch((err) => {
-      logger.error(`Error attempting to enable full-screen mode: ${err.message} (${err.name})`)
-    })
-  } else {
-    document.exitFullscreen()
-  }
-}
 
 const toggleSidebar = () => {
+  logger.info('Toggling sidebar visibility: ', isSidebarVisible.value)
   isSidebarVisible.value = !isSidebarVisible.value
 }
 
@@ -387,21 +172,10 @@ const handleKeydown = (event: KeyboardEvent) => {
         invoker.executeCommands();
       }
       break
-    case 'PageDown':
-      if (highlightPosition.value < 100) {
-        highlightPosition.value += 1
-        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
-        invoker.executeCommands()
-      }
-      break
-    case 'PageUp':
-      if (highlightPosition.value > 0) {
-        highlightPosition.value -= 1
-        invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition.value))
-        invoker.executeCommands()
-      }
-      break
-    case 'End':
+    case ' ':
+    case 'Space':
+      logger.debug('Space key pressed')
+      event.preventDefault()
       invoker.addCommand(new TogglePlayCommand(store))
       invoker.executeCommands()
       break
@@ -409,15 +183,124 @@ const handleKeydown = (event: KeyboardEvent) => {
       invoker.addCommand(new BeginningScrollingCommand(store))
       invoker.executeCommands()
       break
+    case 'End':
+      invoker.addCommand(new EndingScrollingCommand(store))
+      invoker.executeCommands()
+      break
+
   }
 }
 
+
+// Gamepad API
+
+const onGamepadConnected = (event: GamepadEvent) => {
+  gamepadIndex.value = event.gamepad.index;
+  message.value = `Gamepad connected at index ${gamepadIndex.value}`;
+}
+
+const onGamepadDisconnected = () => {
+  gamepadIndex.value = null;
+  message.value = 'Gamepad disconnected';
+}
+
+const pollGamepad = () => {
+  const checkGamepad = () => {
+    if (gamepadIndex.value !== null) {
+      const gamepad = navigator.getGamepads()[gamepadIndex.value];
+      if (gamepad) {
+        handleGamepadInput(gamepad);
+      }
+    }
+    requestAnimationFrame(checkGamepad);
+  };
+  checkGamepad();
+}
+
+
+const handleGamepadInput = (gamepad: Gamepad) => {
+
+  const pressedButtonIndices: number[] = [];
+
+  gamepad.buttons.forEach((button, index) => {
+    if (button.pressed) {
+      pressedButtonIndices.push(index);
+    }
+  });
+
+  message.value = pressedButtonIndices.join(', ');
+  
+
+
+  // if (gamepad.buttons[0].pressed) {
+  //   message.value = 'Button A Pressed!';
+  // }
+  // if (gamepad.buttons[12].pressed) {
+  //   message.value = 'DPAD UP Pressed!';
+  // }
+  // if (gamepad.buttons[13].pressed) {
+  //   message.value = 'DPAD DOWN Pressed!';
+  // }
+
+  // const buttonNames = [
+  //   'Button A', 'Button B', 'Button X', 'Button Y',
+  //   'Left Bumper', 'Right Bumper', 'Left Trigger', 'Right Trigger',
+  //   'Back', 'Start', 'Left Stick', 'Right Stick',
+  //   'DPAD UP', 'DPAD DOWN', 'DPAD LEFT', 'DPAD RIGHT',
+  //   'Home', 'Touchpad', 'Left Stick Press', 'Right Stick Press',
+  //   'Left Trigger Press', 'Right Trigger Press', 'Select', 'Mode',
+  //   'Thumbstick Left', 'Thumbstick Right', 'Thumbstick Up', 'Thumbstick Down',
+  //   'Left Stick Horizontal', 'Left Stick Vertical',
+  //   'Right Stick Horizontal', 'Right Stick Vertical',
+  //   'Touchpad X', 'Touchpad Y',
+  //   'Touchpad Press', 'Touchpad Touch',
+  //   'Touchpad Back', 'Touchpad Forward',
+  //   'Touchpad Left', 'Touchpad Right',
+  //   'Touchpad Up', 'Touchpad Down',
+
+  // ];
+
+  // buttonNames.forEach((name, index) => {
+  //   if (gamepad.buttons[index] && gamepad.buttons[index].pressed) {
+  //     message.value = `${name} Pressed!`;
+  //   }
+  // });
+
+
+  // const axesNames = [
+  //   'Left Stick Horizontal', 'Left Stick Vertical',
+  //   'Right Stick Horizontal', 'Right Stick Vertical'
+  // ];
+
+  // axesNames.forEach((name, index) => {
+  //   const value = gamepad.axes[index];
+  //   if (value > 0.1 || value < -0.1) {
+  //     message.value = `${name} moved to ${value.toFixed(2)}`;
+  //   }
+  // });
+
+
+
+
+}
+
+
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+
+  // window.addEventListener('gamepadconnected', onGamepadConnected);
+  // window.addEventListener('gamepaddisconnected', onGamepadDisconnected);
+  // pollGamepad();
+
+
 })
 
 onBeforeUnmount(() => {
   document.removeEventListener('keydown', handleKeydown)
+
+  // window.removeEventListener('gamepadconnected', onGamepadConnected);
+  // window.removeEventListener('gamepaddisconnected', onGamepadDisconnected);
+
 })
 </script>
 
@@ -587,93 +470,6 @@ input[type='color'] {
 .active-btn {
   background-color: $active-button-color;
   color: $active-button-text-color;
-}
-
-/* Estilos para la sidebar */
-.sidebar {
-  position: fixed;
-  top: $navbar-height;
-  left: -250px; /* Oculta la sidebar fuera de la vista */
-  width: 250px;
-  height: 100%;
-  background-color: $navbar-bg-color;
-  overflow-x: hidden;
-  transition: 0.3s;
-  z-index: 1002; /* Asegura que la sidebar esté por encima del navbar */
-  // padding-top: 60px; /* Añade padding para evitar el navbar */
-}
-
-.sidebar-visible {
-  left: 0; /* Muestra la sidebar */
-}
-
-.sidebar-content {
-  padding: 15px;
-  color: $icon-color;
-}
-
-.sidebar-content h2 {
-  margin-bottom: 30px;
-}
-
-.control-group {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin-bottom: 20px; /* Espacio entre grupos */
-}
-
-h3 {
-  text-align: left;
-  width: 100%;
-  padding-left: 15px; /* Alinea el título a la izquierda */
-  color: $icon-color;
-}
-
-.separator {
-  border: 0;
-  height: 1px;
-  background: $border-color;
-  margin: 20px 0; /* Espacio alrededor del separador */
-}
-
-.accordion {
-  .accordion-item {
-    margin-bottom: 10px;
-
-    h3 {
-      cursor: pointer;
-      padding: 10px;
-      background-color: $navbar-bg-color;
-      color: $icon-color;
-      border: 1px solid $border-color;
-      border-radius: 5px;
-      margin: 0;
-    }
-
-    .accordion-content {
-      padding: 10px;
-      border: 1px solid $border-color;
-      border-top: none;
-      background-color: darken($navbar-bg-color, 5%);
-    }
-
-    button {
-      display: block;
-      width: 100%;
-      padding: 10px;
-      margin: 5px 0;
-      background-color: transparent; // Fondo transparente
-      color: $icon-color;
-      border: none; // Sin borde
-      cursor: pointer;
-      text-align: left; // Alinear texto a la izquierda
-
-      // &:hover {
-      //   background-color: lighten($navbar-bg-color, 10%); // Fondo más claro al pasar el ratón
-      // }
-    }
-  }
 }
 
 
