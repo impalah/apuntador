@@ -59,6 +59,10 @@
         </button>
 
         <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
+          <font-awesome-icon icon="angles-left" class="icon-color" />
+        </button>
+
+        <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
           <font-awesome-icon icon="backward" class="icon-color" />
         </button>
 
@@ -72,6 +76,10 @@
 
         <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
           <font-awesome-icon icon="forward" class="icon-color" />
+        </button>
+
+        <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
+          <font-awesome-icon icon="angles-right" class="icon-color" />
         </button>
 
         <button

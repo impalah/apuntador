@@ -42,6 +42,7 @@ export const useDefaultsStore = defineStore('defaults', {
     textAlignment: {
         default: 'center'
     },
+    paragraphLabel: 'h3',
     textContent: `# Welcome to Apuntador!!!
 
 Apuntador can be used to display text in a teleprompter-like fashion.
