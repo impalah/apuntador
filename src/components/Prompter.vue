@@ -21,6 +21,8 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
+    
+      <!-- Highlight overlay -->
       <div
         class="highlight-overlay"
         :style="{
@@ -44,7 +46,7 @@
             fontSize: store.highlightArrowSize
           }"
         />
-      </div>
+      </div> <!-- Highlight overlay -->
 
       <div
         ref="textContent"

@@ -86,8 +86,7 @@
         </button>
       </div>
 
-      <div class="control">
-        <font-awesome-icon icon="gauge" class="icon-label icon-color" title="Scroll speed" />
+      <ToolbarControl icon="gauge" title="Scroll speed">                
         <input
           type="range"
           id="scrollSpeed"
@@ -97,7 +96,7 @@
           @input="invoker.addCommand(new UpdateScrollSpeedCommand(store, scrollSpeed, defaults.scrollSpeed.maxConstant)); invoker.executeCommands();"
           tabindex="-1"
         />
-      </div>
+      </ToolbarControl>
 
     <!-- Sidebar -->
     <Sidebar :isSidebarVisible="isSidebarVisible" />
@@ -122,6 +121,7 @@ import { ToggleFullScreenCommand } from '@/commands/ToggleFullScreenCommand'
 
 import Sidebar from '@/components/Sidebar.vue';
 import ToolbarButton from './ToolbarButton.vue'
+import ToolbarControl from './ToolbarControl.vue'
 
 import logger from '@/core/logger'
 
