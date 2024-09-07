@@ -1,12 +1,16 @@
 <template>
   <div class="general">
-    <Navbar />
+    <div> <!-- Header -->
+      <Navbar />
+    </div>
     <Prompter />
   </div>
 </template>
 
 <script setup lang="ts">
 import Navbar from './components/Navbar.vue'
+import Sidebar from './components/Sidebar.vue';
+
 import Prompter from './components/Prompter.vue'
 </script>
 

@@ -8,6 +8,12 @@ $link-hover-background-color: hsla(160, 100%, 37%, 0.2);
 $transition-duration: 0.4s;
 $media-query-min-width: 1024px;
 
+$icon-color: #ffffff; /* Cambia este valor al color deseado */
+$button-padding: 10px; /* Añade padding a los botones para hacerlos más grandes */
+$icon-hover-color: hsla(160, 100%, 37%, 0.2);
+$button-font-size: 24px; /* Aumenta el tamaño de la fuente de los botones */
+
+
 // Import base styles
 @import './base.scss';
 
@@ -58,3 +64,27 @@ a,
     background-color: $link-hover-background-color;
   }
 }
+
+
+.icon-color {
+  color: $icon-color;
+  padding: $button-padding;
+}
+
+@media (hover: hover) {
+  .icon-color:hover {
+    background-color: $icon-hover-color
+    // background-color: $navbar-bg-color;
+  }
+}
+
+
+.standard-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: $button-font-size;
+  padding: $button-padding;
+}
+
+

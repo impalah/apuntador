@@ -47,8 +47,8 @@
               <!-- Text Configuration -->
               <h3>Text Configuration</h3>
               <div class="control-group">
-                <div class="control">
-                  <font-awesome-icon icon="palette" class="icon-label icon-color" title="Text color" />
+                <ToolbarControl icon="palette" title="Text Color">                
+
                   <input
                     type="color"
                     id="textColor"
@@ -56,9 +56,9 @@
                     @change="invoker.addCommand(new UpdateTextColorCommand(store, textColor)); invoker.executeCommands();"
                     tabindex="-1"
                   >
-                </div>
-                <div class="control">
-                  <font-awesome-icon icon="text-height" class="icon-label icon-color" title="Text size" />
+                </ToolbarControl>
+
+                <ToolbarControl icon="text-height" title="Text size">                
                   <select
                     id="fontSize"
                     v-model="fontSize"
@@ -66,7 +66,8 @@
                     tabindex="-1">
                     <option v-for="size in fontSizes" :key="size" :value="size">{{ size }} px</option>
                   </select>
-                </div>
+                </ToolbarControl>
+
               </div>
   
               <hr class="separator">
@@ -103,12 +104,8 @@
                     <font-awesome-icon icon="align-right" class="icon-color" />
                   </button>
                 </div>
-                <div class="control">
-                  <font-awesome-icon
-                    icon="arrows-alt-h"
-                    class="icon-label icon-color"
-                    title="Margin"
-                  />
+
+                <ToolbarControl icon="arrows-alt-h" title="Margin">                
                   <input
                     type="range"
                     id="margin"
@@ -118,20 +115,16 @@
                     @input="invoker.addCommand(new UpdateLateralMarginCommand(store, lateralMargin)); invoker.executeCommands();"
                     tabindex="-1"
                   />      
-                </div>
-              </div>
+                </ToolbarControl>
+              </div> <!-- control-group -->
   
               <hr class="separator">
   
               <!-- Highlight -->
               <h3>Highlight</h3>
               <div class="control-group">
-                <div class="control">
-                  <font-awesome-icon
-                    icon="highlighter"
-                    class="icon-label icon-color"
-                    title="Highlight position"
-                  />
+
+                <ToolbarControl icon="highlighter" title="Highlight position">                
                   <input
                     type="range"
                     id="highlightPosition"
@@ -141,7 +134,9 @@
                     @input="invoker.addCommand(new UpdateHighlightPositionCommand(store, highlightPosition)); invoker.executeCommands();"
                     tabindex="-1"
                   />
-                </div>
+                </ToolbarControl>
+
+
               </div>
   
               <hr class="separator">
@@ -180,11 +175,11 @@
   <script setup lang="ts">
   import { ref } from 'vue';
 
-  import { defineProps, watch } from 'vue'
+  import { watch } from 'vue'
   import logger from '@/core/logger'
 
 
-  import { useSettingsStore } from '@/stores/settings';
+  import { usePrompterSettingsStore } from '@/stores/prompterSettings';
   import { useDefaultsStore } from '@/stores/defaults';
   import { CommandInvoker } from '@/commands/CommandInvoker';
   import { OpenLocalFileCommand } from '@/commands/OpenLocalFileCommand';
@@ -198,7 +193,10 @@
   import { ToggleMirrorCommand } from '@/commands/ToggleMirrorCommand';
   import { ToggleReverseCommand } from '@/commands/ToggleReverseCommand';
   
-  const store = useSettingsStore();
+  import ToolbarButton from './ToolbarButton.vue';
+  import ToolbarControl from './ToolbarControl.vue';
+
+  const store = usePrompterSettingsStore();
   const defaults = useDefaultsStore();
   const invoker = new CommandInvoker();
   

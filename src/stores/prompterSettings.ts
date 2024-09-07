@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { useDefaultsStore } from './defaults'
 import logger from '@/core/logger'
 
-export const useSettingsStore = defineStore('settings', {
+export const usePrompterSettingsStore = defineStore('settings', {
   state: () => {
     const defaultsStore = useDefaultsStore()
     return {
