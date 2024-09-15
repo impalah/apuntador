@@ -23,30 +23,13 @@
     >
     
       <!-- Highlight overlay -->
-      <div
-        class="highlight-overlay"
-        :style="{
-          top: `${store.highlightPosition}%`,
-          backgroundColor: store.highlightBackgroundColor.default
-        }"
-        >
-        <font-awesome-icon
-          icon="caret-right"
-          class="left-arrow"
-          :style="{
-            color: store.highlightArrowColor,
-            fontSize: store.highlightArrowSize
-          }"
-        />
-        <font-awesome-icon
-          icon="caret-left"
-          class="right-arrow"
-          :style="{
-            color: store.highlightArrowColor,
-            fontSize: store.highlightArrowSize
-          }"
-        />
-      </div> <!-- Highlight overlay -->
+      <HighlightOverlay
+        :highlightPosition="Number(store.highlightPosition)"
+        :highlightBackgroundColor="store.highlightBackgroundColor.default"
+        :highlightArrowColor="store.highlightArrowColor"
+        :highlightArrowSize="store.highlightArrowSize"
+      />
+
 
       <div
         ref="textContent"
@@ -54,14 +37,17 @@
         v-html="formattedTextContent"
       >
       </div>
-    </div>
+    </div> <!-- text-display -->
+
     <textarea
       v-else
       v-model="editedContent"
       @input="updateTextContent"
       class="text-area"
     ></textarea>
-  </div>
+
+  </div> <!-- prompter -->
+
 </template>
 
 <script setup lang="ts">
@@ -70,6 +56,7 @@ import { usePrompterSettingsStore } from '@/stores/prompterSettings'
 import { useDefaultsStore } from '@/stores/defaults'
 import showdown from 'showdown'
 import logger from '@/core/logger'
+import HighlightOverlay from '@/components/HighlightOverlay.vue'
 
 const store = usePrompterSettingsStore()
 const defaults = useDefaultsStore()
@@ -336,26 +323,6 @@ $text-content-margin: 1em;
   text-align: right;
 }
 
-.highlight-overlay {
-  position: absolute;
-  left: 0;
-  width: 100%;
-  height: calc(3 * 1em); /* Altura de tres líneas de texto */
-  transform: translateY(-50%); /* Centrar verticalmente */
-  pointer-events: none; /* Permitir clics a través de la overlay */
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 10px; /* Pequeña separación de los bordes verticales */
-}
-
-.left-arrow {
-  margin-right: 0;
-}
-
-.right-arrow {
-  margin-left: 0;
-}
 
 .text-content {
   margin: $text-content-margin; /* Fixed margins around the div */

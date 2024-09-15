@@ -40,8 +40,6 @@ const handleClick = (event: Event) => {
 emit('click', event)
 }
 
-// Destructuring props
-const { buttonClass, iconClass, icon, title } = props
 </script>
   
 <style lang="scss" scoped>
