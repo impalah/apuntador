@@ -21,6 +21,8 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
+    
+      <!-- Highlight overlay -->
       <div
         class="highlight-overlay"
         :style="{
@@ -44,7 +46,7 @@
             fontSize: store.highlightArrowSize
           }"
         />
-      </div>
+      </div> <!-- Highlight overlay -->
 
       <div
         ref="textContent"
@@ -64,12 +66,12 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import { useSettingsStore } from '@/stores/settings'
+import { usePrompterSettingsStore } from '@/stores/prompterSettings'
 import { useDefaultsStore } from '@/stores/defaults'
 import showdown from 'showdown'
 import logger from '@/core/logger'
 
-const store = useSettingsStore()
+const store = usePrompterSettingsStore()
 const defaults = useDefaultsStore()
 
 const scrollContainer = ref<HTMLElement | null>(null)

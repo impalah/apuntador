@@ -80,3 +80,5 @@ terraform.rc
 
 .terraform.lock.hcl
 
+.npm
+

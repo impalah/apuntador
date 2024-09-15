@@ -1,14 +1,13 @@
 <template>
-  <div>
     <div class="navbar" @keydown="handleKeydown">
 
       <div class="logo-container">
 
-        <div class="control">
-          <button class="sidebar-toggle-btn" @click="toggleSidebar" title="Toggle Sidebar" tabindex="-1">
-            <font-awesome-icon icon="bars" class="icon-color" />
-          </button>
-        </div>
+        <ToolbarButton
+          icon="bars"
+          title="Toggle Sidebar"
+          @click="toggleSidebar"
+        />
 
         <a href="https://apuntador.io" class="link-with-margin" target="_blank" rel="noopener noreferrer">
           <img src="@/assets/logo.png" alt="Logo" class="app-logo" />
@@ -19,7 +18,7 @@
           <div>
             <p>Press a button on your gamepad to see the output:</p>
             <p>{{ message }}</p>
-          </div>          
+          </div>
 
         </div> -->
 
@@ -37,17 +36,13 @@
           </button>
         </div>
 
-        <div class="control">
-          <button
-            class="fullscreen-btn"
-            @click="invoker.addCommand(new ToggleFullScreenCommand()); invoker.executeCommands();"
-            title="Toggle Full Screen"
-            tabindex="-1"
-          >
-            <font-awesome-icon icon="expand" class="icon-color" />
-          </button>
-        </div>
-      </div>
+        <ToolbarButton
+          icon="expand"
+          title="Toggle Full Screen"
+          @click="invoker.addCommand(new ToggleFullScreenCommand()); invoker.executeCommands();"
+        />
+
+      </div> <!-- End of logo-container-->
 
       <div class="control play-stop-group">
         <button
@@ -57,6 +52,10 @@
           tabindex="-1">
           <font-awesome-icon icon="backward-step" class="icon-color" />
         </button>
+
+        <!-- <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
+          <font-awesome-icon icon="angles-left" class="icon-color" />
+        </button> -->
 
         <button class="scroll-btn" @click="store.scrollUp" title="Scroll Up" tabindex="-1">
           <font-awesome-icon icon="backward" class="icon-color" />
@@ -74,6 +73,10 @@
           <font-awesome-icon icon="forward" class="icon-color" />
         </button>
 
+        <!-- <button class="scroll-btn" @click="store.scrollDown" title="Scroll Down" tabindex="-1">
+          <font-awesome-icon icon="angles-right" class="icon-color" />
+        </button> -->
+
         <button
           class="stop-btn"
           @click="invoker.addCommand(new EndingScrollingCommand(store)); invoker.executeCommands();"
@@ -83,8 +86,7 @@
         </button>
       </div>
 
-      <div class="control">
-        <font-awesome-icon icon="gauge" class="icon-label icon-color" title="Scroll speed" />
+      <ToolbarControl icon="gauge" title="Scroll speed">                
         <input
           type="range"
           id="scrollSpeed"
@@ -94,19 +96,18 @@
           @input="invoker.addCommand(new UpdateScrollSpeedCommand(store, scrollSpeed, defaults.scrollSpeed.maxConstant)); invoker.executeCommands();"
           tabindex="-1"
         />
-      </div>
-    </div> <!-- End of Navbar -->
+      </ToolbarControl>
 
     <!-- Sidebar -->
     <Sidebar :isSidebarVisible="isSidebarVisible" />
 
 
-  </div>
+  </div> <!-- End of Main div-->
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted, onBeforeUnmount } from 'vue'
-import { useSettingsStore } from '@/stores/settings'
+import { usePrompterSettingsStore } from '@/stores/prompterSettings'
 import { useDefaultsStore } from '@/stores/defaults'
 
 import { CommandInvoker } from '@/commands/CommandInvoker'
@@ -119,6 +120,8 @@ import { EndingScrollingCommand } from '@/commands/EndingScrollingCommand'
 import { ToggleFullScreenCommand } from '@/commands/ToggleFullScreenCommand'
 
 import Sidebar from '@/components/Sidebar.vue';
+import ToolbarButton from './ToolbarButton.vue'
+import ToolbarControl from './ToolbarControl.vue'
 
 import logger from '@/core/logger'
 
@@ -127,7 +130,7 @@ const message = ref('')
 const gamepadIndex = ref<number | null>(null)
 
 
-const store = useSettingsStore()
+const store = usePrompterSettingsStore()
 const defaults = useDefaultsStore()
 
 const invoker = new CommandInvoker();
@@ -229,7 +232,7 @@ const handleGamepadInput = (gamepad: Gamepad) => {
   });
 
   message.value = pressedButtonIndices.join(', ');
-  
+
 
 
   // if (gamepad.buttons[0].pressed) {
@@ -324,17 +327,6 @@ $active-button-text-color: white;
 $control-margin-bottom: 10px;
 $control-margin-top: 10px;
 
-.icon-color {
-  color: $icon-color;
-  padding: $button-padding;
-}
-
-@media (hover: hover) {
-  .icon-color:hover {
-    background-color: $icon-hover-color
-    // background-color: $navbar-bg-color;
-  }
-}
 
 html,
 body {
