@@ -299,6 +299,7 @@ $text-content-margin: 1em;
   overflow-y: hidden;
   color: $text-color; /* Inherits color from parent div */
   line-height: $line-height; /* Ajusta el interlineado */
+
 }
 
 .text-area {
@@ -326,6 +327,7 @@ $text-content-margin: 1em;
 
 .text-content {
   margin: $text-content-margin; /* Fixed margins around the div */
+
 }
 
 /* Nueva clase para el texto difuminado */
