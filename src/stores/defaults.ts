@@ -52,7 +52,7 @@ It is designed to be used in a secondary screen, while you are recording yoursel
 
 ## Features
 
-- **Text formatting**: You can use markdown to format the text.
+- **Text formatting**: You can use Markdown to format the text.
 - **Text alignment**: You can align the text to the left, center or right.
 - **Scroll speed**: You can adjust the speed of the scrolling.
 - **Mirror text**: You can mirror the text horizontally.
@@ -62,6 +62,36 @@ It is designed to be used in a secondary screen, while you are recording yoursel
 
 
 Brought to you by [Impalah](https://github.com/impalah)
+
+---
+
+Markdown showcase:
+
+# This is an h1 tag
+## This is an h2 tag
+###### This is an h6 tag
+
+*This text will be italic*
+**This text will be bold**
+a ~~strikethrough~~ element
+
+1. First ordered list item
+2. Another item
+  * Unordered sub-list.
+1. Actual numbers don't matter, just that it's a number
+
+- [x] checked list item
+- [ ] unchecked list item
+
+link to http://www.google.com/
+this is my email somedude@mail.com
+
+![showdown logo][]
+[showdown logo]: http://showdownjs.github.io/demo/img/editor.logo.white.png
+
+Emojis: :smile: :+1: :rocket: :metal:
+https://github.com/showdownjs/showdown/wiki/emojis
+
 
 ---
 
