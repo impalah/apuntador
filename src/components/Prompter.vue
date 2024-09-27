@@ -11,6 +11,16 @@
       width: `calc(100% - ${2 * store.lateralMargin}%)`
     }"
   >
+
+      <!-- Highlight overlay -->
+      <HighlightOverlay
+        :highlightPosition="Number(store.highlightPosition)"
+        :highlightBackgroundColor="store.highlightBackgroundColor.default"
+        :highlightArrowColor="store.highlightArrowColor"
+        :highlightArrowSize="store.highlightArrowSize"
+      />
+
+
     <div
       v-if="!store.isEditing"
       ref="scrollContainer"
@@ -21,15 +31,6 @@
         'text-align-right': store.textAlign === 'right'
       }"
     >
-    
-      <!-- Highlight overlay -->
-      <HighlightOverlay
-        :highlightPosition="Number(store.highlightPosition)"
-        :highlightBackgroundColor="store.highlightBackgroundColor.default"
-        :highlightArrowColor="store.highlightArrowColor"
-        :highlightArrowSize="store.highlightArrowSize"
-      />
-
 
       <div
         ref="textContent"
@@ -299,7 +300,6 @@ $text-content-margin: 1em;
   overflow-y: hidden;
   color: $text-color; /* Inherits color from parent div */
   line-height: $line-height; /* Ajusta el interlineado */
-
 }
 
 .text-area {
@@ -327,7 +327,6 @@ $text-content-margin: 1em;
 
 .text-content {
   margin: $text-content-margin; /* Fixed margins around the div */
-
 }
 
 /* Nueva clase para el texto difuminado */
