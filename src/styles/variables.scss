@@ -1,0 +1,44 @@
+// Vuetify theme variables
+$primary: #2196f3 !default;
+$secondary: #424242 !default;
+$accent: #ff4081 !default;
+$error: #f44336 !default;
+$warning: #ff9800 !default;
+$info: #2196f3 !default;
+$success: #4caf50 !default;
+
+// Custom variables
+$teleprompter-bg: #000000 !default;
+$teleprompter-fg: #ffffff !default;
+$toolbar-bg: rgba(0, 0, 0, 0.8) !default;
+$toolbar-fg: #ffffff !default;
+$highlight-band-bg: rgba(255, 255, 255, 0.1) !default;
+$dimmed-opacity: 0.3 !default;
+
+// Spacing
+$toolbar-padding: 16px !default;
+$component-padding: 24px !default;
+$safe-area-padding: 20px !default;
+
+// Animation
+$transition-duration: 0.3s !default;
+$transition-easing: cubic-bezier(0.4, 0, 0.2, 1) !default;
+
+// Breakpoints (matching Vuetify)
+$grid-breakpoints: (
+  xs: 0,
+  sm: 600px,
+  md: 960px,
+  lg: 1264px,
+  xl: 1904px,
+) !default;
+
+// Z-indexes
+$z-index-toolbar: 100 !default;
+$z-index-highlight-band: 50 !default;
+$z-index-overlay: 200 !default;
+$z-index-modal: 300 !default;
+
+// Touch target sizes
+$min-touch-target: 44px !default;
+$large-touch-target: 56px !default;

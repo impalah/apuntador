@@ -1,137 +1,75 @@
 {
   "name": "apuntador",
-  "version": "1.1.9",
   "private": true,
+  "version": "0.0.1",
   "type": "module",
-  "main": "main.js",
-  "description": "A Teleprompter application",
-  "author": "Impalah <impalah@gmail.com>",
+  "description": "Mobile-first teleprompter built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" --",
+    "build": "vite build",
     "preview": "vite preview",
-    "test:unit": "vitest",
+    "typecheck": "vue-tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "stylelint": "stylelint \"src/**/*.{vue,css,scss}\"",
+    "test": "vitest run",
+    "test:ui": "vitest",
     "test:e2e": "playwright test",
-    "build-only": "vite build",
-    "type-check": "vue-tsc --build --force",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/",
-    "electron:dev": "concurrently \"vite\" \"wait-on http://localhost:3000 && npx electron .\"",
-    "electron:build": "vite build && electron-builder"
+    "coverage": "vitest run --coverage",
+    "docs:api": "typedoc",
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs",
+    "docs:serve": "npm run docs:build && npm run docs:preview",
+    "clean": "rimraf dist coverage test-results playwright-report docs/api docs/.vitepress/dist",
+    "clean:deps": "rimraf node_modules package-lock.json && npm cache clean --force",
+    "clean:all": "npm run clean && npm run clean:deps",
+    "fresh": "npm run clean:all && npm install"
   },
   "dependencies": {
-    "@fortawesome/fontawesome-svg-core": "^6.6.0",
-    "@fortawesome/free-brands-svg-icons": "^6.6.0",
-    "@fortawesome/free-solid-svg-icons": "^6.6.0",
-    "@fortawesome/vue-fontawesome": "^3.0.8",
-    "loglevel": "^1.9.1",
-    "pinia": "^2.1.7",
-    "vue": "^3.4.29",
-    "vue-router": "^4.3.3",
-    "vue-showdown": "^4.2.0"
+    "@mdi/font": "^7.3.0",
+    "localforage": "^1.10.0",
+    "markdown-it": "^14.0.0",
+    "markdown-it-anchor": "^8.6.0",
+    "markdown-it-footnote": "^3.0.3",
+    "markdown-it-mark": "^3.0.1",
+    "markdown-it-sub": "^1.0.0",
+    "markdown-it-sup": "^1.0.0",
+    "pinia": "^2.1.0",
+    "vue": "^3.4.0",
+    "vue-router": "^4.2.0",
+    "vuetify": "^3.4.0",
+    "zod": "^3.22.0"
   },
   "devDependencies": {
-    "@playwright/test": "^1.44.1",
-    "@rushstack/eslint-patch": "^1.8.0",
-    "@tsconfig/node20": "^20.1.4",
-    "@types/jsdom": "^21.1.7",
-    "@types/node": "^20.14.5",
-    "@vitejs/plugin-vue": "^5.0.5",
-    "@vitejs/plugin-vue-jsx": "^4.0.0",
-    "@vue/eslint-config-prettier": "^9.0.0",
-    "@vue/eslint-config-typescript": "^13.0.0",
-    "@vue/test-utils": "^2.4.6",
-    "@vue/tsconfig": "^0.5.1",
-    "concurrently": "^8.2.2",
-    "electron": "^31.4.0",
-    "electron-builder": "^24.13.3",
-    "eslint": "^8.57.0",
-    "eslint-plugin-playwright": "^1.6.2",
-    "eslint-plugin-vue": "^9.23.0",
-    "jsdom": "^24.1.0",
-    "npm-run-all2": "^6.2.0",
-    "prettier": "^3.2.5",
-    "sass": "^1.77.8",
-    "sass-loader": "^16.0.0",
-    "typescript": "~5.4.0",
-    "vite": "^5.3.1",
+    "@playwright/test": "^1.40.0",
+    "@types/markdown-it": "^13.0.0",
+    "@types/node": "^20.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.14.0",
+    "@typescript-eslint/parser": "^6.14.0",
+    "@vitejs/plugin-vue": "^4.5.0",
+    "@vitest/coverage-v8": "^1.6.0",
+    "@vue/test-utils": "^2.4.0",
+    "@vue/tsconfig": "^0.5.0",
+    "eslint": "^8.55.0",
+    "eslint-plugin-vue": "^9.19.0",
+    "jsdom": "^23.0.0",
+    "prettier": "^3.1.0",
+    "rimraf": "^6.0.1",
+    "sass": "^1.69.0",
+    "stylelint": "^16.0.0",
+    "stylelint-config-standard-scss": "^13.0.0",
+    "stylelint-config-standard-vue": "^1.0.0",
+    "typedoc": "^0.28.10",
+    "typedoc-plugin-markdown": "^4.8.1",
+    "typescript": "^5.3.0",
+    "vite": "^5.0.0",
+    "vite-plugin-vuetify": "^2.0.0",
+    "vitepress": "^1.6.4",
     "vitest": "^1.6.0",
-    "vue-tsc": "^2.0.21",
-    "wait-on": "^7.2.0"
+    "vue-tsc": "^2.0.0"
   },
-  "build": {
-    "appId": "app.apuntador.io",
-    "productName": "Apuntador",
-    "directories": {
-      "output": "dist_electron"
-    },
-    "files": [
-      "dist/**/*",
-      "main.js",
-      "preload.js"
-    ],
-    "win": {
-      "target": [
-        {
-          "target": "nsis",
-          "arch": [
-            "x64"
-          ]
-        },
-        {
-          "target": "portable",
-          "arch": [
-            "x64"
-          ]
-        }
-      ],
-      "icon": "public/favicon.ico"
-    },
-    "mac": {
-      "target": [
-        {
-          "target": "dmg",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "zip",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icon.icns"
-    },
-    "linux": {
-      "target": [
-        {
-          "target": "AppImage",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "deb",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        },
-        {
-          "target": "rpm",
-          "arch": [
-            "x64",
-            "arm64"
-          ]
-        }
-      ],
-      "icon": "public/icon.png",
-      "category": "Utility"
-    }
+  "engines": {
+    "node": ">=20.0.0"
   }
 }

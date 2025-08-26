@@ -1,38 +1,69 @@
+# Dependencies
+node_modules/
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Build outputs
+dist/
+build/
+out/
+
+# Documentation builds
+docs/.vitepress/dist/
+docs/api/
+
+# Test outputs
+coverage/
+test-results/
+playwright-report/
+.nyc_output/
+
+# Environment files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Cache directories
+.cache/
+.vitest/
+.turbo/
+
 # Logs
-logs
 *.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-.DS_Store
-dist
-dist_electron
-dist-ssr
-coverage
-*.local
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-/cypress/videos/
-/cypress/screenshots/
+# Optional npm cache directory
+.npm
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
-.idea
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Optional eslint cache
+.eslintcache
 
-*.tsbuildinfo
-
-test-results/
-playwright-report/
-
+# Temporary folders
+tmp/
+temp/
 
 #########################################
 # Terraform .terraform directories
@@ -79,6 +110,4 @@ terraform.rc
 **/origin/*
 
 .terraform.lock.hcl
-
-.npm
 
