@@ -6,7 +6,13 @@ A professional mobile-first teleprompter web application built with Vue 3, TypeS
 
 ## ✨ Features
 
-- 🎯 \*\*Pr## 🚀 Deployment Options
+- **Auto-scrolling** with adjustable speed
+- **Highlight band** to focus on current lines
+- **Mobile-friendly** touch controls
+- **Mirror modes** for professional setups
+- **Markdown support** for rich formatting
+
+## 🚀 Deployment Options
 
 ### Static Hosting (Recommended)
 
