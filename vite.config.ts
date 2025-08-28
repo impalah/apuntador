@@ -19,6 +19,14 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  css: {
+    preprocessorOptions: {
+      scss: {
+        // Basic configuration to minimize deprecation warnings
+        quietDeps: true,
+      },
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
