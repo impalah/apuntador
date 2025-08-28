@@ -21,6 +21,38 @@ test.describe('Teleprompter Basic Functionality', () => {
     await expect(toolbar).toBeVisible()
   })
 
+  test('should center toolbar horizontally on all screen sizes', async ({ page }) => {
+    // Load the page
+    await page.goto('/')
+
+    // Function to check toolbar centering
+    async function checkCentering(width: number, height: number = 800) {
+      await page.setViewportSize({ width, height })
+      await page.waitForTimeout(500) // Wait for layout to adjust
+
+      const toolbar = page.locator('[data-testid="floating-toolbar"]')
+      const toolbarBox = await toolbar.boundingBox()
+      const viewportSize = page.viewportSize()!
+
+      if (!toolbarBox) {
+        throw new Error('Toolbar not found')
+      }
+
+      const toolbarCenter = toolbarBox.x + toolbarBox.width / 2
+      const viewportCenter = viewportSize.width / 2
+      const difference = Math.abs(toolbarCenter - viewportCenter)
+      const tolerance = 5
+
+      // Verify toolbar is centered horizontally
+      expect(difference).toBeLessThanOrEqual(tolerance)
+    }
+
+    // Test on different viewport sizes
+    await checkCentering(360) // Mobile
+    await checkCentering(768) // Tablet
+    await checkCentering(1920) // Desktop
+  })
+
   test('should play and pause teleprompter', async ({ page }) => {
     const playButton = page.locator('[data-testid="play-pause-button"]').first()
 

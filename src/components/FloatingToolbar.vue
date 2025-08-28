@@ -6,6 +6,7 @@
     bg-color="rgba(0, 0, 0, 0.8)"
     height="80"
     grow
+    data-testid="floating-toolbar"
   >
     <!-- Minimal mode for mobile and small tablets (xs and sm screens) -->
     <template v-if="$vuetify.display.xs || $vuetify.display.sm">
@@ -37,94 +38,128 @@
           />
         </template>
 
-        <v-card min-width="280">
-          <v-card-text>
-            <v-row dense>
-              <!-- Navigation Controls -->
-              <v-col cols="12">
-                <div class="d-flex justify-space-between mb-2">
-                  <v-btn icon="mdi-skip-previous" variant="text" @click="$emit('stepLines', -5)" />
-                  <v-btn icon="mdi-chevron-up" variant="text" @click="$emit('stepLines', -1)" />
-                  <v-btn icon="mdi-chevron-down" variant="text" @click="$emit('stepLines', 1)" />
-                  <v-btn icon="mdi-skip-next" variant="text" @click="$emit('stepLines', 5)" />
+        <v-card min-width="320" max-width="360" class="more-menu-card">
+          <v-card-text class="pa-3">
+            <div class="more-menu-content">
+              <!-- Navigation Controls Row -->
+              <div class="menu-section navigation-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    icon="mdi-skip-previous"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', -5)"
+                  />
+                  <v-btn
+                    icon="mdi-chevron-up"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', -1)"
+                  />
+                  <v-btn
+                    icon="mdi-chevron-down"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', 1)"
+                  />
+                  <v-btn
+                    icon="mdi-skip-next"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', 5)"
+                  />
                 </div>
-              </v-col>
+              </div>
 
-              <!-- Home/End -->
-              <v-col cols="6">
-                <v-btn block variant="outlined" prepend-icon="mdi-home" @click="$emit('goHome')">
-                  Home
-                </v-btn>
-              </v-col>
-              <v-col cols="6">
-                <v-btn
-                  block
-                  variant="outlined"
-                  prepend-icon="mdi-arrow-down-bold"
-                  @click="$emit('goEnd')"
-                >
-                  End
-                </v-btn>
-              </v-col>
+              <!-- Home/End Controls -->
+              <div class="menu-section home-end-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    variant="outlined"
+                    prepend-icon="mdi-home"
+                    size="small"
+                    class="flex-btn"
+                    @click="$emit('goHome')"
+                  >
+                    Home
+                  </v-btn>
+                  <v-btn
+                    variant="outlined"
+                    prepend-icon="mdi-arrow-down-bold"
+                    size="small"
+                    class="flex-btn"
+                    @click="$emit('goEnd')"
+                  >
+                    End
+                  </v-btn>
+                </div>
+              </div>
 
               <!-- Font Size Control -->
-              <v-col cols="12">
+              <div class="menu-section font-control">
                 <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
-              </v-col>
+              </div>
 
               <!-- Mirror Controls -->
-              <v-col cols="6">
-                <v-btn
-                  block
-                  :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-                  prepend-icon="mdi-flip-horizontal"
-                  data-testid="mirror-h-button"
-                  @click="$emit('mirrorToggle', 'h')"
-                >
-                  Mirror H
-                </v-btn>
-              </v-col>
-              <v-col cols="6">
-                <v-btn
-                  block
-                  :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-                  prepend-icon="mdi-flip-vertical"
-                  data-testid="mirror-v-button"
-                  @click="$emit('mirrorToggle', 'v')"
-                >
-                  Mirror V
-                </v-btn>
-              </v-col>
+              <div class="menu-section mirror-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
+                    prepend-icon="mdi-flip-horizontal"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="mirror-h-button"
+                    @click="$emit('mirrorToggle', 'h')"
+                  >
+                    Mirror H
+                  </v-btn>
+                  <v-btn
+                    :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
+                    prepend-icon="mdi-flip-vertical"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="mirror-v-button"
+                    @click="$emit('mirrorToggle', 'v')"
+                  >
+                    Mirror V
+                  </v-btn>
+                </div>
+              </div>
 
               <!-- Action Buttons -->
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-pencil"
-                  data-testid="editor-button"
-                  @click="$emit('openEditor')"
-                />
-              </v-col>
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-cog"
-                  data-testid="settings-button"
-                  @click="$emit('openSettings')"
-                />
-              </v-col>
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-file-import"
-                  data-testid="file-button"
-                  @click="$emit('openFile')"
-                />
-              </v-col>
-            </v-row>
+              <div class="menu-section action-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-pencil"
+                    size="small"
+                    class="action-btn"
+                    data-testid="editor-button"
+                    @click="$emit('openEditor')"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-cog"
+                    size="small"
+                    class="action-btn"
+                    data-testid="settings-button"
+                    @click="$emit('openSettings')"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-file-import"
+                    size="small"
+                    class="action-btn"
+                    data-testid="file-button"
+                    @click="$emit('openFile')"
+                  />
+                </div>
+              </div>
+            </div>
           </v-card-text>
         </v-card>
       </v-menu>
@@ -167,72 +202,99 @@
           />
         </template>
 
-        <v-card min-width="280">
-          <v-card-text>
-            <v-row dense>
-              <!-- Extended Navigation Controls -->
-              <v-col cols="12">
-                <div class="d-flex justify-space-between mb-2">
-                  <v-btn icon="mdi-skip-previous" variant="text" @click="$emit('stepLines', -5)" />
-                  <v-btn icon="mdi-home" variant="text" @click="$emit('goHome')" />
-                  <v-btn icon="mdi-arrow-down-bold" variant="text" @click="$emit('goEnd')" />
-                  <v-btn icon="mdi-skip-next" variant="text" @click="$emit('stepLines', 5)" />
+        <v-card min-width="320" max-width="360" class="more-menu-card">
+          <v-card-text class="pa-3">
+            <div class="more-menu-content">
+              <!-- Navigation Controls Row -->
+              <div class="menu-section navigation-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    icon="mdi-skip-previous"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', -5)"
+                  />
+                  <v-btn
+                    icon="mdi-home"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('goHome')"
+                  />
+                  <v-btn
+                    icon="mdi-arrow-down-bold"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('goEnd')"
+                  />
+                  <v-btn
+                    icon="mdi-skip-next"
+                    variant="text"
+                    size="small"
+                    class="nav-btn"
+                    @click="$emit('stepLines', 5)"
+                  />
                 </div>
-              </v-col>
+              </div>
 
               <!-- Mirror Controls -->
-              <v-col cols="6">
-                <v-btn
-                  block
-                  :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-                  prepend-icon="mdi-flip-horizontal"
-                  data-testid="mirror-h-button"
-                  @click="$emit('mirrorToggle', 'h')"
-                >
-                  Mirror H
-                </v-btn>
-              </v-col>
-              <v-col cols="6">
-                <v-btn
-                  block
-                  :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-                  prepend-icon="mdi-flip-vertical"
-                  data-testid="mirror-v-button"
-                  @click="$emit('mirrorToggle', 'v')"
-                >
-                  Mirror V
-                </v-btn>
-              </v-col>
+              <div class="menu-section mirror-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
+                    prepend-icon="mdi-flip-horizontal"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="mirror-h-button"
+                    @click="$emit('mirrorToggle', 'h')"
+                  >
+                    Mirror H
+                  </v-btn>
+                  <v-btn
+                    :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
+                    prepend-icon="mdi-flip-vertical"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="mirror-v-button"
+                    @click="$emit('mirrorToggle', 'v')"
+                  >
+                    Mirror V
+                  </v-btn>
+                </div>
+              </div>
 
               <!-- Action Buttons -->
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-pencil"
-                  data-testid="editor-button"
-                  @click="$emit('openEditor')"
-                />
-              </v-col>
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-cog"
-                  data-testid="settings-button"
-                  @click="$emit('openSettings')"
-                />
-              </v-col>
-              <v-col cols="4">
-                <v-btn
-                  block
-                  variant="outlined"
-                  icon="mdi-file-import"
-                  data-testid="file-button"
-                  @click="$emit('openFile')"
-                />
-              </v-col>
-            </v-row>
+              <div class="menu-section action-controls">
+                <div class="control-group-horizontal">
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-pencil"
+                    size="small"
+                    class="action-btn"
+                    data-testid="editor-button"
+                    @click="$emit('openEditor')"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-cog"
+                    size="small"
+                    class="action-btn"
+                    data-testid="settings-button"
+                    @click="$emit('openSettings')"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-file-import"
+                    size="small"
+                    class="action-btn"
+                    data-testid="file-button"
+                    @click="$emit('openFile')"
+                  />
+                </div>
+              </div>
+            </div>
           </v-card-text>
         </v-card>
       </v-menu>
@@ -343,12 +405,13 @@ function onFontSizeChange(delta: number) {
 <style scoped>
 .floating-toolbar {
   position: fixed !important;
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
+  bottom: 0px !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) translateZ(0) !important;
   width: auto !important;
-  min-width: 400px !important; /* Ensure enough space for fixed-width controls */
-  max-width: calc(100vw - 40px);
+  min-width: 320px !important; /* Reduced min-width for better mobile compatibility */
+  max-width: calc(100vw - 40px) !important;
   border-radius: 28px 28px 0 0 !important;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
@@ -360,13 +423,22 @@ function onFontSizeChange(delta: number) {
   overflow: visible !important; /* Key fix: allow content to overflow */
   /* Create isolated stacking context for child elements */
   isolation: isolate;
-  transform: translateX(-50%) translateZ(0);
 
   &.hidden {
     opacity: 0;
-    transform: translateX(-50%) translateY(20px) translateZ(0);
+    transform: translateX(-50%) translateY(20px) translateZ(0) !important;
     pointer-events: none;
   }
+}
+
+/* Override Vuetify's default width behavior */
+:deep(.v-bottom-navigation) {
+  width: auto !important;
+  left: 50% !important;
+  right: auto !important;
+  transform: translateX(-50%) !important;
+  overflow: visible !important;
+  position: static !important;
 }
 
 :deep(.v-bottom-navigation__content) {
@@ -380,6 +452,8 @@ function onFontSizeChange(delta: number) {
   overflow: visible !important; /* Allow controls to be fully visible */
   flex-wrap: nowrap !important; /* Never wrap controls */
   justify-content: center !important; /* Center all controls */
+  display: flex !important; /* Ensure flex display */
+  margin: 0 auto; /* Additional centering insurance */
 }
 
 /* Override Vuetify's overflow hidden on the navigation wrapper */
@@ -395,6 +469,7 @@ function onFontSizeChange(delta: number) {
 @media (max-width: 599px) {
   .floating-toolbar {
     max-width: calc(100vw - 20px);
+    min-width: 280px !important; /* Reduce further for very small screens */
     border-radius: 16px !important;
     min-height: 64px; /* Ensure adequate height on mobile */
   }
@@ -402,10 +477,25 @@ function onFontSizeChange(delta: number) {
   :deep(.v-bottom-navigation__content) {
     padding: 10px 8px; /* Adequate padding for mobile */
     min-height: 56px;
+    gap: 6px !important; /* Slightly reduce gap on mobile */
   }
 
   .floating-toolbar.hidden {
-    transform: translateY(20px);
+    transform: translateX(-50%) translateY(20px) translateZ(0);
+  }
+}
+
+/* Extra small screens (very small phones) */
+@media (max-width: 360px) {
+  .floating-toolbar {
+    max-width: calc(100vw - 16px);
+    min-width: 260px !important;
+    border-radius: 12px !important;
+  }
+
+  :deep(.v-bottom-navigation__content) {
+    padding: 8px 6px;
+    gap: 4px !important;
   }
 }
 
@@ -512,6 +602,107 @@ function onFontSizeChange(delta: number) {
     pointer-events: auto !important;
     opacity: 1 !important;
     visibility: visible !important;
+  }
+}
+
+/* More Menu Improvements */
+.more-menu-card {
+  border-radius: 16px !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
+}
+
+.more-menu-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.menu-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.control-group-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Navigation Controls */
+.navigation-controls .nav-btn {
+  flex: 1;
+  min-width: 40px;
+  max-width: 48px;
+  height: 40px;
+}
+
+/* Home/End Controls */
+.home-end-controls .flex-btn {
+  flex: 1;
+  min-height: 36px;
+  max-height: 40px;
+  text-transform: none;
+  font-weight: 500;
+}
+
+/* Font Control Section */
+.font-control {
+  padding: 4px 0;
+  align-items: center;
+}
+
+/* Mirror Controls */
+.mirror-controls .flex-btn {
+  flex: 1;
+  min-height: 36px;
+  max-height: 40px;
+  text-transform: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+/* Action Controls */
+.action-controls .control-group-horizontal {
+  justify-content: space-evenly;
+}
+
+.action-controls .action-btn {
+  flex: 0 0 auto;
+  width: 48px;
+  height: 48px;
+  min-width: 48px;
+}
+
+/* Ensure consistent spacing and alignment */
+:deep(.more-menu-card .v-btn) {
+  letter-spacing: normal;
+  border-radius: 8px;
+}
+
+:deep(.more-menu-card .v-btn--variant-outlined) {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+:deep(.more-menu-card .v-btn--variant-flat) {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Responsive adjustments for the more menu */
+@media (max-width: 360px) {
+  .more-menu-card {
+    min-width: 300px !important;
+    max-width: 340px !important;
+  }
+
+  .mirror-controls .flex-btn {
+    font-size: 0.8rem;
+  }
+
+  .home-end-controls .flex-btn {
+    font-size: 0.85rem;
   }
 }
 </style>
