@@ -33,7 +33,7 @@ This is a sample script to help you test the teleprompter functionality. The tex
 - `Space`: Play/Pause
 - `↑/↓`: Previous/Next line
 - `Home/End`: Go to start/end
-- `[/]`: Decrease/Increase speed
+- `←/→`: Decrease/Increase speed
 - `+/-`: Increase/Decrease font size
 - `H/V`: Toggle horizontal/vertical mirror
 - `E`: Open editor

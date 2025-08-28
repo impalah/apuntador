@@ -118,8 +118,8 @@ There are three ways to get content into Apuntador:
 | `↑/↓`          | Line navigation             |
 | `Page Up/Down` | Jump 5 lines                |
 | `Home/End`     | Start/End of script         |
-| `[/]`          | Speed decrease/increase     |
-| `=/−`          | Font size increase/decrease |
+| `←/→`          | Speed decrease/increase     |
+| `+/−`          | Font size increase/decrease |
 | `H`            | Toggle horizontal mirror    |
 | `V`            | Toggle vertical mirror      |
 | `E`            | Open editor                 |

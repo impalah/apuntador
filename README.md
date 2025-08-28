@@ -275,8 +275,8 @@ make clean          # Clean build artifacts
 | `↑` / `↓`               | Navigate by line            |
 | `Page Up` / `Page Down` | Navigate by 5 lines         |
 | `Home` / `End`          | Go to start/end             |
-| `[` / `]`               | Decrease/Increase speed     |
-| `=` / `-`               | Increase/Decrease font size |
+| `←` / `→`               | Decrease/Increase speed     |
+| `+` / `-`               | Increase/Decrease font size |
 | `H`                     | Toggle horizontal mirror    |
 | `V`                     | Toggle vertical mirror      |
 | `E`                     | Open editor                 |
