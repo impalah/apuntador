@@ -1,11 +1,5 @@
 <template>
-  <div
-    ref="handleRef"
-    class="highlight-band-handle"
-    :style="handleStyle"
-    @mousedown="onMouseDown"
-    @touchstart="onTouchStart"
-  >
+  <div ref="handleRef" class="highlight-band-handle" :style="handleStyle" @mousedown="onMouseDown">
     <v-icon size="small" color="white"> mdi-drag-horizontal </v-icon>
   </div>
 </template>
@@ -42,10 +36,21 @@ const handleStyle = computed(() => ({
 onMounted(() => {
   measureContainer()
   window.addEventListener('resize', measureContainer)
+
+  // Add passive touch event listeners for better performance
+  if (handleRef.value) {
+    handleRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', measureContainer)
+
+  // Remove touch event listeners
+  if (handleRef.value) {
+    handleRef.value.removeEventListener('touchstart', onTouchStart)
+  }
+
   cleanup()
 })
 

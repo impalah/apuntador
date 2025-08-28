@@ -1,11 +1,5 @@
 <template>
-  <div
-    ref="containerRef"
-    class="teleprompter-frame"
-    @click="onTap"
-    @touchstart="onTouchStart"
-    @touchend="onTouchEnd"
-  >
+  <div ref="containerRef" class="teleprompter-frame" @click="onTap">
     <!-- Transformed content container -->
     <div ref="transformedContainerRef" class="teleprompter-container" :style="containerStyle">
       <!-- Content -->
@@ -121,12 +115,24 @@ onMounted(() => {
   measureDimensions()
   setupResizeObserver()
 
+  // Add passive touch event listeners for better performance
+  if (containerRef.value) {
+    containerRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+    containerRef.value.addEventListener('touchend', onTouchEnd, { passive: true })
+  }
+
   // Initial measurement after content loads
   nextTick(measureDimensions)
 })
 
 onUnmounted(() => {
   cleanupResizeObserver()
+
+  // Remove touch event listeners
+  if (containerRef.value) {
+    containerRef.value.removeEventListener('touchstart', onTouchStart)
+    containerRef.value.removeEventListener('touchend', onTouchEnd)
+  }
 })
 
 // Watch for content changes
