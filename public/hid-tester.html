@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, in      <div class="card">
+    <title>HID / Gamepad / Keyboard Device Tester</title>
+    <style>
+      body {
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, Ubuntu,
+          Cantarell, "Helvetica Neue", Arial, sans-serif;
+        margin: 16px;
+      }
+      h1,
+      h2 {
+        margin: 0.5rem 0;
+      }
+      .row {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .card {
+        flex: 1 1 380px;
+        border: 1px solid #ccc;
+        border-radius: 12px;
+        padding: 12px;
+      }
+      .log {
+        font-family: ui-monospace, SFMono-Regular, Menlo, Consolas,
+          "Liberation Mono", monospace;
+        background: #111;
+        color: #eee;
+        padding: 8px;
+        height: 260px;
+        overflow: auto;
+        border-radius: 8px;
+      }
+      .ok {
+        color: #0f0;
+      }
+      .warn {
+        color: #ff0;
+      }
+      .err {
+        color: #f66;
+      }
+      .small {
+        font-size: 12px;
+        color: #666;
+      }
+      button {
+        padding: 8px 12px;
+        border-radius: 10px;
+        border: 1px solid #888;
+        background: #fafafa;
+        cursor: pointer;
+      }
+      label {
+        user-select: none;
+      }
+      kbd {
+        background: #222;
+        color: #fff;
+        border-radius: 4px;
+        padding: 2px 6px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Bluetooth HID / Keyboard / Gamepad Tester</h1>
+    <p>
+      Use this tester to see what events your device sends (keys, gamepad
+      and/or HID). On Android, Keyboard and Gamepad work; WebHID only on desktop
+      (Chrome/Edge).
+    </p>
+
+    <div class="row">
+      <div class="card">
+        <h2>1) Keyboard (KeyboardEvent)</h2>
+        <p>
+          Focus the area below and press buttons. Check the box to
+          block default actions (scroll, etc.).
+        </p>
+        <p>
+          <label
+            ><input type="checkbox" id="preventDefault" /> Use
+            <code>preventDefault()</code></label
+          >
+          &nbsp;|&nbsp;
+          <label
+            ><input type="checkbox" id="captureKeyUp" checked /> Log
+            <code>keyup</code></label
+          >
+          &nbsp;|&nbsp;
+          <label
+            ><input type="checkbox" id="captureKeyDown" checked /> Log
+            <code>keydown</code></label
+          >
+        </p>
+        <div
+          id="focusable"
+          tabindex="0"
+          style="
+            border: 2px dashed #888;
+            border-radius: 8px;
+            padding: 12px;
+            min-height: 68px;
+          "
+        >
+          Click here to focus and test your device. You can also
+          type in this area.
+        </div>
+        <div class="small">
+          Android tips: Settings → Language & Input → Physical Keyboard →
+          Enable if available. Some special keys might not map.
+        </div>
+        <div id="kbdLog" class="log"></div>
+      </div>
+
+      <div class="card">
+        <h2>2) Gamepad API</h2>
+        <p>Connect your controller via Bluetooth. Then press buttons/joysticks.</p>
+        <div>
+          <strong>Status:</strong> <span id="gpStatus">Searching...</span>
+        </div>
+        <div class="log" id="gpLog"></div>
+      </div>
+
+      <div class="card">
+        <h2>3) WebHID (desktop only)</h2>
+        <p>
+          This allows listening to raw HID reports (e.g., "consumer
+          control" keys not mapped to keyboard or gamepad). Requires Chrome/Edge on
+          desktop.
+        </p>
+        <p>
+          <button id="btnHID">Select HID device…</button>
+          <button id="btnListHID">List HID devices</button>
+        </p>
+        <div class="log" id="hidLog"></div>
+        <div class="small">
+          Note: On Android, WebHID is not available. On desktop, it may
+          ask for permission each time.
+        </div>>
+    </div>
+
+    <script>
+      // ---------- 1) KEYBOARD TESTER ----------
+      const kbdLog = document.getElementById("kbdLog");
+      const focusable = document.getElementById("focusable");
+      const prevent = document.getElementById("preventDefault");
+      const captureKeyUp = document.getElementById("captureKeyUp");
+      const captureKeyDown = document.getElementById("captureKeyDown");
+
+      function logKbd(ev) {
+        const row = [
+          `[${new Date().toLocaleTimeString()}]`,
+          ev.type.toUpperCase(),
+          `key=<${ev.key}>`,
+          `code=<${ev.code}>`,
+          `keyCode=${ev.keyCode}`,
+          `which=${ev.which}`,
+          `location=${ev.location}`,
+          `repeat=${ev.repeat}`,
+          `ctrl=${ev.ctrlKey}`,
+          `alt=${ev.altKey}`,
+          `shift=${ev.shiftKey}`,
+          `meta=${ev.metaKey}`,
+        ].join(" | ");
+        kbdLog.textContent = row + "\n\n" + kbdLog.textContent;
+      }
+
+      function onKey(ev) {
+        if (
+          (ev.type === "keydown" && captureKeyDown.checked) ||
+          (ev.type === "keyup" && captureKeyUp.checked)
+        ) {
+          if (prevent.checked) ev.preventDefault();
+          logKbd(ev);
+        }
+      }
+
+      for (const target of [window, focusable, document]) {
+        target.addEventListener("keydown", onKey, true);
+        target.addEventListener("keyup", onKey, true);
+      }
+
+      focusable.addEventListener("click", () => focusable.focus());
+
+      // ---------- 2) GAMEPAD TESTER ----------
+      const gpStatus = document.getElementById("gpStatus");
+      const gpLog = document.getElementById("gpLog");
+      let gamepadLogHistory = "";
+      let lastGamepadState = new Map(); // Track previous state to detect changes
+
+      function logGamepadEvent(eventData) {
+        const timestamp = `[${new Date().toLocaleTimeString()}]`;
+        const logEntry = `${timestamp} ${eventData}`;
+        gamepadLogHistory = logEntry + "\n\n" + gamepadLogHistory;
+        gpLog.textContent = gamepadLogHistory;
+      }
+
+      function dumpGamepads() {
+        const pads = navigator.getGamepads
+          ? Array.from(navigator.getGamepads()).filter(Boolean)
+          : [];
+        
+        if (!pads.length) {
+          gpStatus.textContent = "No gamepads connected.";
+          return;
+        }
+        
+        gpStatus.textContent = pads.length + " gamepad(s)";
+        
+        for (const pad of pads) {
+          const padId = pad.index;
+          const prevState = lastGamepadState.get(padId) || { buttons: [], axes: [] };
+          
+          // Check for button changes
+          pad.buttons.forEach((button, index) => {
+            const wasPressed = prevState.buttons[index] || false;
+            const isPressed = button.pressed;
+            
+            if (wasPressed !== isPressed) {
+              const action = isPressed ? "PRESSED" : "RELEASED";
+              
+              // Add context for common buttons
+              let buttonName = `Button ${index}`;
+              switch(index) {
+                case 0: buttonName = "A/X Button"; break;
+                case 1: buttonName = "B/Circle Button"; break;
+                case 2: buttonName = "X/Square Button"; break;
+                case 3: buttonName = "Y/Triangle Button"; break;
+                case 4: buttonName = "Left Bumper"; break;
+                case 5: buttonName = "Right Bumper"; break;
+                case 6: buttonName = "Left Trigger"; break;
+                case 7: buttonName = "Right Trigger"; break;
+                case 8: buttonName = "Select/Share"; break;
+                case 9: buttonName = "Start/Options"; break;
+                case 10: buttonName = "Left Stick Click"; break;
+                case 11: buttonName = "Right Stick Click"; break;
+                case 12: buttonName = "D-pad Up"; break;
+                case 13: buttonName = "D-pad Down"; break;
+                case 14: buttonName = "D-pad Left"; break;
+                case 15: buttonName = "D-pad Right"; break;
+                case 16: buttonName = "Home/PS Button"; break;
+              }
+              
+              logGamepadEvent(`${buttonName} ${action} (gamepad #${padId})`);
+            }
+          });
+          
+          // Check for significant axis changes (threshold to avoid noise)
+          if (pad.axes) {
+            pad.axes.forEach((value, index) => {
+              const prevValue = prevState.axes[index] || 0;
+              const threshold = 0.3; // Only log significant movements
+              
+              if (Math.abs(value - prevValue) > threshold) {
+                // Add context for common axes
+                let axisName = `Axis ${index}`;
+                let context = "";
+                
+                switch(index) {
+                  case 0: axisName = "Left Stick X"; break;
+                  case 1: axisName = "Left Stick Y"; break;
+                  case 2: axisName = "Right Stick X"; break;
+                  case 3: axisName = "Right Stick Y"; break;
+                  case 4: axisName = "Left Trigger"; break;
+                  case 5: axisName = "Right Trigger"; break;
+                  case 9: 
+                    axisName = "Activity Sensor"; 
+                    context = value === 3.29 ? " (idle)" : " (active)";
+                    break;
+                }
+                
+                logGamepadEvent(`${axisName}: ${value.toFixed(2)}${context} (gamepad #${padId})`);
+              }
+            });
+          }
+          
+          // Update state tracking
+          lastGamepadState.set(padId, {
+            buttons: pad.buttons.map(b => b.pressed),
+            axes: pad.axes ? [...pad.axes] : []
+          });
+        }
+      }
+
+      window.addEventListener("gamepadconnected", (e) => {
+        const msg = `Gamepad connected: ${e.gamepad.id} (#${e.gamepad.index})`;
+        gpStatus.textContent = `Connected: ${e.gamepad.id} (#${e.gamepad.index})`;
+        logGamepadEvent(msg);
+      });
+      
+      window.addEventListener("gamepaddisconnected", (e) => {
+        const msg = `Gamepad disconnected: ${e.gamepad.id} (#${e.gamepad.index})`;
+        gpStatus.textContent = `Disconnected: ${e.gamepad.id} (#${e.gamepad.index})`;
+        logGamepadEvent(msg);
+        // Clean up state tracking for disconnected gamepad
+        lastGamepadState.delete(e.gamepad.index);
+      });
+
+      function gpLoop() {
+        dumpGamepads();
+        requestAnimationFrame(gpLoop);
+      }
+      gpLoop();
+
+      // ---------- 3) WEBHID (desktop only) ----------
+      const hidLog = document.getElementById("hidLog");
+      function logHID(msg, cls) {
+        const line = document.createElement("div");
+        if (cls) line.className = cls;
+        line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+        
+        // Add spacing between HID log entries
+        const spacer = document.createElement("div");
+        spacer.style.height = "1em";
+        
+        hidLog.prepend(spacer);
+        hidLog.prepend(line);
+      }
+
+      async function attachHID(dev) {
+        try {
+          if (!dev.opened) await dev.open();
+          dev.oninputreport = (e) => {
+            const arr = new Uint8Array(e.data.buffer);
+            const hex = [...arr]
+              .map((b) => b.toString(16).padStart(2, "0"))
+              .join(" ");
+            logHID(`HID report (id=${e.reportId}) ${hex}`);
+          };
+          logHID(
+            `Connected HID: ${
+              dev.productName
+            } (vendor=0x${dev.vendorId?.toString(
+              16
+            )}, product=0x${dev.productId?.toString(16)})`,
+            "ok"
+          );
+        } catch (err) {
+          logHID("Error opening HID: " + err, "err");
+        }
+      }
+
+      document.getElementById("btnHID").addEventListener("click", async () => {
+        if (!("hid" in navigator)) {
+          logHID("WebHID not available in this browser/platform.", "warn");
+          return;
+        }
+        try {
+          // In modern Chrome you can use allowAllDevices:true to list all
+          const devices = await navigator.hid.requestDevice({
+            filters: [],
+            allowAllDevices: true,
+          });
+          devices.forEach(attachHID);
+        } catch (err) {
+          logHID("Cancelled or error: " + err, "warn");
+        }
+      });
+
+      document
+        .getElementById("btnListHID")
+        .addEventListener("click", async () => {
+          if (!("hid" in navigator)) {
+            logHID("WebHID not available.", "warn");
+            return;
+          }
+          const devs = await navigator.hid.getDevices();
+          if (!devs.length)
+            logHID("No HID devices with permission.", "warn");
+          devs.forEach(attachHID);
+        });
+    </script>
+  </body>
+</html>
