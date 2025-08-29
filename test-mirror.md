@@ -1,24 +1,24 @@
 # Test Mirror Vertical
 
-Este es un texto de prueba para verificar que el mirror vertical funciona correctamente.
+This is a test text to verify that vertical mirroring works correctly.
 
-## Párrafo 1
+## Paragraph 1
 
-Este párrafo debe aparecer al principio cuando no hay mirror vertical activo.
+This paragraph should appear at the beginning when no vertical mirror is active.
 
-## Párrafo 2
+## Paragraph 2
 
-Este párrafo está en el medio del texto.
+This paragraph is in the middle of the text.
 
-## Párrafo 3
+## Paragraph 3
 
-Este párrafo está al final y debe aparecer al principio cuando mirror vertical está activo.
+This paragraph is at the end and should appear at the beginning when vertical mirror is active.
 
 ---
 
-Con mirror vertical activo:
+With vertical mirror active:
 
-- El texto debe estar volteado visualmente (scaleY(-1))
-- El scroll debe ir en la dirección correcta (de final a principio visualmente)
-- La posición del highlight band debe ser consistente
-- El texto debe fluir de manera natural para el usuario del teleprompter
+- The text should be visually flipped (scaleY(-1))
+- The scroll should go in the correct direction (from end to beginning visually)
+- The highlight band position should be consistent
+- The text should flow naturally for the teleprompter user

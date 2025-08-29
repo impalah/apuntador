@@ -1,0 +1,20 @@
+{
+  "resources": {
+    "icon": {
+      "sources": [
+        {
+          "src": "resources/icon.png",
+          "type": "icon"
+        }
+      ],
+      "targets": [
+        {
+          "src": "resources/icon.png",
+          "dest": "android/app/src/main/res/",
+          "set": "mipmap",
+          "format": "png"
+        }
+      ]
+    }
+  }
+}

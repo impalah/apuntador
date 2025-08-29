@@ -13,6 +13,9 @@ import '@/styles/main.scss'
 import App from './App.vue'
 import router from './router'
 
+// Import mobile functionality
+import { initMobileApp } from '@/utils/capacitor'
+
 // Create Vuetify instance
 const vuetify = createVuetify({
   theme: {
@@ -70,3 +73,6 @@ app.use(vuetify)
 app.use(router)
 
 app.mount('#app')
+
+// Initialize mobile features after app is mounted
+initMobileApp()

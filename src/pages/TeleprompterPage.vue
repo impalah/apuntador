@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { hotkeyManager, DEFAULT_HOTKEYS } from '@/utils/hotkeys'
@@ -50,6 +50,7 @@ import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
+import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 
 // Stores
 const teleprompterStore = useTeleprompterStore()
@@ -62,9 +63,25 @@ const teleprompterRef = ref<InstanceType<typeof TeleprompterFrame>>()
 const settingsOpen = ref(false)
 const editorOpen = ref(false)
 const fileLoaderOpen = ref(false)
+const currentOrientation = ref<'portrait' | 'landscape'>('landscape')
 
 // Touch device detection
 const isTouch = isTouchDevice()
+
+// Handle orientation changes
+const handleOrientationChange = async () => {
+  if (isMobile()) {
+    currentOrientation.value = await getCurrentOrientation()
+    console.log('Orientation changed to:', currentOrientation.value)
+
+    // Trigger layout recalculation after orientation change
+    nextTick(() => {
+      if (teleprompterRef.value) {
+        teleprompterRef.value.measureDimensions()
+      }
+    })
+  }
+}
 
 // Lifecycle
 onMounted(async () => {
@@ -73,6 +90,15 @@ onMounted(async () => {
 
   // Apply CSS variables
   prefsStore.applyCSSVariables()
+
+  // Get initial orientation on mobile
+  if (isMobile()) {
+    currentOrientation.value = await getCurrentOrientation()
+
+    // Listen for orientation changes
+    window.addEventListener('orientationchange', handleOrientationChange)
+    window.addEventListener('resize', handleOrientationChange)
+  }
 
   // Setup hotkeys for non-touch devices
   if (!isTouch) {
@@ -88,6 +114,12 @@ onMounted(async () => {
 
 onUnmounted(() => {
   hotkeyManager.stopListening()
+
+  // Clean up orientation listeners on mobile
+  if (isMobile()) {
+    window.removeEventListener('orientationchange', handleOrientationChange)
+    window.removeEventListener('resize', handleOrientationChange)
+  }
 })
 
 // Watch for preference changes

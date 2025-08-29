@@ -50,6 +50,50 @@ body {
   padding-left: env(safe-area-inset-left);
 }
 
+// Orientation-specific styles for mobile
+@media screen and (orientation: portrait) {
+  .floating-toolbar {
+    // Adjust toolbar height for portrait mode
+    height: 70px !important;
+
+    .v-btn {
+      // Slightly smaller buttons in portrait
+      min-width: 44px;
+    }
+  }
+
+  // Ensure content area accounts for keyboard in portrait
+  .teleprompter-frame {
+    min-height: calc(100vh - 70px);
+  }
+}
+
+@media screen and (orientation: landscape) {
+  .floating-toolbar {
+    // Standard toolbar height for landscape
+    height: 80px !important;
+  }
+
+  // Full height in landscape
+  .teleprompter-frame {
+    min-height: calc(100vh - 80px);
+  }
+}
+
+// Handle keyboard visibility on mobile
+.keyboard-open {
+  .teleprompter-frame {
+    // Adjust content area when keyboard is visible
+    height: calc(100vh - var(--keyboard-height, 250px) - 80px);
+  }
+
+  @media screen and (orientation: portrait) {
+    .teleprompter-frame {
+      height: calc(100vh - var(--keyboard-height, 300px) - 70px);
+    }
+  }
+}
+
 // Utility classes
 .fullscreen {
   position: fixed;
