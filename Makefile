@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-debug android-clean android-keystore-base64
 
 install:
 	npm install
@@ -50,11 +50,49 @@ docs-serve:
 
 docs: docs-api docs-build
 
+# Android targets
+android-setup:
+	@echo "🤖 Setting up Android environment..."
+	npx cap add android
+	npx cap copy android
+	npx cap sync android
+
+android-build: build
+	@echo "📱 Building Android project..."
+	npx cap copy android
+	npx cap sync android
+
+android-release: android-build
+	@echo "🔐 Building signed release APK..."
+	cd android && ./gradlew assembleRelease
+	@echo "✅ APK built: android/app/build/outputs/apk/release/app-release.apk"
+
+android-debug: android-build
+	@echo "🐛 Building debug APK..."
+	cd android && ./gradlew assembleDebug
+	@echo "✅ Debug APK built: android/app/build/outputs/apk/debug/app-debug.apk"
+
+android-clean:
+	@echo "🧹 Cleaning Android build..."
+	cd android && ./gradlew clean
+
+android-keystore-base64:
+	@echo "🔐 Generating Base64 for GitHub Secrets..."
+ifeq ($(OS),Windows_NT)
+	powershell -ExecutionPolicy Bypass -File "Generate-Keystore-Base64.ps1"
+else
+	@if [ -f "android/app/apuntador-release-key.keystore" ]; then \
+		./generate-keystore-base64.sh; \
+	else \
+		echo "❌ Keystore not found. Run 'make android-release' first."; \
+	fi
+endif
+
 clean:
 	rm -rf node_modules dist coverage test-results playwright-report .nyc_output docs/api docs/.vitepress/dist
 	npm cache clean --force
 
-clean-all: clean
+clean-all: clean android-clean
 	rm -f package-lock.json
 	
 clean-generated:

@@ -1,0 +1,8 @@
+# Android Keystore Configuration Template
+# Copy this file to key.properties and fill in your actual values
+# NEVER commit key.properties with real passwords to version control
+
+storePassword=YOUR_KEYSTORE_PASSWORD_HERE
+keyPassword=YOUR_KEY_PASSWORD_HERE
+keyAlias=apuntador
+storeFile=apuntador-release-key.keystore

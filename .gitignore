@@ -49,6 +49,24 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
+# Android Security Files
+# Keystore files contain private keys and should NEVER be committed
+*.keystore
+*.jks
+android/app/*.keystore
+android/app/*.jks
+android/key.properties
+
+# Temporary keystore-related files
+keystore-base64.txt
+keystore.txt
+
+# Android build outputs (additional to general build/ above)
+android/app/build/
+android/build/
+android/.gradle/
+android/local.properties
+
 # Runtime data
 pids
 *.pid

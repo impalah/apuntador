@@ -85,3 +85,17 @@ In Android Studio: **Build → Generate Signed Bundle / APK → APK → Create n
 - `android/app/build/outputs/apk/debug/app-debug.apk` - Development APK
 - `android/app/build/outputs/apk/release/app-release.apk` - Production APK (if generated)
 - Keystore file - Keep in secure location for future updates
+
+## 🔒 Security Notes
+
+**⚠️ NEVER commit these files to version control:**
+
+- `*.keystore` files (contain private keys)
+- `android/key.properties` (contains passwords)
+- `keystore-base64.txt` (temporary Base64 files)
+
+**✅ Use the template:**
+
+- Copy `android/key.properties.template` to `android/key.properties`
+- Fill in your actual passwords and keystore path
+- The `.gitignore` file is configured to exclude sensitive files automatically

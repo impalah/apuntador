@@ -14,7 +14,9 @@ A professional mobile-first teleprompter web application built with Vue 3, TypeS
 
 ## 🚀 Deployment Options
 
-### Static Hosting (Recommended)
+### Web Application
+
+#### Static Hosting (Recommended)
 
 ```bash
 npm run build
@@ -29,7 +31,7 @@ npm run build
 - ✅ **Firebase Hosting** - Google Cloud integration
 - ✅ **AWS S3 + CloudFront** - Enterprise scaling
 
-### Docker Deployment
+#### Docker Deployment
 
 ```bash
 # Build container
@@ -39,13 +41,48 @@ docker build -t apuntador .
 docker run -p 80:80 apuntador
 ```
 
+### Android Mobile App
+
+#### Automatic Build (GitHub Actions)
+
+The project includes automated Android APK builds via GitHub Actions:
+
+```bash
+# Trigger automatic build with a tag
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+This will:
+
+- ✅ Build a signed APK automatically
+- ✅ Create a GitHub release
+- ✅ Upload the APK as a downloadable asset
+
+#### Manual Build
+
+For local Android APK builds:
+
+```bash
+# Install Android dependencies (see APK_GUIDE.md)
+# Then build manually
+npm run build
+npx cap copy android
+npx cap sync android
+cd android && ./gradlew assembleRelease
+```
+
+See [**APK_GUIDE.md**](./APK_GUIDE.md) for detailed Android setup instructions.
+
 ### CI/CD Integration
 
-- **GitHub Actions** - Automated testing and deployment
+- **GitHub Actions** - Automated testing and deployment (web + Android)
 - **GitLab CI** - Complete DevOps pipeline
 - **Vercel/Netlify** - Git-based deployments
 
-See [**Deployment Guide**](./docs/deployment/) for detailed instructions.
+See [**GITHUB_SECRETS.md**](./GITHUB_SECRETS.md) for Android APK build secrets configuration.  
+See [**SCRIPTS_REFERENCE.md**](./SCRIPTS_REFERENCE.md) for cross-platform build scripts documentation.  
+See [**SECURITY.md**](./SECURITY.md) for security guidelines and sensitive file handling.
 
 ## 🛠️ Development
 
