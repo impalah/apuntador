@@ -1,9 +1,9 @@
 {
   "name": "apuntador",
   "private": true,
-  "version": "0.0.10",
+  "version": "0.1.0",
   "type": "module",
-  "description": "Mobile-first teleprompter built with Vue 3 + TypeScript + Vite + Vuetify",
+  "description": "Modular teleprompter platform with interchangeable components - built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
     "dev": "vite",
     "build": "vite build",

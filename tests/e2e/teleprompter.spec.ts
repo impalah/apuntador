@@ -170,8 +170,15 @@ test.describe('Settings and Configuration', () => {
     await fontInput.fill('32')
     await fontInput.press('Enter')
 
+    // Wait a bit for the change to be processed
+    await page.waitForTimeout(500)
+
     // Close settings
     await page.locator('button:has-text("Done")').click()
+
+    // Wait for dialog to close and changes to apply
+    await expect(dialog).not.toBeVisible()
+    await page.waitForTimeout(1000)
 
     // Check if font size changed in content
     const content = page.locator('.teleprompter-content')

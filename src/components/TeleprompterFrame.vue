@@ -74,7 +74,6 @@ const containerStyle = computed(() => {
 
 const contentStyle = computed(() => {
   return {
-    fontSize: `${prefsStore.fontSizePx}px`,
     lineHeight: prefsStore.lineHeight.toString(),
     fontFamily: prefsStore.fontFamily,
     color: prefsStore.fgColor,
