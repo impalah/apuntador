@@ -42,6 +42,14 @@ export default defineConfig({
         lines: 85,
       },
     },
+    // Handle CSS and Vuetify styles in tests
+    setupFiles: ['tests/setup.ts'],
+    server: {
+      deps: {
+        // Inline all dependencies in tests to avoid CSS import issues
+        inline: ['vuetify'],
+      },
+    },
   },
   build: {
     target: 'esnext',

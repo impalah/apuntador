@@ -137,6 +137,17 @@ watch(
   }
 )
 
+// Watch for hotkey changes
+watch(
+  () => prefsStore.customHotkeys,
+  (newHotkeys) => {
+    if (!isTouch) {
+      hotkeyManager.updateMapping(newHotkeys)
+    }
+  },
+  { deep: true }
+)
+
 // Teleprompter actions
 function onPlay() {
   teleprompterStore.play()
@@ -257,12 +268,13 @@ function setupHotkeys() {
     },
   }
 
-  DEFAULT_HOTKEYS.forEach((hotkey) => {
-    const action = actions[hotkey.action as keyof typeof actions]
-    if (action) {
-      hotkeyManager.register(hotkey, action)
-    }
+  // Register actions with the hotkey manager
+  Object.entries(actions).forEach(([action, handler]) => {
+    hotkeyManager.registerAction(action as any, handler)
   })
+
+  // Update hotkey manager with custom mapping
+  hotkeyManager.updateMapping(prefsStore.customHotkeys)
 }
 </script>
 

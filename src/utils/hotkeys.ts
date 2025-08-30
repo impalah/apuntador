@@ -1,14 +1,40 @@
-import type { HotkeyDefinition } from '@/types'
+import type { HotkeyDefinition, CustomHotkeyMapping, HotkeyAction } from '@/types'
 
 /**
  * Keyboard shortcuts manager
  */
 export class HotkeyManager {
   private handlers = new Map<string, () => void>()
+  private actionHandlers = new Map<HotkeyAction, () => void>()
+  private customMapping: CustomHotkeyMapping = {}
   private isListening = false
 
   /**
-   * Register hotkey handler
+   * Update custom hotkey mapping
+   */
+  updateMapping(mapping: CustomHotkeyMapping): void {
+    this.customMapping = { ...mapping }
+    this.rebuildHandlers()
+  }
+
+  /**
+   * Register action handler
+   */
+  registerAction(action: HotkeyAction, handler: () => void): void {
+    this.actionHandlers.set(action, handler)
+    this.rebuildHandlers()
+  }
+
+  /**
+   * Unregister action handler
+   */
+  unregisterAction(action: HotkeyAction): void {
+    this.actionHandlers.delete(action)
+    this.rebuildHandlers()
+  }
+
+  /**
+   * Register hotkey handler (legacy support)
    */
   register(hotkey: HotkeyDefinition, handler: () => void): void {
     const key = this.createKey(hotkey)
@@ -16,11 +42,28 @@ export class HotkeyManager {
   }
 
   /**
-   * Unregister hotkey handler
+   * Unregister hotkey handler (legacy support)
    */
   unregister(hotkey: HotkeyDefinition): void {
     const key = this.createKey(hotkey)
     this.handlers.delete(key)
+  }
+
+  /**
+   * Rebuild handlers from action handlers and custom mapping
+   */
+  private rebuildHandlers(): void {
+    // Clear existing hotkey handlers (but keep action handlers)
+    this.handlers.clear()
+
+    // Build handlers from custom mapping
+    for (const [action, hotkey] of Object.entries(this.customMapping)) {
+      const handler = this.actionHandlers.get(action as HotkeyAction)
+      if (handler) {
+        const key = this.createKey(hotkey)
+        this.handlers.set(key, handler)
+      }
+    }
   }
 
   /**
@@ -48,6 +91,65 @@ export class HotkeyManager {
    */
   clear(): void {
     this.handlers.clear()
+    this.actionHandlers.clear()
+  }
+
+  /**
+   * Check if a key combination is already in use
+   */
+  isKeyInUse(hotkey: HotkeyDefinition, excludeAction?: HotkeyAction): boolean {
+    const key = this.createKey(hotkey)
+
+    for (const [action, existingHotkey] of Object.entries(this.customMapping)) {
+      if (excludeAction && action === excludeAction) continue
+
+      const existingKey = this.createKey(existingHotkey)
+      if (existingKey === key) {
+        return true
+      }
+    }
+
+    return false
+  }
+
+  /**
+   * Get readable key name for display
+   */
+  getKeyDisplayName(hotkey: HotkeyDefinition): string {
+    const parts = []
+
+    if (hotkey.ctrlKey) parts.push('Ctrl')
+    if (hotkey.altKey) parts.push('Alt')
+    if (hotkey.shiftKey) parts.push('Shift')
+
+    let keyName = hotkey.key
+
+    // Convert special keys to readable names
+    const keyMap: Record<string, string> = {
+      ' ': 'Space',
+      ArrowUp: '↑',
+      ArrowDown: '↓',
+      ArrowLeft: '←',
+      ArrowRight: '→',
+      PageUp: 'Page Up',
+      PageDown: 'Page Down',
+      Home: 'Home',
+      End: 'End',
+      Escape: 'Esc',
+      Enter: 'Enter',
+      Tab: 'Tab',
+      Backspace: 'Backspace',
+      Delete: 'Delete',
+    }
+
+    if (keyMap[keyName]) {
+      keyName = keyMap[keyName]
+    } else if (keyName.length === 1) {
+      keyName = keyName.toUpperCase()
+    }
+
+    parts.push(keyName)
+    return parts.join(' + ')
   }
 
   /**
@@ -121,6 +223,26 @@ export const DEFAULT_HOTKEYS: HotkeyDefinition[] = [
   { key: 'f', action: 'open-file', description: 'Open file' },
   { key: 'Escape', action: 'close-modal', description: 'Close modal/dialog' },
 ]
+
+/**
+ * Convert default hotkeys array to custom mapping
+ */
+export function createDefaultMapping(): CustomHotkeyMapping {
+  const mapping: CustomHotkeyMapping = {}
+
+  for (const hotkey of DEFAULT_HOTKEYS) {
+    mapping[hotkey.action] = {
+      key: hotkey.key,
+      ctrlKey: hotkey.ctrlKey,
+      altKey: hotkey.altKey,
+      shiftKey: hotkey.shiftKey,
+      action: hotkey.action,
+      description: hotkey.description,
+    }
+  }
+
+  return mapping
+}
 
 // Export singleton instance
 export const hotkeyManager = new HotkeyManager()

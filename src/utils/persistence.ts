@@ -21,7 +21,13 @@ class StorageService {
    */
   async get<T>(key: string): Promise<T | null> {
     try {
-      return await this.store.getItem<T>(key)
+      // Try localforage first
+      const result = await this.store.getItem<T>(key)
+      if (result !== null) {
+        return result
+      }
+      // If null, also try fallback
+      return this.fallbackGet<T>(key)
     } catch (error) {
       console.warn('Storage get error:', error)
       return this.fallbackGet<T>(key)
@@ -34,6 +40,8 @@ class StorageService {
   async set<T>(key: string, value: T): Promise<void> {
     try {
       await this.store.setItem(key, value)
+      // Also save to localStorage as backup
+      this.fallbackSet(key, value)
     } catch (error) {
       console.warn('Storage set error:', error)
       this.fallbackSet(key, value)

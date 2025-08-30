@@ -4,6 +4,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     max-width="600"
     scrollable
+    data-testid="settings-dialog"
   >
     <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
@@ -15,9 +16,9 @@
 
       <v-card-text style="height: 500px">
         <v-tabs v-model="activeTab">
-          <v-tab value="appearance">Appearance</v-tab>
-          <v-tab value="behavior">Behavior</v-tab>
-          <v-tab value="data">Data</v-tab>
+          <v-tab value="appearance" data-testid="appearance-tab">Appearance</v-tab>
+          <v-tab value="behavior" data-testid="behavior-tab">Behavior</v-tab>
+          <v-tab value="data" data-testid="data-tab">Data</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="activeTab">
@@ -190,6 +191,27 @@
                   </v-col>
                 </v-row>
               </div>
+
+              <!-- Hotkeys Settings -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">Hotkeys</h3>
+
+                <div class="hotkeys-container">
+                  <HotkeyControl
+                    v-for="(hotkey, action) in prefsStore.customHotkeys"
+                    :key="action"
+                    :hotkey="hotkey"
+                    :action="action as string"
+                    @change="onHotkeyChange"
+                  />
+                </div>
+
+                <div class="mt-4">
+                  <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetHotkeys">
+                    Reset to Defaults
+                  </v-btn>
+                </div>
+              </div>
             </v-form>
           </v-tabs-window-item>
 
@@ -254,6 +276,8 @@
 import { ref } from 'vue'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { storage } from '@/utils/persistence'
+import type { HotkeyDefinition } from '@/types'
+import HotkeyControl from './HotkeyControl.vue'
 
 // Props
 interface Props {
@@ -328,6 +352,15 @@ async function onResetSettings() {
   prefsStore.applyCSSVariables()
 }
 
+async function onResetHotkeys() {
+  prefsStore.resetHotkeys()
+  await prefsStore.save()
+}
+
+function onHotkeyChange(action: string, hotkey: HotkeyDefinition) {
+  prefsStore.updateHotkey(action, hotkey)
+}
+
 async function onClearAllData() {
   // Show confirmation dialog first
   if (confirm('This will delete all your data including settings and content. Are you sure?')) {
@@ -343,5 +376,13 @@ async function onClearAllData() {
 <style scoped>
 .v-tabs-window-item {
   padding: 0 !important;
+}
+
+.hotkeys-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  padding: 12px;
 }
 </style>

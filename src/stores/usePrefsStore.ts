@@ -1,7 +1,9 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { z } from 'zod'
-import { preferencesStorage } from '@/utils/persistence'
+import { storage } from '@/utils/persistence'
+import type { CustomHotkeyMapping, HotkeyDefinition } from '@/types'
+import { createDefaultMapping } from '@/utils/hotkeys'
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_LINE_HEIGHT,
@@ -40,6 +42,19 @@ const preferencesSchema = z.object({
   highlightBandLines: z.union([z.literal(1), z.literal(2)]).default(DEFAULT_HIGHLIGHT_BAND_LINES),
   highlightBandPosPct: z.number().min(0).max(100).default(DEFAULT_HIGHLIGHT_BAND_POS),
   dimmingIntensity: z.number().min(0).max(1).default(DEFAULT_DIMMING_INTENSITY),
+  customHotkeys: z
+    .record(
+      z.object({
+        key: z.string(),
+        ctrlKey: z.boolean().optional(),
+        altKey: z.boolean().optional(),
+        shiftKey: z.boolean().optional(),
+        action: z.string(),
+        description: z.string(),
+      })
+    )
+    .optional()
+    .default({}),
 })
 
 export type PreferencesState = z.infer<typeof preferencesSchema>
@@ -59,11 +74,12 @@ export const usePrefsStore = defineStore('preferences', () => {
   const highlightBandLines = ref<1 | 2>(DEFAULT_HIGHLIGHT_BAND_LINES)
   const highlightBandPosPct = ref(DEFAULT_HIGHLIGHT_BAND_POS)
   const dimmingIntensity = ref(DEFAULT_DIMMING_INTENSITY)
+  const customHotkeys = ref<CustomHotkeyMapping>(createDefaultMapping())
 
   // Actions
   async function load() {
     try {
-      const saved = await preferencesStorage.get()
+      const saved = await storage.get('preferences')
       if (saved) {
         const validated = preferencesSchema.parse(saved)
 
@@ -80,6 +96,11 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandLines.value = validated.highlightBandLines
         highlightBandPosPct.value = validated.highlightBandPosPct
         dimmingIntensity.value = validated.dimmingIntensity
+
+        // Handle custom hotkeys with fallback to defaults
+        const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
+
+        customHotkeys.value = hotkeyCount > 0 ? validated.customHotkeys : createDefaultMapping()
       }
     } catch (error) {
       console.warn('Failed to load preferences, using defaults:', error)
@@ -103,9 +124,10 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandLines: highlightBandLines.value,
         highlightBandPosPct: highlightBandPosPct.value,
         dimmingIntensity: dimmingIntensity.value,
+        customHotkeys: customHotkeys.value,
       }
 
-      await preferencesStorage.set(prefs)
+      await storage.set('preferences', prefs)
     } catch (error) {
       console.warn('Failed to save preferences:', error)
     }
@@ -125,6 +147,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandLines.value = DEFAULT_HIGHLIGHT_BAND_LINES
     highlightBandPosPct.value = DEFAULT_HIGHLIGHT_BAND_POS
     dimmingIntensity.value = DEFAULT_DIMMING_INTENSITY
+    customHotkeys.value = createDefaultMapping()
   }
 
   // Convenience actions for common adjustments
@@ -169,6 +192,20 @@ export const usePrefsStore = defineStore('preferences', () => {
     root.style.setProperty('--dimming-intensity', dimmingIntensity.value.toString())
   }
 
+  // Hotkey management
+  function updateHotkey(action: string, hotkey: HotkeyDefinition) {
+    customHotkeys.value = {
+      ...customHotkeys.value,
+      [action]: hotkey,
+    }
+    save()
+  }
+
+  function resetHotkeys() {
+    customHotkeys.value = createDefaultMapping()
+    save()
+  }
+
   return {
     // State
     fontFamily,
@@ -184,6 +221,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandLines,
     highlightBandPosPct,
     dimmingIntensity,
+    customHotkeys,
 
     // Actions
     load,
@@ -196,5 +234,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     toggleMirrorH,
     toggleMirrorV,
     applyCSSVariables,
+    updateHotkey,
+    resetHotkeys,
   }
 })
