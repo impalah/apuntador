@@ -88,7 +88,7 @@
       :content="teleprompterFrame.props.value.content.raw"
       @save="onEditorSave"
     />
-    <FileLoader v-model="fileLoaderOpen" @file-imported="onFileImported" />
+    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
 
     <!-- Implementation Info (Development Only) -->
     <v-snackbar v-model="showImplementationInfo" :timeout="3000" color="info" location="top">

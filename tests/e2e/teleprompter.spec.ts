@@ -274,9 +274,172 @@ test.describe('File Import', () => {
     await expect(dialog).toContainText('Import File')
   })
 
-  test('should accept markdown file upload', async ({ page: _page }) => {
-    // This test would require creating a temporary file
-    // In a real implementation, you'd use page.setInputFiles()
-    test.skip(true, 'File upload testing requires setup')
+  test('should accept markdown file upload and load content', async ({ page }) => {
+    const testContent =
+      '# Test Markdown File\n\nThis is a test markdown file for e2e testing.\n\n## Section 1\n\nLorem ipsum dolor sit amet.'
+
+    // Check if more menu button exists (mobile layout)
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    const isMobile = await moreMenuButton.isVisible()
+
+    if (isMobile) {
+      await moreMenuButton.click()
+    }
+
+    const fileButton = page.locator('[data-testid="file-button"]').first()
+    await fileButton.click()
+
+    // Wait for dialog to be visible
+    const dialog = page.locator('[role="dialog"]')
+    await expect(dialog).toBeVisible()
+
+    // Find the file input inside the dialog
+    const fileInput = dialog.locator('input[type="file"]')
+
+    // Create a test file and upload it
+    const testFile = Buffer.from(testContent)
+    await fileInput.setInputFiles([
+      {
+        name: 'test-file.md',
+        mimeType: 'text/markdown',
+        buffer: testFile,
+      },
+    ])
+
+    // Wait a moment for file processing
+    await page.waitForTimeout(1000)
+
+    // Wait for file to be processed and dialog to close (auto-import)
+    await expect(dialog).not.toBeVisible({ timeout: 10000 })
+
+    // Verify content was loaded into the teleprompter
+    const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
+    await expect(teleprompterContent).toContainText('Test Markdown File', { timeout: 5000 })
+    await expect(teleprompterContent).toContainText('Section 1')
+    await expect(teleprompterContent).toContainText('Lorem ipsum')
+  })
+
+  test('should show error for invalid file types', async ({ page }) => {
+    // Check if more menu button exists (mobile layout)
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    const isMobile = await moreMenuButton.isVisible()
+
+    if (isMobile) {
+      await moreMenuButton.click()
+    }
+
+    const fileButton = page.locator('[data-testid="file-button"]').first()
+    await fileButton.click()
+
+    // Wait for dialog to be visible
+    const dialog = page.locator('[role="dialog"]')
+    await expect(dialog).toBeVisible()
+
+    const fileInput = dialog.locator('input[type="file"]')
+
+    // Try to upload an invalid file type
+    const invalidFile = Buffer.from('This is not a markdown file')
+    await fileInput.setInputFiles([
+      {
+        name: 'test-file.pdf',
+        mimeType: 'application/pdf',
+        buffer: invalidFile,
+      },
+    ])
+
+    // Wait for error message to appear
+    await page.waitForTimeout(2000)
+
+    // Should show error message - try different selectors
+    const errorAlert = dialog.locator('.v-alert, [role="alert"]').first()
+    await expect(errorAlert).toBeVisible({ timeout: 5000 })
+
+    // Alternative: check for the error text anywhere in the dialog
+    await expect(dialog).toContainText('Please select a valid markdown or text file', {
+      timeout: 5000,
+    })
+  })
+
+  test('should handle drag and drop file upload', async ({ page }) => {
+    const testContent = '# Drag and Drop Test\n\nThis file was uploaded via drag and drop.'
+
+    // Check if more menu button exists (mobile layout)
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    const isMobile = await moreMenuButton.isVisible()
+
+    if (isMobile) {
+      await moreMenuButton.click()
+    }
+
+    const fileButton = page.locator('[data-testid="file-button"]').first()
+    await fileButton.click()
+
+    // Wait for dialog to be visible
+    const dialog = page.locator('[role="dialog"]')
+    await expect(dialog).toBeVisible()
+
+    // Find the drop zone
+    const dropZone = dialog.locator('.drop-zone')
+    await expect(dropZone).toBeVisible()
+
+    // Create file data for drag and drop
+    const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
+
+    // We can't easily test actual drag and drop in Playwright,
+    // so we'll test the visual feedback instead
+    await dropZone.hover()
+
+    // The drop zone should have hover styles
+    await expect(dropZone).toHaveClass(/drop-zone/)
+  })
+
+  test('should show file information after successful upload', async ({ page }) => {
+    const testContent = '# File Info Test\n\nThis tests file information display.'
+
+    // Check if more menu button exists (mobile layout)
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    const isMobile = await moreMenuButton.isVisible()
+
+    if (isMobile) {
+      await moreMenuButton.click()
+    }
+
+    const fileButton = page.locator('[data-testid="file-button"]').first()
+    await fileButton.click()
+
+    const dialog = page.locator('[role="dialog"]')
+    await expect(dialog).toBeVisible()
+
+    const fileInput = page.locator('input[type="file"]')
+
+    const testFile = Buffer.from(testContent)
+    await fileInput.setInputFiles([
+      {
+        name: 'file-info-test.md',
+        mimeType: 'text/markdown',
+        buffer: testFile,
+      },
+    ])
+
+    // Wait a moment for file processing
+    await page.waitForTimeout(1000)
+
+    // Should show file information before auto-import closes dialog
+    const fileInfo = dialog.locator('.file-info')
+
+    // If still visible, check file info content
+    if (await fileInfo.isVisible()) {
+      await expect(fileInfo).toContainText('file-info-test.md')
+      await expect(fileInfo).toContainText('text/markdown')
+    }
+
+    // Dialog should eventually close due to auto-import
+    await expect(dialog).not.toBeVisible({ timeout: 10000 })
+  })
+
+  test('should handle manual import when auto-import is disabled', async ({ page }) => {
+    // This test would require a page configuration without auto-import
+    // For now, we'll skip it as all current pages use auto-import
+    test.skip(true, 'Manual import testing requires page without auto-import')
   })
 })

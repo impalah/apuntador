@@ -32,7 +32,7 @@
     />
 
     <!-- File Loader -->
-    <FileLoader v-model="fileLoaderOpen" @file-imported="onFileImported" />
+    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
   </div>
 </template>
 

@@ -5,7 +5,12 @@
     max-width="500"
   >
     <v-card>
-      <v-card-title>Import File</v-card-title>
+      <v-card-title>
+        Import File
+        <v-chip v-if="props.autoImport" size="small" color="primary" class="ml-2">
+          Auto-import enabled
+        </v-chip>
+      </v-card-title>
 
       <v-divider />
 
@@ -20,6 +25,7 @@
             prepend-icon="mdi-file-import"
             variant="outlined"
             @change="onFileSelect"
+            @update:model-value="onFileSelect"
           />
 
           <!-- Drag and Drop Area -->
@@ -33,7 +39,10 @@
           >
             <v-icon size="48" class="mb-2">mdi-cloud-upload</v-icon>
             <p class="text-body-1 mb-2">Drag and drop your file here</p>
-            <p class="text-body-2 text-medium-emphasis">Supports .md, .txt, and .markdown files</p>
+            <p class="text-body-2 text-medium-emphasis">
+              Supports .md, .txt, and .markdown files
+              <span v-if="props.autoImport" class="text-primary"> • Will import automatically</span>
+            </p>
             <v-btn color="primary" variant="outlined" @click="triggerFileInput">
               Browse Files
             </v-btn>
@@ -74,7 +83,9 @@
       <v-card-actions>
         <v-spacer />
         <v-btn @click="$emit('update:modelValue', false)"> Cancel </v-btn>
-        <v-btn v-if="fileContent" color="primary" @click="onImport"> Import </v-btn>
+        <v-btn v-if="fileContent && !props.autoImport" color="primary" @click="onImport">
+          Import
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -87,9 +98,12 @@ import { sanitizeMarkdown } from '@/utils/markdown'
 // Props
 interface Props {
   modelValue: boolean
+  autoImport?: boolean // New prop to enable auto-import
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  autoImport: false,
+})
 
 // Emits
 const emit = defineEmits<{
@@ -98,7 +112,7 @@ const emit = defineEmits<{
 }>()
 
 // State
-const selectedFiles = ref<File[]>([])
+const selectedFiles = ref<any>(undefined)
 const fileInputRef = ref()
 const loading = ref(false)
 const error = ref('')
@@ -106,17 +120,28 @@ const fileContent = ref('')
 const fileInfo = ref<{ name: string; size: number; type: string } | null>(null)
 const isDragOver = ref(false)
 
-// Watch for dialog close to reset state
+// Watch for file selection
 watch(
   () => selectedFiles.value,
-  () => {
-    if (selectedFiles.value.length > 0) {
-      processFile(selectedFiles.value[0])
+  (newFiles) => {
+    // Simple approach: try to get the first file from whatever structure we have
+    let fileToProcess: File | null = null
+
+    if (newFiles) {
+      if (Array.isArray(newFiles) && newFiles.length > 0) {
+        fileToProcess = newFiles[0]
+      } else if (newFiles instanceof File) {
+        fileToProcess = newFiles
+      } else if (newFiles.length && newFiles[0]) {
+        fileToProcess = newFiles[0]
+      }
+    }
+
+    if (fileToProcess) {
+      processFile(fileToProcess)
     }
   }
-)
-
-// Actions
+) // Actions
 function triggerFileInput() {
   fileInputRef.value?.click()
 }
@@ -142,13 +167,17 @@ async function processFile(file: File) {
       size: file.size,
       type: file.type,
     }
+
+    // Auto-import if enabled
+    if (props.autoImport) {
+      onImport()
+    }
   } catch (err) {
     error.value = `Error reading file: ${err instanceof Error ? err.message : 'Unknown error'}`
   } finally {
     loading.value = false
   }
 }
-
 function readFileAsText(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader()
@@ -185,12 +214,13 @@ function onFileSelect() {
 function onImport() {
   if (fileContent.value) {
     emit('fileImported', fileContent.value)
+    emit('update:modelValue', false) // Close dialog automatically
     resetState()
   }
 }
 
 function resetState() {
-  selectedFiles.value = []
+  selectedFiles.value = undefined
   fileContent.value = ''
   fileInfo.value = null
   error.value = ''
@@ -223,7 +253,7 @@ function onDrop(event: DragEvent) {
 
   const files = Array.from(event.dataTransfer?.files || [])
   if (files.length > 0) {
-    selectedFiles.value = [files[0]] // Take only the first file
+    selectedFiles.value = files // This will be handled by the watcher
   }
 }
 </script>

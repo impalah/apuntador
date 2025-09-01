@@ -6,6 +6,7 @@
       <div
         ref="contentRef"
         class="teleprompter-content"
+        data-testid="teleprompter-content"
         :style="contentStyle"
         v-html="teleprompterStore.contentHtml"
       />

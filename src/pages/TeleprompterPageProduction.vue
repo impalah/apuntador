@@ -40,7 +40,7 @@
     <!-- Shared Modal Components -->
     <SettingsDialog v-model="settingsOpen" @file-imported="onFileImported" />
     <MarkdownEditor v-model="editorOpen" :content="contentRaw" @save="onEditorSave" />
-    <FileLoader v-model="fileLoaderOpen" @file-imported="onFileImported" />
+    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
   </div>
 </template>
 
