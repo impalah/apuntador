@@ -72,6 +72,9 @@ export type HotkeyAction =
   | 'open-settings'
   | 'open-file'
   | 'close-modal'
+  | 'align-left'
+  | 'align-center'
+  | 'align-right'
 
 export interface ScrollAnimation {
   startTime: number

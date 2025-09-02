@@ -222,6 +222,9 @@ export const DEFAULT_HOTKEYS: HotkeyDefinition[] = [
   { key: 's', action: 'open-settings', description: 'Open settings' },
   { key: 'f', action: 'open-file', description: 'Open file' },
   { key: 'Escape', action: 'close-modal', description: 'Close modal/dialog' },
+  { key: '1', action: 'align-left', description: 'Align text left' },
+  { key: '2', action: 'align-center', description: 'Align text center' },
+  { key: '3', action: 'align-right', description: 'Align text right' },
 ]
 
 /**

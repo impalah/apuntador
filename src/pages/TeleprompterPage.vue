@@ -261,6 +261,9 @@ function setupHotkeys() {
     'open-editor': onOpenEditor,
     'open-settings': onOpenSettings,
     'open-file': onOpenFile,
+    'align-left': () => prefsStore.setTextAlignment('left'),
+    'align-center': () => prefsStore.setTextAlignment('center'),
+    'align-right': () => prefsStore.setTextAlignment('right'),
     'close-modal': () => {
       settingsOpen.value = false
       editorOpen.value = false
