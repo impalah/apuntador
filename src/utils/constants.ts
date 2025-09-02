@@ -20,6 +20,11 @@ export const DEFAULT_DIMMING_INTENSITY = 0.3
 export const DEFAULT_FG_COLOR = '#ffffff'
 export const DEFAULT_BG_COLOR = '#000000'
 
+// Text alignment
+export const DEFAULT_TEXT_ALIGNMENT = 'center'
+export const TEXT_ALIGNMENTS = ['left', 'center', 'right'] as const
+export type TextAlignment = (typeof TEXT_ALIGNMENTS)[number]
+
 // Animation
 export const SCROLL_ANIMATION_DURATION = 200 // ms
 export const TOOLBAR_HIDE_DELAY = 3000 // ms

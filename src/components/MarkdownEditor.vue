@@ -53,7 +53,7 @@
 
           <v-col v-if="showPreview" cols="6">
             <div class="preview-panel">
-              <div class="preview-content" v-html="compiledPreview" />
+              <div class="preview-content" :style="previewStyle" v-html="compiledPreview" />
             </div>
           </v-col>
         </v-row>
@@ -75,7 +75,7 @@
           </div>
 
           <div v-else class="preview-panel">
-            <div class="preview-content" v-html="compiledPreview" />
+            <div class="preview-content" :style="previewStyle" v-html="compiledPreview" />
           </div>
         </div>
       </v-container>
@@ -132,6 +132,7 @@ Code block
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
 import { compileMarkdown } from '@/utils/markdown'
+import { usePrefsStore } from '@/stores/usePrefsStore'
 
 // Props
 interface Props {
@@ -140,6 +141,9 @@ interface Props {
 }
 
 const props = defineProps<Props>()
+
+// Stores
+const prefsStore = usePrefsStore()
 
 // Emits
 const emit = defineEmits<{
@@ -160,6 +164,12 @@ const compiledPreview = computed(() => {
     return compileMarkdown(localContent.value)
   } catch (error) {
     return `<p style="color: red;">Error compiling markdown: ${error}</p>`
+  }
+})
+
+const previewStyle = computed(() => {
+  return {
+    textAlign: prefsStore.textAlignment,
   }
 })
 

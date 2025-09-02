@@ -252,9 +252,6 @@ describe('FileLoader Component', () => {
 
       global.FileReader = vi.fn(() => mockFileReader) as any
 
-      // Spy on emit to verify fileImported event is emitted
-      const emitSpy = vi.spyOn(wrapper, 'emitted')
-
       // Start processing
       const processPromise = wrapper.vm.processFile(validFile)
 
@@ -268,8 +265,12 @@ describe('FileLoader Component', () => {
       // Wait for DOM updates
       await wrapper.vm.$nextTick()
 
-      // Verify fileImported event was emitted (which happens in onImport)
-      expect(wrapper.emitted('fileImported')).toBeTruthy()
+      // Verify fileImported event was emitted (which happens in onImport when autoImport is true)
+      const emittedEvents = wrapper.emitted('fileImported')
+      expect(emittedEvents).toBeTruthy()
+      if (emittedEvents) {
+        expect(emittedEvents[0]).toEqual(['# Auto Import Test'])
+      }
     })
   })
 })

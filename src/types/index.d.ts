@@ -22,6 +22,7 @@ export interface PreferencesState {
   highlightBandLines: 1 | 2
   highlightBandPosPct: number // 0..100 from top
   dimmingIntensity: number // 0..1
+  textAlignment: 'left' | 'center' | 'right'
   customHotkeys: CustomHotkeyMapping
 }
 

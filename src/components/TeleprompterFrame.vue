@@ -78,6 +78,7 @@ const contentStyle = computed(() => {
     lineHeight: prefsStore.lineHeight.toString(),
     fontFamily: prefsStore.fontFamily,
     color: prefsStore.fgColor,
+    textAlign: prefsStore.textAlignment,
   }
 })
 

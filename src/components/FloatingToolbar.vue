@@ -104,6 +104,11 @@
                 <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
               </div>
 
+              <!-- Text Alignment Controls -->
+              <div class="menu-section alignment-controls">
+                <TextAlignmentControls :is-menu-layout="true" />
+              </div>
+
               <!-- Mirror Controls -->
               <div class="menu-section mirror-controls">
                 <div class="control-group-horizontal">
@@ -239,6 +244,11 @@
                 </div>
               </div>
 
+              <!-- Text Alignment Controls -->
+              <div class="menu-section alignment-controls">
+                <TextAlignmentControls :is-menu-layout="true" />
+              </div>
+
               <!-- Mirror Controls -->
               <div class="menu-section mirror-controls">
                 <div class="control-group-horizontal">
@@ -332,19 +342,8 @@
       <!-- Font Size Control -->
       <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
 
-      <!-- Mirror Controls -->
-      <v-btn
-        :icon="prefsStore.mirrorH ? 'mdi-flip-horizontal' : 'mdi-flip-horizontal'"
-        :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-        data-testid="mirror-h-button"
-        @click="$emit('mirrorToggle', 'h')"
-      />
-      <v-btn
-        :icon="prefsStore.mirrorV ? 'mdi-flip-vertical' : 'mdi-flip-vertical'"
-        :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-        data-testid="mirror-v-button"
-        @click="$emit('mirrorToggle', 'v')"
-      />
+      <!-- Text Alignment Controls -->
+      <TextAlignmentControls />
 
       <!-- Actions -->
       <v-btn icon="mdi-pencil" data-testid="editor-button" @click="$emit('openEditor')" />
@@ -360,6 +359,7 @@ import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
+import TextAlignmentControls from './TextAlignmentControls.vue'
 
 // Emits
 const emit = defineEmits<{

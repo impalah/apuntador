@@ -39,7 +39,9 @@ class StorageService {
    */
   async set<T>(key: string, value: T): Promise<void> {
     try {
-      await this.store.setItem(key, value)
+      // Serialize the value to ensure it can be cloned
+      const serializedValue = JSON.parse(JSON.stringify(value))
+      await this.store.setItem(key, serializedValue)
       // Also save to localStorage as backup
       this.fallbackSet(key, value)
     } catch (error) {

@@ -363,4 +363,70 @@ describe('usePrefsStore', () => {
       expect(store.speedPxPerSec).toBe(20)
     })
   })
+
+  describe('Text Alignment', () => {
+    it('should have default text alignment as center', () => {
+      const store = usePrefsStore()
+      expect(store.textAlignment).toBe('center')
+    })
+
+    it('should set text alignment correctly', async () => {
+      const store = usePrefsStore()
+
+      store.setTextAlignment('left')
+      expect(store.textAlignment).toBe('left')
+
+      store.setTextAlignment('right')
+      expect(store.textAlignment).toBe('right')
+
+      store.setTextAlignment('center')
+      expect(store.textAlignment).toBe('center')
+    })
+
+    it('should save and load text alignment preference', async () => {
+      const store = usePrefsStore()
+
+      // Set alignment and save
+      store.setTextAlignment('left')
+      await store.save()
+
+      // Create new store instance to test loading
+      const newStore = usePrefsStore()
+      await newStore.load()
+
+      expect(newStore.textAlignment).toBe('left')
+    })
+
+    it('should reset text alignment to default', () => {
+      const store = usePrefsStore()
+
+      // Change from default
+      store.setTextAlignment('left')
+      expect(store.textAlignment).toBe('left')
+
+      // Reset
+      store.reset()
+      expect(store.textAlignment).toBe('center')
+    })
+
+    it('should apply text alignment CSS variable', () => {
+      const store = usePrefsStore()
+
+      // Mock document.documentElement
+      const mockRoot = {
+        style: {
+          setProperty: vi.fn(),
+        },
+      }
+      Object.defineProperty(document, 'documentElement', {
+        value: mockRoot,
+        writable: true,
+      })
+
+      store.setTextAlignment('left')
+      store.applyCSSVariables()
+
+      expect(mockRoot.style.setProperty).toHaveBeenCalledWith('--text-alignment', 'left')
+    })
+  })
 })

@@ -15,6 +15,9 @@ import {
   DEFAULT_HIGHLIGHT_BAND_LINES,
   DEFAULT_HIGHLIGHT_BAND_POS,
   DEFAULT_DIMMING_INTENSITY,
+  DEFAULT_TEXT_ALIGNMENT,
+  TEXT_ALIGNMENTS,
+  type TextAlignment,
 } from '@/utils/constants'
 
 // Zod schema for preferences validation
@@ -42,6 +45,7 @@ const preferencesSchema = z.object({
   highlightBandLines: z.union([z.literal(1), z.literal(2)]).default(DEFAULT_HIGHLIGHT_BAND_LINES),
   highlightBandPosPct: z.number().min(0).max(100).default(DEFAULT_HIGHLIGHT_BAND_POS),
   dimmingIntensity: z.number().min(0).max(1).default(DEFAULT_DIMMING_INTENSITY),
+  textAlignment: z.enum(TEXT_ALIGNMENTS).default(DEFAULT_TEXT_ALIGNMENT as TextAlignment),
   customHotkeys: z
     .record(
       z.object({
@@ -74,6 +78,7 @@ export const usePrefsStore = defineStore('preferences', () => {
   const highlightBandLines = ref<1 | 2>(DEFAULT_HIGHLIGHT_BAND_LINES)
   const highlightBandPosPct = ref(DEFAULT_HIGHLIGHT_BAND_POS)
   const dimmingIntensity = ref(DEFAULT_DIMMING_INTENSITY)
+  const textAlignment = ref<TextAlignment>(DEFAULT_TEXT_ALIGNMENT as TextAlignment)
   const customHotkeys = ref<CustomHotkeyMapping>(createDefaultMapping())
 
   // Actions
@@ -96,6 +101,7 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandLines.value = validated.highlightBandLines
         highlightBandPosPct.value = validated.highlightBandPosPct
         dimmingIntensity.value = validated.dimmingIntensity
+        textAlignment.value = validated.textAlignment
 
         // Handle custom hotkeys with fallback to defaults
         const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
@@ -124,6 +130,7 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandLines: highlightBandLines.value,
         highlightBandPosPct: highlightBandPosPct.value,
         dimmingIntensity: dimmingIntensity.value,
+        textAlignment: textAlignment.value,
         customHotkeys: customHotkeys.value,
       }
 
@@ -147,6 +154,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandLines.value = DEFAULT_HIGHLIGHT_BAND_LINES
     highlightBandPosPct.value = DEFAULT_HIGHLIGHT_BAND_POS
     dimmingIntensity.value = DEFAULT_DIMMING_INTENSITY
+    textAlignment.value = DEFAULT_TEXT_ALIGNMENT as TextAlignment
     customHotkeys.value = createDefaultMapping()
   }
 
@@ -181,6 +189,11 @@ export const usePrefsStore = defineStore('preferences', () => {
     save()
   }
 
+  function setTextAlignment(alignment: TextAlignment) {
+    textAlignment.value = alignment
+    save()
+  }
+
   // CSS custom properties for reactive styling
   function applyCSSVariables() {
     const root = document.documentElement
@@ -190,6 +203,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     root.style.setProperty('--teleprompter-fg', fgColor.value)
     root.style.setProperty('--teleprompter-bg', bgColor.value)
     root.style.setProperty('--dimming-intensity', dimmingIntensity.value.toString())
+    root.style.setProperty('--text-alignment', textAlignment.value)
   }
 
   // Hotkey management
@@ -221,6 +235,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandLines,
     highlightBandPosPct,
     dimmingIntensity,
+    textAlignment,
     customHotkeys,
 
     // Actions
@@ -233,6 +248,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     decreaseSpeed,
     toggleMirrorH,
     toggleMirrorV,
+    setTextAlignment,
     applyCSSVariables,
     updateHotkey,
     resetHotkeys,
