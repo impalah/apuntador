@@ -286,8 +286,24 @@ function setupHotkeys() {
   position: relative;
   width: 100vw;
   height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height when available */
   overflow: hidden;
   background: var(--teleprompter-bg, #000000);
   color: var(--teleprompter-fg, #ffffff);
+
+  /* Android edge-to-edge support */
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  /* Don't add bottom padding here - let FloatingToolbar handle it */
+}
+
+/* Ensure content area respects safe areas on Android */
+@supports (padding: max(0px)) {
+  .teleprompter-page {
+    padding-top: max(0px, env(safe-area-inset-top, 0px));
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+  }
 }
 </style>

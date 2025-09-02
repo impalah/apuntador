@@ -357,6 +357,7 @@
 import { ref } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useWindowInsets } from '@/utils/windowInsets'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
 import TextAlignmentControls from './TextAlignmentControls.vue'
@@ -379,6 +380,9 @@ const emit = defineEmits<{
 // Stores
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
+
+// Window insets for Android edge-to-edge
+const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
 
 // State
 const activeTab = ref(0)
@@ -405,7 +409,7 @@ function onFontSizeChange(delta: number) {
 <style scoped>
 .floating-toolbar {
   position: fixed !important;
-  bottom: 0px !important;
+  bottom: 0 !important;
   left: 50% !important;
   right: auto !important;
   transform: translateX(-50%) translateZ(0) !important;
@@ -423,6 +427,12 @@ function onFontSizeChange(delta: number) {
   overflow: visible !important; /* Key fix: allow content to overflow */
   /* Create isolated stacking context for child elements */
   isolation: isolate;
+
+  /* Android edge-to-edge support - Multiple fallback approaches */
+  margin-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px), 48px);
+
+  /* Additional padding for Android devices */
+  padding-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px), 12px);
 
   &.hidden {
     opacity: 0;
@@ -472,6 +482,13 @@ function onFontSizeChange(delta: number) {
     min-width: 280px !important; /* Reduce further for very small screens */
     border-radius: 16px !important;
     min-height: 64px; /* Ensure adequate height on mobile */
+
+    /* More aggressive Android support for mobile */
+    margin-bottom: max(
+      var(--safe-area-inset-bottom, 0px),
+      env(safe-area-inset-bottom, 0px),
+      60px
+    ) !important;
   }
 
   :deep(.v-bottom-navigation__content) {

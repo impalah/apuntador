@@ -43,6 +43,23 @@ docker run -p 80:80 apuntador
 
 ### Android Mobile App
 
+#### Quick APK Build
+
+Build a custom-named APK (`apuntador.apk`) with one command:
+
+```bash
+# Windows
+npm run android:apk:build
+
+# Linux/macOS
+npm run android:apk:build:linux
+
+# Cross-platform (auto-detects OS)
+make android-apk
+```
+
+The APK will be generated in the root directory as `apuntador.apk` (~6.3 MB).
+
 #### Automatic Build (GitHub Actions)
 
 The project includes automated Android APK builds via GitHub Actions:
@@ -64,15 +81,15 @@ This will:
 For local Android APK builds:
 
 ```bash
-# Install Android dependencies (see APK_GUIDE.md)
-# Then build manually
-npm run build
-npx cap copy android
-npx cap sync android
+# Install Android dependencies
+make android-setup
+
+# Build APK manually
+npm run android:build
 cd android && ./gradlew assembleRelease
 ```
 
-See [**APK_GUIDE.md**](./APK_GUIDE.md) for detailed Android setup instructions.
+See [**ANDROID_BUILD.md**](./ANDROID_BUILD.md) for detailed Android setup and build instructions.
 
 ### CI/CD Integration
 

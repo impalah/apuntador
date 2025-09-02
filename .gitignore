@@ -67,6 +67,14 @@ android/build/
 android/.gradle/
 android/local.properties
 
+# Generated APK files
+apuntador.apk
+*.apk
+
+# Build script temporary files
+build-*.log
+build-*.tmp
+
 # Runtime data
 pids
 *.pid

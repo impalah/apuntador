@@ -50,6 +50,13 @@ android {
             }
         }
     }
+    
+    applicationVariants.all { variant ->
+        variant.outputs.all {
+            def outputName = "apuntador.apk"
+            outputFileName = outputName
+        }
+    }
 }
 
 repositories {

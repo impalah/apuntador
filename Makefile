@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-debug android-clean android-keystore-base64
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64
 
 install:
 	npm install
@@ -65,7 +65,15 @@ android-build: build
 android-release: android-build
 	@echo "🔐 Building signed release APK..."
 	cd android && ./gradlew assembleRelease
-	@echo "✅ APK built: android/app/build/outputs/apk/release/app-release.apk"
+	@echo "✅ APK built: android/app/build/outputs/apk/release/apuntador.apk"
+
+android-apk: android-build
+	@echo "📱 Building APK with custom name..."
+ifeq ($(OS),Windows_NT)
+	powershell -ExecutionPolicy Bypass -File build-android-apk.ps1
+else
+	./build-android-apk.sh
+endif
 
 android-debug: android-build
 	@echo "🐛 Building debug APK..."
