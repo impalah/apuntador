@@ -117,13 +117,24 @@ jobs:
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
-      - name: Rename APK files
+      - name: Check APK files
         run: |
-          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
-            mv android/app/build/outputs/apk/release/app-release.apk android/app/build/outputs/apk/release/apuntador-${{ steps.version.outputs.version }}-release.apk
+          echo "Checking for generated APK files..."
+          if [ -f android/app/build/outputs/apk/release/apuntador.apk ]; then
+            echo "✅ Release APK found: apuntador.apk"
+            ls -la android/app/build/outputs/apk/release/apuntador.apk
+          else
+            echo "❌ Release APK not found"
+            echo "Contents of release directory:"
+            ls -la android/app/build/outputs/apk/release/ || echo "Release directory does not exist"
           fi
-          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
-            mv android/app/build/outputs/apk/debug/app-debug.apk android/app/build/outputs/apk/debug/apuntador-${{ steps.version.outputs.version }}-debug.apk
+          if [ -f android/app/build/outputs/apk/debug/apuntador.apk ]; then
+            echo "✅ Debug APK found: apuntador.apk"
+            ls -la android/app/build/outputs/apk/debug/apuntador.apk
+          else
+            echo "❌ Debug APK not found"
+            echo "Contents of debug directory:"
+            ls -la android/app/build/outputs/apk/debug/ || echo "Debug directory does not exist"
           fi
 
       - name: Upload Release APK artifact
@@ -131,7 +142,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-release-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/apk/release/apuntador-${{ steps.version.outputs.version }}-release.apk
+          path: android/app/build/outputs/apk/release/apuntador.apk
           if-no-files-found: error
 
       - name: Upload Debug APK artifact
@@ -139,7 +150,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-debug-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/apk/debug/apuntador-${{ steps.version.outputs.version }}-debug.apk
+          path: android/app/build/outputs/apk/debug/apuntador.apk
           if-no-files-found: error
 
       - name: Create Release (for tags)
@@ -186,7 +197,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: android/app/build/outputs/apk/release/apuntador-${{ steps.version.outputs.version }}-release.apk
+          asset_path: android/app/build/outputs/apk/release/apuntador.apk
           asset_name: apuntador-${{ steps.version.outputs.version }}-android.apk
           asset_content_type: application/vnd.android.package-archive
 
