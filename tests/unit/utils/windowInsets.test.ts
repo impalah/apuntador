@@ -3,6 +3,7 @@ import { mount } from '@vue/test-utils'
 import { createVuetify } from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
+import { defineComponent } from 'vue'
 import { useWindowInsets } from '@/utils/windowInsets'
 
 // Mock window.visualViewport
@@ -11,11 +12,21 @@ const mockVisualViewport = {
   removeEventListener: vi.fn(),
 }
 
+// Test component to wrap the composable
+const TestComponent = defineComponent({
+  setup() {
+    const composableResult = useWindowInsets()
+    return composableResult
+  },
+  template: '<div>Test</div>',
+})
+
 describe('useWindowInsets', () => {
   let originalVisualViewport: any
   let originalUserAgent: string
   let originalInnerHeight: number
   let originalScreenHeight: number
+  let vuetify: any
 
   beforeEach(() => {
     // Store original values
@@ -23,6 +34,12 @@ describe('useWindowInsets', () => {
     originalUserAgent = navigator.userAgent
     originalInnerHeight = window.innerHeight
     originalScreenHeight = window.screen.height
+
+    // Create Vuetify instance for testing
+    vuetify = createVuetify({
+      components,
+      directives,
+    })
 
     // Mock window methods
     window.addEventListener = vi.fn()
@@ -63,21 +80,33 @@ describe('useWindowInsets', () => {
     vi.clearAllMocks()
   })
 
-  it('should detect safe area insets from CSS env variables', () => {
+  it('should detect safe area insets from CSS env variables', async () => {
     Object.defineProperty(window, 'visualViewport', {
       value: mockVisualViewport,
       writable: true,
     })
 
-    const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [vuetify],
+      },
+    })
 
-    // Trigger updateInsets by accessing the composable
-    expect(safeAreaInsets.value.top).toBe(24)
-    expect(safeAreaInsets.value.bottom).toBe(48)
-    expect(isEdgeToEdge.value).toBe(true)
+    // Wait for component to mount and composable to initialize
+    await wrapper.vm.$nextTick()
+
+    // Access the composable values through the component instance
+    const safeAreaInsets = wrapper.vm.safeAreaInsets
+    const isEdgeToEdge = wrapper.vm.isEdgeToEdge
+
+    expect(safeAreaInsets.top).toBe(24)
+    expect(safeAreaInsets.bottom).toBe(48)
+    expect(isEdgeToEdge).toBe(true)
+
+    wrapper.unmount()
   })
 
-  it('should detect Android edge-to-edge mode', () => {
+  it('should detect Android edge-to-edge mode', async () => {
     Object.defineProperty(navigator, 'userAgent', {
       value: 'Mozilla/5.0 (Linux; Android 15; Pixel 8) AppleWebKit/537.36',
       writable: true,
@@ -98,14 +127,34 @@ describe('useWindowInsets', () => {
       getPropertyValue: vi.fn(() => '0px'),
     })) as any
 
-    const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [vuetify],
+      },
+    })
 
-    expect(isEdgeToEdge.value).toBe(true)
-    expect(safeAreaInsets.value.bottom).toBeGreaterThan(0)
+    // Wait for component to mount and composable to initialize
+    await wrapper.vm.$nextTick()
+
+    // Access the composable values through the component instance
+    const safeAreaInsets = wrapper.vm.safeAreaInsets
+    const isEdgeToEdge = wrapper.vm.isEdgeToEdge
+
+    expect(isEdgeToEdge).toBe(true)
+    expect(safeAreaInsets.bottom).toBeGreaterThan(0)
+
+    wrapper.unmount()
   })
 
-  it('should set CSS custom properties', () => {
-    const { safeAreaInsets } = useWindowInsets()
+  it('should set CSS custom properties', async () => {
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [vuetify],
+      },
+    })
+
+    // Wait for component to mount and composable to initialize
+    await wrapper.vm.$nextTick()
 
     expect(document.documentElement.style.setProperty).toHaveBeenCalledWith(
       '--safe-area-inset-top',
@@ -123,9 +172,11 @@ describe('useWindowInsets', () => {
       '--safe-area-inset-right',
       expect.stringContaining('px')
     )
+
+    wrapper.unmount()
   })
 
-  it('should handle non-Android devices gracefully', () => {
+  it('should handle non-Android devices gracefully', async () => {
     Object.defineProperty(navigator, 'userAgent', {
       value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
       writable: true,
@@ -136,10 +187,23 @@ describe('useWindowInsets', () => {
       getPropertyValue: vi.fn(() => '0px'),
     })) as any
 
-    const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+    const wrapper = mount(TestComponent, {
+      global: {
+        plugins: [vuetify],
+      },
+    })
 
-    expect(isEdgeToEdge.value).toBe(false)
-    expect(safeAreaInsets.value.top).toBe(0)
-    expect(safeAreaInsets.value.bottom).toBe(0)
+    // Wait for component to mount and composable to initialize
+    await wrapper.vm.$nextTick()
+
+    // Access the composable values through the component instance
+    const safeAreaInsets = wrapper.vm.safeAreaInsets
+    const isEdgeToEdge = wrapper.vm.isEdgeToEdge
+
+    expect(isEdgeToEdge).toBe(false)
+    expect(safeAreaInsets.top).toBe(0)
+    expect(safeAreaInsets.bottom).toBe(0)
+
+    wrapper.unmount()
   })
 })
