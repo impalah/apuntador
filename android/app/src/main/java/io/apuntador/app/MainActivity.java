@@ -23,4 +23,3 @@ public class MainActivity extends BridgeActivity {
     
     // Removed automatic immersive mode - now controlled by the app
 }
-}
