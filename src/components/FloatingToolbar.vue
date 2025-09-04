@@ -133,6 +133,20 @@
                     Mirror V
                   </v-btn>
                 </div>
+
+                <!-- Immersive Mode for Android -->
+                <div v-if="isImmersiveSupported" class="control-group-horizontal">
+                  <v-btn
+                    :variant="isImmersive ? 'flat' : 'outlined'"
+                    :prepend-icon="isImmersive ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="immersive-mode-button"
+                    @click="toggleImmersiveMode"
+                  >
+                    {{ isImmersive ? 'Exit Fullscreen' : 'Fullscreen' }}
+                  </v-btn>
+                </div>
               </div>
 
               <!-- Action Buttons -->
@@ -345,6 +359,15 @@
       <!-- Text Alignment Controls -->
       <TextAlignmentControls />
 
+      <!-- Immersive Mode for Android -->
+      <v-btn
+        v-if="isImmersiveSupported"
+        :icon="isImmersive ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+        :variant="isImmersive ? 'flat' : 'outlined'"
+        data-testid="immersive-mode-button"
+        @click="toggleImmersiveMode"
+      />
+
       <!-- Actions -->
       <v-btn icon="mdi-pencil" data-testid="editor-button" @click="$emit('openEditor')" />
       <v-btn icon="mdi-cog" data-testid="settings-button" @click="$emit('openSettings')" />
@@ -358,6 +381,7 @@ import { ref } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
+import { useImmersiveMode } from '@/utils/immersiveMode'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
 import TextAlignmentControls from './TextAlignmentControls.vue'
@@ -383,6 +407,9 @@ const prefsStore = usePrefsStore()
 
 // Window insets for Android edge-to-edge
 const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+
+// Immersive mode
+const { isImmersive, isSupported: isImmersiveSupported, toggleImmersiveMode } = useImmersiveMode()
 
 // State
 const activeTab = ref(0)

@@ -50,6 +50,45 @@ body {
   padding-left: env(safe-area-inset-left);
 }
 
+// Immersive mode styles
+html.immersive-mode {
+  // Override safe area insets in immersive mode
+  --safe-area-inset-top: 0px !important;
+  --safe-area-inset-bottom: 0px !important;
+  --safe-area-inset-left: 0px !important;
+  --safe-area-inset-right: 0px !important;
+
+  body {
+    // Use full viewport height in immersive mode
+    height: 100vh !important;
+    height: 100dvh !important; // Dynamic viewport height
+  }
+
+  // Hide any remaining safe area padding
+  .safe-area {
+    padding: 0 !important;
+  }
+
+  // Make app container use full screen
+  #app {
+    height: 100vh !important;
+    height: 100dvh !important;
+  }
+
+  // Ensure teleprompter uses full height
+  .teleprompter-container {
+    height: 100vh !important;
+    height: 100dvh !important;
+  }
+
+  // Hide any system UI overlays
+  .v-system-bar,
+  .v-app-bar,
+  .status-bar {
+    display: none !important;
+  }
+}
+
 // Orientation-specific styles for mobile
 @media screen and (orientation: portrait) {
   .floating-toolbar {

@@ -27,6 +27,8 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     backgroundColor: '#000000',
+    // Enable fullscreen mode support
+    webContentsDebuggingEnabled: false,
   },
 }
 
