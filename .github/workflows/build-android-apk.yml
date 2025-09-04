@@ -1,17 +1,16 @@
 name: Build Android APK
 
 on:
-  push:
-    branches:
-      - main
-    tags:
-      - 'v*'
   workflow_dispatch:
     inputs:
       logLevel:
         description: 'Log level'
         required: true
         default: 'warning'
+      release_tag:
+        description: 'Release tag to build APK from (e.g., 0.1.6)'
+        required: true
+        type: string
       buildType:
         description: 'Build type'
         required: true
@@ -44,14 +43,6 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache NPM packages
-        uses: actions/cache@v4
-        with:
-          path: ~/.npm
-          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
-          restore-keys: |
-            ${{ runner.os }}-npm-
-
       - name: Cache Gradle packages
         uses: actions/cache@v4
         with:
@@ -62,14 +53,56 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-gradle-
 
-      - name: Install dependencies
+      - name: Install dependencies (minimal for Capacitor)
         run: npm ci
 
-      - name: Run tests
-        run: npm test
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Downloading release asset for tag: ${RELEASE_TAG}"
 
-      - name: Build web application
-        run: npm run build
+          # Get the release by tag
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
+
+          # Extract the download URL for the ZIP asset
+          DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+
+          if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
+            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "Available assets:"
+            echo "${RELEASE_DATA}" | jq -r '.assets[].name'
+            exit 1
+          fi
+
+          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
+            -o "release-${RELEASE_TAG}.zip" \
+            "${DOWNLOAD_URL}"
+
+          # Verify download
+          if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
+            echo "❌ Failed to download release asset"
+            exit 1
+          fi
+
+          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          ls -la "release-${RELEASE_TAG}.zip"
+
+      - name: Extract and prepare web build
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Extracting release-${RELEASE_TAG}.zip to dist/"
+          mkdir -p dist
+          unzip "release-${RELEASE_TAG}.zip" -d dist/
+
+          echo "Contents of dist directory:"
+          ls -la dist/
+
+          echo "✅ Web build ready for Capacitor"
 
       - name: Setup Android environment
         run: |
@@ -77,7 +110,7 @@ jobs:
           mkdir -p android/app
 
       - name: Decode and create keystore
-        if: ${{ github.event.inputs.buildType == 'release' || github.ref_type == 'tag' || github.ref == 'refs/heads/main' }}
+        if: ${{ github.event.inputs.buildType == 'release' }}
         env:
           KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
@@ -99,7 +132,7 @@ jobs:
         run: chmod +x android/gradlew
 
       - name: Build Release APK
-        if: ${{ github.event.inputs.buildType == 'release' || github.ref_type == 'tag' || github.ref == 'refs/heads/main' }}
+        if: ${{ github.event.inputs.buildType == 'release' }}
         run: |
           cd android
           ./gradlew assembleRelease
@@ -110,12 +143,13 @@ jobs:
           cd android
           ./gradlew assembleDebug
 
-      - name: Get version from package.json
+      - name: Get version from release tag
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          VERSION="${{ github.event.inputs.release_tag }}"
           echo "VERSION=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Using version: ${VERSION}"
 
       - name: Check APK files
         run: |
@@ -138,7 +172,7 @@ jobs:
           fi
 
       - name: Upload Release APK artifact
-        if: ${{ github.event.inputs.buildType == 'release' || github.ref_type == 'tag' || github.ref == 'refs/heads/main' }}
+        if: ${{ github.event.inputs.buildType == 'release' }}
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-release-${{ steps.version.outputs.version }}
@@ -152,54 +186,6 @@ jobs:
           name: apuntador-android-debug-${{ steps.version.outputs.version }}
           path: android/app/build/outputs/apk/debug/apuntador.apk
           if-no-files-found: error
-
-      - name: Create Release (for tags)
-        if: ${{ github.ref_type == 'tag' }}
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref_name }}
-          release_name: Apuntador v${{ steps.version.outputs.version }}
-          body: |
-            ## Apuntador v${{ steps.version.outputs.version }}
-
-            ### Android APK
-            - ✅ Signed release APK ready for installation
-            - 📱 Compatible with Android API 23+ (Android 6.0+)
-            - 🎯 Optimized for teleprompter usage
-
-            ### Features
-            - Mobile-first responsive design
-            - Auto-scrolling with adjustable speed
-            - Highlight band for current line focus
-            - Mirror modes (horizontal/vertical)
-            - Touch and keyboard controls
-            - Markdown support
-            - Dark/Light themes
-
-            ### Installation
-            1. Download the APK file
-            2. Enable "Unknown sources" in Android settings
-            3. Install the APK
-            4. Grant necessary permissions
-
-            ### Changes
-            See commit history for detailed changes in this release.
-          draft: false
-          prerelease: false
-
-      - name: Upload Release APK to Release
-        if: ${{ github.ref_type == 'tag' }}
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: android/app/build/outputs/apk/release/apuntador.apk
-          asset_name: apuntador-${{ steps.version.outputs.version }}-android.apk
-          asset_content_type: application/vnd.android.package-archive
 
       - name: Clean up keystore
         if: always()

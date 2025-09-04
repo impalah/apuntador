@@ -77,13 +77,12 @@ jobs:
         run: |
           VERSION=$(node -p "require('./package.json').version")
           echo "IMAGE_TAG=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
 
       - name: Compress dist directory
-        env:
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         run: |
           cd dist/
-          zip -r ../${{ env.IMAGE_TAG }}.zip ./*
+          zip -r ../${{ steps.version.outputs.version }}.zip ./*
 
       - name: Show files in workspace
         run: |
@@ -103,8 +102,38 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           IMAGE_TAG: ${{ env.IMAGE_TAG }}
         with:
-          tag_name: ${{ env.IMAGE_TAG }}
-          release_name: ${{ env.IMAGE_TAG }}
+          tag_name: ${{ steps.version.outputs.version }}
+          release_name: Apuntador Web v${{ steps.version.outputs.version }}
+          body: |
+            ## Apuntador Web v${{ steps.version.outputs.version }}
+
+            ### 📦 Web Application Release
+            This release contains the built web application ready for deployment.
+
+            ### 🚀 Deployment Options
+            - **Static Hosting**: Extract the ZIP to any web server
+            - **GitHub Pages**: Deploy directly from this release  
+            - **S3/CloudFront**: Use with the deploy-release workflow
+            - **Android APK**: Use this release with the build-android-apk workflow
+
+            ### 📱 To Create Android APK
+            1. Go to Actions → Build Android APK
+            2. Run workflow manually
+            3. Enter this release tag: `${{ steps.version.outputs.version }}`
+            4. Select build type (release/debug)
+
+            ### ✨ Features
+            - Mobile-first responsive design
+            - Auto-scrolling teleprompter
+            - Highlight band for current line focus
+            - Mirror modes (horizontal/vertical)
+            - Touch and keyboard controls
+            - Markdown support with live editing
+            - Dark/Light themes
+            - File import (.md/.txt)
+
+            ### 🔧 Installation
+            Extract the ZIP file and serve from any web server or static hosting service.
           draft: false
           prerelease: false
 
@@ -115,6 +144,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/${{ env.IMAGE_TAG }}.zip
-          asset_name: ${{ env.IMAGE_TAG }}.zip
+          asset_path: ${{ github.workspace }}/${{ steps.version.outputs.version }}.zip
+          asset_name: ${{ steps.version.outputs.version }}.zip
           asset_content_type: application/zip
