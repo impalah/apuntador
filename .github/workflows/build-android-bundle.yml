@@ -154,17 +154,17 @@ jobs:
       - name: Check Bundle files
         run: |
           echo "Checking for generated Bundle files..."
-          if [ -f android/app/build/outputs/bundle/release/apuntador.aab ]; then
-            echo "✅ Release Bundle found: apuntador.aab"
-            ls -la android/app/build/outputs/bundle/release/apuntador.aab
+          if [ -f android/app/build/outputs/bundle/release/app-release.aab ]; then
+            echo "✅ Release Bundle found: app-release.aab"
+            ls -la android/app/build/outputs/bundle/release/app-release.aab
           else
             echo "❌ Release Bundle not found"
             echo "Contents of release bundle directory:"
             ls -la android/app/build/outputs/bundle/release/ || echo "Release bundle directory does not exist"
           fi
-          if [ -f android/app/build/outputs/bundle/debug/apuntador.aab ]; then
-            echo "✅ Debug Bundle found: apuntador.aab"
-            ls -la android/app/build/outputs/bundle/debug/apuntador.aab
+          if [ -f android/app/build/outputs/bundle/debug/app-debug.aab ]; then
+            echo "✅ Debug Bundle found: app-debug.aab"
+            ls -la android/app/build/outputs/bundle/debug/app-debug.aab
           else
             echo "❌ Debug Bundle not found"
             echo "Contents of debug bundle directory:"
@@ -176,7 +176,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-bundle-release-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/bundle/release/apuntador.aab
+          path: android/app/build/outputs/bundle/release/app-release.aab
           if-no-files-found: error
 
       - name: Upload Debug Bundle artifact
@@ -184,7 +184,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-bundle-debug-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/bundle/debug/apuntador.aab
+          path: android/app/build/outputs/bundle/debug/app-debug.aab
           if-no-files-found: error
 
       - name: Generate Bundle info

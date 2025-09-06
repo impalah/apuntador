@@ -154,17 +154,17 @@ jobs:
       - name: Check APK files
         run: |
           echo "Checking for generated APK files..."
-          if [ -f android/app/build/outputs/apk/release/apuntador.apk ]; then
-            echo "✅ Release APK found: apuntador.apk"
-            ls -la android/app/build/outputs/apk/release/apuntador.apk
+          if [ -f android/app/build/outputs/apk/release/app-release.apk ]; then
+            echo "✅ Release APK found: app-release.apk"
+            ls -la android/app/build/outputs/apk/release/app-release.apk
           else
             echo "❌ Release APK not found"
             echo "Contents of release directory:"
             ls -la android/app/build/outputs/apk/release/ || echo "Release directory does not exist"
           fi
-          if [ -f android/app/build/outputs/apk/debug/apuntador.apk ]; then
-            echo "✅ Debug APK found: apuntador.apk"
-            ls -la android/app/build/outputs/apk/debug/apuntador.apk
+          if [ -f android/app/build/outputs/apk/debug/app-debug.apk ]; then
+            echo "✅ Debug APK found: app-debug.apk"
+            ls -la android/app/build/outputs/apk/debug/app-debug.apk
           else
             echo "❌ Debug APK not found"
             echo "Contents of debug directory:"
@@ -176,7 +176,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-release-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/apk/release/apuntador.apk
+          path: android/app/build/outputs/apk/release/app-release.apk
           if-no-files-found: error
 
       - name: Upload Debug APK artifact
@@ -184,7 +184,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-debug-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/apk/debug/apuntador.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
           if-no-files-found: error
 
       - name: Clean up keystore
