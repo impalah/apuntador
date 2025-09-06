@@ -70,6 +70,7 @@ android/local.properties
 # Generated APK files
 apuntador.apk
 *.apk
+*.aab
 
 # Build script temporary files
 build-*.log

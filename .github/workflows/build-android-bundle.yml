@@ -1,0 +1,212 @@
+name: Build Android Bundle (AAB)
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+      release_tag:
+        description: 'Release tag to build Bundle from (e.g., 0.1.6)'
+        required: true
+        type: string
+      buildType:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+
+env:
+  NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
+
+jobs:
+  build-android-bundle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Gradle packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Install dependencies (minimal for Capacitor)
+        run: npm ci
+
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Downloading release asset for tag: ${RELEASE_TAG}"
+
+          # Get the release by tag
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
+
+          # Extract the download URL for the ZIP asset
+          DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+
+          if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
+            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "Available assets:"
+            echo "${RELEASE_DATA}" | jq -r '.assets[].name'
+            exit 1
+          fi
+
+          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
+            -o "release-${RELEASE_TAG}.zip" \
+            "${DOWNLOAD_URL}"
+
+          # Verify download
+          if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
+            echo "❌ Failed to download release asset"
+            exit 1
+          fi
+
+          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          ls -la "release-${RELEASE_TAG}.zip"
+
+      - name: Extract and prepare web build
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Extracting release-${RELEASE_TAG}.zip to dist/"
+          mkdir -p dist
+          unzip "release-${RELEASE_TAG}.zip" -d dist/
+
+          echo "Contents of dist directory:"
+          ls -la dist/
+
+          echo "✅ Web build ready for Capacitor"
+
+      - name: Setup Android environment
+        run: |
+          # Create Android directory structure if needed
+          mkdir -p android/app
+
+      - name: Decode and create keystore
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          echo "$KEYSTORE_BASE64" | base64 -d > android/app/apuntador-release-key.keystore
+          echo "storePassword=$KEYSTORE_PASSWORD" > android/key.properties
+          echo "keyPassword=$KEY_PASSWORD" >> android/key.properties
+          echo "keyAlias=$KEY_ALIAS" >> android/key.properties
+          echo "storeFile=apuntador-release-key.keystore" >> android/key.properties
+
+      - name: Prepare Android project
+        run: |
+          npx cap copy android
+          npx cap sync android
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x android/gradlew
+
+      - name: Build Release Bundle (AAB)
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        run: |
+          cd android
+          ./gradlew bundleRelease
+
+      - name: Build Debug Bundle (AAB)
+        if: ${{ github.event.inputs.buildType == 'debug' }}
+        run: |
+          cd android
+          ./gradlew bundleDebug
+
+      - name: Get version from release tag
+        id: version
+        run: |
+          VERSION="${{ github.event.inputs.release_tag }}"
+          echo "VERSION=${VERSION}" >> $GITHUB_ENV
+          echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "Using version: ${VERSION}"
+
+      - name: Check Bundle files
+        run: |
+          echo "Checking for generated Bundle files..."
+          if [ -f android/app/build/outputs/bundle/release/apuntador.aab ]; then
+            echo "✅ Release Bundle found: apuntador.aab"
+            ls -la android/app/build/outputs/bundle/release/apuntador.aab
+          else
+            echo "❌ Release Bundle not found"
+            echo "Contents of release bundle directory:"
+            ls -la android/app/build/outputs/bundle/release/ || echo "Release bundle directory does not exist"
+          fi
+          if [ -f android/app/build/outputs/bundle/debug/apuntador.aab ]; then
+            echo "✅ Debug Bundle found: apuntador.aab"
+            ls -la android/app/build/outputs/bundle/debug/apuntador.aab
+          else
+            echo "❌ Debug Bundle not found"
+            echo "Contents of debug bundle directory:"
+            ls -la android/app/build/outputs/bundle/debug/ || echo "Debug bundle directory does not exist"
+          fi
+
+      - name: Upload Release Bundle artifact
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-android-bundle-release-${{ steps.version.outputs.version }}
+          path: android/app/build/outputs/bundle/release/apuntador.aab
+          if-no-files-found: error
+
+      - name: Upload Debug Bundle artifact
+        if: ${{ github.event.inputs.buildType == 'debug' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-android-bundle-debug-${{ steps.version.outputs.version }}
+          path: android/app/build/outputs/bundle/debug/apuntador.aab
+          if-no-files-found: error
+
+      - name: Generate Bundle info
+        run: |
+          echo "📱 Android Bundle Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Build Information" >> $GITHUB_STEP_SUMMARY
+          echo "- **Release Tag**: ${{ github.event.inputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Build Type**: ${{ github.event.inputs.buildType }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Bundle Format**: AAB (Android App Bundle)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Target**: Google Play Store" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
+            echo "### 🚀 Ready for Play Store Upload" >> $GITHUB_STEP_SUMMARY
+            echo "The generated AAB file is ready to be uploaded to Google Play Console." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "### 🔧 Debug Bundle" >> $GITHUB_STEP_SUMMARY
+            echo "This is a debug bundle for testing purposes." >> $GITHUB_STEP_SUMMARY
+          fi
+
+      - name: Clean up keystore
+        if: always()
+        run: |
+          rm -f android/app/apuntador-release-key.keystore
+          rm -f android/key.properties
