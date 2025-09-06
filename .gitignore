@@ -72,6 +72,8 @@ apuntador.apk
 *.apk
 *.aab
 
+*.der
+
 # Build script temporary files
 build-*.log
 build-*.tmp
