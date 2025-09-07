@@ -1,5 +1,21 @@
 <template>
-  <div ref="handleRef" class="highlight-band-handle" :style="handleStyle" @mousedown="onMouseDown">
+  <!-- Left handle -->
+  <div
+    ref="handleLeftRef"
+    class="highlight-band-handle highlight-band-handle--left"
+    :style="handleStyle"
+    @mousedown="onMouseDown"
+  >
+    <v-icon size="small" color="white"> mdi-drag-horizontal </v-icon>
+  </div>
+
+  <!-- Right handle -->
+  <div
+    ref="handleRightRef"
+    class="highlight-band-handle highlight-band-handle--right"
+    :style="handleStyle"
+    @mousedown="onMouseDown"
+  >
     <v-icon size="small" color="white"> mdi-drag-horizontal </v-icon>
   </div>
 </template>
@@ -20,7 +36,8 @@ const emit = defineEmits<{
 }>()
 
 // Refs
-const handleRef = ref<HTMLElement>()
+const handleLeftRef = ref<HTMLElement>()
+const handleRightRef = ref<HTMLElement>()
 
 // State
 const isDragging = ref(false)
@@ -38,8 +55,11 @@ onMounted(() => {
   window.addEventListener('resize', measureContainer)
 
   // Add passive touch event listeners for better performance
-  if (handleRef.value) {
-    handleRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+  if (handleLeftRef.value) {
+    handleLeftRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+  }
+  if (handleRightRef.value) {
+    handleRightRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
   }
 })
 
@@ -47,8 +67,11 @@ onUnmounted(() => {
   window.removeEventListener('resize', measureContainer)
 
   // Remove touch event listeners
-  if (handleRef.value) {
-    handleRef.value.removeEventListener('touchstart', onTouchStart)
+  if (handleLeftRef.value) {
+    handleLeftRef.value.removeEventListener('touchstart', onTouchStart)
+  }
+  if (handleRightRef.value) {
+    handleRightRef.value.removeEventListener('touchstart', onTouchStart)
   }
 
   cleanup()
@@ -56,7 +79,7 @@ onUnmounted(() => {
 
 // Measurements
 function measureContainer() {
-  const container = handleRef.value?.parentElement
+  const container = handleLeftRef.value?.parentElement || handleRightRef.value?.parentElement
   if (container) {
     containerHeight = container.clientHeight
   }
@@ -138,7 +161,6 @@ function cleanup() {
 <style scoped>
 .highlight-band-handle {
   position: absolute;
-  right: 16px;
   width: 32px;
   height: 32px;
   background: rgba(0, 0, 0, 0.7);
@@ -163,6 +185,14 @@ function cleanup() {
     background: rgba(0, 0, 0, 1);
     border-color: rgba(255, 255, 255, 1);
   }
+}
+
+.highlight-band-handle--left {
+  left: 60px;
+}
+
+.highlight-band-handle--right {
+  right: 60px;
 }
 
 /* Touch device adjustments */
