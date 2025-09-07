@@ -2,8 +2,13 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { z } from 'zod'
 import { storage } from '@/utils/persistence'
-import type { CustomHotkeyMapping, HotkeyDefinition } from '@/types'
-import { createDefaultMapping } from '@/utils/hotkeys'
+import type {
+  CustomHotkeyMapping,
+  HotkeyDefinition,
+  CustomGamepadMapping,
+  GamepadMapping,
+} from '@/types'
+import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/hotkeys'
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_LINE_HEIGHT,
@@ -59,6 +64,16 @@ const preferencesSchema = z.object({
     )
     .optional()
     .default({}),
+  customGamepadMappings: z
+    .record(
+      z.object({
+        buttonIndex: z.number().nullable(),
+        action: z.string(),
+        description: z.string(),
+      })
+    )
+    .optional()
+    .default({}),
 })
 
 export type PreferencesState = z.infer<typeof preferencesSchema>
@@ -80,6 +95,7 @@ export const usePrefsStore = defineStore('preferences', () => {
   const dimmingIntensity = ref(DEFAULT_DIMMING_INTENSITY)
   const textAlignment = ref<TextAlignment>(DEFAULT_TEXT_ALIGNMENT as TextAlignment)
   const customHotkeys = ref<CustomHotkeyMapping>(createDefaultMapping())
+  const customGamepadMappings = ref<CustomGamepadMapping>(createDefaultGamepadMapping())
 
   // Actions
   async function load() {
@@ -107,6 +123,12 @@ export const usePrefsStore = defineStore('preferences', () => {
         const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
 
         customHotkeys.value = hotkeyCount > 0 ? validated.customHotkeys : createDefaultMapping()
+
+        // Handle custom gamepad mappings with fallback to defaults
+        const gamepadMappingCount = Object.keys(validated.customGamepadMappings || {}).length
+
+        customGamepadMappings.value =
+          gamepadMappingCount > 0 ? validated.customGamepadMappings : createDefaultGamepadMapping()
       }
     } catch (error) {
       console.warn('Failed to load preferences, using defaults:', error)
@@ -132,6 +154,7 @@ export const usePrefsStore = defineStore('preferences', () => {
         dimmingIntensity: dimmingIntensity.value,
         textAlignment: textAlignment.value,
         customHotkeys: customHotkeys.value,
+        customGamepadMappings: customGamepadMappings.value,
       }
 
       await storage.set('preferences', prefs)
@@ -156,6 +179,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     dimmingIntensity.value = DEFAULT_DIMMING_INTENSITY
     textAlignment.value = DEFAULT_TEXT_ALIGNMENT as TextAlignment
     customHotkeys.value = createDefaultMapping()
+    customGamepadMappings.value = createDefaultGamepadMapping()
   }
 
   // Convenience actions for common adjustments
@@ -220,6 +244,24 @@ export const usePrefsStore = defineStore('preferences', () => {
     save()
   }
 
+  /**
+   * Update a gamepad mapping
+   */
+  function updateGamepadMapping(action: string, buttonIndex: number | null) {
+    if (customGamepadMappings.value[action]) {
+      customGamepadMappings.value[action].buttonIndex = buttonIndex
+      save()
+    }
+  }
+
+  /**
+   * Reset gamepad mappings to defaults (all set to null/none)
+   */
+  function resetGamepadMappings() {
+    customGamepadMappings.value = createDefaultGamepadMapping()
+    save()
+  }
+
   return {
     // State
     fontFamily,
@@ -237,6 +279,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     dimmingIntensity,
     textAlignment,
     customHotkeys,
+    customGamepadMappings,
 
     // Actions
     load,
@@ -252,5 +295,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     applyCSSVariables,
     updateHotkey,
     resetHotkeys,
+    updateGamepadMapping,
+    resetGamepadMappings,
   }
 })

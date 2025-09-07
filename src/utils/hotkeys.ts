@@ -1,4 +1,10 @@
-import type { HotkeyDefinition, CustomHotkeyMapping, HotkeyAction } from '@/types'
+import type {
+  HotkeyDefinition,
+  CustomHotkeyMapping,
+  HotkeyAction,
+  GamepadMapping,
+  CustomGamepadMapping,
+} from '@/types'
 
 /**
  * Keyboard shortcuts manager
@@ -241,6 +247,50 @@ export function createDefaultMapping(): CustomHotkeyMapping {
       shiftKey: hotkey.shiftKey,
       action: hotkey.action,
       description: hotkey.description,
+    }
+  }
+
+  return mapping
+}
+
+/**
+ * Default gamepad button mappings for the teleprompter
+ * Setting all to null (none) by default as requested
+ */
+export const DEFAULT_GAMEPAD_MAPPINGS: GamepadMapping[] = [
+  { buttonIndex: null, action: 'toggle-play', description: 'Play/Pause' },
+  { buttonIndex: null, action: 'step-up', description: 'Previous line' },
+  { buttonIndex: null, action: 'step-down', description: 'Next line' },
+  { buttonIndex: null, action: 'step-up-5', description: 'Previous 5 lines' },
+  { buttonIndex: null, action: 'step-down-5', description: 'Next 5 lines' },
+  { buttonIndex: null, action: 'go-home', description: 'Go to start' },
+  { buttonIndex: null, action: 'go-end', description: 'Go to end' },
+  { buttonIndex: null, action: 'speed-down', description: 'Decrease speed' },
+  { buttonIndex: null, action: 'speed-up', description: 'Increase speed' },
+  { buttonIndex: null, action: 'font-up', description: 'Increase font size' },
+  { buttonIndex: null, action: 'font-down', description: 'Decrease font size' },
+  { buttonIndex: null, action: 'mirror-h', description: 'Toggle horizontal mirror' },
+  { buttonIndex: null, action: 'mirror-v', description: 'Toggle vertical mirror' },
+  { buttonIndex: null, action: 'open-editor', description: 'Open editor' },
+  { buttonIndex: null, action: 'open-settings', description: 'Open settings' },
+  { buttonIndex: null, action: 'open-file', description: 'Open file' },
+  { buttonIndex: null, action: 'close-modal', description: 'Close modal/dialog' },
+  { buttonIndex: null, action: 'align-left', description: 'Align text left' },
+  { buttonIndex: null, action: 'align-center', description: 'Align text center' },
+  { buttonIndex: null, action: 'align-right', description: 'Align text right' },
+]
+
+/**
+ * Convert default gamepad mappings array to custom mapping
+ */
+export function createDefaultGamepadMapping(): CustomGamepadMapping {
+  const mapping: CustomGamepadMapping = {}
+
+  for (const gamepadMapping of DEFAULT_GAMEPAD_MAPPINGS) {
+    mapping[gamepadMapping.action] = {
+      buttonIndex: gamepadMapping.buttonIndex,
+      action: gamepadMapping.action,
+      description: gamepadMapping.description,
     }
   }
 

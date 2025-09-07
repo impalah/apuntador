@@ -359,6 +359,20 @@
       <!-- Text Alignment Controls -->
       <TextAlignmentControls />
 
+      <!-- Mirror Controls -->
+      <v-btn
+        :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
+        icon="mdi-flip-horizontal"
+        data-testid="mirror-h-button"
+        @click="$emit('mirrorToggle', 'h')"
+      />
+      <v-btn
+        :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
+        icon="mdi-flip-vertical"
+        data-testid="mirror-v-button"
+        @click="$emit('mirrorToggle', 'v')"
+      />
+
       <!-- Immersive Mode for Android -->
       <v-btn
         v-if="isImmersiveSupported"

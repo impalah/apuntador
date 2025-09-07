@@ -24,6 +24,7 @@ export interface PreferencesState {
   dimmingIntensity: number // 0..1
   textAlignment: 'left' | 'center' | 'right'
   customHotkeys: CustomHotkeyMapping
+  customGamepadMappings: CustomGamepadMapping
 }
 
 export interface ScrollAnimation {
@@ -52,6 +53,16 @@ export interface HotkeyDefinition {
 
 export interface CustomHotkeyMapping {
   [action: string]: HotkeyDefinition
+}
+
+export interface GamepadMapping {
+  buttonIndex: number | null
+  action: string
+  description: string
+}
+
+export interface CustomGamepadMapping {
+  [action: string]: GamepadMapping
 }
 
 export type HotkeyAction =

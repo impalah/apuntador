@@ -14,23 +14,7 @@ export const DEFAULT_APP_CONFIG: AppConfigurationName = 'mixed' // Change here
 
 ### Option 2: Runtime Configuration (For development/testing)
 
-Use the `RuntimeConfigManager` in any component:ración de Componentes - Apuntador
-
-Esta guía explica cómo usar el sistema de configuración de componentes para crear diferentes variaciones de la aplicación.
-
-## ¿Dónde defino qué configuración usar?
-
-### Opción 1: Configuración por Defecto (Recomendada para Producción)
-
-Edita el archivo `src/config/app-configuration.ts`:
-
-```typescript
-export const DEFAULT_APP_CONFIG: AppConfigurationName = 'mixed' // Cambia aquí
-```
-
-### Opción 2: Configuración Runtime (Para desarrollo/testing)
-
-Usa el `RuntimeConfigManager` en cualquier componente:
+Use the `RuntimeConfigManager` in any component:
 
 ```typescript
 import { RuntimeConfigManager } from '@/config/app-configuration'

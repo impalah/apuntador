@@ -41,6 +41,7 @@ import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { hotkeyManager, DEFAULT_HOTKEYS } from '@/utils/hotkeys'
+import { gamepadManager } from '@/utils/gamepadManager'
 import { isTouchDevice } from '@/utils/dom'
 import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
 
@@ -106,6 +107,10 @@ onMounted(async () => {
     hotkeyManager.startListening()
   }
 
+  // Setup gamepad support (always available, regardless of device type)
+  setupGamepad()
+  gamepadManager.startListening()
+
   // Load sample content if no content exists
   if (!teleprompterStore.contentRaw) {
     await loadSampleContent()
@@ -114,6 +119,7 @@ onMounted(async () => {
 
 onUnmounted(() => {
   hotkeyManager.stopListening()
+  gamepadManager.stopListening()
 
   // Clean up orientation listeners on mobile
   if (isMobile()) {
@@ -144,6 +150,15 @@ watch(
     if (!isTouch) {
       hotkeyManager.updateMapping(newHotkeys)
     }
+  },
+  { deep: true }
+)
+
+// Watch for gamepad mapping changes
+watch(
+  () => prefsStore.customGamepadMappings,
+  (newMappings) => {
+    gamepadManager.updateMapping(newMappings)
   },
   { deep: true }
 )
@@ -278,6 +293,44 @@ function setupHotkeys() {
 
   // Update hotkey manager with custom mapping
   hotkeyManager.updateMapping(prefsStore.customHotkeys)
+}
+
+// Gamepad setup - same actions as hotkeys for consistent experience
+function setupGamepad() {
+  const actions = {
+    'toggle-play': () => teleprompterStore.toggle(),
+    'step-up': () => onStepLines(-1),
+    'step-down': () => onStepLines(1),
+    'step-up-5': () => onStepLines(-5),
+    'step-down-5': () => onStepLines(5),
+    'go-home': onGoHome,
+    'go-end': onGoEnd,
+    'speed-down': () => onSpeedChange(-1),
+    'speed-up': () => onSpeedChange(1),
+    'font-down': () => onFontSizeChange(-1),
+    'font-up': () => onFontSizeChange(1),
+    'mirror-h': () => onMirrorToggle('h'),
+    'mirror-v': () => onMirrorToggle('v'),
+    'open-editor': onOpenEditor,
+    'open-settings': onOpenSettings,
+    'open-file': onOpenFile,
+    'align-left': () => prefsStore.setTextAlignment('left'),
+    'align-center': () => prefsStore.setTextAlignment('center'),
+    'align-right': () => prefsStore.setTextAlignment('right'),
+    'close-modal': () => {
+      settingsOpen.value = false
+      editorOpen.value = false
+      fileLoaderOpen.value = false
+    },
+  }
+
+  // Register actions with the gamepad manager
+  Object.entries(actions).forEach(([action, handler]) => {
+    gamepadManager.registerAction(action as any, handler)
+  })
+
+  // Update gamepad manager with custom mapping
+  gamepadManager.updateMapping(prefsStore.customGamepadMappings)
 }
 </script>
 

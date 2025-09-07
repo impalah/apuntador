@@ -18,6 +18,7 @@
         <v-tabs v-model="activeTab">
           <v-tab value="appearance" data-testid="appearance-tab">Appearance</v-tab>
           <v-tab value="behavior" data-testid="behavior-tab">Behavior</v-tab>
+          <v-tab value="gamepad" data-testid="gamepad-tab">Gamepad</v-tab>
           <v-tab value="data" data-testid="data-tab">Data</v-tab>
         </v-tabs>
 
@@ -215,6 +216,58 @@
             </v-form>
           </v-tabs-window-item>
 
+          <!-- Gamepad Tab -->
+          <v-tabs-window-item value="gamepad">
+            <v-form class="mt-4">
+              <!-- Gamepad Status -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">Gamepad Status</h3>
+
+                <v-alert v-if="!gamepadSupported" type="warning" variant="tonal" class="mb-4">
+                  Gamepad API is not supported in this browser.
+                </v-alert>
+
+                <v-alert
+                  v-else-if="connectedGamepads === 0"
+                  type="info"
+                  variant="tonal"
+                  class="mb-4"
+                >
+                  No gamepads connected. Connect a gamepad and press any button to get started.
+                </v-alert>
+
+                <v-alert v-else type="success" variant="tonal" class="mb-4">
+                  {{ connectedGamepads }} gamepad(s) connected and ready to use.
+                </v-alert>
+              </div>
+
+              <!-- Gamepad Button Mappings -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">Button Assignments</h3>
+                <p class="text-caption text-medium-emphasis mb-4">
+                  Assign gamepad buttons to teleprompter actions. Click on an input field and press
+                  any gamepad button to assign it.
+                </p>
+
+                <div class="gamepad-mappings-container">
+                  <GamepadControl
+                    v-for="(mapping, action) in prefsStore.customGamepadMappings"
+                    :key="action"
+                    :gamepad-mapping="mapping"
+                    :action="action as string"
+                    @change="onGamepadMappingChange"
+                  />
+                </div>
+
+                <div class="mt-4">
+                  <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetGamepadMappings">
+                    Reset to Defaults (All None)
+                  </v-btn>
+                </div>
+              </div>
+            </v-form>
+          </v-tabs-window-item>
+
           <!-- Data Tab -->
           <v-tabs-window-item value="data">
             <div class="mt-4">
@@ -273,11 +326,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { storage } from '@/utils/persistence'
 import type { HotkeyDefinition } from '@/types'
+import { useGamepad } from '@/utils/gamepad'
 import HotkeyControl from './HotkeyControl.vue'
+import GamepadControl from './GamepadControl.vue'
 
 // Props
 interface Props {
@@ -294,6 +349,13 @@ const emit = defineEmits<{
 
 // Stores
 const prefsStore = usePrefsStore()
+
+// Gamepad composable
+const gamepadComposable = useGamepad()
+
+// Computed
+const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
+const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
 // State
 const activeTab = ref('appearance')
@@ -361,6 +423,15 @@ function onHotkeyChange(action: string, hotkey: HotkeyDefinition) {
   prefsStore.updateHotkey(action, hotkey)
 }
 
+async function onResetGamepadMappings() {
+  prefsStore.resetGamepadMappings()
+  await prefsStore.save()
+}
+
+function onGamepadMappingChange(action: string, buttonIndex: number | null) {
+  prefsStore.updateGamepadMapping(action, buttonIndex)
+}
+
 async function onClearAllData() {
   // Show confirmation dialog first
   if (confirm('This will delete all your data including settings and content. Are you sure?')) {
@@ -379,6 +450,14 @@ async function onClearAllData() {
 }
 
 .hotkeys-container {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.gamepad-mappings-container {
   max-height: 300px;
   overflow-y: auto;
   border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
