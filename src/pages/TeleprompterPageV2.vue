@@ -22,8 +22,12 @@
     <template v-if="currentImplementation === 'original'">
       <TeleprompterFrame
         ref="teleprompterRef"
-        @content-height-changed="(height) => coordinator.updateHighlightBandDimensions(height, 24)"
-        @viewport-height-changed="(height) => coordinator.updateHighlightBandDimensions(height, 24)"
+        @content-height-changed="
+          (height) => coordinator.updateHighlightBandDimensions(height, LINE_HEIGHT_FALLBACK)
+        "
+        @viewport-height-changed="
+          (height) => coordinator.updateHighlightBandDimensions(height, LINE_HEIGHT_FALLBACK)
+        "
         @tap="coordinator.handleTap"
       />
 
@@ -103,6 +107,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick } from 'vue'
 import { useAppCoordinator } from '@/composables/useComponentCommunication'
+import { LINE_HEIGHT_FALLBACK } from '@/utils/constants'
 
 // Original Components
 import TeleprompterFrame from '@/components/TeleprompterFrame.vue'
@@ -165,11 +170,11 @@ const fileLoaderOpen = ref(false)
 // ========================================
 
 function onContentHeightChanged(height: number) {
-  coordinator.updateHighlightBandDimensions(height, 24) // Assuming 24px line height
+  coordinator.updateHighlightBandDimensions(height, LINE_HEIGHT_FALLBACK)
 }
 
 function onViewportHeightChanged(height: number) {
-  coordinator.updateHighlightBandDimensions(height, 24)
+  coordinator.updateHighlightBandDimensions(height, LINE_HEIGHT_FALLBACK)
 }
 
 function onFileImported(content: string) {

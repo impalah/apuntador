@@ -1,3 +1,9 @@
+import {
+  DEFAULT_SCROLL_SPEED,
+  SCROLL_SMOOTH_DURATION,
+  NORMAL_LINE_HEIGHT_MULTIPLIER,
+} from './constants'
+
 /**
  * Calculate pixels per line based on element's computed line height
  */
@@ -8,7 +14,7 @@ export function pxPerLine(el: HTMLElement): number {
   if (lineHeight === 'normal') {
     // Approximate normal line height
     const fontSize = parseFloat(computedStyle.fontSize)
-    return fontSize * 1.2
+    return fontSize * NORMAL_LINE_HEIGHT_MULTIPLIER
   }
 
   if (lineHeight.endsWith('px')) {
@@ -51,7 +57,11 @@ export class SmoothScroller {
   /**
    * Animate to target offset
    */
-  scrollTo(targetOffset: number, duration: number = 300, onComplete?: () => void): void {
+  scrollTo(
+    targetOffset: number,
+    duration: number = SCROLL_SMOOTH_DURATION,
+    onComplete?: () => void
+  ): void {
     this.cancel()
 
     this.startTime = performance.now()
@@ -110,14 +120,14 @@ export class SmoothScroller {
 export class AutoScroller {
   private animationId: number | null = null
   private lastTime: number = 0
-  private speedPxPerSec: number = 50
+  private speedPxPerSec: number = DEFAULT_SCROLL_SPEED
   private onUpdate: (_offset: number) => void
   private getCurrentOffset: () => number
 
   constructor(
     onUpdate: (_offset: number) => void,
     getCurrentOffset: () => number,
-    speedPxPerSec: number = 50
+    speedPxPerSec: number = DEFAULT_SCROLL_SPEED
   ) {
     this.onUpdate = onUpdate
     this.getCurrentOffset = getCurrentOffset

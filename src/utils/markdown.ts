@@ -4,6 +4,7 @@ import markdownItSup from 'markdown-it-sup'
 import markdownItSub from 'markdown-it-sub'
 import markdownItMark from 'markdown-it-mark'
 import markdownItFootnote from 'markdown-it-footnote'
+import { VIEWPORT_PADDING_HEIGHT, VIEWPORT_PADDING_MIN_HEIGHT } from './constants'
 
 /**
  * Create and configure markdown-it instance with plugins
@@ -38,10 +39,8 @@ export function compileMarkdown(content: string): string {
 
   // Add padding divs for teleprompter viewing
   // This ensures there's always space at the beginning and end
-  const paddingTop =
-    '<div class="teleprompter-padding-top" style="height: 100vh; min-height: 600px;"></div>'
-  const paddingBottom =
-    '<div class="teleprompter-padding-bottom" style="height: 100vh; min-height: 600px;"></div>'
+  const paddingTop = `<div class="teleprompter-padding-top" style="height: ${VIEWPORT_PADDING_HEIGHT}; min-height: ${VIEWPORT_PADDING_MIN_HEIGHT};"></div>`
+  const paddingBottom = `<div class="teleprompter-padding-bottom" style="height: ${VIEWPORT_PADDING_HEIGHT}; min-height: ${VIEWPORT_PADDING_MIN_HEIGHT};"></div>`
 
   return paddingTop + htmlContent + paddingBottom
 }

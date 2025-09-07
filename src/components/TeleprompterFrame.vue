@@ -37,6 +37,13 @@ import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { throttle } from '@/utils/dom'
+import {
+  SWIPE_THRESHOLD,
+  PRESS_AND_HOLD_DURATION,
+  TAP_DURATION_MAX,
+  TAP_MOVEMENT_MAX,
+  TELEPROMPTER_CONTENT_PADDING,
+} from '@/utils/constants'
 import HighlightBandHandle from './HighlightBandHandle.vue'
 
 // Stores
@@ -59,8 +66,9 @@ const highlightBandRef = ref<HTMLElement>()
 // Touch handling
 let touchStartY = 0
 let touchStartTime = 0
-const SWIPE_THRESHOLD = 50
-const PRESS_HOLD_DURATION = 500
+
+// Constants for template binding
+const contentPadding = TELEPROMPTER_CONTENT_PADDING
 
 // Computed styles
 const containerStyle = computed(() => {
@@ -217,7 +225,7 @@ function onTouchEnd(event: TouchEvent) {
   const deltaY = touchEndY - touchStartY
 
   // Check for press and hold
-  if (touchDuration >= PRESS_HOLD_DURATION && Math.abs(deltaY) < 10) {
+  if (touchDuration >= PRESS_AND_HOLD_DURATION && Math.abs(deltaY) < TAP_MOVEMENT_MAX) {
     onPressAndHold()
     return
   }
@@ -230,7 +238,7 @@ function onTouchEnd(event: TouchEvent) {
   }
 
   // Regular tap
-  if (touchDuration < 300 && Math.abs(deltaY) < 10) {
+  if (touchDuration < TAP_DURATION_MAX && Math.abs(deltaY) < TAP_MOVEMENT_MAX) {
     onTap()
   }
 }
@@ -296,7 +304,7 @@ defineExpose({
 .teleprompter-content {
   position: relative;
   width: 100%;
-  padding: 24px;
+  padding: v-bind('contentPadding + "px"');
   font-family: var(--font-family, 'Roboto', sans-serif);
   font-size: var(--font-size, 24px);
   line-height: var(--line-height, 1.4);

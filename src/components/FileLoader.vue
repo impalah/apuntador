@@ -256,6 +256,14 @@ function onDrop(event: DragEvent) {
     selectedFiles.value = files // This will be handled by the watcher
   }
 }
+
+// Expose for testing
+defineExpose({
+  fileContent,
+  processFile,
+  resetState,
+  onImport,
+})
 </script>
 
 <style scoped>

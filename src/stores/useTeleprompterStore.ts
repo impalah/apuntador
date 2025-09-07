@@ -3,6 +3,7 @@ import { ref, computed, watch } from 'vue'
 import { compileMarkdown } from '@/utils/markdown'
 import { AutoScroller, clampScrollOffset } from '@/utils/scrolling'
 import { contentStorage, scrollPositionStorage } from '@/utils/persistence'
+import { LINE_HEIGHT_FALLBACK } from '@/utils/constants'
 import { usePrefsStore } from './usePrefsStore'
 
 export const useTeleprompterStore = defineStore('teleprompter', () => {
@@ -13,7 +14,7 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
   const contentHtml = ref('')
   const isPlaying = ref(false)
   const scrollOffset = ref(0)
-  const lineHeightPx = ref(24) // Default fallback
+  const lineHeightPx = ref(LINE_HEIGHT_FALLBACK) // Use constant instead of magic number
   const viewportHeightPx = ref(600) // Default fallback
   const contentHeightPx = ref(0)
 

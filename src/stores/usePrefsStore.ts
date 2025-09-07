@@ -15,6 +15,8 @@ import {
   DEFAULT_SCROLL_SPEED,
   MIN_SCROLL_SPEED,
   MAX_SCROLL_SPEED,
+  MIN_FONT_SIZE,
+  MAX_FONT_SIZE,
   DEFAULT_FG_COLOR,
   DEFAULT_BG_COLOR,
   DEFAULT_HIGHLIGHT_BAND_LINES,
@@ -23,12 +25,17 @@ import {
   DEFAULT_TEXT_ALIGNMENT,
   TEXT_ALIGNMENTS,
   type TextAlignment,
+  FONT_SIZE_STEP,
+  SPEED_ADJUSTMENT_STEP,
+  SETTINGS_SPEED_MIN_CONSTRAINT,
+  SETTINGS_SPEED_MAX_CONSTRAINT,
+  SETTINGS_MAX_FONT_SIZE,
 } from '@/utils/constants'
 
 // Zod schema for preferences validation
 const preferencesSchema = z.object({
   fontFamily: z.string().default('Roboto, sans-serif'),
-  fontSizePx: z.number().min(12).max(300).default(DEFAULT_FONT_SIZE),
+  fontSizePx: z.number().min(MIN_FONT_SIZE).max(SETTINGS_MAX_FONT_SIZE).default(DEFAULT_FONT_SIZE),
   lineHeight: z.number().min(1).max(3).default(DEFAULT_LINE_HEIGHT),
   fgColor: z
     .string()
@@ -43,8 +50,12 @@ const preferencesSchema = z.object({
     .min(MIN_SCROLL_SPEED)
     .max(MAX_SCROLL_SPEED)
     .default(DEFAULT_SCROLL_SPEED),
-  speedMin: z.number().min(1).max(100).default(MIN_SCROLL_SPEED),
-  speedMax: z.number().min(50).max(500).default(MAX_SCROLL_SPEED),
+  speedMin: z
+    .number()
+    .min(SETTINGS_SPEED_MIN_CONSTRAINT)
+    .max(SETTINGS_SPEED_MAX_CONSTRAINT)
+    .default(MIN_SCROLL_SPEED),
+  speedMax: z.number().min(MIN_SCROLL_SPEED).max(MAX_SCROLL_SPEED).default(MAX_SCROLL_SPEED),
   mirrorH: z.boolean().default(false),
   mirrorV: z.boolean().default(false),
   highlightBandLines: z.union([z.literal(1), z.literal(2)]).default(DEFAULT_HIGHLIGHT_BAND_LINES),
@@ -184,22 +195,22 @@ export const usePrefsStore = defineStore('preferences', () => {
 
   // Convenience actions for common adjustments
   function increaseFontSize() {
-    fontSizePx.value = Math.min(300, fontSizePx.value + 2)
+    fontSizePx.value = Math.min(SETTINGS_MAX_FONT_SIZE, fontSizePx.value + FONT_SIZE_STEP)
     save()
   }
 
   function decreaseFontSize() {
-    fontSizePx.value = Math.max(12, fontSizePx.value - 2)
+    fontSizePx.value = Math.max(MIN_FONT_SIZE, fontSizePx.value - FONT_SIZE_STEP)
     save()
   }
 
   function increaseSpeed() {
-    speedPxPerSec.value = Math.min(speedMax.value, speedPxPerSec.value + 5)
+    speedPxPerSec.value = Math.min(speedMax.value, speedPxPerSec.value + SPEED_ADJUSTMENT_STEP)
     save()
   }
 
   function decreaseSpeed() {
-    speedPxPerSec.value = Math.max(speedMin.value, speedPxPerSec.value - 5)
+    speedPxPerSec.value = Math.max(speedMin.value, speedPxPerSec.value - SPEED_ADJUSTMENT_STEP)
     save()
   }
 

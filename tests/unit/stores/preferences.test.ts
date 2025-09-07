@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { MIN_FONT_SIZE, FONT_SIZE_STEP, SPEED_ADJUSTMENT_STEP } from '@/utils/constants'
 
 describe('Preferences Store', () => {
   beforeEach(() => {
@@ -25,15 +26,15 @@ describe('Preferences Store', () => {
     const initialSize = store.fontSizePx
 
     store.increaseFontSize()
-    expect(store.fontSizePx).toBe(initialSize + 2)
+    expect(store.fontSizePx).toBe(initialSize + FONT_SIZE_STEP)
 
     store.decreaseFontSize()
     expect(store.fontSizePx).toBe(initialSize)
 
     // Test minimum bounds
-    store.fontSizePx = 12
+    store.fontSizePx = MIN_FONT_SIZE
     store.decreaseFontSize()
-    expect(store.fontSizePx).toBe(12) // Should not go below minimum
+    expect(store.fontSizePx).toBe(MIN_FONT_SIZE) // Should not go below minimum
   })
 
   it('should increase and decrease speed', () => {
@@ -41,7 +42,7 @@ describe('Preferences Store', () => {
     const initialSpeed = store.speedPxPerSec
 
     store.increaseSpeed()
-    expect(store.speedPxPerSec).toBe(initialSpeed + 5)
+    expect(store.speedPxPerSec).toBe(initialSpeed + SPEED_ADJUSTMENT_STEP)
 
     store.decreaseSpeed()
     expect(store.speedPxPerSec).toBe(initialSpeed)

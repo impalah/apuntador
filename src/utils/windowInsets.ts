@@ -1,4 +1,12 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import {
+  ANDROID_STATUS_BAR_MIN_HEIGHT,
+  ANDROID_STATUS_BAR_SCREEN_RATIO,
+  ANDROID_NAV_BAR_MIN_HEIGHT,
+  ANDROID_NAV_BAR_SCREEN_RATIO,
+  INSET_UPDATE_DELAY,
+  INSET_QUICK_UPDATE_DELAY,
+} from './constants'
 // import { debugEdgeToEdge } from './debug' // Debug utility - disabled for production
 
 /**
@@ -53,14 +61,20 @@ export function useWindowInsets() {
         const availableHeight = window.screen.availHeight
 
         // Estimate status bar height (usually 24-48px)
-        const estimatedStatusBarHeight = Math.max(24, Math.round(screenHeight * 0.03))
+        const estimatedStatusBarHeight = Math.max(
+          ANDROID_STATUS_BAR_MIN_HEIGHT,
+          Math.round(screenHeight * ANDROID_STATUS_BAR_SCREEN_RATIO)
+        )
 
         // Estimate navigation bar height
         let estimatedNavBarHeight = 0
 
         // If viewport is smaller than screen, there's likely a navigation bar
         if (screenHeight > viewportHeight) {
-          estimatedNavBarHeight = Math.max(48, Math.round(screenHeight * 0.06))
+          estimatedNavBarHeight = Math.max(
+            ANDROID_NAV_BAR_MIN_HEIGHT,
+            Math.round(screenHeight * ANDROID_NAV_BAR_SCREEN_RATIO)
+          )
         }
 
         // Also check available height difference
@@ -139,8 +153,8 @@ export function useWindowInsets() {
     }
 
     // Update insets after a short delay to catch late-loading viewport info
-    setTimeout(updateInsets, 100)
-    setTimeout(updateInsets, 500)
+    setTimeout(updateInsets, INSET_QUICK_UPDATE_DELAY)
+    setTimeout(updateInsets, INSET_UPDATE_DELAY)
 
     // Debug info - disabled for production
     // setTimeout(() => {
