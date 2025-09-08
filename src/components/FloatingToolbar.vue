@@ -8,7 +8,7 @@
     grow
     data-testid="floating-toolbar"
   >
-    <!-- Minimal mode for mobile and small tablets (xs and sm screens) -->
+    <!-- Minimal mode for mobile and small tablets -->
     <template v-if="$vuetify.display.xs || $vuetify.display.sm">
       <!-- Play/Pause -->
       <v-btn
@@ -184,8 +184,14 @@
       </v-menu>
     </template>
 
-    <!-- Compact mode for medium tablets (md screens) -->
-    <template v-else-if="$vuetify.display.md">
+    <!-- Compact mode for medium tablets and small/medium desktops -->
+    <template
+      v-else-if="
+        $vuetify.display.md ||
+        ($vuetify.display.lg && $vuetify.display.width < 1500) ||
+        ($vuetify.display.xl && $vuetify.display.width < 1500)
+      "
+    >
       <!-- Play/Pause -->
       <v-btn
         :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
@@ -324,7 +330,7 @@
       </v-menu>
     </template>
 
-    <!-- Full mode for large screens (lg and xl) -->
+    <!-- Full mode for large screens with enough width -->
     <template v-else>
       <!-- Play/Pause -->
       <v-btn
@@ -660,6 +666,35 @@ function onFontSizeChange(delta: number) {
     pointer-events: auto !important;
     opacity: 1 !important;
     visibility: visible !important;
+  }
+}
+
+/* Narrow large screens (1264px - 1399px) - edge case handling */
+@media (min-width: 1264px) and (max-width: 1399px) {
+  :deep(.v-bottom-navigation__content) {
+    gap: 4px !important;
+    padding: 16px 8px !important;
+    justify-content: space-between !important;
+    overflow: visible !important;
+  }
+
+  :deep(.v-btn) {
+    min-width: 40px !important;
+    flex-shrink: 1 !important;
+  }
+
+  :deep(.speed-control),
+  :deep(.font-size-control) {
+    max-width: 120px !important;
+    min-width: 100px !important;
+    flex-shrink: 0 !important;
+  }
+
+  /* Ensure buttons at edges don't get cut off */
+  .floating-toolbar {
+    max-width: calc(100vw - 40px) !important;
+    left: 50% !important;
+    transform: translateX(-50%) !important;
   }
 }
 
