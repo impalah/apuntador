@@ -410,10 +410,10 @@ defineExpose({
 .teleprompter-content :deep(.teleprompter-padding-bottom) {
   display: block;
   width: 100%;
-  /* Ensure padding is at least one full viewport height */
-  min-height: 100vh;
-  /* For smaller screens, ensure at least 600px */
-  min-height: max(100vh, 600px);
+  /* Ensure padding is at least half viewport height */
+  min-height: 50vh;
+  /* For smaller screens, ensure at least 300px */
+  min-height: max(50vh, 300px);
 }
 
 /* Optional: Add subtle visual indicator for padding areas during development */

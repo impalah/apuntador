@@ -52,7 +52,7 @@
           <v-divider v-if="showPreview" vertical />
 
           <v-col v-if="showPreview" cols="6">
-            <div class="preview-panel">
+            <div class="preview-panel" :style="previewPanelStyle">
               <div class="preview-content" :style="previewStyle" v-html="compiledPreview" />
             </div>
           </v-col>
@@ -74,7 +74,7 @@
             />
           </div>
 
-          <div v-else class="preview-panel">
+          <div v-else class="preview-panel" :style="previewPanelStyle">
             <div class="preview-content" :style="previewStyle" v-html="compiledPreview" />
           </div>
         </div>
@@ -170,6 +170,14 @@ const compiledPreview = computed(() => {
 const previewStyle = computed(() => {
   return {
     textAlign: prefsStore.textAlignment,
+    backgroundColor: prefsStore.bgColor,
+    color: prefsStore.fgColor,
+  }
+})
+
+const previewPanelStyle = computed(() => {
+  return {
+    backgroundColor: prefsStore.bgColor,
   }
 })
 

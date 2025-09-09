@@ -64,8 +64,8 @@ export const TAP_MOVEMENT_MAX = 10 // px
 
 // Padding and spacing
 export const TELEPROMPTER_CONTENT_PADDING = 24 // px
-export const VIEWPORT_PADDING_HEIGHT = '100vh' // CSS value
-export const VIEWPORT_PADDING_MIN_HEIGHT = '600px' // CSS value
+export const VIEWPORT_PADDING_HEIGHT = '50vh' // CSS value
+export const VIEWPORT_PADDING_MIN_HEIGHT = '300px' // CSS value
 
 // UI Layout
 export const FLOATING_TOOLBAR_Z_INDEX = 100
