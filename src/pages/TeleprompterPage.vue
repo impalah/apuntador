@@ -38,9 +38,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
-import { hotkeyManager, DEFAULT_HOTKEYS } from '@/utils/hotkeys'
+import { useI18nStore } from '@/stores/useI18nStore'
+import {
+  hotkeyManager,
+  DEFAULT_HOTKEYS,
+  updateDescriptionsInMapping,
+  updateDescriptionsInGamepadMapping,
+} from '@/utils/hotkeys'
 import { gamepadManager } from '@/utils/gamepadManager'
 import { isTouchDevice } from '@/utils/dom'
 import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
@@ -56,6 +63,10 @@ import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 // Stores
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
+const i18nStore = useI18nStore()
+
+// Composables
+const { locale } = useI18n()
 
 // Component refs
 const teleprompterRef = ref<InstanceType<typeof TeleprompterFrame>>()
@@ -163,6 +174,26 @@ watch(
   { deep: true }
 )
 
+// Watch for language changes to update hotkey descriptions
+watch(
+  () => i18nStore.currentLanguage,
+  () => {
+    // Update hotkey descriptions with new language
+    const updatedHotkeys = updateDescriptionsInMapping(prefsStore.customHotkeys)
+    prefsStore.customHotkeys = updatedHotkeys
+
+    // Update gamepad mapping descriptions
+    const updatedGamepad = updateDescriptionsInGamepadMapping(prefsStore.customGamepadMappings)
+    prefsStore.customGamepadMappings = updatedGamepad
+
+    // Update managers with new descriptions
+    if (!isTouch) {
+      hotkeyManager.updateMapping(updatedHotkeys)
+    }
+    gamepadManager.updateMapping(updatedGamepad)
+  }
+)
+
 // Teleprompter actions
 function onPlay() {
   teleprompterStore.play()
@@ -246,14 +277,19 @@ async function onFileImported(content: string) {
 
 async function loadSampleContent() {
   try {
-    const response = await fetch('/sample.md')
+    // Load sample content based on current locale
+    const sampleFile = locale.value === 'es-ES' ? '/sample-es.md' : '/sample.md'
+    const response = await fetch(sampleFile)
     const content = await response.text()
     await teleprompterStore.setContent(content)
   } catch (error) {
     console.warn('Failed to load sample content:', error)
-    await teleprompterStore.setContent(
-      '# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.'
-    )
+    // Fallback content based on locale
+    const fallbackContent =
+      locale.value === 'es-ES'
+        ? '# Bienvenido a Apuntador\n\nComienza importando tu guión o usando el editor para crear nuevo contenido.'
+        : '# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.'
+    await teleprompterStore.setContent(fallbackContent)
   }
 }
 

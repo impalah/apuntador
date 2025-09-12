@@ -13,6 +13,9 @@ import '@/styles/main.scss'
 import App from './App.vue'
 import router from './router'
 
+// Import i18n
+import { i18n } from '@/utils/i18n'
+
 // Import mobile functionality
 import { initMobileApp } from '@/utils/capacitor'
 
@@ -71,6 +74,7 @@ const app = createApp(App)
 app.use(pinia)
 app.use(vuetify)
 app.use(router)
+app.use(i18n)
 
 app.mount('#app')
 

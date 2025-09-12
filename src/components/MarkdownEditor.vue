@@ -14,20 +14,20 @@
         <v-spacer />
 
         <!-- File Operations -->
-        <v-btn icon="mdi-file-plus" @click="onNew" :title="'New File'" />
+        <v-btn icon="mdi-file-plus" @click="onNew" :title="t('fileLoader.newFile')" />
 
         <v-btn
           icon="mdi-content-save"
           @click="onSave"
           :disabled="!fileStore.canSave || saving"
-          :title="fileStore.canSave ? 'Save' : 'No changes to save'"
+          :title="fileStore.canSave ? t('fileLoader.save') : t('editor.noChangesToSave')"
         />
 
         <v-btn
           icon="mdi-content-save-outline"
           @click="onSaveCopy"
           :disabled="saving"
-          :title="'Save Copy As...'"
+          :title="t('fileLoader.saveCopy')"
         />
 
         <v-divider vertical class="mx-2" />
@@ -62,7 +62,7 @@
                 hide-details
                 no-resize
                 class="editor-textarea"
-                placeholder="Start typing your markdown content..."
+                :placeholder="t('editor.placeholder')"
                 @keydown="onKeyDown"
               />
             </div>
@@ -88,7 +88,7 @@
               hide-details
               no-resize
               class="editor-textarea mobile"
-              placeholder="Start typing your markdown content..."
+              :placeholder="t('editor.placeholder')"
               @keydown="onKeyDown"
             />
           </div>
@@ -105,10 +105,10 @@
       <!-- Help dialog -->
       <v-dialog v-model="showHelp" max-width="500">
         <v-card>
-          <v-card-title>Markdown Help</v-card-title>
+          <v-card-title>{{ t('editor.markdownHelp') }}</v-card-title>
           <v-card-text>
             <div class="help-content">
-              <h4>Basic Syntax</h4>
+              <h4>{{ t('editor.basicSyntax') }}</h4>
               <pre><code># Heading 1
 ## Heading 2
 ### Heading 3
@@ -130,17 +130,17 @@ Code block
 
 [Link](https://example.com)</code></pre>
 
-              <h4>Special Features</h4>
+              <h4>{{ t('editor.specialFeatures') }}</h4>
               <ul>
-                <li>Superscript: H^2^O</li>
-                <li>Subscript: H~2~O</li>
-                <li>Footnotes: Text[^1]</li>
+                <li>{{ t('editor.superscript') }}: H^2^O</li>
+                <li>{{ t('editor.subscript') }}: H~2~O</li>
+                <li>{{ t('editor.footnotes') }}: Text[^1]</li>
               </ul>
             </div>
           </v-card-text>
           <v-card-actions>
             <v-spacer />
-            <v-btn @click="showHelp = false">Close</v-btn>
+            <v-btn @click="showHelp = false">{{ t('common.close') }}</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -150,6 +150,7 @@ Code block
 
 <script setup lang="ts">
 import { ref, computed, watch, nextTick } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { compileMarkdown } from '@/utils/markdown'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useFileStore } from '@/stores/useFileStore'
@@ -159,6 +160,9 @@ import {
   isFileSystemAccessSupported,
   ensureMarkdownExtension,
 } from '@/utils/fileSystem'
+
+// I18n
+const { t } = useI18n()
 
 // Props
 interface Props {
@@ -247,7 +251,7 @@ watch(
 async function onNew() {
   // Check for unsaved changes
   if (fileStore.hasUnsavedChanges) {
-    if (!confirm('Discard unsaved changes?')) {
+    if (!confirm(t('editor.discardChanges'))) {
       return
     }
   }
@@ -310,7 +314,7 @@ function onApply() {
 function onCancel() {
   // Ask for confirmation if content changed
   if (fileStore.hasUnsavedChanges) {
-    if (confirm('Discard unsaved changes?')) {
+    if (confirm(t('editor.discardChanges'))) {
       localContent.value = fileStore.originalContent
       emit('update:modelValue', false)
     }

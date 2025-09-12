@@ -7,9 +7,9 @@
   >
     <v-card>
       <v-card-title>
-        Import File
+        {{ t('fileLoader.title') }}
         <v-chip v-if="props.autoImport" size="small" color="primary" class="ml-2">
-          Auto-import enabled
+          {{ t('fileLoader.autoImportEnabled') }}
         </v-chip>
       </v-card-title>
 
@@ -21,7 +21,7 @@
           <v-file-input
             ref="fileInputRef"
             v-model="selectedFiles"
-            label="Select markdown or text file"
+            :label="t('settings.selectFile')"
             accept=".md,.txt,.markdown"
             prepend-icon="mdi-file-import"
             variant="outlined"
@@ -39,14 +39,16 @@
             @dragleave="onDragLeave"
           >
             <v-icon size="48" class="mb-2">mdi-cloud-upload</v-icon>
-            <p class="text-body-1 mb-2">Drag and drop your file here</p>
+            <p class="text-body-1 mb-2">{{ t('fileLoader.dropZone') }}</p>
             <p class="text-body-2 text-medium-emphasis">
-              Supports .md, .txt, and .markdown files
-              <span v-if="props.autoImport" class="text-primary"> • Will import automatically</span>
+              {{ t('fileLoader.supportedFormats') }}
+              <span v-if="props.autoImport" class="text-primary">
+                • {{ t('fileLoader.autoImportNote') }}</span
+              >
             </p>
             <div class="d-flex gap-2 mt-2">
               <v-btn color="primary" variant="outlined" @click="triggerFileInput">
-                Browse Files
+                {{ t('fileLoader.browseFiles') }}
               </v-btn>
               <v-btn
                 v-if="isFileSystemAccessSupported()"
@@ -54,7 +56,7 @@
                 variant="outlined"
                 @click="openWithFileAPI"
               >
-                Open File
+                {{ t('fileLoader.openFile') }}
               </v-btn>
             </div>
           </div>
@@ -62,7 +64,7 @@
           <!-- Loading State -->
           <div v-if="loading" class="text-center py-4">
             <v-progress-circular indeterminate color="primary" />
-            <p class="mt-2">Reading file...</p>
+            <p class="mt-2">{{ t('fileLoader.readingFile') }}</p>
           </div>
 
           <!-- Error State -->
@@ -93,9 +95,9 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="$emit('update:modelValue', false)"> Cancel </v-btn>
+        <v-btn @click="$emit('update:modelValue', false)"> {{ t('common.cancel') }} </v-btn>
         <v-btn v-if="fileContent && !props.autoImport" color="primary" @click="onImport">
-          Import
+          {{ t('fileLoader.import') }}
         </v-btn>
       </v-card-actions>
     </v-card>
@@ -104,9 +106,13 @@
 
 <script setup lang="ts">
 import { ref, watch } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { sanitizeMarkdown } from '@/utils/markdown'
 import { useFileStore } from '@/stores/useFileStore'
 import { openFile, isFileSystemAccessSupported } from '@/utils/fileSystem'
+
+// I18n
+const { t } = useI18n()
 
 // Props
 interface Props {

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
 import { createPinia, setActivePinia } from 'pinia'
+import { createTestI18n, createTestVuetify } from '../setup/testPlugins'
 import FileLoader from '@/components/FileLoader.vue'
 
 // Mock markdown utils
@@ -27,7 +28,7 @@ describe('FileLoader Component', () => {
         ...props,
       },
       global: {
-        plugins: [pinia],
+        plugins: [pinia, createTestI18n(), createTestVuetify()],
         stubs: {
           'v-dialog': {
             template: '<div><slot /></div>',

@@ -13,7 +13,7 @@
       <!-- Play/Pause -->
       <v-btn
         :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? 'Pause' : 'Play'"
+        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
         size="large"
         data-testid="play-pause-button"
         @click="togglePlay"
@@ -85,7 +85,7 @@
                     class="flex-btn"
                     @click="$emit('goHome')"
                   >
-                    Home
+                    {{ t('toolbar.home') }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
@@ -94,7 +94,7 @@
                     class="flex-btn"
                     @click="$emit('goEnd')"
                   >
-                    End
+                    {{ t('toolbar.end') }}
                   </v-btn>
                 </div>
               </div>
@@ -120,7 +120,7 @@
                     data-testid="mirror-h-button"
                     @click="$emit('mirrorToggle', 'h')"
                   >
-                    Mirror H
+                    {{ t('toolbar.mirrorHorizontal') }}
                   </v-btn>
                   <v-btn
                     :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
@@ -130,7 +130,7 @@
                     data-testid="mirror-v-button"
                     @click="$emit('mirrorToggle', 'v')"
                   >
-                    Mirror V
+                    {{ t('toolbar.mirrorVertical') }}
                   </v-btn>
                 </div>
 
@@ -144,7 +144,7 @@
                     data-testid="immersive-mode-button"
                     @click="toggleImmersiveMode"
                   >
-                    {{ isImmersive ? 'Exit Fullscreen' : 'Fullscreen' }}
+                    {{ isImmersive ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen') }}
                   </v-btn>
                 </div>
               </div>
@@ -195,7 +195,7 @@
       <!-- Play/Pause -->
       <v-btn
         :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? 'Pause' : 'Play'"
+        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
         size="large"
         data-testid="play-pause-button"
         @click="togglePlay"
@@ -280,7 +280,7 @@
                     data-testid="mirror-h-button"
                     @click="$emit('mirrorToggle', 'h')"
                   >
-                    Mirror H
+                    {{ t('toolbar.mirrorHorizontal') }}
                   </v-btn>
                   <v-btn
                     :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
@@ -290,7 +290,7 @@
                     data-testid="mirror-v-button"
                     @click="$emit('mirrorToggle', 'v')"
                   >
-                    Mirror V
+                    {{ t('toolbar.mirrorVertical') }}
                   </v-btn>
                 </div>
               </div>
@@ -335,7 +335,7 @@
       <!-- Play/Pause -->
       <v-btn
         :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? 'Pause' : 'Play'"
+        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
         size="large"
         data-testid="play-pause-button"
         @click="togglePlay"
@@ -398,6 +398,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
@@ -405,6 +406,9 @@ import { useImmersiveMode } from '@/utils/immersiveMode'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
 import TextAlignmentControls from './TextAlignmentControls.vue'
+
+// I18n
+const { t } = useI18n()
 
 // Emits
 const emit = defineEmits<{

@@ -5,6 +5,59 @@ import type {
   GamepadMapping,
   CustomGamepadMapping,
 } from '@/types'
+import { i18n } from '@/utils/i18n'
+
+/**
+ * Get localized description for hotkey action
+ */
+function getLocalizedDescription(action: string): string {
+  const { t } = i18n.global
+
+  switch (action) {
+    case 'toggle-play':
+      return t('hotkeys.playPause')
+    case 'step-up':
+      return t('hotkeys.rewindLine')
+    case 'step-down':
+      return t('hotkeys.forwardLine')
+    case 'step-up-5':
+      return t('hotkeys.rewind5Lines')
+    case 'step-down-5':
+      return t('hotkeys.forward5Lines')
+    case 'go-home':
+      return t('hotkeys.home')
+    case 'go-end':
+      return t('hotkeys.end')
+    case 'speed-down':
+      return t('hotkeys.speedDown')
+    case 'speed-up':
+      return t('hotkeys.speedUp')
+    case 'font-up':
+      return t('hotkeys.fontSizeUp')
+    case 'font-down':
+      return t('hotkeys.fontSizeDown')
+    case 'mirror-h':
+      return t('hotkeys.mirrorHorizontal')
+    case 'mirror-v':
+      return t('hotkeys.mirrorVertical')
+    case 'open-editor':
+      return t('hotkeys.openEditor')
+    case 'open-settings':
+      return t('hotkeys.openSettings')
+    case 'open-file':
+      return t('hotkeys.openFile')
+    case 'close-modal':
+      return t('common.close')
+    case 'align-left':
+      return t('toolbar.alignLeft')
+    case 'align-center':
+      return t('toolbar.alignCenter')
+    case 'align-right':
+      return t('toolbar.alignRight')
+    default:
+      return action
+  }
+}
 
 /**
  * Keyboard shortcuts manager
@@ -211,26 +264,26 @@ export class HotkeyManager {
  * Default hotkey definitions for the teleprompter
  */
 export const DEFAULT_HOTKEYS: HotkeyDefinition[] = [
-  { key: ' ', action: 'toggle-play', description: 'Play/Pause' },
-  { key: 'ArrowUp', action: 'step-up', description: 'Previous line' },
-  { key: 'ArrowDown', action: 'step-down', description: 'Next line' },
-  { key: 'PageUp', action: 'step-up-5', description: 'Previous 5 lines' },
-  { key: 'PageDown', action: 'step-down-5', description: 'Next 5 lines' },
-  { key: 'Home', action: 'go-home', description: 'Go to start' },
-  { key: 'End', action: 'go-end', description: 'Go to end' },
-  { key: 'ArrowLeft', action: 'speed-down', description: 'Decrease speed' },
-  { key: 'ArrowRight', action: 'speed-up', description: 'Increase speed' },
-  { key: '+', action: 'font-up', description: 'Increase font size' },
-  { key: '-', action: 'font-down', description: 'Decrease font size' },
-  { key: 'h', action: 'mirror-h', description: 'Toggle horizontal mirror' },
-  { key: 'v', action: 'mirror-v', description: 'Toggle vertical mirror' },
-  { key: 'e', action: 'open-editor', description: 'Open editor' },
-  { key: 's', action: 'open-settings', description: 'Open settings' },
-  { key: 'f', action: 'open-file', description: 'Open file' },
-  { key: 'Escape', action: 'close-modal', description: 'Close modal/dialog' },
-  { key: '1', action: 'align-left', description: 'Align text left' },
-  { key: '2', action: 'align-center', description: 'Align text center' },
-  { key: '3', action: 'align-right', description: 'Align text right' },
+  { key: ' ', action: 'toggle-play', description: getLocalizedDescription('toggle-play') },
+  { key: 'ArrowUp', action: 'step-up', description: getLocalizedDescription('step-up') },
+  { key: 'ArrowDown', action: 'step-down', description: getLocalizedDescription('step-down') },
+  { key: 'PageUp', action: 'step-up-5', description: getLocalizedDescription('step-up-5') },
+  { key: 'PageDown', action: 'step-down-5', description: getLocalizedDescription('step-down-5') },
+  { key: 'Home', action: 'go-home', description: getLocalizedDescription('go-home') },
+  { key: 'End', action: 'go-end', description: getLocalizedDescription('go-end') },
+  { key: 'ArrowLeft', action: 'speed-down', description: getLocalizedDescription('speed-down') },
+  { key: 'ArrowRight', action: 'speed-up', description: getLocalizedDescription('speed-up') },
+  { key: '+', action: 'font-up', description: getLocalizedDescription('font-up') },
+  { key: '-', action: 'font-down', description: getLocalizedDescription('font-down') },
+  { key: 'h', action: 'mirror-h', description: getLocalizedDescription('mirror-h') },
+  { key: 'v', action: 'mirror-v', description: getLocalizedDescription('mirror-v') },
+  { key: 'e', action: 'open-editor', description: getLocalizedDescription('open-editor') },
+  { key: 's', action: 'open-settings', description: getLocalizedDescription('open-settings') },
+  { key: 'f', action: 'open-file', description: getLocalizedDescription('open-file') },
+  { key: 'Escape', action: 'close-modal', description: getLocalizedDescription('close-modal') },
+  { key: '1', action: 'align-left', description: getLocalizedDescription('align-left') },
+  { key: '2', action: 'align-center', description: getLocalizedDescription('align-center') },
+  { key: '3', action: 'align-right', description: getLocalizedDescription('align-right') },
 ]
 
 /**
@@ -246,7 +299,7 @@ export function createDefaultMapping(): CustomHotkeyMapping {
       altKey: hotkey.altKey,
       shiftKey: hotkey.shiftKey,
       action: hotkey.action,
-      description: hotkey.description,
+      description: getLocalizedDescription(hotkey.action),
     }
   }
 
@@ -258,26 +311,34 @@ export function createDefaultMapping(): CustomHotkeyMapping {
  * Setting all to null (none) by default as requested
  */
 export const DEFAULT_GAMEPAD_MAPPINGS: GamepadMapping[] = [
-  { buttonIndex: null, action: 'toggle-play', description: 'Play/Pause' },
-  { buttonIndex: null, action: 'step-up', description: 'Previous line' },
-  { buttonIndex: null, action: 'step-down', description: 'Next line' },
-  { buttonIndex: null, action: 'step-up-5', description: 'Previous 5 lines' },
-  { buttonIndex: null, action: 'step-down-5', description: 'Next 5 lines' },
-  { buttonIndex: null, action: 'go-home', description: 'Go to start' },
-  { buttonIndex: null, action: 'go-end', description: 'Go to end' },
-  { buttonIndex: null, action: 'speed-down', description: 'Decrease speed' },
-  { buttonIndex: null, action: 'speed-up', description: 'Increase speed' },
-  { buttonIndex: null, action: 'font-up', description: 'Increase font size' },
-  { buttonIndex: null, action: 'font-down', description: 'Decrease font size' },
-  { buttonIndex: null, action: 'mirror-h', description: 'Toggle horizontal mirror' },
-  { buttonIndex: null, action: 'mirror-v', description: 'Toggle vertical mirror' },
-  { buttonIndex: null, action: 'open-editor', description: 'Open editor' },
-  { buttonIndex: null, action: 'open-settings', description: 'Open settings' },
-  { buttonIndex: null, action: 'open-file', description: 'Open file' },
-  { buttonIndex: null, action: 'close-modal', description: 'Close modal/dialog' },
-  { buttonIndex: null, action: 'align-left', description: 'Align text left' },
-  { buttonIndex: null, action: 'align-center', description: 'Align text center' },
-  { buttonIndex: null, action: 'align-right', description: 'Align text right' },
+  { buttonIndex: null, action: 'toggle-play', description: getLocalizedDescription('toggle-play') },
+  { buttonIndex: null, action: 'step-up', description: getLocalizedDescription('step-up') },
+  { buttonIndex: null, action: 'step-down', description: getLocalizedDescription('step-down') },
+  { buttonIndex: null, action: 'step-up-5', description: getLocalizedDescription('step-up-5') },
+  { buttonIndex: null, action: 'step-down-5', description: getLocalizedDescription('step-down-5') },
+  { buttonIndex: null, action: 'go-home', description: getLocalizedDescription('go-home') },
+  { buttonIndex: null, action: 'go-end', description: getLocalizedDescription('go-end') },
+  { buttonIndex: null, action: 'speed-down', description: getLocalizedDescription('speed-down') },
+  { buttonIndex: null, action: 'speed-up', description: getLocalizedDescription('speed-up') },
+  { buttonIndex: null, action: 'font-up', description: getLocalizedDescription('font-up') },
+  { buttonIndex: null, action: 'font-down', description: getLocalizedDescription('font-down') },
+  { buttonIndex: null, action: 'mirror-h', description: getLocalizedDescription('mirror-h') },
+  { buttonIndex: null, action: 'mirror-v', description: getLocalizedDescription('mirror-v') },
+  { buttonIndex: null, action: 'open-editor', description: getLocalizedDescription('open-editor') },
+  {
+    buttonIndex: null,
+    action: 'open-settings',
+    description: getLocalizedDescription('open-settings'),
+  },
+  { buttonIndex: null, action: 'open-file', description: getLocalizedDescription('open-file') },
+  { buttonIndex: null, action: 'close-modal', description: getLocalizedDescription('close-modal') },
+  { buttonIndex: null, action: 'align-left', description: getLocalizedDescription('align-left') },
+  {
+    buttonIndex: null,
+    action: 'align-center',
+    description: getLocalizedDescription('align-center'),
+  },
+  { buttonIndex: null, action: 'align-right', description: getLocalizedDescription('align-right') },
 ]
 
 /**
@@ -290,11 +351,45 @@ export function createDefaultGamepadMapping(): CustomGamepadMapping {
     mapping[gamepadMapping.action] = {
       buttonIndex: gamepadMapping.buttonIndex,
       action: gamepadMapping.action,
-      description: gamepadMapping.description,
+      description: getLocalizedDescription(gamepadMapping.action),
     }
   }
 
   return mapping
+}
+
+/**
+ * Update descriptions in existing mapping with current locale
+ */
+export function updateDescriptionsInMapping(mapping: CustomHotkeyMapping): CustomHotkeyMapping {
+  const updatedMapping: CustomHotkeyMapping = {}
+
+  for (const [action, hotkey] of Object.entries(mapping)) {
+    updatedMapping[action] = {
+      ...hotkey,
+      description: getLocalizedDescription(action),
+    }
+  }
+
+  return updatedMapping
+}
+
+/**
+ * Update descriptions in existing gamepad mapping with current locale
+ */
+export function updateDescriptionsInGamepadMapping(
+  mapping: CustomGamepadMapping
+): CustomGamepadMapping {
+  const updatedMapping: CustomGamepadMapping = {}
+
+  for (const [action, gamepadMapping] of Object.entries(mapping)) {
+    updatedMapping[action] = {
+      ...gamepadMapping,
+      description: getLocalizedDescription(action),
+    }
+  }
+
+  return updatedMapping
 }
 
 // Export singleton instance

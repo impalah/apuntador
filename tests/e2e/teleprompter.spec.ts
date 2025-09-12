@@ -174,7 +174,7 @@ test.describe('Settings and Configuration', () => {
     await page.waitForTimeout(500)
 
     // Close settings
-    await page.locator('button:has-text("Done")').click()
+    await page.locator('[data-testid="close-settings-btn"]').click()
 
     // Wait for dialog to close and changes to apply
     await expect(dialog).not.toBeVisible()

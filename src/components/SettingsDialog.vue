@@ -8,7 +8,7 @@
   >
     <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
-        <span>Settings</span>
+        <span>{{ t('settings.title') }}</span>
         <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
       </v-card-title>
 
@@ -16,30 +16,46 @@
 
       <v-card-text style="height: 500px">
         <v-tabs v-model="activeTab">
-          <v-tab value="appearance" data-testid="appearance-tab">Appearance</v-tab>
-          <v-tab value="behavior" data-testid="behavior-tab">Behavior</v-tab>
-          <v-tab value="gamepad" data-testid="gamepad-tab">Gamepad</v-tab>
-          <v-tab value="data" data-testid="data-tab">Data</v-tab>
+          <v-tab value="appearance" data-testid="appearance-tab">{{
+            t('settings.appearance')
+          }}</v-tab>
+          <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
+          <v-tab value="gamepad" data-testid="gamepad-tab">{{ t('settings.gamepad') }}</v-tab>
+          <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="activeTab">
           <!-- Appearance Tab -->
           <v-tabs-window-item value="appearance">
             <v-form class="mt-4">
+              <!-- Language Settings -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.language') }}</h3>
+
+                <v-select
+                  :model-value="i18nStore.isAutoDetect ? 'auto' : i18nStore.currentLanguage"
+                  :label="t('settings.language')"
+                  :items="i18nStore.availableLanguages"
+                  item-title="label"
+                  item-value="value"
+                  @update:model-value="i18nStore.changeLanguage"
+                />
+              </div>
+
               <!-- Font Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Font</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.fontFamily') }}</h3>
 
                 <v-select
                   v-model="prefsStore.fontFamily"
-                  label="Font Family"
+                  :label="t('settings.fontFamily')"
                   :items="fontFamilies"
                   @update:model-value="savePrefs"
                 />
 
                 <v-slider
                   v-model="prefsStore.fontSizePx"
-                  label="Font Size"
+                  :label="t('settings.fontSize')"
                   :min="12"
                   :max="200"
                   :step="2"
@@ -60,7 +76,7 @@
 
                 <v-slider
                   v-model="prefsStore.lineHeight"
-                  label="Line Height"
+                  :label="t('settings.lineHeight')"
                   :min="1"
                   :max="3"
                   :step="0.1"
@@ -71,13 +87,13 @@
 
               <!-- Colors -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Colors</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.foregroundColor') }}</h3>
 
                 <v-row>
                   <v-col cols="6">
                     <v-text-field
                       v-model="prefsStore.fgColor"
-                      label="Text Color"
+                      :label="t('settings.foregroundColor')"
                       type="color"
                       @change="savePrefs"
                     />
@@ -85,7 +101,7 @@
                   <v-col cols="6">
                     <v-text-field
                       v-model="prefsStore.bgColor"
-                      label="Background Color"
+                      :label="t('settings.backgroundColor')"
                       type="color"
                       @change="savePrefs"
                     />
@@ -95,21 +111,21 @@
 
               <!-- Highlight Band -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Highlight Band</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.highlightBandHeight') }}</h3>
 
                 <v-select
                   v-model="prefsStore.highlightBandLines"
-                  label="Band Height"
+                  :label="t('settings.highlightBandHeight')"
                   :items="[
-                    { title: '1 line', value: 1 },
-                    { title: '2 lines', value: 2 },
+                    { title: '1 ' + t('common.line'), value: 1 },
+                    { title: '2 ' + t('common.lines'), value: 2 },
                   ]"
                   @update:model-value="savePrefs"
                 />
 
                 <v-slider
                   v-model="prefsStore.highlightBandPosPct"
-                  label="Vertical Position"
+                  :label="t('settings.highlightBandPosition')"
                   :min="10"
                   :max="90"
                   :step="5"
@@ -120,7 +136,7 @@
 
                 <v-slider
                   v-model="prefsStore.dimmingIntensity"
-                  label="Dimming Intensity"
+                  :label="t('settings.dimmingIntensity')"
                   :min="0"
                   :max="1"
                   :step="0.1"
@@ -131,20 +147,20 @@
 
               <!-- Mirror Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Mirror</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.mirrorHorizontal') }}</h3>
 
                 <v-row>
                   <v-col cols="6">
                     <v-switch
                       v-model="prefsStore.mirrorH"
-                      label="Mirror Horizontal"
+                      :label="t('settings.mirrorHorizontal')"
                       @change="savePrefs"
                     />
                   </v-col>
                   <v-col cols="6">
                     <v-switch
                       v-model="prefsStore.mirrorV"
-                      label="Mirror Vertical"
+                      :label="t('settings.mirrorVertical')"
                       @change="savePrefs"
                     />
                   </v-col>
@@ -158,11 +174,11 @@
             <v-form class="mt-4">
               <!-- Speed Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Scroll Speed</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.scrollSpeed') }}</h3>
 
                 <v-slider
                   v-model="prefsStore.speedPxPerSec"
-                  label="Default Speed"
+                  :label="t('settings.scrollSpeed')"
                   :min="prefsStore.speedMin"
                   :max="prefsStore.speedMax"
                   :step="5"
@@ -175,7 +191,7 @@
                   <v-col cols="6">
                     <v-text-field
                       v-model.number="prefsStore.speedMin"
-                      label="Minimum Speed"
+                      :label="t('settings.speedMin')"
                       type="number"
                       suffix="px/s"
                       @change="savePrefs"
@@ -184,7 +200,7 @@
                   <v-col cols="6">
                     <v-text-field
                       v-model.number="prefsStore.speedMax"
-                      label="Maximum Speed"
+                      :label="t('settings.speedMax')"
                       type="number"
                       suffix="px/s"
                       @change="savePrefs"
@@ -195,7 +211,7 @@
 
               <!-- Hotkeys Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Hotkeys</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('hotkeys.title') }}</h3>
 
                 <div class="hotkeys-container">
                   <HotkeyControl
@@ -209,7 +225,7 @@
 
                 <div class="mt-4">
                   <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetHotkeys">
-                    Reset to Defaults
+                    {{ t('hotkeys.resetToDefaults') }}
                   </v-btn>
                 </div>
               </div>
@@ -221,10 +237,10 @@
             <v-form class="mt-4">
               <!-- Gamepad Status -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Gamepad Status</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('gamepad.status') }}</h3>
 
                 <v-alert v-if="!gamepadSupported" type="warning" variant="tonal" class="mb-4">
-                  Gamepad API is not supported in this browser.
+                  {{ t('gamepad.notSupported') }}
                 </v-alert>
 
                 <v-alert
@@ -233,20 +249,19 @@
                   variant="tonal"
                   class="mb-4"
                 >
-                  No gamepads connected. Connect a gamepad and press any button to get started.
+                  {{ t('gamepad.noGamepads') }}
                 </v-alert>
 
                 <v-alert v-else type="success" variant="tonal" class="mb-4">
-                  {{ connectedGamepads }} gamepad(s) connected and ready to use.
+                  {{ t('gamepad.connected', { count: connectedGamepads }) }}
                 </v-alert>
               </div>
 
               <!-- Gamepad Button Mappings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Button Assignments</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('gamepad.buttonAssignments') }}</h3>
                 <p class="text-caption text-medium-emphasis mb-4">
-                  Assign gamepad buttons to teleprompter actions. Click on an input field and press
-                  any gamepad button to assign it.
+                  {{ t('gamepad.assignmentInstructions') }}
                 </p>
 
                 <div class="gamepad-mappings-container">
@@ -261,7 +276,7 @@
 
                 <div class="mt-4">
                   <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetGamepadMappings">
-                    Reset to Defaults (All None)
+                    {{ t('gamepad.resetToDefaults') }}
                   </v-btn>
                 </div>
               </div>
@@ -273,41 +288,40 @@
             <div class="mt-4">
               <!-- Import File -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Import Content</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.importContent') }}</h3>
 
                 <v-file-input
                   ref="fileInputRef"
                   v-model="selectedFiles"
-                  label="Select markdown or text file"
+                  :label="t('settings.selectFile')"
                   accept=".md,.txt,.markdown"
                   prepend-icon="mdi-file-import"
                   @change="onFileSelect"
                 />
 
                 <v-btn prepend-icon="mdi-file-import" @click="triggerFileInput">
-                  Import File
+                  {{ t('settings.importFile') }}
                 </v-btn>
               </div>
 
               <!-- Data Management -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">Data Management</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.dataManagement') }}</h3>
 
                 <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetSettings">
-                  Reset Settings
+                  {{ t('settings.resetSettings') }}
                 </v-btn>
 
                 <v-btn color="error" prepend-icon="mdi-delete" class="ml-2" @click="onClearAllData">
-                  Clear All Data
+                  {{ t('settings.clearAllData') }}
                 </v-btn>
               </div>
 
               <!-- Storage Info -->
               <div>
-                <h3 class="text-subtitle-1 mb-3">Storage Information</h3>
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.storageInfo') }}</h3>
                 <v-alert type="info" variant="outlined">
-                  All your data is stored locally in your browser. No information is sent to
-                  external servers.
+                  {{ t('settings.localStorageNote') }}
                 </v-alert>
               </div>
             </div>
@@ -319,7 +333,13 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn color="primary" @click="$emit('update:modelValue', false)"> Done </v-btn>
+        <v-btn
+          color="primary"
+          data-testid="close-settings-btn"
+          @click="$emit('update:modelValue', false)"
+        >
+          {{ t('common.close') }}
+        </v-btn>
       </v-card-actions>
     </v-card>
   </v-dialog>
@@ -327,12 +347,17 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'
 import type { HotkeyDefinition } from '@/types'
 import { useGamepad } from '@/utils/gamepad'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
+
+// I18n
+const { t } = useI18n()
 
 // Props
 interface Props {
@@ -349,6 +374,7 @@ const emit = defineEmits<{
 
 // Stores
 const prefsStore = usePrefsStore()
+const i18nStore = useI18nStore()
 
 // Gamepad composable
 const gamepadComposable = useGamepad()
@@ -410,6 +436,7 @@ function readFileAsText(file: File): Promise<string> {
 
 async function onResetSettings() {
   prefsStore.reset()
+  i18nStore.changeLanguage('auto') // Reset language to auto-detect
   await prefsStore.save()
   prefsStore.applyCSSVariables()
 }
@@ -434,7 +461,7 @@ function onGamepadMappingChange(action: string, buttonIndex: number | null) {
 
 async function onClearAllData() {
   // Show confirmation dialog first
-  if (confirm('This will delete all your data including settings and content. Are you sure?')) {
+  if (confirm(t('settings.clearDataConfirm'))) {
     await storage.clear()
     prefsStore.reset()
     prefsStore.applyCSSVariables()
