@@ -3,6 +3,7 @@
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
     max-width="500"
+    data-testid="file-import-dialog"
   >
     <v-card>
       <v-card-title>
@@ -43,9 +44,19 @@
               Supports .md, .txt, and .markdown files
               <span v-if="props.autoImport" class="text-primary"> • Will import automatically</span>
             </p>
-            <v-btn color="primary" variant="outlined" @click="triggerFileInput">
-              Browse Files
-            </v-btn>
+            <div class="d-flex gap-2 mt-2">
+              <v-btn color="primary" variant="outlined" @click="triggerFileInput">
+                Browse Files
+              </v-btn>
+              <v-btn
+                v-if="isFileSystemAccessSupported()"
+                color="primary"
+                variant="outlined"
+                @click="openWithFileAPI"
+              >
+                Open File
+              </v-btn>
+            </div>
           </div>
 
           <!-- Loading State -->
@@ -94,6 +105,8 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { sanitizeMarkdown } from '@/utils/markdown'
+import { useFileStore } from '@/stores/useFileStore'
+import { openFile, isFileSystemAccessSupported } from '@/utils/fileSystem'
 
 // Props
 interface Props {
@@ -110,6 +123,9 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   fileImported: [content: string]
 }>()
+
+// Stores
+const fileStore = useFileStore()
 
 // State
 const selectedFiles = ref<any>(undefined)
@@ -168,6 +184,9 @@ async function processFile(file: File) {
       type: file.type,
     }
 
+    // Note: Traditional file input doesn't provide a handle for File System Access API
+    // This is handled separately by openWithFileAPI function
+
     // Auto-import if enabled
     if (props.autoImport) {
       onImport()
@@ -216,6 +235,41 @@ function onImport() {
     emit('fileImported', fileContent.value)
     emit('update:modelValue', false) // Close dialog automatically
     resetState()
+  }
+}
+
+async function openWithFileAPI() {
+  try {
+    loading.value = true
+    error.value = ''
+
+    const result = await openFile()
+    if (result) {
+      const sanitized = sanitizeMarkdown(result.content)
+
+      // Update file store with handle
+      fileStore.setFileHandle(result.handle, result.name)
+      fileStore.setContent(sanitized)
+
+      fileContent.value = sanitized
+      fileInfo.value = {
+        name: result.name,
+        size: result.content.length,
+        type: 'text/markdown',
+      }
+
+      // Auto-import if enabled
+      if (props.autoImport) {
+        emit('fileImported', sanitized)
+        emit('update:modelValue', false)
+        resetState()
+      }
+    }
+  } catch (error: any) {
+    console.error('File open failed:', error)
+    error.value = `Failed to open file: ${error.message || 'Unknown error'}`
+  } finally {
+    loading.value = false
   }
 }
 

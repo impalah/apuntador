@@ -272,7 +272,7 @@ test.describe('File Import', () => {
 
     // Check viewport size to determine layout mode
     const viewport = page.viewportSize()
-    const isLargeScreen = viewport && viewport.width >= 1280 // lg breakpoint
+    const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
     let fileButton
 
@@ -304,7 +304,7 @@ test.describe('File Import', () => {
       }
     })
 
-    const dialog = page.locator('[role="dialog"]')
+    const dialog = page.locator('[data-testid="file-import-dialog"]')
     await expect(dialog).toBeVisible()
     await expect(dialog).toContainText('Import File')
   })
@@ -323,7 +323,7 @@ test.describe('File Import', () => {
 
     // Check viewport size to determine layout mode
     const viewport = page.viewportSize()
-    const isLargeScreen = viewport && viewport.width >= 1280 // lg breakpoint
+    const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
     if (!isLargeScreen) {
       // On smaller screens, need to open more menu first
@@ -346,8 +346,11 @@ test.describe('File Import', () => {
       }
     })
 
+    // Wait for dialog to open
+    await page.waitForTimeout(500)
+
     // Wait for dialog to be visible
-    const dialog = page.locator('[role="dialog"]')
+    const dialog = page.locator('[data-testid="file-import-dialog"]')
     await expect(dialog).toBeVisible()
 
     // Find the file input inside the dialog
@@ -387,7 +390,7 @@ test.describe('File Import', () => {
 
     // Check viewport size to determine layout mode
     const viewport = page.viewportSize()
-    const isLargeScreen = viewport && viewport.width >= 1280 // lg breakpoint
+    const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
     if (!isLargeScreen) {
       // On smaller screens, need to open more menu first
@@ -410,8 +413,11 @@ test.describe('File Import', () => {
       }
     })
 
+    // Wait for dialog to open
+    await page.waitForTimeout(500)
+
     // Wait for dialog to be visible
-    const dialog = page.locator('[role="dialog"]')
+    const dialog = page.locator('[data-testid="file-import-dialog"]')
     await expect(dialog).toBeVisible()
 
     const fileInput = dialog.locator('input[type="file"]')
@@ -452,7 +458,7 @@ test.describe('File Import', () => {
 
     // Check viewport size to determine layout mode
     const viewport = page.viewportSize()
-    const isLargeScreen = viewport && viewport.width >= 1280 // lg breakpoint
+    const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
     if (!isLargeScreen) {
       // On smaller screens, need to open more menu first
@@ -475,8 +481,11 @@ test.describe('File Import', () => {
       }
     })
 
+    // Wait for dialog to open
+    await page.waitForTimeout(500)
+
     // Wait for dialog to be visible
-    const dialog = page.locator('[role="dialog"]')
+    const dialog = page.locator('[data-testid="file-import-dialog"]')
     await expect(dialog).toBeVisible()
 
     // Find the drop zone
@@ -508,7 +517,7 @@ test.describe('File Import', () => {
 
     // Check viewport size to determine layout mode
     const viewport = page.viewportSize()
-    const isLargeScreen = viewport && viewport.width >= 1280 // lg breakpoint
+    const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
     if (!isLargeScreen) {
       // On smaller screens, need to open more menu first
@@ -531,7 +540,10 @@ test.describe('File Import', () => {
       }
     })
 
-    const dialog = page.locator('[role="dialog"]')
+    // Wait for dialog to open
+    await page.waitForTimeout(500)
+
+    const dialog = page.locator('[data-testid="file-import-dialog"]')
     await expect(dialog).toBeVisible()
 
     const fileInput = page.locator('input[type="file"]')

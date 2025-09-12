@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { mount } from '@vue/test-utils'
+import { createPinia, setActivePinia } from 'pinia'
 import FileLoader from '@/components/FileLoader.vue'
 
 // Mock markdown utils
@@ -7,8 +8,16 @@ vi.mock('@/utils/markdown', () => ({
   sanitizeMarkdown: vi.fn((content: string) => content),
 }))
 
+// Mock fileSystem utils
+vi.mock('@/utils/fileSystem', () => ({
+  openFile: vi.fn(),
+  isFileSystemAccessSupported: vi.fn(() => false),
+  ensureMarkdownExtension: vi.fn((name: string) => name),
+}))
+
 describe('FileLoader Component', () => {
   let wrapper: any
+  let pinia: any
 
   const createWrapper = (props = {}) => {
     return mount(FileLoader, {
@@ -18,6 +27,7 @@ describe('FileLoader Component', () => {
         ...props,
       },
       global: {
+        plugins: [pinia],
         stubs: {
           'v-dialog': {
             template: '<div><slot /></div>',
@@ -44,6 +54,8 @@ describe('FileLoader Component', () => {
   }
 
   beforeEach(() => {
+    pinia = createPinia()
+    setActivePinia(pinia)
     wrapper = createWrapper()
   })
 

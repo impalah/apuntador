@@ -9,9 +9,28 @@
       <v-toolbar color="primary" density="compact">
         <v-btn icon="mdi-close" @click="onCancel" />
 
-        <v-toolbar-title>Markdown Editor</v-toolbar-title>
+        <v-toolbar-title>{{ fileStore.displayName }}</v-toolbar-title>
 
         <v-spacer />
+
+        <!-- File Operations -->
+        <v-btn icon="mdi-file-plus" @click="onNew" :title="'New File'" />
+
+        <v-btn
+          icon="mdi-content-save"
+          @click="onSave"
+          :disabled="!fileStore.canSave || saving"
+          :title="fileStore.canSave ? 'Save' : 'No changes to save'"
+        />
+
+        <v-btn
+          icon="mdi-content-save-outline"
+          @click="onSaveCopy"
+          :disabled="saving"
+          :title="'Save Copy As...'"
+        />
+
+        <v-divider vertical class="mx-2" />
 
         <!-- Desktop layout toggle -->
         <v-btn
@@ -27,7 +46,7 @@
           @click="toggleMobileView"
         />
 
-        <v-btn icon="mdi-check" @click="onSave" />
+        <v-btn icon="mdi-check" @click="onApply" />
       </v-toolbar>
 
       <v-container fluid class="editor-container pa-0">
@@ -133,6 +152,13 @@ Code block
 import { ref, computed, watch, nextTick } from 'vue'
 import { compileMarkdown } from '@/utils/markdown'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useFileStore } from '@/stores/useFileStore'
+import {
+  saveFile,
+  saveToFileHandle,
+  isFileSystemAccessSupported,
+  ensureMarkdownExtension,
+} from '@/utils/fileSystem'
 
 // Props
 interface Props {
@@ -144,11 +170,13 @@ const props = defineProps<Props>()
 
 // Stores
 const prefsStore = usePrefsStore()
+const fileStore = useFileStore()
 
 // Emits
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   save: [content: string]
+  fileLoaded: [content: string]
 }>()
 
 // State
@@ -157,6 +185,7 @@ const showPreview = ref(true)
 const mobileView = ref<'edit' | 'preview'>('edit')
 const showHelp = ref(false)
 const textareaRef = ref()
+const saving = ref(false)
 
 // Computed
 const compiledPreview = computed(() => {
@@ -195,6 +224,7 @@ watch(
   (isOpen) => {
     if (isOpen) {
       localContent.value = props.content
+      fileStore.setContent(props.content)
       nextTick(() => {
         // Focus the textarea when dialog opens
         textareaRef.value?.focus()
@@ -203,16 +233,85 @@ watch(
   }
 )
 
+// Watch for content changes to mark as modified
+watch(
+  () => localContent.value,
+  (newContent) => {
+    if (newContent !== fileStore.originalContent) {
+      fileStore.markAsModified()
+    }
+  }
+)
+
 // Actions
-function onSave() {
+async function onNew() {
+  // Check for unsaved changes
+  if (fileStore.hasUnsavedChanges) {
+    if (!confirm('Discard unsaved changes?')) {
+      return
+    }
+  }
+
+  fileStore.createNew()
+  localContent.value = ''
+  emit('save', '')
+}
+
+async function onSave() {
+  if (!fileStore.canSave) return
+
+  saving.value = true
+  try {
+    const success = await saveToFileHandle(fileStore.currentFile?.handle, localContent.value)
+    if (success) {
+      fileStore.markAsSaved()
+      fileStore.setContent(localContent.value)
+      emit('save', localContent.value)
+    } else {
+      // Fallback to save copy if direct save fails
+      await onSaveCopy()
+    }
+  } catch (error) {
+    console.error('Save failed:', error)
+    alert('Failed to save file. Please try "Save Copy" instead.')
+  } finally {
+    saving.value = false
+  }
+}
+
+async function onSaveCopy() {
+  saving.value = true
+  try {
+    const suggestedName = fileStore.isNewFile
+      ? 'script.md'
+      : ensureMarkdownExtension(fileStore.fileName)
+
+    const handle = await saveFile(localContent.value, { suggestedName })
+
+    if (handle) {
+      // Update file store with new handle
+      fileStore.setFileHandle(handle, handle.name || suggestedName)
+      fileStore.markAsSaved()
+      fileStore.setContent(localContent.value)
+      emit('save', localContent.value)
+    }
+  } catch (error) {
+    console.error('Save copy failed:', error)
+    alert('Failed to save file.')
+  } finally {
+    saving.value = false
+  }
+}
+
+function onApply() {
   emit('save', localContent.value)
 }
 
 function onCancel() {
   // Ask for confirmation if content changed
-  if (localContent.value !== props.content) {
-    if (confirm('Discard changes?')) {
-      localContent.value = props.content
+  if (fileStore.hasUnsavedChanges) {
+    if (confirm('Discard unsaved changes?')) {
+      localContent.value = fileStore.originalContent
       emit('update:modelValue', false)
     }
   } else {
@@ -229,7 +328,19 @@ function onKeyDown(event: KeyboardEvent) {
   // Ctrl+S or Cmd+S to save
   if ((event.ctrlKey || event.metaKey) && event.key === 's') {
     event.preventDefault()
-    onSave()
+    if (event.shiftKey) {
+      // Ctrl+Shift+S for Save Copy
+      onSaveCopy()
+    } else {
+      onSave()
+    }
+    return
+  }
+
+  // Ctrl+N or Cmd+N for new file
+  if ((event.ctrlKey || event.metaKey) && event.key === 'n') {
+    event.preventDefault()
+    onNew()
     return
   }
 
