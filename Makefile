@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 tauri-dev tauri-build tauri-build-win tauri-build-release
 
 install:
 	npm install
@@ -109,3 +109,24 @@ clean-generated:
 clean-deps:
 	rm -rf node_modules package-lock.json
 	npm cache clean --force
+
+# Tauri desktop targets
+tauri-dev:
+	@echo "🖥️  Starting Tauri development server..."
+	npm run tauri:dev
+
+tauri-build:
+	@echo "🏗️  Building Tauri application..."
+	npm run tauri:build
+
+tauri-build-win:
+	@echo "🖥️  Building Tauri for Windows..."
+	npm run tauri:build:win
+
+tauri-build-release:
+	@echo "🚀 Building Apuntador Windows Release..."
+ifeq ($(OS),Windows_NT)
+	powershell -ExecutionPolicy Bypass -File "build-windows-release.ps1"
+else
+	@echo "❌ Windows build only supported on Windows"
+endif

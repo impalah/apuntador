@@ -208,5 +208,12 @@
     "fileSaveComplete": "File saved successfully",
     "gamepadConnected": "Gamepad connected",
     "gamepadDisconnected": "Gamepad disconnected"
+  },
+  "desktop": {
+    "minimize": "Minimize window",
+    "maximize": "Maximize window",
+    "close": "Close window",
+    "alwaysOnTop": "Always on top",
+    "fullscreen": "Toggle fullscreen"
   }
 }

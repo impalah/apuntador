@@ -140,3 +140,5 @@ terraform.rc
 
 .terraform.lock.hcl
 
+*.exe
+

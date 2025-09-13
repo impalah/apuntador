@@ -91,6 +91,49 @@ cd android && ./gradlew assembleRelease
 
 See [**ANDROID_BUILD.md**](./ANDROID_BUILD.md) for detailed Android setup and build instructions.
 
+### Desktop Application (Tauri)
+
+#### Prerequisites
+
+Install Rust toolchain (required for Tauri):
+
+```bash
+# Windows
+winget install Rustlang.Rust.MSVC
+# Or download from: https://rustup.rs/
+
+# macOS
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+
+# Linux
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+```
+
+#### Desktop Development
+
+```bash
+# Development with hot reload
+npm run tauri:dev
+
+# Build for production
+npm run tauri:build
+
+# Platform-specific builds
+npm run tauri:build:win   # Windows
+npm run tauri:build:mac   # macOS
+```
+
+#### Desktop Features
+
+- **Native window controls** (minimize, maximize, close)
+- **Fullscreen toggle** with native APIs
+- **Always on top** mode for professional setups
+- **Native file dialogs** (planned)
+- **System integration** with desktop notifications
+- **Optimized performance** with Rust backend
+
+The desktop app maintains full compatibility with all web features while adding desktop-specific enhancements.
+
 ### CI/CD Integration
 
 - **GitHub Actions** - Automated testing and deployment (web + Android)

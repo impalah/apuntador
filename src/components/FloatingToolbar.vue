@@ -149,6 +149,37 @@
                 </div>
               </div>
 
+              <!-- Desktop Window Controls -->
+              <div v-if="isDesktop" class="menu-section desktop-controls">
+                <v-divider class="mb-2" />
+                <div class="control-group-horizontal">
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-fullscreen"
+                    size="small"
+                    class="action-btn"
+                    data-testid="desktop-fullscreen-button"
+                    @click="toggleFullscreen"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-window-minimize"
+                    size="small"
+                    class="action-btn"
+                    data-testid="desktop-minimize-button"
+                    @click="minimizeWindow"
+                  />
+                  <v-btn
+                    variant="outlined"
+                    icon="mdi-window-maximize"
+                    size="small"
+                    class="action-btn"
+                    data-testid="desktop-maximize-button"
+                    @click="maximizeWindow"
+                  />
+                </div>
+              </div>
+
               <!-- Action Buttons -->
               <div class="menu-section action-controls">
                 <div class="control-group-horizontal">
@@ -372,6 +403,22 @@
         @click="toggleImmersiveMode"
       />
 
+      <!-- Desktop Window Controls -->
+      <v-btn
+        v-if="isDesktop"
+        icon="mdi-fullscreen"
+        variant="outlined"
+        data-testid="desktop-fullscreen-button"
+        @click="toggleFullscreen"
+      />
+      <v-btn
+        v-if="isDesktop"
+        icon="mdi-window-minimize"
+        variant="outlined"
+        data-testid="desktop-minimize-button"
+        @click="minimizeWindow"
+      />
+
       <!-- Actions -->
       <v-btn icon="mdi-pencil" data-testid="editor-button" @click="$emit('openEditor')" />
       <v-btn icon="mdi-cog" data-testid="settings-button" @click="$emit('openSettings')" />
@@ -380,12 +427,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
 import { useImmersiveMode } from '@/utils/immersiveMode'
+import { useTauri } from '@/utils/tauri'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
 import TextAlignmentControls from './TextAlignmentControls.vue'
@@ -411,11 +459,21 @@ const emit = defineEmits<{
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
 
-// Window insets for Android edge-to-edge
-const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+// Window insets for Android edge-to-edge (available for future use)
+// const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
 
 // Immersive mode
 const { isImmersive, isSupported: isImmersiveSupported, toggleImmersiveMode } = useImmersiveMode()
+
+// Desktop/Tauri functionality
+const { isDesktop, toggleFullscreen, minimizeWindow, maximizeWindow } = useTauri()
+
+// Initialize Tauri when component mounts
+onMounted(async () => {
+  // Initialize Tauri if running in desktop mode
+  const { init } = useTauri()
+  await init()
+})
 
 // State
 const activeTab = ref(0)

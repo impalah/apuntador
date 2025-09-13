@@ -208,5 +208,12 @@
     "fileSaveComplete": "Archivo guardado completamente",
     "gamepadConnected": "Gamepad conectado",
     "gamepadDisconnected": "Gamepad desconectado"
+  },
+  "desktop": {
+    "minimize": "Minimizar ventana",
+    "maximize": "Maximizar ventana",
+    "close": "Cerrar ventana",
+    "alwaysOnTop": "Siempre arriba",
+    "fullscreen": "Alternar pantalla completa"
   }
 }
