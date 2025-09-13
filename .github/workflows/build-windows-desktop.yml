@@ -1,0 +1,221 @@
+name: Build Windows Desktop
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - debug
+          - info
+          - warning
+          - error
+      release_tag:
+        description: 'Release tag to build from (e.g., 0.1.24)'
+        required: true
+        type: string
+      buildType:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+      generateInstallers:
+        description: 'Generate MSI and NSIS installers'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-windows-desktop:
+    runs-on: windows-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: x86_64-pc-windows-msvc
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Setup environment variables
+        run: |
+          echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $env:GITHUB_ENV
+          echo "TAURI_KEY_PASSWORD=${{ secrets.TAURI_KEY_PASSWORD }}" >> $env:GITHUB_ENV
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri app (Debug)
+        if: ${{ github.event.inputs.buildType == 'debug' }}
+        run: npm run tauri:build -- --debug
+
+      - name: Build Tauri app (Release)
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        run: npm run tauri:build:win
+
+      - name: List generated files
+        run: |
+          Write-Host "=== Archivos generados ===" -ForegroundColor Green
+          $bundlePath = "src-tauri\target\x86_64-pc-windows-msvc\${{ github.event.inputs.buildType }}\bundle"
+          $releasePath = "src-tauri\target\x86_64-pc-windows-msvc\${{ github.event.inputs.buildType }}"
+
+          if (Test-Path $bundlePath) {
+            Write-Host "Bundle directory contents:" -ForegroundColor Yellow
+            Get-ChildItem $bundlePath -Recurse -File | ForEach-Object {
+              $sizeMB = [math]::Round($_.Length / 1MB, 2)
+              Write-Host "  $($_.Name) ($sizeMB MB) - $($_.FullName)" -ForegroundColor Cyan
+            }
+          }
+
+          if (Test-Path "$releasePath\apuntador.exe") {
+            $size = [math]::Round((Get-Item "$releasePath\apuntador.exe").Length / 1MB, 2)
+            Write-Host "Main executable: apuntador.exe ($size MB)" -ForegroundColor Green
+          }
+
+      - name: Create artifacts directory
+        run: |
+          New-Item -Path "artifacts" -ItemType Directory -Force
+          New-Item -Path "artifacts\installers" -ItemType Directory -Force
+
+      - name: Copy executable
+        run: |
+          $buildType = "${{ github.event.inputs.buildType }}"
+          $exePath = "src-tauri\target\x86_64-pc-windows-msvc\$buildType\apuntador.exe"
+
+          if (Test-Path $exePath) {
+            Copy-Item $exePath "artifacts\apuntador-${{ github.event.inputs.release_tag }}-windows-x64.exe"
+            Write-Host "✅ Executable copied successfully" -ForegroundColor Green
+          } else {
+            Write-Host "❌ Executable not found at $exePath" -ForegroundColor Red
+            exit 1
+          }
+
+      - name: Copy MSI installer
+        if: ${{ github.event.inputs.generateInstallers == 'true' }}
+        run: |
+          $buildType = "${{ github.event.inputs.buildType }}"
+          $msiPath = "src-tauri\target\x86_64-pc-windows-msvc\$buildType\bundle\msi\*.msi"
+
+          $msiFiles = Get-ChildItem $msiPath -ErrorAction SilentlyContinue
+          if ($msiFiles) {
+            foreach ($msi in $msiFiles) {
+              $newName = "apuntador-${{ github.event.inputs.release_tag }}-windows-x64-installer.msi"
+              Copy-Item $msi.FullName "artifacts\installers\$newName"
+              Write-Host "✅ MSI installer copied: $newName" -ForegroundColor Green
+            }
+          } else {
+            Write-Host "⚠️ No MSI installer found" -ForegroundColor Yellow
+          }
+
+      - name: Copy NSIS installer
+        if: ${{ github.event.inputs.generateInstallers == 'true' }}
+        run: |
+          $buildType = "${{ github.event.inputs.buildType }}"
+          $nsisPath = "src-tauri\target\x86_64-pc-windows-msvc\$buildType\bundle\nsis\*.exe"
+
+          $nsisFiles = Get-ChildItem $nsisPath -ErrorAction SilentlyContinue
+          if ($nsisFiles) {
+            foreach ($nsis in $nsisFiles) {
+              $newName = "apuntador-${{ github.event.inputs.release_tag }}-windows-x64-setup.exe"
+              Copy-Item $nsis.FullName "artifacts\installers\$newName"
+              Write-Host "✅ NSIS installer copied: $newName" -ForegroundColor Green
+            }
+          } else {
+            Write-Host "⚠️ No NSIS installer found" -ForegroundColor Yellow
+          }
+
+      - name: Generate build info
+        run: |
+          $buildInfo = @{
+            timestamp = (Get-Date -Format "yyyy-MM-dd HH:mm:ss UTC")
+            tag = "${{ github.event.inputs.release_tag }}"
+            buildType = "${{ github.event.inputs.buildType }}"
+            commit = "${{ github.sha }}"
+            workflow = "${{ github.run_id }}"
+            runner = "${{ runner.os }}"
+          }
+
+          $buildInfo | ConvertTo-Json | Out-File "artifacts\build-info.json" -Encoding UTF8
+          Write-Host "✅ Build info generated" -ForegroundColor Green
+
+      - name: Upload executable artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-windows-executable-${{ github.event.inputs.release_tag }}
+          path: artifacts/apuntador-*.exe
+          retention-days: 30
+
+      - name: Upload installers artifact
+        if: ${{ github.event.inputs.generateInstallers == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-windows-installers-${{ github.event.inputs.release_tag }}
+          path: artifacts/installers/
+          retention-days: 30
+
+      - name: Upload build info
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-windows-build-info-${{ github.event.inputs.release_tag }}
+          path: artifacts/build-info.json
+          retention-days: 90
+
+      - name: Create Release (if release tag)
+        if: ${{ github.event.inputs.buildType == 'release' && startsWith(github.event.inputs.release_tag, '0.') }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.release_tag }}
+          name: Apuntador v${{ github.event.inputs.release_tag }} - Windows Desktop
+          draft: true
+          prerelease: false
+          files: |
+            artifacts/apuntador-*.exe
+            artifacts/installers/*
+            artifacts/build-info.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Summary
+        run: |
+          Write-Host ""
+          Write-Host "🎉 Build completed successfully!" -ForegroundColor Green
+          Write-Host ""
+          Write-Host "📦 Generated artifacts:" -ForegroundColor Yellow
+
+          Get-ChildItem "artifacts" -Recurse -File | ForEach-Object {
+            $sizeMB = [math]::Round($_.Length / 1MB, 2)
+            Write-Host "  📁 $($_.Name) ($sizeMB MB)" -ForegroundColor Cyan
+          }
+
+          Write-Host ""
+          Write-Host "🔗 Download artifacts from the Actions tab" -ForegroundColor Blue
+          Write-Host "🚀 Ready for distribution!" -ForegroundColor Green
