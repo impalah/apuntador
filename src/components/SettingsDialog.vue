@@ -286,24 +286,6 @@
           <!-- Data Tab -->
           <v-tabs-window-item value="data">
             <div class="mt-4">
-              <!-- Import File -->
-              <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.importContent') }}</h3>
-
-                <v-file-input
-                  ref="fileInputRef"
-                  v-model="selectedFiles"
-                  :label="t('settings.selectFile')"
-                  accept=".md,.txt,.markdown"
-                  prepend-icon="mdi-file-import"
-                  @change="onFileSelect"
-                />
-
-                <v-btn prepend-icon="mdi-file-import" @click="triggerFileInput">
-                  {{ t('settings.importFile') }}
-                </v-btn>
-              </div>
-
               <!-- Data Management -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">{{ t('settings.dataManagement') }}</h3>
@@ -369,7 +351,6 @@ defineProps<Props>()
 // Emits
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  fileImported: [content: string]
 }>()
 
 // Stores
@@ -385,8 +366,6 @@ const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.val
 
 // State
 const activeTab = ref('appearance')
-const selectedFiles = ref<File[]>([])
-const fileInputRef = ref()
 
 // Font families available
 const fontFamilies = [
@@ -404,34 +383,6 @@ const fontFamilies = [
 async function savePrefs() {
   await prefsStore.save()
   prefsStore.applyCSSVariables()
-}
-
-function triggerFileInput() {
-  fileInputRef.value?.click()
-}
-
-async function onFileSelect() {
-  if (selectedFiles.value.length === 0) return
-
-  const file = selectedFiles.value[0]
-
-  try {
-    const content = await readFileAsText(file)
-    emit('fileImported', content)
-    selectedFiles.value = []
-  } catch (error) {
-    console.error('Error reading file:', error)
-    // TODO: Show error toast
-  }
-}
-
-function readFileAsText(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => resolve(reader.result as string)
-    reader.onerror = () => reject(reader.error)
-    reader.readAsText(file, 'UTF-8')
-  })
 }
 
 async function onResetSettings() {

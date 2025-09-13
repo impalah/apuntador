@@ -274,39 +274,32 @@ test.describe('File Import', () => {
     const viewport = page.viewportSize()
     const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
-    let fileButton
+    let editorButton
 
     if (isLargeScreen) {
-      // On large screens, file button should be directly visible
-      fileButton = page.locator('[data-testid="file-button"]').last() // Use last() to get the one in full mode
+      // On large screens, editor button should be directly visible
+      editorButton = page.locator('[data-testid="editor-button"]').last()
     } else {
       // On smaller screens, need to open more menu first
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
       await moreMenuButton.click()
       await page.waitForTimeout(300)
-      fileButton = page.locator('[data-testid="file-button"]').first()
+      editorButton = page.locator('[data-testid="editor-button"]').first()
     }
 
-    // Try using JavaScript to click if viewport issues persist
-    await fileButton.waitFor({ state: 'attached', timeout: 10000 })
+    // Click the editor button
+    await editorButton.click()
+    await page.waitForTimeout(500)
 
-    // Use evaluate to click with JavaScript instead of Playwright's click
-    await page.evaluate(() => {
-      const button = document.querySelector(
-        '[data-testid="file-button"]:last-of-type'
-      ) as HTMLElement
-      if (!button) {
-        // Try the first one if last doesn't exist
-        const firstButton = document.querySelector('[data-testid="file-button"]') as HTMLElement
-        if (firstButton) firstButton.click()
-      } else {
-        button.click()
-      }
-    })
+    // Wait for the editor dialog to open
+    const editorDialog = page.locator('[data-testid="markdown-editor"]')
+    await expect(editorDialog).toBeVisible()
 
-    const dialog = page.locator('[data-testid="file-import-dialog"]')
-    await expect(dialog).toBeVisible()
-    await expect(dialog).toContainText('Import File')
+    // The open file functionality now uses native file dialog
+    // We verify that the button exists and is clickable
+    const importButton = editorDialog.locator('[data-testid="open-file-button"]')
+    await expect(importButton).toBeVisible()
+    await expect(importButton).toBeEnabled()
   })
 
   test('should accept markdown file upload and load content', async ({ page }) => {
@@ -325,26 +318,30 @@ test.describe('File Import', () => {
     const viewport = page.viewportSize()
     const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
-    if (!isLargeScreen) {
+    let editorButton
+
+    if (isLargeScreen) {
+      // On large screens, editor button should be directly visible
+      editorButton = page.locator('[data-testid="editor-button"]').last()
+    } else {
       // On smaller screens, need to open more menu first
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
       await moreMenuButton.click()
       await page.waitForTimeout(300)
+      editorButton = page.locator('[data-testid="editor-button"]').first()
     }
 
-    // Use JavaScript to click the file button to bypass viewport issues
-    await page.evaluate(() => {
-      const button = document.querySelector(
-        '[data-testid="file-button"]:last-of-type'
-      ) as HTMLElement
-      if (!button) {
-        // Try the first one if last doesn't exist
-        const firstButton = document.querySelector('[data-testid="file-button"]') as HTMLElement
-        if (firstButton) firstButton.click()
-      } else {
-        button.click()
-      }
-    })
+    // Click the editor button
+    await editorButton.click()
+    await page.waitForTimeout(500)
+
+    // Wait for the editor dialog to open
+    const editorDialog = page.locator('[data-testid="markdown-editor"]')
+    await expect(editorDialog).toBeVisible()
+
+    // Now click on the file import button inside the editor
+    const importButton = editorDialog.locator('[data-testid="open-file-button"]')
+    await importButton.click()
 
     // Wait for dialog to open
     await page.waitForTimeout(500)
@@ -392,26 +389,30 @@ test.describe('File Import', () => {
     const viewport = page.viewportSize()
     const isLargeScreen = viewport && viewport.width >= 1500 // Updated to match new breakpoint
 
-    if (!isLargeScreen) {
+    let editorButton
+
+    if (isLargeScreen) {
+      // On large screens, editor button should be directly visible
+      editorButton = page.locator('[data-testid="editor-button"]').last()
+    } else {
       // On smaller screens, need to open more menu first
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
       await moreMenuButton.click()
       await page.waitForTimeout(300)
+      editorButton = page.locator('[data-testid="editor-button"]').first()
     }
 
-    // Use JavaScript to click the file button to bypass viewport issues
-    await page.evaluate(() => {
-      const button = document.querySelector(
-        '[data-testid="file-button"]:last-of-type'
-      ) as HTMLElement
-      if (!button) {
-        // Try the first one if last doesn't exist
-        const firstButton = document.querySelector('[data-testid="file-button"]') as HTMLElement
-        if (firstButton) firstButton.click()
-      } else {
-        button.click()
-      }
-    })
+    // Click the editor button
+    await editorButton.click()
+    await page.waitForTimeout(500)
+
+    // Wait for the editor dialog to open
+    const editorDialog = page.locator('[data-testid="markdown-editor"]')
+    await expect(editorDialog).toBeVisible()
+
+    // Now click on the file import button inside the editor
+    const importButton = editorDialog.locator('[data-testid="open-file-button"]')
+    await importButton.click()
 
     // Wait for dialog to open
     await page.waitForTimeout(500)

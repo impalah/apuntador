@@ -4,8 +4,9 @@
     @update:model-value="$emit('update:modelValue', $event)"
     fullscreen
     transition="dialog-bottom-transition"
+    data-testid="markdown-editor-dialog"
   >
-    <v-card class="editor-card">
+    <v-card class="editor-card" data-testid="markdown-editor">
       <v-toolbar color="primary" density="compact" class="editor-toolbar">
         <v-btn icon="mdi-close" @click="onCancel" />
 
@@ -40,6 +41,7 @@
           @click="onOpenFile"
           :disabled="refreshing"
           :title="t('fileLoader.openFile')"
+          data-testid="open-file-button"
         />
 
         <v-divider vertical class="mx-2" />

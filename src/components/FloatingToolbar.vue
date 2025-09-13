@@ -168,14 +168,6 @@
                     data-testid="settings-button"
                     @click="$emit('openSettings')"
                   />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-file-import"
-                    size="small"
-                    class="action-btn"
-                    data-testid="file-button"
-                    @click="$emit('openFile')"
-                  />
                 </div>
               </div>
             </div>
@@ -314,14 +306,6 @@
                     data-testid="settings-button"
                     @click="$emit('openSettings')"
                   />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-file-import"
-                    size="small"
-                    class="action-btn"
-                    data-testid="file-button"
-                    @click="$emit('openFile')"
-                  />
                 </div>
               </div>
             </div>
@@ -391,7 +375,6 @@
       <!-- Actions -->
       <v-btn icon="mdi-pencil" data-testid="editor-button" @click="$emit('openEditor')" />
       <v-btn icon="mdi-cog" data-testid="settings-button" @click="$emit('openSettings')" />
-      <v-btn icon="mdi-file-import" data-testid="file-button" @click="$emit('openFile')" />
     </template>
   </v-bottom-navigation>
 </template>
@@ -422,7 +405,6 @@ const emit = defineEmits<{
   mirrorToggle: [axis: 'h' | 'v']
   openEditor: []
   openSettings: []
-  openFile: []
 }>()
 
 // Stores
