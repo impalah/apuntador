@@ -109,7 +109,14 @@
     "specialFeatures": "Special Features",
     "superscript": "Superscript",
     "subscript": "Subscript",
-    "footnotes": "Footnotes"
+    "footnotes": "Footnotes",
+    "refreshFromSource": "Refresh from source",
+    "confirmOverwriteChangedSource": "Changes have been detected in the source file. Do you want to overwrite them with the new content?",
+    "confirmRefreshBothChanged": "Both local content and source file have changed. Do you want to discard the edit and load the source data?",
+    "confirmRefreshLocalChanges": "Local content has been modified. Do you want to discard the edit and load the source data?",
+    "confirmRefreshSourceChanged": "Source file has been modified. Do you want to load the new source data?",
+    "refreshFromSourceError": "Error refreshing from source file",
+    "saveError": "Error saving file"
   },
   "fileLoader": {
     "title": "Import File",

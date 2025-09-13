@@ -5,8 +5,8 @@
     fullscreen
     transition="dialog-bottom-transition"
   >
-    <v-card>
-      <v-toolbar color="primary" density="compact">
+    <v-card class="editor-card">
+      <v-toolbar color="primary" density="compact" class="editor-toolbar">
         <v-btn icon="mdi-close" @click="onCancel" />
 
         <v-toolbar-title>{{ fileStore.displayName }}</v-toolbar-title>
@@ -16,18 +16,30 @@
         <!-- File Operations -->
         <v-btn icon="mdi-file-plus" @click="onNew" :title="t('fileLoader.newFile')" />
 
+        <!-- Save button - only show if can save directly -->
         <v-btn
+          v-if="fileStore.canSave"
           icon="mdi-content-save"
           @click="onSave"
-          :disabled="!fileStore.canSave || saving"
-          :title="fileStore.canSave ? t('fileLoader.save') : t('editor.noChangesToSave')"
+          :disabled="saving"
+          :title="t('fileLoader.save')"
         />
 
+        <!-- Save Copy button - always available, more prominent if can't save directly -->
         <v-btn
-          icon="mdi-content-save-outline"
+          :icon="fileStore.canSaveAsNewCopy ? 'mdi-content-save' : 'mdi-content-save-outline'"
           @click="onSaveCopy"
           :disabled="saving"
-          :title="t('fileLoader.saveCopy')"
+          :title="fileStore.canSaveAsNewCopy ? t('fileLoader.save') : t('fileLoader.saveCopy')"
+          :color="fileStore.canSaveAsNewCopy ? 'primary' : undefined"
+        />
+
+        <!-- Open File button -->
+        <v-btn
+          icon="mdi-folder-open"
+          @click="onOpenFile"
+          :disabled="refreshing"
+          :title="t('fileLoader.openFile')"
         />
 
         <v-divider vertical class="mx-2" />
@@ -51,7 +63,7 @@
 
       <v-container fluid class="editor-container pa-0">
         <!-- Desktop: Side-by-side layout -->
-        <v-row v-if="!$vuetify.display.mobile" no-gutters style="height: calc(100vh - 64px)">
+        <v-row v-if="!$vuetify.display.mobile" no-gutters class="editor-content">
           <v-col :cols="showPreview ? 6 : 12">
             <div class="editor-panel">
               <v-textarea
@@ -78,7 +90,7 @@
         </v-row>
 
         <!-- Mobile: Single view with toggle -->
-        <div v-else style="height: calc(100vh - 64px)">
+        <div v-else class="editor-content mobile">
           <div v-if="mobileView === 'edit'" class="editor-panel">
             <v-textarea
               ref="textareaRef"
@@ -160,6 +172,12 @@ import {
   isFileSystemAccessSupported,
   ensureMarkdownExtension,
 } from '@/utils/fileSystem'
+import {
+  refreshFromSource,
+  readSourceContent,
+  saveWithConflictCheck,
+  compareWithSource,
+} from '@/utils/fileSync'
 
 // I18n
 const { t } = useI18n()
@@ -190,6 +208,7 @@ const mobileView = ref<'edit' | 'preview'>('edit')
 const showHelp = ref(false)
 const textareaRef = ref()
 const saving = ref(false)
+const refreshing = ref(false)
 
 // Computed
 const compiledPreview = computed(() => {
@@ -266,18 +285,40 @@ async function onSave() {
 
   saving.value = true
   try {
-    const success = await saveToFileHandle(fileStore.currentFile?.handle, localContent.value)
-    if (success) {
-      fileStore.markAsSaved()
+    // Check for conflicts before saving
+    const result = await saveWithConflictCheck(
+      fileStore.currentFile?.handle,
+      fileStore.sourceContent,
+      localContent.value,
+      fileStore.originalContent
+    )
+
+    if (result.hasConflict && result.sourceContent) {
+      // Source file has been modified, ask user what to do
+      const shouldOverwrite = confirm(t('editor.confirmOverwriteChangedSource'))
+
+      if (!shouldOverwrite) {
+        return
+      }
+
+      // Force save (overwrite)
+      const success = await saveToFileHandle(fileStore.currentFile?.handle, localContent.value)
+      if (success) {
+        fileStore.markAsSaved(localContent.value)
+        fileStore.setContent(localContent.value)
+        emit('save', localContent.value)
+      }
+    } else if (result.success) {
+      // Normal save successful
+      fileStore.markAsSaved(localContent.value)
       fileStore.setContent(localContent.value)
       emit('save', localContent.value)
     } else {
-      // Fallback to save copy if direct save fails
-      await onSaveCopy()
+      throw new Error(result.error || 'Save failed')
     }
   } catch (error) {
     console.error('Save failed:', error)
-    alert('Failed to save file. Please try "Save Copy" instead.')
+    alert(t('editor.saveError'))
   } finally {
     saving.value = false
   }
@@ -295,7 +336,7 @@ async function onSaveCopy() {
     if (handle) {
       // Update file store with new handle
       fileStore.setFileHandle(handle, handle.name || suggestedName)
-      fileStore.markAsSaved()
+      fileStore.markAsSaved(localContent.value)
       fileStore.setContent(localContent.value)
       emit('save', localContent.value)
     }
@@ -304,6 +345,56 @@ async function onSaveCopy() {
     alert('Failed to save file.')
   } finally {
     saving.value = false
+  }
+}
+
+async function onOpenFile() {
+  refreshing.value = true
+  try {
+    let sourceContent: string = ''
+
+    // Always use file dialog for consistent experience
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.md,.txt'
+
+    await new Promise<void>((resolve, reject) => {
+      input.onchange = async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0]
+        if (!file) {
+          reject(new Error('No file selected'))
+          return
+        }
+
+        try {
+          sourceContent = await file.text()
+          // Update file store with new file information
+          fileStore.setFileHandle(null, file.name)
+          resolve()
+        } catch (error) {
+          reject(error)
+        }
+      }
+
+      input.oncancel = () => {
+        reject(new Error('User cancelled'))
+      }
+
+      input.click()
+    })
+
+    // Load source content into editor directly without confirmations
+    localContent.value = sourceContent
+    fileStore.setContent(sourceContent)
+    fileStore.updateSourceContent(sourceContent)
+    emit('fileLoaded', sourceContent)
+  } catch (error) {
+    console.error('Open file failed:', error)
+    if (error instanceof Error && error.message !== 'User cancelled') {
+      alert(t('editor.refreshFromSourceError'))
+    }
+  } finally {
+    refreshing.value = false
   }
 }
 
@@ -389,8 +480,32 @@ function onKeyDown(event: KeyboardEvent) {
 </script>
 
 <style scoped>
+.editor-card {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.editor-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 64px;
+}
+
 .editor-container {
-  height: 100%;
+  height: 100vh;
+  padding-top: 64px; /* Space for fixed toolbar */
+}
+
+.editor-content {
+  height: calc(100vh - 64px);
+}
+
+.editor-content.mobile {
+  height: calc(100vh - 64px);
 }
 
 .editor-panel,

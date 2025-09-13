@@ -127,7 +127,7 @@ const props = withDefaults(defineProps<Props>(), {
 // Emits
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  fileImported: [content: string]
+  fileImported: [content: string, fileInfo?: { name: string; handle?: any }]
 }>()
 
 // Stores
@@ -237,8 +237,8 @@ function onFileSelect() {
 }
 
 function onImport() {
-  if (fileContent.value) {
-    emit('fileImported', fileContent.value)
+  if (fileContent.value && fileInfo.value) {
+    emit('fileImported', fileContent.value, { name: fileInfo.value.name })
     emit('update:modelValue', false) // Close dialog automatically
     resetState()
   }
@@ -266,7 +266,7 @@ async function openWithFileAPI() {
 
       // Auto-import if enabled
       if (props.autoImport) {
-        emit('fileImported', sanitized)
+        emit('fileImported', sanitized, { name: result.name, handle: result.handle })
         emit('update:modelValue', false)
         resetState()
       }

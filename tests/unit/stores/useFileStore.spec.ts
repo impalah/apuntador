@@ -90,7 +90,8 @@ describe('useFileStore', () => {
       expect(fileStore.canSave).toBe(false)
 
       // Existing file without changes - can't save
-      fileStore.setFileHandle({ name: 'test.md' }, 'test.md')
+      const mockHandle = { name: 'test.md', handle: 'mock-handle' }
+      fileStore.setFileHandle(mockHandle, 'test.md')
       expect(fileStore.canSave).toBe(false)
 
       // Existing file with changes - can save

@@ -42,6 +42,7 @@ import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
+import { useFileStore } from '@/stores/useFileStore'
 import {
   hotkeyManager,
   DEFAULT_HOTKEYS,
@@ -64,6 +65,7 @@ import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
 const i18nStore = useI18nStore()
+const fileStore = useFileStore()
 
 // Composables
 const { locale } = useI18n()
@@ -269,8 +271,25 @@ async function onEditorSave(content: string) {
   editorOpen.value = false
 }
 
-async function onFileImported(content: string) {
+async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
   await teleprompterStore.setContent(content)
+
+  // Update FileStore with file information if provided
+  if (fileInfo) {
+    if (fileInfo.handle) {
+      // File opened with File System Access API
+      fileStore.setFileHandle(fileInfo.handle, fileInfo.name)
+      fileStore.setContent(content)
+    } else {
+      // File opened with traditional file input - create a pseudo file reference
+      fileStore.setFileHandle(null, fileInfo.name)
+      fileStore.setContent(content)
+    }
+  } else {
+    // No file info - treat as new file
+    fileStore.createNew()
+  }
+
   settingsOpen.value = false
   fileLoaderOpen.value = false
 }
