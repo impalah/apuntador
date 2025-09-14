@@ -25,7 +25,7 @@ For **Ubuntu/Debian** systems:
 sudo apt-get update
 sudo apt-get install -y \
   libgtk-3-dev \
-  libwebkit2gtk-4.0-dev \
+  libwebkit2gtk-4.1-dev \
   libappindicator3-dev \
   librsvg2-dev \
   patchelf \
@@ -265,7 +265,10 @@ sudo pacman -S gtk3
 ### Error: "webkit2gtk not found"
 
 ```bash
-# Ubuntu/Debian
+# Ubuntu/Debian (24.04+)
+sudo apt-get install libwebkit2gtk-4.1-dev
+
+# Ubuntu/Debian (older versions)
 sudo apt-get install libwebkit2gtk-4.0-dev
 
 # Fedora
@@ -325,7 +328,7 @@ sudo apt-get install -y \
   libssl-dev \
   libgtk-3-dev \
   libayatana-appindicator3-dev \
-  libwebkit2gtk-4.0-dev \
+  libwebkit2gtk-4.1-dev \
   librsvg2-dev \
   patchelf
 ```
