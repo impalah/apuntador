@@ -1,0 +1,296 @@
+name: Build macOS Desktop
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - debug
+          - info
+          - warning
+          - error
+      release_tag:
+        description: 'Release tag to build from (e.g., 0.1.24)'
+        required: true
+        type: string
+      buildType:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+      generateInstallers:
+        description: 'Generate DMG and APP bundle'
+        required: false
+        default: true
+        type: boolean
+      buildTarget:
+        description: 'macOS build target'
+        required: true
+        default: 'universal'
+        type: choice
+        options:
+          - universal
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+
+env:
+  NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-macos-desktop:
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: |
+            aarch64-apple-darwin
+            x86_64-apple-darwin
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri -> target
+
+      - name: Install dependencies
+        run: npm ci --prefer-offline --no-audit
+
+      - name: Setup environment variables
+        run: |
+          echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $GITHUB_ENV
+          echo "TAURI_KEY_PASSWORD=${{ secrets.TAURI_KEY_PASSWORD }}" >> $GITHUB_ENV
+
+      - name: Build frontend
+        run: npm run build
+
+      - name: Build Tauri app (Debug) - Universal
+        if: ${{ github.event.inputs.buildType == 'debug' && github.event.inputs.buildTarget == 'universal' }}
+        run: |
+          npm run tauri:build -- --debug --target universal-apple-darwin
+
+      - name: Build Tauri app (Debug) - Specific Target
+        if: ${{ github.event.inputs.buildType == 'debug' && github.event.inputs.buildTarget != 'universal' }}
+        run: |
+          npm run tauri:build -- --debug --target ${{ github.event.inputs.buildTarget }}
+
+      - name: Build Tauri app (Release) - Universal
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' }}
+        run: npm run tauri:build:mac
+
+      - name: Build Tauri app (Release) - ARM64
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'aarch64-apple-darwin' }}
+        run: npm run tauri:build:mac
+
+      - name: Build Tauri app (Release) - Intel
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'x86_64-apple-darwin' }}
+        run: npm run tauri:build:mac-intel
+
+      - name: List generated files
+        run: |
+          echo "=== Archivos generados ==="
+
+          # Buscar archivos generados en diferentes ubicaciones
+          if [ -d "src-tauri/target/universal-apple-darwin" ]; then
+            echo "Universal build directory contents:"
+            find src-tauri/target/universal-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
+              size=$(du -h "$file" | cut -f1)
+              echo "  $(basename "$file") ($size) - $file"
+            done
+          fi
+
+          if [ -d "src-tauri/target/aarch64-apple-darwin" ]; then
+            echo "ARM64 build directory contents:"
+            find src-tauri/target/aarch64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
+              size=$(du -h "$file" | cut -f1)
+              echo "  $(basename "$file") ($size) - $file"
+            done
+          fi
+
+          if [ -d "src-tauri/target/x86_64-apple-darwin" ]; then
+            echo "Intel build directory contents:"
+            find src-tauri/target/x86_64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
+              size=$(du -h "$file" | cut -f1)
+              echo "  $(basename "$file") ($size) - $file"
+            done
+          fi
+
+      - name: Create artifacts directory
+        run: |
+          mkdir -p artifacts
+          mkdir -p artifacts/installers
+
+      - name: Copy application bundle and DMG (Universal)
+        if: ${{ github.event.inputs.buildTarget == 'universal' }}
+        run: |
+          buildType="${{ github.event.inputs.buildType }}"
+
+          # Buscar .app bundle
+          appPath=$(find src-tauri/target/universal-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
+          if [ -n "$appPath" ]; then
+            cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.app"
+            echo "✅ Universal .app bundle copied successfully"
+          else
+            echo "❌ Universal .app bundle not found"
+            exit 1
+          fi
+
+          # Buscar .dmg installer si se solicitó
+          if [ "${{ github.event.inputs.generateInstallers }}" == "true" ]; then
+            dmgPath=$(find src-tauri/target/universal-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
+            if [ -n "$dmgPath" ]; then
+              cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.dmg"
+              echo "✅ Universal DMG installer copied successfully"
+            else
+              echo "⚠️ No Universal DMG installer found"
+            fi
+          fi
+
+      - name: Copy application bundle and DMG (ARM64)
+        if: ${{ github.event.inputs.buildTarget == 'aarch64-apple-darwin' }}
+        run: |
+          buildType="${{ github.event.inputs.buildType }}"
+
+          # Buscar .app bundle
+          appPath=$(find src-tauri/target/aarch64-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
+          if [ -n "$appPath" ]; then
+            cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-arm64.app"
+            echo "✅ ARM64 .app bundle copied successfully"
+          else
+            echo "❌ ARM64 .app bundle not found"
+            exit 1
+          fi
+
+          # Buscar .dmg installer si se solicitó
+          if [ "${{ github.event.inputs.generateInstallers }}" == "true" ]; then
+            dmgPath=$(find src-tauri/target/aarch64-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
+            if [ -n "$dmgPath" ]; then
+              cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-arm64.dmg"
+              echo "✅ ARM64 DMG installer copied successfully"
+            else
+              echo "⚠️ No ARM64 DMG installer found"
+            fi
+          fi
+
+      - name: Copy application bundle and DMG (Intel)
+        if: ${{ github.event.inputs.buildTarget == 'x86_64-apple-darwin' }}
+        run: |
+          buildType="${{ github.event.inputs.buildType }}"
+
+          # Buscar .app bundle
+          appPath=$(find src-tauri/target/x86_64-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
+          if [ -n "$appPath" ]; then
+            cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-intel.app"
+            echo "✅ Intel .app bundle copied successfully"
+          else
+            echo "❌ Intel .app bundle not found"
+            exit 1
+          fi
+
+          # Buscar .dmg installer si se solicitó
+          if [ "${{ github.event.inputs.generateInstallers }}" == "true" ]; then
+            dmgPath=$(find src-tauri/target/x86_64-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
+            if [ -n "$dmgPath" ]; then
+              cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-intel.dmg"
+              echo "✅ Intel DMG installer copied successfully"
+            else
+              echo "⚠️ No Intel DMG installer found"
+            fi
+          fi
+
+      - name: Generate build info
+        run: |
+          cat > artifacts/build-info.json << EOF
+          {
+            "timestamp": "$(date -u +"%Y-%m-%d %H:%M:%S UTC")",
+            "tag": "${{ github.event.inputs.release_tag }}",
+            "buildType": "${{ github.event.inputs.buildType }}",
+            "buildTarget": "${{ github.event.inputs.buildTarget }}",
+            "commit": "${{ github.sha }}",
+            "workflow": "${{ github.run_id }}",
+            "runner": "${{ runner.os }}",
+            "architecture": "$(uname -m)"
+          }
+          EOF
+          echo "✅ Build info generated"
+
+      - name: Upload application bundle artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-macos-app-${{ github.event.inputs.buildTarget }}-${{ github.event.inputs.release_tag }}
+          path: artifacts/*.app
+          retention-days: 30
+
+      - name: Upload installers artifact
+        if: ${{ github.event.inputs.generateInstallers == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-macos-installers-${{ github.event.inputs.buildTarget }}-${{ github.event.inputs.release_tag }}
+          path: artifacts/installers/
+          retention-days: 30
+
+      - name: Upload build info
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-macos-build-info-${{ github.event.inputs.buildTarget }}-${{ github.event.inputs.release_tag }}
+          path: artifacts/build-info.json
+          retention-days: 90
+
+      - name: Create Release (if release tag)
+        if: ${{ github.event.inputs.buildType == 'release' && startsWith(github.event.inputs.release_tag, '0.') }}
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ github.event.inputs.release_tag }}
+          name: Apuntador v${{ github.event.inputs.release_tag }} - macOS Desktop (${{ github.event.inputs.buildTarget }})
+          draft: true
+          prerelease: false
+          files: |
+            artifacts/*.app
+            artifacts/installers/*
+            artifacts/build-info.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Summary
+        run: |
+          echo ""
+          echo "🎉 Build completed successfully!"
+          echo ""
+          echo "📦 Generated artifacts:"
+
+          find artifacts -type f | while read file; do
+            size=$(du -h "$file" | cut -f1)
+            echo "  📁 $(basename "$file") ($size)"
+          done
+
+          echo ""
+          echo "🔗 Download artifacts from the Actions tab"
+          echo "🚀 Ready for distribution!"
+          echo ""
+          echo "🏗️ Build details:"
+          echo "  Target: ${{ github.event.inputs.buildTarget }}"
+          echo "  Type: ${{ github.event.inputs.buildType }}"
+          echo "  Tag: ${{ github.event.inputs.release_tag }}"
+          echo "  Runner: macOS $(sw_vers -productVersion)"
+          echo "  Architecture: $(uname -m)"

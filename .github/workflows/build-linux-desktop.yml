@@ -1,0 +1,310 @@
+name: Build Linux Desktop
+
+on:
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'
+        required: true
+        default: 'warning'
+        type: choice
+        options:
+          - debug
+          - info
+          - warning
+          - error
+      release_tag:
+        description: 'Release tag to build from (e.g., 0.1.24)'
+        required: true
+        type: string
+      buildType:
+        description: 'Build type'
+        required: true
+        default: 'release'
+        type: choice
+        options:
+          - release
+          - debug
+      generatePackages:
+        description: 'Generate DEB, RPM, and AppImage packages'
+        required: false
+        default: true
+        type: boolean
+      buildTarget:
+        description: 'Linux build target'
+        required: true
+        default: 'x86_64-unknown-linux-gnu'
+        type: choice
+        options:
+          - x86_64-unknown-linux-gnu
+          - aarch64-unknown-linux-gnu
+
+env:
+  NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
+  RUST_BACKTRACE: 1
+
+jobs:
+  build-linux-desktop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libssl-dev \
+            pkg-config \
+            build-essential \
+            curl \
+            wget \
+            file \
+            libxdo-dev \
+            libayatana-appindicator3-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ inputs.buildTarget }}
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+          key: ${{ runner.os }}-rust-${{ inputs.buildTarget }}-${{ inputs.buildType }}
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Verify environment
+        run: |
+          echo "Node.js version: $(node --version)"
+          echo "npm version: $(npm --version)"
+          echo "Rust version: $(rustc --version)"
+          echo "Build target: ${{ inputs.buildTarget }}"
+          echo "Build type: ${{ inputs.buildType }}"
+          echo "Generate packages: ${{ inputs.generatePackages }}"
+
+      - name: Build Tauri application
+        run: |
+          if [ "${{ inputs.buildType }}" = "debug" ]; then
+            npm run tauri build -- --target ${{ inputs.buildTarget }} --debug
+          else
+            npm run tauri build -- --target ${{ inputs.buildTarget }}
+          fi
+        env:
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: List build outputs
+        run: |
+          echo "=== Build outputs ==="
+          find src-tauri/target -name "*.deb" -o -name "*.rpm" -o -name "*.AppImage" -o -name "apuntador" | head -20
+          echo "====================="
+
+      - name: Prepare artifacts
+        run: |
+          mkdir -p artifacts
+
+          # Find the target directory
+          if [ "${{ inputs.buildType }}" = "debug" ]; then
+            TARGET_DIR="src-tauri/target/${{ inputs.buildTarget }}/debug"
+            BUNDLE_DIR="$TARGET_DIR/bundle"
+          else
+            TARGET_DIR="src-tauri/target/${{ inputs.buildTarget }}/release"
+            BUNDLE_DIR="$TARGET_DIR/bundle"
+          fi
+
+          echo "Looking for artifacts in: $TARGET_DIR"
+          echo "Bundle directory: $BUNDLE_DIR"
+
+          # Copy binary
+          if [ -f "$TARGET_DIR/apuntador" ]; then
+            cp "$TARGET_DIR/apuntador" artifacts/apuntador-linux-${{ inputs.buildTarget }}
+            echo "✅ Copied binary"
+          else
+            echo "❌ Binary not found at $TARGET_DIR/apuntador"
+          fi
+
+          # Copy packages if they exist
+          if [ "${{ inputs.generatePackages }}" = "true" ]; then
+            # DEB package
+            if find "$BUNDLE_DIR" -name "*.deb" | head -1; then
+              find "$BUNDLE_DIR" -name "*.deb" -exec cp {} artifacts/ \;
+              echo "✅ Copied DEB package"
+            else
+              echo "⚠️ DEB package not found"
+            fi
+            
+            # RPM package
+            if find "$BUNDLE_DIR" -name "*.rpm" | head -1; then
+              find "$BUNDLE_DIR" -name "*.rpm" -exec cp {} artifacts/ \;
+              echo "✅ Copied RPM package"
+            else
+              echo "⚠️ RPM package not found"
+            fi
+            
+            # AppImage
+            if find "$BUNDLE_DIR" -name "*.AppImage" | head -1; then
+              find "$BUNDLE_DIR" -name "*.AppImage" -exec cp {} artifacts/ \;
+              echo "✅ Copied AppImage"
+            else
+              echo "⚠️ AppImage not found"
+            fi
+          fi
+
+          # List what we have
+          echo "=== Artifacts prepared ==="
+          ls -la artifacts/
+          echo "=========================="
+
+      - name: Generate checksums
+        run: |
+          cd artifacts
+          for file in *; do
+            if [ -f "$file" ]; then
+              sha256sum "$file" >> checksums.txt
+            fi
+          done
+          echo "=== Checksums ==="
+          cat checksums.txt
+          echo "=================="
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-linux-${{ inputs.buildTarget }}-${{ inputs.buildType }}-${{ inputs.release_tag }}
+          path: artifacts/
+          if-no-files-found: error
+
+      - name: Display build summary
+        run: |
+          echo "## 🐧 Linux Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Build Configuration:**" >> $GITHUB_STEP_SUMMARY
+          echo "- Target: \`${{ inputs.buildTarget }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Type: \`${{ inputs.buildType }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Packages: \`${{ inputs.generatePackages }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "- Tag: \`${{ inputs.release_tag }}\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Generated Files:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          ls -la artifacts/ >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Checksums:**" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+          cat artifacts/checksums.txt >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+
+  # Job for ARM64 build (if needed)
+  build-linux-arm64:
+    runs-on: ubuntu-latest
+    if: inputs.buildTarget == 'aarch64-unknown-linux-gnu'
+    timeout-minutes: 90
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            gcc-aarch64-linux-gnu \
+            g++-aarch64-linux-gnu \
+            libgtk-3-dev \
+            libwebkit2gtk-4.0-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            pkg-config \
+            build-essential
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: aarch64-unknown-linux-gnu
+
+      - name: Setup cross-compilation
+        run: |
+          echo "[target.aarch64-unknown-linux-gnu]" >> ~/.cargo/config.toml
+          echo "linker = \"aarch64-linux-gnu-gcc\"" >> ~/.cargo/config.toml
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          cache-on-failure: true
+          key: ${{ runner.os }}-rust-arm64-${{ inputs.buildType }}
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Build ARM64 Tauri application
+        run: |
+          if [ "${{ inputs.buildType }}" = "debug" ]; then
+            npm run tauri build -- --target aarch64-unknown-linux-gnu --debug
+          else
+            npm run tauri build -- --target aarch64-unknown-linux-gnu
+          fi
+        env:
+          CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
+          CXX_aarch64_unknown_linux_gnu: aarch64-linux-gnu-g++
+          PKG_CONFIG_SYSROOT_DIR: /usr/aarch64-linux-gnu/
+          TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+
+      - name: Prepare ARM64 artifacts
+        run: |
+          mkdir -p artifacts-arm64
+
+          if [ "${{ inputs.buildType }}" = "debug" ]; then
+            TARGET_DIR="src-tauri/target/aarch64-unknown-linux-gnu/debug"
+            BUNDLE_DIR="$TARGET_DIR/bundle"
+          else
+            TARGET_DIR="src-tauri/target/aarch64-unknown-linux-gnu/release"
+            BUNDLE_DIR="$TARGET_DIR/bundle"
+          fi
+
+          # Copy binary
+          if [ -f "$TARGET_DIR/apuntador" ]; then
+            cp "$TARGET_DIR/apuntador" artifacts-arm64/apuntador-linux-arm64
+          fi
+
+          # Copy packages
+          find "$BUNDLE_DIR" -name "*.deb" -exec cp {} artifacts-arm64/ \; 2>/dev/null || true
+          find "$BUNDLE_DIR" -name "*.rpm" -exec cp {} artifacts-arm64/ \; 2>/dev/null || true
+          find "$BUNDLE_DIR" -name "*.AppImage" -exec cp {} artifacts-arm64/ \; 2>/dev/null || true
+
+      - name: Upload ARM64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-linux-arm64-${{ inputs.buildType }}-${{ inputs.release_tag }}
+          path: artifacts-arm64/
+          if-no-files-found: warn

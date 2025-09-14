@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 tauri-dev tauri-build tauri-build-win tauri-build-release
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 tauri-dev tauri-build tauri-build-win tauri-build-release tauri-build-mac tauri-build-mac-intel tauri-build-mac-release tauri-build-mac-universal tauri-build-mac-debug tauri-build-linux tauri-build-linux-debug tauri-build-linux-arm64 tauri-clean-linux
 
 install:
 	npm install
@@ -129,4 +129,74 @@ ifeq ($(OS),Windows_NT)
 	powershell -ExecutionPolicy Bypass -File "build-windows-release.ps1"
 else
 	@echo "❌ Windows build only supported on Windows"
+endif
+
+# macOS desktop targets
+tauri-build-mac:
+	@echo "🍎 Building Tauri for macOS..."
+	npm run tauri:build:mac
+
+tauri-build-mac-intel:
+	@echo "🍎 Building Tauri for macOS Intel..."
+	npm run tauri:build:mac-intel
+
+tauri-build-mac-release:
+	@echo "🚀 Building Apuntador macOS Release..."
+ifeq ($(shell uname),Darwin)
+	chmod +x build-macos-release.sh
+	./build-macos-release.sh
+else
+	@echo "❌ macOS build only supported on macOS"
+endif
+
+tauri-build-mac-universal:
+	@echo "🍎 Building Apuntador macOS Universal..."
+ifeq ($(shell uname),Darwin)
+	chmod +x build-macos-release.sh
+	./build-macos-release.sh --arch universal
+else
+	@echo "❌ macOS build only supported on macOS"
+endif
+
+tauri-build-mac-debug:
+	@echo "🍎 Building Apuntador macOS Debug..."
+ifeq ($(shell uname),Darwin)
+	chmod +x build-macos-release.sh
+	./build-macos-release.sh --type debug --no-dmg
+else
+	@echo "❌ macOS build only supported on macOS"
+endif
+
+# Linux desktop targets
+tauri-build-linux:
+	@echo "🐧 Building Tauri for Linux..."
+ifeq ($(shell uname),Linux)
+	npm run tauri build -- --target x86_64-unknown-linux-gnu
+else
+	@echo "❌ Linux build only supported on Linux"
+endif
+
+tauri-build-linux-debug:
+	@echo "🐧 Building Tauri for Linux (Debug)..."
+ifeq ($(shell uname),Linux)
+	npm run tauri build -- --target x86_64-unknown-linux-gnu --debug
+else
+	@echo "❌ Linux build only supported on Linux"
+endif
+
+tauri-build-linux-arm64:
+	@echo "🐧 Building Tauri for Linux ARM64..."
+ifeq ($(shell uname),Linux)
+	npm run tauri build -- --target aarch64-unknown-linux-gnu
+else
+	@echo "❌ Linux build only supported on Linux"
+endif
+
+tauri-clean-linux:
+	@echo "🧹 Cleaning Linux build artifacts..."
+ifeq ($(shell uname),Linux)
+	cd src-tauri && cargo clean --target x86_64-unknown-linux-gnu
+	cd src-tauri && cargo clean --target aarch64-unknown-linux-gnu
+else
+	@echo "❌ Linux clean only supported on Linux"
 endif
