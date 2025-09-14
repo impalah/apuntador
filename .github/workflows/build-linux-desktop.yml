@@ -109,9 +109,13 @@ jobs:
       - name: Build Tauri application
         run: |
           if [ "${{ inputs.buildType }}" = "debug" ]; then
-            npm run tauri build -- --target ${{ inputs.buildTarget }} --debug
+            npm run tauri:build -- --target ${{ inputs.buildTarget }} --debug
           else
-            npm run tauri build -- --target ${{ inputs.buildTarget }}
+            if [ "${{ inputs.buildTarget }}" = "x86_64-unknown-linux-gnu" ]; then
+              npm run tauri:build:linux
+            else
+              npm run tauri:build -- --target ${{ inputs.buildTarget }}
+            fi
           fi
         env:
           TAURI_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
@@ -273,9 +277,9 @@ jobs:
       - name: Build ARM64 Tauri application
         run: |
           if [ "${{ inputs.buildType }}" = "debug" ]; then
-            npm run tauri build -- --target aarch64-unknown-linux-gnu --debug
+            npm run tauri:build -- --target aarch64-unknown-linux-gnu --debug
           else
-            npm run tauri build -- --target aarch64-unknown-linux-gnu
+            npm run tauri:build -- --target aarch64-unknown-linux-gnu
           fi
         env:
           CC_aarch64_unknown_linux_gnu: aarch64-linux-gnu-gcc
