@@ -97,7 +97,9 @@ jobs:
 
       - name: Build Tauri app (Release) - Universal
         if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' }}
-        run: npm run tauri:build:mac
+        run: |
+          echo "Building universal binary for macOS..."
+          npm run tauri:build:mac-universal
 
       - name: Build Tauri app (Release) - ARM64
         if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'aarch64-apple-darwin' }}
@@ -110,29 +112,41 @@ jobs:
       - name: List generated files
         run: |
           echo "=== Archivos generados ==="
+          echo "🔍 Searching for build artifacts..."
 
           # Buscar archivos generados en diferentes ubicaciones
           if [ -d "src-tauri/target/universal-apple-darwin" ]; then
-            echo "Universal build directory contents:"
+            echo "📂 Universal build directory contents:"
             find src-tauri/target/universal-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  $(basename "$file") ($size) - $file"
+              echo "  ✅ $(basename "$file") ($size) - $file"
             done
+          else
+            echo "❌ Universal build directory not found"
           fi
 
           if [ -d "src-tauri/target/aarch64-apple-darwin" ]; then
-            echo "ARM64 build directory contents:"
+            echo "📂 ARM64 build directory contents:"
             find src-tauri/target/aarch64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  $(basename "$file") ($size) - $file"
+              echo "  ✅ $(basename "$file") ($size) - $file"
             done
           fi
 
           if [ -d "src-tauri/target/x86_64-apple-darwin" ]; then
-            echo "Intel build directory contents:"
+            echo "📂 Intel build directory contents:"
             find src-tauri/target/x86_64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  $(basename "$file") ($size) - $file"
+              echo "  ✅ $(basename "$file") ($size) - $file"
+            done
+          fi
+
+          # También buscar en ubicaciones alternativas
+          echo "🔍 Searching in alternative locations..."
+          if [ -d "src-tauri/target" ]; then
+            find src-tauri/target -name "*.app" -type d | head -10 | while read file; do
+              size=$(du -sh "$file" | cut -f1)
+              echo "  📱 $(basename "$file") ($size) - $file"
             done
           fi
 
@@ -145,20 +159,51 @@ jobs:
         if: ${{ github.event.inputs.buildTarget == 'universal' }}
         run: |
           buildType="${{ github.event.inputs.buildType }}"
+          echo "🔍 Looking for universal build artifacts in $buildType mode..."
 
-          # Buscar .app bundle
-          appPath=$(find src-tauri/target/universal-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
+          # Buscar en múltiples ubicaciones posibles
+          appPath=""
+          for searchPath in \
+            "src-tauri/target/universal-apple-darwin/$buildType/bundle/macos" \
+            "src-tauri/target/$buildType/bundle/macos" \
+            "src-tauri/target/bundle/macos"; do
+            if [ -d "$searchPath" ]; then
+              echo "📂 Checking directory: $searchPath"
+              found=$(find "$searchPath" -name "*.app" 2>/dev/null | head -1)
+              if [ -n "$found" ]; then
+                appPath="$found"
+                echo "✅ Found .app bundle: $appPath"
+                break
+              fi
+            fi
+          done
+
           if [ -n "$appPath" ]; then
             cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.app"
             echo "✅ Universal .app bundle copied successfully"
           else
-            echo "❌ Universal .app bundle not found"
+            echo "❌ Universal .app bundle not found in any expected location"
+            echo "🔍 Debugging: Let's see what was actually built..."
+            find src-tauri/target -name "*.app" -type d 2>/dev/null || echo "No .app bundles found anywhere"
             exit 1
           fi
 
           # Buscar .dmg installer si se solicitó
           if [ "${{ github.event.inputs.generateInstallers }}" == "true" ]; then
-            dmgPath=$(find src-tauri/target/universal-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
+            dmgPath=""
+            for searchPath in \
+              "src-tauri/target/universal-apple-darwin/$buildType/bundle/dmg" \
+              "src-tauri/target/$buildType/bundle/dmg" \
+              "src-tauri/target/bundle/dmg"; do
+              if [ -d "$searchPath" ]; then
+                found=$(find "$searchPath" -name "*.dmg" 2>/dev/null | head -1)
+                if [ -n "$found" ]; then
+                  dmgPath="$found"
+                  break
+                fi
+              fi
+            done
+
             if [ -n "$dmgPath" ]; then
               cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.dmg"
               echo "✅ Universal DMG installer copied successfully"
