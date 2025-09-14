@@ -22,11 +22,15 @@ sudo apt-get install build-essential
 For **Ubuntu/Debian** systems:
 
 ```bash
+# For Ubuntu 24.04+ (Noble) - Remove any conflicting packages first
+sudo apt-get remove -y libappindicator3-dev || true
+
+# Install all required dependencies
 sudo apt-get update
 sudo apt-get install -y \
   libgtk-3-dev \
   libwebkit2gtk-4.1-dev \
-  libappindicator3-dev \
+  libayatana-appindicator3-dev \
   librsvg2-dev \
   patchelf \
   libssl-dev \
@@ -35,8 +39,7 @@ sudo apt-get install -y \
   curl \
   wget \
   file \
-  libxdo-dev \
-  libayatana-appindicator3-dev
+  libxdo-dev
 ```
 
 For **Fedora/RHEL** systems:
@@ -247,6 +250,24 @@ apuntador
 _Times vary based on hardware and whether Rust cache exists_
 
 ## 🐛 Troubleshooting
+
+### Error: "libayatana-appindicator3-1 conflicts with libappindicator3-1"
+
+This is a common conflict in Ubuntu 24.04+ between old and new appindicator packages:
+
+```bash
+# Remove conflicting old package
+sudo apt-get remove -y libappindicator3-dev libappindicator3-1
+
+# Install the newer ayatana version
+sudo apt-get install -y libayatana-appindicator3-dev
+
+# If still having issues, try:
+sudo apt-get autoremove
+sudo apt-get autoclean
+sudo apt-get update
+sudo apt-get install -y libayatana-appindicator3-dev
+```
 
 ### Error: "gtk-3-dev not found"
 

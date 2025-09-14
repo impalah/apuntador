@@ -63,10 +63,15 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
+
+          # First, remove any conflicting packages if they exist
+          sudo apt-get remove -y libappindicator3-dev || true
+
+          # Install dependencies with proper conflict resolution
           sudo apt-get install -y \
             libgtk-3-dev \
             libwebkit2gtk-4.1-dev \
-            libappindicator3-dev \
+            libayatana-appindicator3-dev \
             librsvg2-dev \
             patchelf \
             libssl-dev \
@@ -75,8 +80,7 @@ jobs:
             curl \
             wget \
             file \
-            libxdo-dev \
-            libayatana-appindicator3-dev
+            libxdo-dev
 
       - name: Install Rust
         uses: dtolnay/rust-toolchain@stable
