@@ -23,6 +23,15 @@
     <!-- Fixed dimming overlay (not transformed) -->
     <div v-if="prefsStore.highlightBandLines > 0" class="dimming-overlay" :style="dimmingStyle" />
 
+    <!-- Always visible triangular visual aids -->
+    <div v-if="prefsStore.highlightBandLines > 0">
+      <!-- Left triangle (pointing right) -->
+      <div class="triangle triangle-left" :style="triangleStyle"></div>
+
+      <!-- Right triangle (pointing left) -->
+      <div class="triangle triangle-right" :style="triangleStyle"></div>
+    </div>
+
     <!-- Highlight band position handle -->
     <HighlightBandHandle
       v-if="prefsStore.highlightBandLines > 0 && !teleprompterStore.isPlaying"
@@ -118,6 +127,11 @@ const dimmingStyle = computed(() => {
     '--dimming-intensity': prefsStore.dimmingIntensity.toString(),
   }
 })
+
+const triangleStyle = computed(() => ({
+  top: `${prefsStore.highlightBandPosPct}%`,
+  transform: 'translateY(-50%)',
+}))
 
 // Lifecycle
 onMounted(() => {
@@ -289,6 +303,16 @@ defineExpose({
   background: var(--teleprompter-bg, #000000);
   cursor: default;
   user-select: none;
+
+  /* Ensure no scrollbars on parent container */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbars on parent container too */
+.teleprompter-frame::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
 }
 
 .teleprompter-container {
@@ -299,6 +323,41 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+
+  /* Hide scrollbar for IE, Edge and Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.teleprompter-container::-webkit-scrollbar {
+  display: none;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent;
+}
+
+.teleprompter-container::-webkit-scrollbar-track {
+  display: none;
+  background: transparent;
+}
+
+.teleprompter-container::-webkit-scrollbar-thumb {
+  display: none;
+  background: transparent;
+}
+
+.teleprompter-container::-webkit-scrollbar-corner {
+  display: none;
+  background: transparent;
+}
+
+/* Additional fallback for high DPI displays */
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi), (min-resolution: 2dppx) {
+  .teleprompter-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+  }
 }
 
 .teleprompter-content {
@@ -423,5 +482,77 @@ defineExpose({
 
 .teleprompter-content :deep(.teleprompter-padding-bottom) {
   background: transparent;
+}
+
+/* Triangular visual aids for highlight band */
+.triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+  z-index: 15;
+  transform: translateY(-50%);
+}
+
+.triangle-left {
+  left: 5px;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-left: 24px solid #2196f3;
+}
+
+.triangle-right {
+  right: 5px;
+  border-top: 16px solid transparent;
+  border-bottom: 16px solid transparent;
+  border-right: 24px solid #2196f3;
+}
+
+/* Touch device adjustments */
+@media (hover: none) and (pointer: coarse) {
+  .triangle-left {
+    border-top: 22px solid transparent;
+    border-bottom: 22px solid transparent;
+    border-left: 32px solid #2196f3;
+  }
+
+  .triangle-right {
+    border-top: 22px solid transparent;
+    border-bottom: 22px solid transparent;
+    border-right: 32px solid #2196f3;
+  }
+}
+
+/* Aggressive scrollbar hiding for all child elements */
+.teleprompter-frame *,
+.teleprompter-container *,
+.teleprompter-content * {
+  scrollbar-width: none !important; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+}
+
+.teleprompter-frame *::-webkit-scrollbar,
+.teleprompter-container *::-webkit-scrollbar,
+.teleprompter-content *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+
+/* Force remove scrollbars on high resolution displays */
+@media screen and (min-width: 1920px),
+  screen and (min-height: 1080px),
+  (-webkit-min-device-pixel-ratio: 1.5) {
+  .teleprompter-container {
+    overflow-y: auto !important;
+    scrollbar-width: none !important;
+    -ms-overflow-style: none !important;
+  }
+
+  .teleprompter-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    background: transparent !important;
+  }
 }
 </style>
