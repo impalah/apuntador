@@ -49,6 +49,19 @@ android {
                 signingConfig signingConfigs.release
             }
         }
+        debug {
+            debuggable true
+        }
+    }
+    
+    // Custom naming for output files
+    applicationVariants.all { variant ->
+        variant.outputs.all { output ->
+            def buildType = variant.buildType.name
+            def versionName = variant.versionName
+            def outputFileName = "apuntador-${buildType}-${versionName}.${output.outputFile.name.split('\\.').last()}"
+            outputFileName = outputFileName
+        }
     }
 }
 

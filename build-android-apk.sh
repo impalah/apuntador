@@ -12,6 +12,10 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}Building Apuntador Android APK...${NC}"
 
+# Get version from package.json
+VERSION=$(node -p "require('./package.json').version")
+echo -e "${CYAN}Building version: $VERSION${NC}"
+
 # Build the web app and sync with Android
 echo -e "${YELLOW}Building web app and syncing with Android...${NC}"
 npm run android:build
@@ -47,17 +51,22 @@ fi
 # Go back to root directory
 cd ..
 
-# Check if APK was generated
-APK_PATH="android/app/build/outputs/apk/release/apuntador.apk"
-if [ -f "$APK_PATH" ]; then
-    echo -e "${GREEN}APK generated successfully: $APK_PATH${NC}"
+# Check if APK was generated and rename it
+ORIGINAL_APK_PATH="android/app/build/outputs/apk/release/app-release.apk"
+NEW_APK_NAME="apuntador-release-$VERSION.apk"
+NEW_APK_PATH="android/app/build/outputs/apk/release/$NEW_APK_NAME"
+
+if [ -f "$ORIGINAL_APK_PATH" ]; then
+    # Rename the APK file
+    mv "$ORIGINAL_APK_PATH" "$NEW_APK_PATH"
+    echo -e "${GREEN}APK renamed to: $NEW_APK_NAME${NC}"
     
     # Copy to root directory for easy access
-    cp "$APK_PATH" "apuntador.apk"
-    echo -e "${GREEN}APK copied to root directory as 'apuntador.apk'${NC}"
+    cp "$NEW_APK_PATH" "$NEW_APK_NAME"
+    echo -e "${GREEN}APK copied to root directory as '$NEW_APK_NAME'${NC}"
     
     # Show file size
-    FILE_SIZE=$(du -h "apuntador.apk" | cut -f1)
+    FILE_SIZE=$(du -h "$NEW_APK_NAME" | cut -f1)
     echo -e "${CYAN}APK size: $FILE_SIZE${NC}"
 else
     echo -e "${RED}APK not found at expected location!${NC}"
@@ -69,4 +78,4 @@ else
 fi
 
 echo -e "${GREEN}Android APK build completed successfully!${NC}"
-echo -e "${CYAN}APK location: apuntador.apk${NC}"
+echo -e "${CYAN}APK location: $NEW_APK_NAME${NC}"

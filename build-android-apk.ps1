@@ -5,6 +5,11 @@
 
 Write-Host "Building Apuntador Android APK..." -ForegroundColor Green
 
+# Get version from package.json
+$packageJson = Get-Content "package.json" | ConvertFrom-Json
+$version = $packageJson.version
+Write-Host "Building version: $version" -ForegroundColor Cyan
+
 # Build the web app and sync with Android
 Write-Host "Building web app and syncing with Android..." -ForegroundColor Yellow
 npm run android:build
@@ -30,17 +35,22 @@ if ($LASTEXITCODE -ne 0) {
 # Go back to root directory
 Set-Location ..
 
-# Check if APK was generated
-$apkPath = "android/app/build/outputs/apk/release/apuntador.apk"
-if (Test-Path $apkPath) {
-    Write-Host "APK generated successfully: $apkPath" -ForegroundColor Green
+# Check if APK was generated and rename it
+$originalApkPath = "android/app/build/outputs/apk/release/app-release.apk"
+$newApkName = "apuntador-release-$version.apk"
+$newApkPath = "android/app/build/outputs/apk/release/$newApkName"
+
+if (Test-Path $originalApkPath) {
+    # Rename the APK file
+    Move-Item $originalApkPath $newApkPath -Force
+    Write-Host "APK renamed to: $newApkName" -ForegroundColor Green
     
     # Copy to root directory for easy access
-    Copy-Item $apkPath "apuntador.apk" -Force
-    Write-Host "APK copied to root directory as 'apuntador.apk'" -ForegroundColor Green
+    Copy-Item $newApkPath $newApkName -Force
+    Write-Host "APK copied to root directory as '$newApkName'" -ForegroundColor Green
     
     # Show file size
-    $fileSize = (Get-Item "apuntador.apk").Length / 1MB
+    $fileSize = (Get-Item $newApkName).Length / 1MB
     Write-Host "APK size: $([math]::Round($fileSize, 2)) MB" -ForegroundColor Cyan
 } else {
     Write-Host "APK not found at expected location!" -ForegroundColor Red

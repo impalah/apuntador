@@ -8,9 +8,13 @@ on:
         required: true
         default: 'warning'
       release_tag:
-        description: 'Release tag to build Bundle from (e.g., 0.1.6)'
+        description: 'Release tag to build Bundle from (e.g., 0.1.31)'
         required: true
         type: string
+      versionCode:
+        description: 'Android version code (integer, must be higher than previous)'
+        required: true
+        type: number
       buildType:
         description: 'Build type'
         required: true
@@ -109,6 +113,47 @@ jobs:
           # Create Android directory structure if needed
           mkdir -p android/app
 
+      - name: Update Android version in build.gradle
+        env:
+          VERSION_CODE: ${{ github.event.inputs.versionCode }}
+          VERSION_NAME: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "🔄 Updating Android version..."
+          echo "  versionCode: ${VERSION_CODE}"
+          echo "  versionName: ${VERSION_NAME}"
+
+          # Backup original build.gradle
+          cp android/app/build.gradle android/app/build.gradle.backup
+
+          # Update versionCode and versionName in build.gradle
+          sed -i "s/versionCode [0-9]*/versionCode ${VERSION_CODE}/" android/app/build.gradle
+          sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION_NAME}\"/" android/app/build.gradle
+
+          # Verify the changes
+          echo "📋 Updated build.gradle content:"
+          grep -A 5 -B 5 "versionCode\|versionName" android/app/build.gradle
+
+          echo "✅ Android version updated successfully"
+
+      - name: Commit version changes to repository
+        env:
+          VERSION_CODE: ${{ github.event.inputs.versionCode }}
+          VERSION_NAME: ${{ github.event.inputs.release_tag }}
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+          # Check if there are changes to commit
+          if git diff --quiet android/app/build.gradle; then
+            echo "ℹ️ No changes detected in build.gradle"
+          else
+            echo "📝 Committing version update to repository..."
+            git add android/app/build.gradle
+            git commit -m "📱 Update Android version to ${VERSION_NAME} (versionCode: ${VERSION_CODE})"
+            git push
+            echo "✅ Version changes committed and pushed to repository"
+          fi
+
       - name: Decode and create keystore
         if: ${{ github.event.inputs.buildType == 'release' }}
         env:
@@ -137,11 +182,35 @@ jobs:
           cd android
           ./gradlew bundleRelease
 
+          # Rename the generated AAB file
+          ORIGINAL_AAB="app/build/outputs/bundle/release/app-release.aab"
+          NEW_AAB="app/build/outputs/bundle/release/apuntador-release-${{ github.event.inputs.release_tag }}.aab"
+
+          if [ -f "$ORIGINAL_AAB" ]; then
+            mv "$ORIGINAL_AAB" "$NEW_AAB"
+            echo "✅ Renamed AAB to: $(basename "$NEW_AAB")"
+          else
+            echo "❌ Original AAB file not found: $ORIGINAL_AAB"
+            exit 1
+          fi
+
       - name: Build Debug Bundle (AAB)
         if: ${{ github.event.inputs.buildType == 'debug' }}
         run: |
           cd android
           ./gradlew bundleDebug
+
+          # Rename the generated AAB file
+          ORIGINAL_AAB="app/build/outputs/bundle/debug/app-debug.aab"
+          NEW_AAB="app/build/outputs/bundle/debug/apuntador-debug-${{ github.event.inputs.release_tag }}.aab"
+
+          if [ -f "$ORIGINAL_AAB" ]; then
+            mv "$ORIGINAL_AAB" "$NEW_AAB"
+            echo "✅ Renamed AAB to: $(basename "$NEW_AAB")"
+          else
+            echo "❌ Original AAB file not found: $ORIGINAL_AAB"
+            exit 1
+          fi
 
       - name: Get version from release tag
         id: version
@@ -154,19 +223,23 @@ jobs:
       - name: Check Bundle files
         run: |
           echo "Checking for generated Bundle files..."
-          if [ -f android/app/build/outputs/bundle/release/app-release.aab ]; then
-            echo "✅ Release Bundle found: app-release.aab"
-            ls -la android/app/build/outputs/bundle/release/app-release.aab
+          RELEASE_AAB="android/app/build/outputs/bundle/release/apuntador-release-${{ github.event.inputs.release_tag }}.aab"
+          DEBUG_AAB="android/app/build/outputs/bundle/debug/apuntador-debug-${{ github.event.inputs.release_tag }}.aab"
+
+          if [ -f "$RELEASE_AAB" ]; then
+            echo "✅ Release Bundle found: $(basename "$RELEASE_AAB")"
+            ls -la "$RELEASE_AAB"
           else
-            echo "❌ Release Bundle not found"
+            echo "❌ Release Bundle not found: $RELEASE_AAB"
             echo "Contents of release bundle directory:"
             ls -la android/app/build/outputs/bundle/release/ || echo "Release bundle directory does not exist"
           fi
-          if [ -f android/app/build/outputs/bundle/debug/app-debug.aab ]; then
-            echo "✅ Debug Bundle found: app-debug.aab"
-            ls -la android/app/build/outputs/bundle/debug/app-debug.aab
+
+          if [ -f "$DEBUG_AAB" ]; then
+            echo "✅ Debug Bundle found: $(basename "$DEBUG_AAB")"
+            ls -la "$DEBUG_AAB"
           else
-            echo "❌ Debug Bundle not found"
+            echo "❌ Debug Bundle not found: $DEBUG_AAB"
             echo "Contents of debug bundle directory:"
             ls -la android/app/build/outputs/bundle/debug/ || echo "Debug bundle directory does not exist"
           fi
@@ -175,16 +248,16 @@ jobs:
         if: ${{ github.event.inputs.buildType == 'release' }}
         uses: actions/upload-artifact@v4
         with:
-          name: apuntador-android-bundle-release-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/bundle/release/app-release.aab
+          name: apuntador-android-bundle-release-v${{ steps.version.outputs.version }}-code${{ github.event.inputs.versionCode }}
+          path: android/app/build/outputs/bundle/release/apuntador-release-${{ github.event.inputs.release_tag }}.aab
           if-no-files-found: error
 
       - name: Upload Debug Bundle artifact
         if: ${{ github.event.inputs.buildType == 'debug' }}
         uses: actions/upload-artifact@v4
         with:
-          name: apuntador-android-bundle-debug-${{ steps.version.outputs.version }}
-          path: android/app/build/outputs/bundle/debug/app-debug.aab
+          name: apuntador-android-bundle-debug-v${{ steps.version.outputs.version }}-code${{ github.event.inputs.versionCode }}
+          path: android/app/build/outputs/bundle/debug/apuntador-debug-${{ github.event.inputs.release_tag }}.aab
           if-no-files-found: error
 
       - name: Generate Bundle info
@@ -193,6 +266,8 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Build Information" >> $GITHUB_STEP_SUMMARY
           echo "- **Release Tag**: ${{ github.event.inputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Name**: ${{ github.event.inputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
+          echo "- **Version Code**: ${{ github.event.inputs.versionCode }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Build Type**: ${{ github.event.inputs.buildType }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Bundle Format**: AAB (Android App Bundle)" >> $GITHUB_STEP_SUMMARY
           echo "- **Target**: Google Play Store" >> $GITHUB_STEP_SUMMARY
@@ -200,6 +275,8 @@ jobs:
           if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
             echo "### 🚀 Ready for Play Store Upload" >> $GITHUB_STEP_SUMMARY
             echo "The generated AAB file is ready to be uploaded to Google Play Console." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Next version code should be**: $(( ${{ github.event.inputs.versionCode }} + 1 ))" >> $GITHUB_STEP_SUMMARY
           else
             echo "### 🔧 Debug Bundle" >> $GITHUB_STEP_SUMMARY
             echo "This is a debug bundle for testing purposes." >> $GITHUB_STEP_SUMMARY
