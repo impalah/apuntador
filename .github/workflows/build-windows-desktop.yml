@@ -71,16 +71,70 @@ jobs:
           echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $env:GITHUB_ENV
           echo "TAURI_KEY_PASSWORD=${{ secrets.TAURI_KEY_PASSWORD }}" >> $env:GITHUB_ENV
 
+      - name: Setup code signing certificate
+        if: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+        run: |
+          Write-Host "🔐 Configurando certificado de código..." -ForegroundColor Yellow
+
+          # Crear directorio temporal para el certificado
+          $certDir = "temp-cert"
+          New-Item -ItemType Directory -Path $certDir -Force | Out-Null
+
+          # Decodificar el certificado Base64 y guardarlo como PFX
+          $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE)
+          $certPath = Join-Path $certDir "codesigning.pfx"
+          [IO.File]::WriteAllBytes($certPath, $certBytes)
+
+          # Importar el certificado al almacén local
+          $securePassword = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText
+          $cert = Import-PfxCertificate -FilePath $certPath -CertStoreLocation "Cert:\CurrentUser\My" -Password $securePassword
+
+          if ($cert) {
+            Write-Host "✅ Certificado importado exitosamente" -ForegroundColor Green
+            Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
+            
+            # Configurar variable de entorno para Tauri
+            echo "WINDOWS_CODESIGN_CERT_THUMBPRINT=$($cert.Thumbprint)" >> $env:GITHUB_ENV
+            
+            # Limpiar archivo temporal
+            Remove-Item $certPath -Force
+            Remove-Item $certDir -Force
+          } else {
+            Write-Host "❌ Error al importar certificado" -ForegroundColor Red
+            exit 1
+          }
+
       - name: Build frontend
         run: npm run build
 
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}
-        run: npm run tauri:build -- --debug
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        run: |
+          if ($env:WINDOWS_CODESIGN_CERT_THUMBPRINT) {
+            Write-Host "🔐 Building with code signing..." -ForegroundColor Yellow
+            $env:TAURI_SIGNING_PRIVATE_KEY = $null
+            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $null
+          }
+          npm run tauri:build -- --debug
 
       - name: Build Tauri app (Release)
         if: ${{ github.event.inputs.buildType == 'release' }}
-        run: npm run tauri:build:win
+        env:
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
+        run: |
+          if ($env:WINDOWS_CODESIGN_CERT_THUMBPRINT) {
+            Write-Host "🔐 Building with code signing..." -ForegroundColor Yellow
+            $env:TAURI_SIGNING_PRIVATE_KEY = $null
+            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $null
+          }
+          npm run tauri:build:win
 
       - name: List generated files
         run: |

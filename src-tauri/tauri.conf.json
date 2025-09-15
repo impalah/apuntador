@@ -46,7 +46,12 @@
     "longDescription": "Apuntador is a modern, web-based teleprompter designed for content creators, presenters, and speakers. Features include variable scrolling speed, mirror mode, mobile/desktop support, and full-screen capabilities.",
     "homepage": "https://github.com/impalah/apuntador",
     "license": "MIT",
-    "licenseFile": "../LICENSE"
+    "licenseFile": "../LICENSE",
+    "windows": {
+      "certificateThumbprint": "",
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    }
   },
   "plugins": {}
 }

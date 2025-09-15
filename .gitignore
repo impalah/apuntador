@@ -143,3 +143,8 @@ terraform.rc
 *.exe
 tauri.key.*
 
+# Certificados de código (seguridad)
+certificates/
+*.pfx
+*.p12
+

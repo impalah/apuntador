@@ -128,6 +128,23 @@ npm run tauri:build:mac   # macOS
 - **Native window controls** (minimize, maximize, close)
 - **Fullscreen toggle** with native APIs
 - **Always on top** mode for professional setups
+
+#### Code Signing (Windows)
+
+Windows applications can be signed to reduce security warnings:
+
+```bash
+# Generate self-signed certificate (free)
+.\scripts\create-self-signed-cert.ps1
+
+# Build with code signing
+.\scripts\build-windows-signed.ps1
+```
+
+**For users**: The app is safe to install, even with Windows Defender warnings. See [Certificate Guide](./docs/SELF-SIGNED-CERTIFICATE.md) for detailed instructions.
+
+**For developers**: See [Self-Signed Certificate Documentation](./docs/SELF-SIGNED-CERTIFICATE.md) for GitHub Actions setup.
+
 - **Native file dialogs** (planned)
 - **System integration** with desktop notifications
 - **Optimized performance** with Rust backend
