@@ -72,11 +72,19 @@ jobs:
           echo "TAURI_KEY_PASSWORD=${{ secrets.TAURI_KEY_PASSWORD }}" >> $env:GITHUB_ENV
 
       - name: Setup code signing certificate
-        if: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
         env:
           WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: |
+          # Verificar si el certificado está disponible
+          if ([string]::IsNullOrEmpty($env:WINDOWS_CERTIFICATE)) {
+            Write-Host "⚠️ No se encontró certificado de código - continuando sin firma..." -ForegroundColor Yellow
+            Write-Host "   Para habilitar la firma de código, configura los secrets:" -ForegroundColor Cyan
+            Write-Host "   - WINDOWS_CERTIFICATE" -ForegroundColor Cyan
+            Write-Host "   - WINDOWS_CERTIFICATE_PASSWORD" -ForegroundColor Cyan
+            exit 0
+          }
+
           Write-Host "🔐 Configurando certificado de código..." -ForegroundColor Yellow
 
           # Crear directorio temporal para el certificado
