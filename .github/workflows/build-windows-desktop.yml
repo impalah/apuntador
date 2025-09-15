@@ -120,27 +120,49 @@ jobs:
 
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         run: |
           if ($env:WINDOWS_CODESIGN_CERT_THUMBPRINT) {
-            Write-Host "🔐 Building with code signing..." -ForegroundColor Yellow
-            $env:TAURI_SIGNING_PRIVATE_KEY = $null
-            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $null
+            Write-Host "🔐 Building with Windows certificate signing..." -ForegroundColor Yellow
+            Write-Host "   Thumbprint: $env:WINDOWS_CODESIGN_CERT_THUMBPRINT" -ForegroundColor Cyan
+            
+            # Update tauri.conf.json with certificate thumbprint for Windows signing
+            $configPath = "src-tauri\tauri.conf.json"
+            $config = Get-Content $configPath -Raw | ConvertFrom-Json
+            $config.bundle.windows.certificateThumbprint = $env:WINDOWS_CODESIGN_CERT_THUMBPRINT
+            $config.bundle.windows.digestAlgorithm = "sha256"
+            $config.bundle.windows.timestampUrl = "http://timestamp.sectigo.com"
+            $config | ConvertTo-Json -Depth 10 | Set-Content $configPath
+            
+            Write-Host "✅ Tauri configured for Windows certificate signing" -ForegroundColor Green
+          } else {
+            Write-Host "� Building with Tauri key signing..." -ForegroundColor Yellow
+            # Set Tauri signing environment variables
+            $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_PRIVATE_KEY }}"
+            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_KEY_PASSWORD }}"
           }
           npm run tauri:build -- --debug
 
       - name: Build Tauri app (Release)
         if: ${{ github.event.inputs.buildType == 'release' }}
-        env:
-          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_PRIVATE_KEY }}
-          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_KEY_PASSWORD }}
         run: |
           if ($env:WINDOWS_CODESIGN_CERT_THUMBPRINT) {
-            Write-Host "🔐 Building with code signing..." -ForegroundColor Yellow
-            $env:TAURI_SIGNING_PRIVATE_KEY = $null
-            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = $null
+            Write-Host "🔐 Building with Windows certificate signing..." -ForegroundColor Yellow
+            Write-Host "   Thumbprint: $env:WINDOWS_CODESIGN_CERT_THUMBPRINT" -ForegroundColor Cyan
+            
+            # Update tauri.conf.json with certificate thumbprint for Windows signing
+            $configPath = "src-tauri\tauri.conf.json"
+            $config = Get-Content $configPath -Raw | ConvertFrom-Json
+            $config.bundle.windows.certificateThumbprint = $env:WINDOWS_CODESIGN_CERT_THUMBPRINT
+            $config.bundle.windows.digestAlgorithm = "sha256"
+            $config.bundle.windows.timestampUrl = "http://timestamp.sectigo.com"
+            $config | ConvertTo-Json -Depth 10 | Set-Content $configPath
+            
+            Write-Host "✅ Tauri configured for Windows certificate signing" -ForegroundColor Green
+          } else {
+            Write-Host "� Building with Tauri key signing..." -ForegroundColor Yellow
+            # Set Tauri signing environment variables
+            $env:TAURI_SIGNING_PRIVATE_KEY = "${{ secrets.TAURI_PRIVATE_KEY }}"
+            $env:TAURI_SIGNING_PRIVATE_KEY_PASSWORD = "${{ secrets.TAURI_KEY_PASSWORD }}"
           }
           npm run tauri:build:win
 
