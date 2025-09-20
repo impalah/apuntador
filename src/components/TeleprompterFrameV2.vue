@@ -14,6 +14,7 @@
         class="teleprompter-content"
         :style="contentStyle"
         v-html="content.html"
+        data-testid="teleprompter-content"
       />
     </div>
 
@@ -104,6 +105,7 @@ const contentStyle = computed(() => {
     lineHeight: props.displayPrefs.lineHeight.toString(),
     fontFamily: props.displayPrefs.fontFamily,
     color: props.displayPrefs.fgColor,
+    textAlign: props.displayPrefs.textAlignment,
   }
 })
 
@@ -287,10 +289,7 @@ function onTap() {
 }
 
 function onHighlightBandPositionChange(position: number) {
-  // This would be handled by the parent component using the service
-  console.log('Highlight band position changed:', position)
-  // In the refactored version, we don't handle this directly
-  // The parent component should listen to this event and update via service
+  emit('highlight-band-position-change', position)
 }
 
 // ========================================

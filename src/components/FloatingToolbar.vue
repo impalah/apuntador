@@ -193,6 +193,14 @@
                   />
                   <v-btn
                     variant="outlined"
+                    icon="mdi-folder-open"
+                    size="small"
+                    class="action-btn"
+                    data-testid="file-button"
+                    @click="$emit('openFile')"
+                  />
+                  <v-btn
+                    variant="outlined"
                     icon="mdi-cog"
                     size="small"
                     class="action-btn"
@@ -331,6 +339,14 @@
                   />
                   <v-btn
                     variant="outlined"
+                    icon="mdi-folder-open"
+                    size="small"
+                    class="action-btn"
+                    data-testid="file-button"
+                    @click="$emit('openFile')"
+                  />
+                  <v-btn
+                    variant="outlined"
                     icon="mdi-cog"
                     size="small"
                     class="action-btn"
@@ -453,6 +469,7 @@ const emit = defineEmits<{
   mirrorToggle: [axis: 'h' | 'v']
   openEditor: []
   openSettings: []
+  openFile: []
 }>()
 
 // Stores

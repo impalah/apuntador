@@ -201,6 +201,7 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   save: [content: string]
   fileLoaded: [content: string]
+  'open-file': []
 }>()
 
 // State
@@ -279,7 +280,8 @@ async function onNew() {
 
   fileStore.createNew()
   localContent.value = ''
-  emit('save', '')
+  // Note: Do NOT emit 'save' here - keep editor open
+  // Only 'onApply' should close the editor
 }
 
 async function onSave() {
@@ -308,13 +310,13 @@ async function onSave() {
       if (success) {
         fileStore.markAsSaved(localContent.value)
         fileStore.setContent(localContent.value)
-        emit('save', localContent.value)
+        // Note: Do NOT emit 'save' here - keep editor open
       }
     } else if (result.success) {
       // Normal save successful
       fileStore.markAsSaved(localContent.value)
       fileStore.setContent(localContent.value)
-      emit('save', localContent.value)
+      // Note: Do NOT emit 'save' here - keep editor open
     } else {
       throw new Error(result.error || 'Save failed')
     }
@@ -340,7 +342,7 @@ async function onSaveCopy() {
       fileStore.setFileHandle(handle, handle.name || suggestedName)
       fileStore.markAsSaved(localContent.value)
       fileStore.setContent(localContent.value)
-      emit('save', localContent.value)
+      // Note: Do NOT emit 'save' here - keep editor open
     }
   } catch (error) {
     console.error('Save copy failed:', error)
@@ -351,53 +353,8 @@ async function onSaveCopy() {
 }
 
 async function onOpenFile() {
-  refreshing.value = true
-  try {
-    let sourceContent: string = ''
-
-    // Always use file dialog for consistent experience
-    const input = document.createElement('input')
-    input.type = 'file'
-    input.accept = '.md,.txt'
-
-    await new Promise<void>((resolve, reject) => {
-      input.onchange = async (e) => {
-        const file = (e.target as HTMLInputElement).files?.[0]
-        if (!file) {
-          reject(new Error('No file selected'))
-          return
-        }
-
-        try {
-          sourceContent = await file.text()
-          // Update file store with new file information
-          fileStore.setFileHandle(null, file.name)
-          resolve()
-        } catch (error) {
-          reject(error)
-        }
-      }
-
-      input.oncancel = () => {
-        reject(new Error('User cancelled'))
-      }
-
-      input.click()
-    })
-
-    // Load source content into editor directly without confirmations
-    localContent.value = sourceContent
-    fileStore.setContent(sourceContent)
-    fileStore.updateSourceContent(sourceContent)
-    emit('fileLoaded', sourceContent)
-  } catch (error) {
-    console.error('Open file failed:', error)
-    if (error instanceof Error && error.message !== 'User cancelled') {
-      alert(t('editor.refreshFromSourceError'))
-    }
-  } finally {
-    refreshing.value = false
-  }
+  // Emit event to open file loader dialog instead of using native input
+  emit('open-file')
 }
 
 function onApply() {
@@ -499,19 +456,20 @@ function onKeyDown(event: KeyboardEvent) {
 
 .editor-container {
   height: 100vh;
-  padding-top: 64px; /* Space for fixed toolbar */
+  padding-top: 80px; /* Increased space for fixed toolbar */
 }
 
 .editor-content {
-  height: calc(100vh - 64px);
+  height: calc(100vh - 80px);
 }
 
 .editor-content.mobile {
-  height: calc(100vh - 64px);
+  height: calc(100vh - 80px);
 }
 
 .editor-panel,
 .preview-panel {
+  margin-top: 63px; /* Adjust for toolbar height */
   height: 100%;
   display: flex;
   flex-direction: column;
@@ -526,6 +484,13 @@ function onKeyDown(event: KeyboardEvent) {
 
 .editor-textarea.mobile {
   height: 100%;
+}
+
+/* Additional padding for textarea content */
+:deep(.v-field__input) {
+  height: 100% !important;
+  min-height: 100% !important;
+  padding-top: 16px !important; /* Extra top padding to avoid toolbar overlap */
 }
 
 .preview-panel {

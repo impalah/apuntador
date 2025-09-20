@@ -84,7 +84,31 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
   }
 
   function updateScrollOffset(newOffset: number) {
-    scrollOffset.value = clampScrollOffset(newOffset, contentHeightPx.value, viewportHeightPx.value)
+    const previousOffset = scrollOffset.value
+    const clampedOffset = clampScrollOffset(
+      newOffset,
+      contentHeightPx.value,
+      viewportHeightPx.value
+    )
+    scrollOffset.value = clampedOffset
+
+    // Auto-pause when reaching the end of text while playing
+    // Only auto-pause if:
+    // 1. We are playing
+    // 2. We reached the maximum offset
+    // 3. We were scrolling forward (not seeking/jumping)
+    // 4. There was significant movement (> 5px to avoid tiny adjustments)
+    const scrollDelta = Math.abs(newOffset - previousOffset)
+    if (
+      isPlaying.value &&
+      clampedOffset >= maxOffset.value &&
+      newOffset > previousOffset &&
+      scrollDelta > 5 && // Require more meaningful movement
+      maxOffset.value > 0
+    ) {
+      // Only if there's actual content to scroll
+      pause()
+    }
   }
 
   function stepLines(n: number) {

@@ -91,6 +91,7 @@
       v-model="editorOpen"
       :content="teleprompterFrame.props.value.content.raw"
       @save="onEditorSave"
+      @open-file="() => (fileLoaderOpen = true)"
     />
     <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
 

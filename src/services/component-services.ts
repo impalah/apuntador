@@ -155,6 +155,7 @@ export class PreferencesService implements IPreferencesService {
       bgColor: this.prefsStore.bgColor,
       mirrorH: this.prefsStore.mirrorH,
       mirrorV: this.prefsStore.mirrorV,
+      textAlignment: this.prefsStore.textAlignment,
     }
   }
 

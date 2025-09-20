@@ -1,11 +1,9 @@
 <template>
   <div class="teleprompter-page">
-    <TeleprompterFrameV2
+    <TeleprompterFrame
       ref="teleprompterRef"
-      v-bind="teleprompterFrameProps"
       @content-height-changed="onContentHeightChanged"
       @viewport-height-changed="onViewportHeightChanged"
-      @highlight-band-position-change="onHighlightBandPositionChange"
       @tap="onTeleprompterTap"
     />
 
@@ -31,7 +29,6 @@
       v-model="editorOpen"
       :content="teleprompterStore.contentRaw"
       @save="onEditorSave"
-      @open-file="onOpenFile"
     />
 
     <!-- File Loader -->
@@ -46,7 +43,6 @@ import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { useFileStore } from '@/stores/useFileStore'
-import { useTeleprompterFrameProps } from '@/adapters/storeToComponent'
 import {
   hotkeyManager,
   DEFAULT_HOTKEYS,
@@ -58,7 +54,7 @@ import { isTouchDevice } from '@/utils/dom'
 import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
 
 // Components
-import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
+import TeleprompterFrame from '@/components/TeleprompterFrame.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
@@ -74,11 +70,8 @@ const fileStore = useFileStore()
 // Composables
 const { locale } = useI18n()
 
-// Modular component props
-const teleprompterFrameProps = useTeleprompterFrameProps()
-
 // Component refs
-const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()
+const teleprompterRef = ref<InstanceType<typeof TeleprompterFrame>>()
 
 // UI state
 const settingsOpen = ref(false)
@@ -267,10 +260,6 @@ function onContentHeightChanged(height: number) {
 
 function onViewportHeightChanged(height: number) {
   teleprompterStore.setViewportHeight(height)
-}
-
-function onHighlightBandPositionChange(positionPct: number) {
-  prefsStore.highlightBandPosPct = positionPct
 }
 
 function onTeleprompterTap() {

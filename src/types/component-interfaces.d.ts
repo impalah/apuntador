@@ -30,6 +30,7 @@ export interface DisplayPreferences {
   bgColor: string
   mirrorH: boolean
   mirrorV: boolean
+  textAlignment: 'left' | 'center' | 'right'
 }
 
 export interface HighlightBandConfig {
@@ -52,6 +53,7 @@ export interface SpeedConfig {
 export interface TeleprompterEvents {
   'content-height-changed': [height: number]
   'viewport-height-changed': [height: number]
+  'highlight-band-position-change': [positionPct: number]
   tap: []
   'swipe-up': []
   'swipe-down': []
