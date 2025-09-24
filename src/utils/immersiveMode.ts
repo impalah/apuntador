@@ -1,6 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
 import { StatusBar } from '@capacitor/status-bar'
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, registerPlugin } from '@capacitor/core'
 
 /**
  * Composable for managing Android immersive mode (fullscreen)
@@ -84,7 +84,6 @@ export function useImmersiveMode() {
 
     try {
       // Use our custom native plugin
-      const { registerPlugin } = await import('@capacitor/core')
       const ImmersiveMode = registerPlugin('ImmersiveMode') as any
 
       await ImmersiveMode.setImmersiveMode({ enable })

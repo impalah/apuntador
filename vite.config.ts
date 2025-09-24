@@ -80,9 +80,25 @@ export default defineConfig({
   build: {
     target: 'esnext',
     sourcemap: true,
+    chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
     rollupOptions: {
       output: {
-        sourcemap: true,
+        // Manual chunks to improve bundle splitting
+        manualChunks: {
+          // Vendor chunks
+          vue: ['vue', 'vue-router'],
+          vuetify: ['vuetify', 'vuetify/components', 'vuetify/directives'],
+          capacitor: [
+            '@capacitor/core',
+            '@capacitor/status-bar',
+            '@capacitor/haptics',
+            '@capacitor/keyboard',
+            '@capacitor/screen-orientation',
+          ],
+          // Utils and stores
+          stores: ['pinia'],
+          markdown: ['markdown-it'],
+        },
       },
     },
   },
