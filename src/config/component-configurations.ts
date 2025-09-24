@@ -13,7 +13,6 @@ import type {
 } from '@/types/component-interfaces'
 
 // Import component implementations
-import TeleprompterFrame from '@/components/TeleprompterFrame.vue'
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import FloatingToolbarV2 from '@/components/FloatingToolbarV2.vue'
@@ -22,15 +21,6 @@ import HighlightBandHandle from '@/components/HighlightBandHandle.vue'
 // ========================================
 // Component Definitions
 // ========================================
-
-export const originalTeleprompterFrame: ITeleprompterFrameComponent = {
-  name: 'TeleprompterFrame',
-  version: '1.0.0',
-  description: 'Original teleprompter frame with direct store access',
-  props: {} as any, // Would be properly typed in real implementation
-  events: {} as any,
-  component: TeleprompterFrame,
-}
 
 export const decoupledTeleprompterFrame: ITeleprompterFrameComponent = {
   name: 'TeleprompterFrameV2',
@@ -73,7 +63,7 @@ export const standardHighlightBand: IHighlightBandComponent = {
 // ========================================
 
 export const originalComponentConfig: AppComponentConfig = {
-  teleprompterFrame: originalTeleprompterFrame,
+  teleprompterFrame: decoupledTeleprompterFrame,
   floatingToolbar: originalFloatingToolbar,
   highlightBand: standardHighlightBand,
 }
@@ -250,7 +240,6 @@ export interface DynamicComponentLoader {
 
 export const componentRegistry = {
   teleprompterFrames: new Map([
-    ['original', originalTeleprompterFrame],
     ['decoupled', decoupledTeleprompterFrame],
     ['minimal', minimalTeleprompterFrame],
   ]),
