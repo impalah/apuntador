@@ -20,7 +20,7 @@
             t('settings.appearance')
           }}</v-tab>
           <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
-          <v-tab value="gamepad" data-testid="gamepad-tab">{{ t('settings.gamepad') }}</v-tab>
+          <v-tab value="controls" data-testid="controls-tab">{{ t('settings.controls') }}</v-tab>
           <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
         </v-tabs>
 
@@ -208,7 +208,12 @@
                   </v-col>
                 </v-row>
               </div>
+            </v-form>
+          </v-tabs-window-item>
 
+          <!-- Controls Tab (Hotkeys + Gamepad) -->
+          <v-tabs-window-item value="controls">
+            <v-form class="mt-4">
               <!-- Hotkeys Settings -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">{{ t('hotkeys.title') }}</h3>
@@ -229,12 +234,7 @@
                   </v-btn>
                 </div>
               </div>
-            </v-form>
-          </v-tabs-window-item>
 
-          <!-- Gamepad Tab -->
-          <v-tabs-window-item value="gamepad">
-            <v-form class="mt-4">
               <!-- Gamepad Status -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">{{ t('gamepad.status') }}</h3>

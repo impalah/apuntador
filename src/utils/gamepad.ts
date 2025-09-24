@@ -52,11 +52,15 @@ export function useGamepad() {
     isSupported.value = 'getGamepads' in navigator
 
     if (!isSupported.value) {
-      console.warn('Gamepad API not supported in this browser')
+      if (import.meta.env.DEV) {
+        console.debug('Gamepad API not supported in this browser')
+      }
       return
     }
 
-    console.log('Gamepad API initialized')
+    if (import.meta.env.DEV) {
+      console.log('Gamepad API initialized')
+    }
 
     // Start polling for gamepad state
     pollGamepads()
@@ -289,12 +293,19 @@ export function useGamepad() {
     return actionKey || null
   }
 
-  onMounted(init)
-  onUnmounted(cleanup)
+  // Only register lifecycle hooks if we're in a Vue component context
+  const instance = getCurrentInstance()
 
-  // Auto-initialize if not in Vue component context (for manager usage)
-  if (typeof window !== 'undefined') {
-    init()
+  if (instance) {
+    // We're in a component context, use lifecycle hooks
+    onMounted(init)
+    onUnmounted(cleanup)
+  } else {
+    // We're not in a component context (e.g., called from gamepadManager)
+    // Initialize directly
+    if (typeof window !== 'undefined') {
+      init()
+    }
   }
 
   return {
@@ -310,5 +321,8 @@ export function useGamepad() {
 
     // Utils
     GAMEPAD_BUTTON_NAMES,
+
+    // Manual cleanup for non-component usage
+    cleanup,
   }
 }

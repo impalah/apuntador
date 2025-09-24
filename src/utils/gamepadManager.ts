@@ -10,6 +10,8 @@ export class GamepadManager {
   private isListening = false
   private gamepadComposable: ReturnType<typeof useGamepad> | null = null
   private unsubscribeButtonPress: (() => void) | null = null
+  private lastMappingHash = ''
+  private rebuildScheduled = false
 
   /**
    * Update custom gamepad mapping
@@ -24,7 +26,7 @@ export class GamepadManager {
    */
   registerAction(action: HotkeyAction, handler: () => void): void {
     this.actionHandlers.set(action, handler)
-    this.rebuildHandlers()
+    this.scheduleRebuild()
   }
 
   /**
@@ -32,7 +34,20 @@ export class GamepadManager {
    */
   unregisterAction(action: HotkeyAction): void {
     this.actionHandlers.delete(action)
-    this.rebuildHandlers()
+    this.scheduleRebuild()
+  }
+
+  /**
+   * Schedule a rebuild to avoid multiple calls
+   */
+  private scheduleRebuild(): void {
+    if (this.rebuildScheduled) return
+
+    this.rebuildScheduled = true
+    Promise.resolve().then(() => {
+      this.rebuildScheduled = false
+      this.rebuildHandlers()
+    })
   }
 
   /**
@@ -41,28 +56,39 @@ export class GamepadManager {
   startListening(): void {
     if (this.isListening) return
 
-    console.log('Starting gamepad manager...')
+    if (import.meta.env.DEV) {
+      console.log('Starting gamepad manager...')
+    }
 
     this.gamepadComposable = useGamepad()
 
     // Check if gamepad API is supported
     if (!this.gamepadComposable.isSupported.value) {
-      console.warn('Gamepad API not supported in this environment')
+      // Only warn if development mode, no need to spam in production
+      if (import.meta.env.DEV) {
+        console.debug('Gamepad API not supported in this environment')
+      }
       return
     }
 
-    console.log('Gamepad API supported, setting up button listener...')
+    if (import.meta.env.DEV) {
+      console.log('Gamepad API supported, setting up button listener...')
+    }
 
     // Listen for button press events
     this.unsubscribeButtonPress = this.gamepadComposable.onButtonPress((button: GamepadButton) => {
-      console.log('Button press received in gamepad manager:', button)
+      if (import.meta.env.DEV) {
+        console.log('Button press received in gamepad manager:', button)
+      }
       this.handleButtonPress(button)
     })
 
     this.isListening = true
-    console.log('Gamepad manager started listening')
-    console.log('Current mappings:', this.customMapping)
-    console.log('Registered actions:', Array.from(this.actionHandlers.keys()))
+    if (import.meta.env.DEV) {
+      console.log('Gamepad manager started listening')
+      console.debug('Current mappings:', Object.keys(this.customMapping))
+      console.debug('Registered actions:', Array.from(this.actionHandlers.keys()))
+    }
   }
 
   /**
@@ -76,6 +102,11 @@ export class GamepadManager {
       this.unsubscribeButtonPress = null
     }
 
+    // Call manual cleanup if available (for non-component usage)
+    if (this.gamepadComposable && typeof this.gamepadComposable.cleanup === 'function') {
+      this.gamepadComposable.cleanup()
+    }
+
     this.gamepadComposable = null
     this.isListening = false
     console.log('Gamepad manager stopped listening')
@@ -86,30 +117,41 @@ export class GamepadManager {
    */
   private handleButtonPress(button: GamepadButton): void {
     console.log(`Handling button press: Button ${button.buttonIndex} (${button.buttonName})`)
-    console.log('Current mappings:', this.customMapping)
+    if (import.meta.env.DEV) {
+      console.log('Current mappings:', this.customMapping)
+    }
 
     // Find action mapped to this button
     const mappedAction = Object.entries(this.customMapping).find(
       ([_, mapping]) => mapping.buttonIndex === button.buttonIndex
     )
 
-    console.log('Found mapped action:', mappedAction)
+    if (import.meta.env.DEV) {
+      console.log('Found mapped action:', mappedAction)
+    }
 
     if (mappedAction) {
       const [action] = mappedAction
       const handler = this.actionHandlers.get(action as HotkeyAction)
 
       if (handler) {
-        console.log(
-          `Gamepad button ${button.buttonIndex} (${button.buttonName}) pressed - executing action: ${action}`
-        )
+        if (import.meta.env.DEV) {
+          console.log(
+            `Gamepad button ${button.buttonIndex} (${button.buttonName}) pressed - executing action: ${action}`
+          )
+        }
         handler()
       } else {
-        console.warn(`No handler registered for action: ${action}`)
-        console.warn('Available handlers:', Array.from(this.actionHandlers.keys()))
+        if (import.meta.env.DEV) {
+          console.warn(`No handler registered for action: ${action}`)
+          console.warn('Available handlers:', Array.from(this.actionHandlers.keys()))
+        }
       }
     } else {
-      console.log(`No mapping found for button ${button.buttonIndex}`)
+      // Only log in development mode, and not for every unmapped button press
+      if (import.meta.env.DEV) {
+        console.debug(`No mapping found for button ${button.buttonIndex}`)
+      }
     }
   }
 
@@ -119,7 +161,19 @@ export class GamepadManager {
   private rebuildHandlers(): void {
     // No specific rebuilding needed for gamepad unlike keyboard
     // The button press handler dynamically looks up the mapping
-    console.log('Gamepad mappings updated:', this.customMapping)
+
+    // Only log when the actual mapping changes, not on every call
+    if (import.meta.env.DEV) {
+      const currentMappingHash = JSON.stringify(this.customMapping)
+      if (currentMappingHash !== this.lastMappingHash) {
+        console.debug(
+          'Gamepad mappings updated:',
+          Object.keys(this.customMapping).length,
+          'mappings'
+        )
+        this.lastMappingHash = currentMappingHash
+      }
+    }
   }
 
   /**
