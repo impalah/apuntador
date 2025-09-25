@@ -16,6 +16,17 @@ async function openSettings(page: any) {
   }
 }
 
+async function openHotkeySettings(page: any) {
+  // Open settings dialog
+  await openSettings(page)
+
+  // Navigate to Controls tab
+  await page.click('[data-testid="controls-tab"]')
+
+  // Wait for hotkeys section to be visible
+  await expect(page.locator('text=Hotkeys')).toBeVisible()
+}
+
 function getHotkeyInput(page: any, action: string) {
   return page.locator(`[data-testid="hotkey-input-${action}"] input`)
 }
@@ -40,17 +51,16 @@ test.describe('Hotkey Configuration', () => {
     // Should open settings dialog
     await expect(page.locator('[data-testid="settings-dialog"]')).toBeVisible()
 
-    // Navigate to Behavior tab
-    await page.click('[data-testid="behavior-tab"]')
+    // Navigate to Controls tab (not Behavior anymore)
+    await page.click('[data-testid="controls-tab"]')
 
     // Should see hotkeys section
     await expect(page.locator('text=Hotkeys')).toBeVisible()
   })
 
   test('should display default hotkey mappings', async ({ page }) => {
-    // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     // Check some default hotkeys are shown
     await expect(page.locator('[data-testid="hotkey-control-toggle-play"]')).toBeVisible()
@@ -65,8 +75,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should record new hotkey when clicking input field', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -85,9 +94,8 @@ test.describe('Hotkey Configuration', () => {
   })
 
   test('should record hotkey with modifier keys', async ({ page }) => {
-    // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -103,9 +111,8 @@ test.describe('Hotkey Configuration', () => {
   })
 
   test('should show error for duplicate keys', async ({ page }) => {
-    // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     // Set one hotkey to a specific key
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -124,9 +131,8 @@ test.describe('Hotkey Configuration', () => {
   })
 
   test('should clear hotkey when clicking clear button', async ({ page }) => {
-    // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -146,9 +152,8 @@ test.describe('Hotkey Configuration', () => {
   })
 
   test('should reset all hotkeys to defaults', async ({ page }) => {
-    // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     // Change a few hotkeys
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -179,9 +184,8 @@ test.describe('Hotkey Configuration', () => {
       }
     })
 
-    // First, verify the default value
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    // Open hotkey settings
+    await openHotkeySettings(page)
 
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
     await expect(playPauseInput).toHaveValue('Space')
@@ -233,8 +237,7 @@ test.describe('Hotkey Configuration', () => {
     console.log('Preferences after reload:', afterReload?.customHotkeys?.['toggle-play'])
 
     // Open settings again and check
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Should still have the custom hotkey
     const playPauseInputAfterReload = getHotkeyInput(page, 'toggle-play')
@@ -248,8 +251,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should apply custom hotkeys in the teleprompter', async ({ page }) => {
     // Change the play/pause hotkey to 'p'
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
     await playPauseInput.click()
@@ -268,8 +270,7 @@ test.describe('Hotkey Configuration', () => {
 
     if (isMobile) {
       // On mobile, just verify the hotkey was saved correctly by reopening settings
-      await openSettings(page)
-      await page.click('[data-testid="behavior-tab"]')
+      await openHotkeySettings(page)
       const savedInput = getHotkeyInput(page, 'toggle-play')
       await expect(savedInput).toHaveValue('P')
       await page.click('[data-testid="settings-dialog"] .v-card-actions button')
@@ -302,8 +303,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should handle function keys', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -318,8 +318,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should handle complex modifier combinations', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -334,8 +333,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should ignore modifier-only keystrokes', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -356,8 +354,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should exit recording mode on blur', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -375,8 +372,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should work with special characters and symbols', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Find the Play/Pause hotkey input
     const playPauseInput = getHotkeyInput(page, 'toggle-play')
@@ -391,8 +387,7 @@ test.describe('Hotkey Configuration', () => {
 
   test('should handle multiple hotkey configurations in sequence', async ({ page }) => {
     // Open settings
-    await openSettings(page)
-    await page.click('[data-testid="behavior-tab"]')
+    await openHotkeySettings(page)
 
     // Configure multiple hotkeys
     const configs = [
