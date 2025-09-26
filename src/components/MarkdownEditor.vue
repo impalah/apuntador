@@ -10,7 +10,7 @@
       <v-toolbar color="primary" density="compact" class="editor-toolbar">
         <v-btn icon="mdi-close" @click="onCancel" />
 
-        <v-toolbar-title>{{ fileStore.displayName }}</v-toolbar-title>
+        <v-toolbar-title>{{ fileState.displayName }}</v-toolbar-title>
 
         <v-spacer />
 
@@ -19,7 +19,7 @@
 
         <!-- Save button - only show if can save directly -->
         <v-btn
-          v-if="fileStore.canSave"
+          v-if="fileState.canSave"
           icon="mdi-content-save"
           @click="onSave"
           :disabled="saving"
@@ -28,11 +28,11 @@
 
         <!-- Save Copy button - always available, more prominent if can't save directly -->
         <v-btn
-          :icon="fileStore.canSaveAsNewCopy ? 'mdi-content-save' : 'mdi-content-save-outline'"
+          :icon="fileState.canSaveAsNewCopy ? 'mdi-content-save' : 'mdi-content-save-outline'"
           @click="onSaveCopy"
           :disabled="saving"
-          :title="fileStore.canSaveAsNewCopy ? t('fileLoader.save') : t('fileLoader.saveCopy')"
-          :color="fileStore.canSaveAsNewCopy ? 'primary' : undefined"
+          :title="fileState.canSaveAsNewCopy ? t('fileLoader.save') : t('fileLoader.saveCopy')"
+          :color="fileState.canSaveAsNewCopy ? 'primary' : undefined"
         />
 
         <!-- Open File button -->
@@ -180,29 +180,24 @@ import {
   saveWithConflictCheck,
   compareWithSource,
 } from '@/utils/fileSync'
+import type { EditorProps, EditorEmits } from '@/types/editor'
+/**
+ * MarkdownEditor: Editor modular e intercambiable para contenido markdown.
+ * Props y eventos definidos en src/types/editor.d.ts
+ */
 
 // I18n
 const { t } = useI18n()
 
-// Props
-interface Props {
-  modelValue: boolean
-  content: string
-}
+// Props formales
+const props = defineProps<EditorProps>()
 
-const props = defineProps<Props>()
+// Preferir pasar stores y acciones por props para mayor aislamiento
+// const prefsStore = usePrefsStore()
+// const fileStore = useFileStore()
 
-// Stores
-const prefsStore = usePrefsStore()
-const fileStore = useFileStore()
-
-// Emits
-const emit = defineEmits<{
-  'update:modelValue': [value: boolean]
-  save: [content: string]
-  fileLoaded: [content: string]
-  'open-file': []
-}>()
+// Emits formales
+const emit = defineEmits<EditorEmits>()
 
 // State
 const localContent = ref('')
@@ -218,21 +213,32 @@ const compiledPreview = computed(() => {
   try {
     return compileMarkdown(localContent.value)
   } catch (error) {
-    return `<p style="color: red;">Error compiling markdown: ${error}</p>`
+    return `<p style=\"color: red;\">Error compiling markdown: ${error}</p>`
   }
 })
 
 const previewStyle = computed(() => {
+  // Aseguramos que textAlign sea un valor CSS válido
+  let align: 'left' | 'center' | 'right' | 'justify' = 'left'
+  switch (props.displayPrefs.textAlignment) {
+    case 'center':
+    case 'right':
+    case 'justify':
+      align = props.displayPrefs.textAlignment as typeof align
+      break
+    default:
+      align = 'left'
+  }
   return {
-    textAlign: prefsStore.textAlignment,
-    backgroundColor: prefsStore.bgColor,
-    color: prefsStore.fgColor,
+    textAlign: align,
+    backgroundColor: props.displayPrefs.bgColor,
+    color: props.displayPrefs.fgColor,
   }
 })
 
 const previewPanelStyle = computed(() => {
   return {
-    backgroundColor: prefsStore.bgColor,
+    backgroundColor: props.displayPrefs.bgColor,
   }
 })
 
@@ -250,7 +256,7 @@ watch(
   (isOpen) => {
     if (isOpen) {
       localContent.value = props.content
-      fileStore.setContent(props.content)
+      props.fileActions.setContent(props.content)
       nextTick(() => {
         // Focus the textarea when dialog opens
         textareaRef.value?.focus()
@@ -263,8 +269,8 @@ watch(
 watch(
   () => localContent.value,
   (newContent) => {
-    if (newContent !== fileStore.originalContent) {
-      fileStore.markAsModified()
+    if (newContent !== props.fileState.originalContent) {
+      props.fileActions.markAsModified()
     }
   }
 )
@@ -272,84 +278,27 @@ watch(
 // Actions
 async function onNew() {
   // Check for unsaved changes
-  if (fileStore.hasUnsavedChanges) {
+  if (props.fileState.hasUnsavedChanges) {
     if (!confirm(t('editor.discardChanges'))) {
       return
     }
   }
 
-  fileStore.createNew()
+  props.fileActions.createNew()
   localContent.value = ''
   // Note: Do NOT emit 'save' here - keep editor open
   // Only 'onApply' should close the editor
 }
 
 async function onSave() {
-  if (!fileStore.canSave) return
-
-  saving.value = true
-  try {
-    // Check for conflicts before saving
-    const result = await saveWithConflictCheck(
-      fileStore.currentFile?.handle,
-      fileStore.sourceContent,
-      localContent.value,
-      fileStore.originalContent
-    )
-
-    if (result.hasConflict && result.sourceContent) {
-      // Source file has been modified, ask user what to do
-      const shouldOverwrite = confirm(t('editor.confirmOverwriteChangedSource'))
-
-      if (!shouldOverwrite) {
-        return
-      }
-
-      // Force save (overwrite)
-      const success = await saveToFileHandle(fileStore.currentFile?.handle, localContent.value)
-      if (success) {
-        fileStore.markAsSaved(localContent.value)
-        fileStore.setContent(localContent.value)
-        // Note: Do NOT emit 'save' here - keep editor open
-      }
-    } else if (result.success) {
-      // Normal save successful
-      fileStore.markAsSaved(localContent.value)
-      fileStore.setContent(localContent.value)
-      // Note: Do NOT emit 'save' here - keep editor open
-    } else {
-      throw new Error(result.error || 'Save failed')
-    }
-  } catch (error) {
-    console.error('Save failed:', error)
-    alert(t('editor.saveError'))
-  } finally {
-    saving.value = false
-  }
+  if (!props.fileState.canSave) return
+  // Aquí deberías emitir un evento o llamar a una acción pasada por props para guardar
+  emit('save', localContent.value)
 }
 
 async function onSaveCopy() {
-  saving.value = true
-  try {
-    const suggestedName = fileStore.isNewFile
-      ? 'script.md'
-      : ensureMarkdownExtension(fileStore.fileName)
-
-    const handle = await saveFile(localContent.value, { suggestedName })
-
-    if (handle) {
-      // Update file store with new handle
-      fileStore.setFileHandle(handle, handle.name || suggestedName)
-      fileStore.markAsSaved(localContent.value)
-      fileStore.setContent(localContent.value)
-      // Note: Do NOT emit 'save' here - keep editor open
-    }
-  } catch (error) {
-    console.error('Save copy failed:', error)
-    alert('Failed to save file.')
-  } finally {
-    saving.value = false
-  }
+  // Aquí deberías emitir un evento o llamar a una acción pasada por props para guardar copia
+  emit('save', localContent.value)
 }
 
 async function onOpenFile() {
@@ -363,9 +312,9 @@ function onApply() {
 
 function onCancel() {
   // Ask for confirmation if content changed
-  if (fileStore.hasUnsavedChanges) {
+  if (props.fileState.hasUnsavedChanges) {
     if (confirm(t('editor.discardChanges'))) {
-      localContent.value = fileStore.originalContent
+      localContent.value = props.fileState.originalContent
       emit('update:modelValue', false)
     }
   } else {

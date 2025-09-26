@@ -30,6 +30,27 @@
     <MarkdownEditor
       v-model="editorOpen"
       :content="teleprompterStore.contentRaw"
+      :display-prefs="{
+        textAlignment: prefsStore.textAlignment,
+        bgColor: prefsStore.bgColor,
+        fgColor: prefsStore.fgColor,
+      }"
+      :file-state="{
+        displayName: fileStore.displayName,
+        originalContent: fileStore.originalContent,
+        hasUnsavedChanges: fileStore.hasUnsavedChanges,
+        canSave: fileStore.canSave,
+        canSaveAsNewCopy: fileStore.canSaveAsNewCopy,
+        isNewFile: fileStore.isNewFile,
+        fileName: fileStore.fileName,
+      }"
+      :file-actions="{
+        createNew: fileStore.createNew,
+        markAsModified: fileStore.markAsModified,
+        markAsSaved: fileStore.markAsSaved,
+        setContent: fileStore.setContent,
+        setFileHandle: fileStore.setFileHandle,
+      }"
       @save="onEditorSave"
       @open-file="onOpenFile"
     />
