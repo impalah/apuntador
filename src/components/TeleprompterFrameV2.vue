@@ -109,13 +109,42 @@ const contentStyle = computed(() => {
   }
 })
 
+// Dynamic line height measurement
+const measuredLineHeight = ref(24)
+
+function measureLineHeight() {
+  if (!contentRef.value) return
+  // Create a temporary span with sample text
+  const span = document.createElement('span')
+  span.textContent = 'Ag' // Use typical ascender/descender chars
+  span.style.visibility = 'hidden'
+  span.style.position = 'absolute'
+  span.style.fontSize = `${props.displayPrefs.fontSizePx}px`
+  span.style.lineHeight = props.displayPrefs.lineHeight.toString()
+  span.style.fontFamily = props.displayPrefs.fontFamily
+  contentRef.value.appendChild(span)
+  measuredLineHeight.value = span.offsetHeight
+  contentRef.value.removeChild(span)
+}
+
+// Re-measure when font size or line height changes
+watch(
+  () => [
+    props.displayPrefs.fontSizePx,
+    props.displayPrefs.lineHeight,
+    props.displayPrefs.fontFamily,
+  ],
+  () => {
+    nextTick(measureLineHeight)
+  },
+  { immediate: true }
+)
+
 const highlightBandStyle = computed(() => {
   if (!containerRef.value) return {}
-
   const viewportHeight = containerRef.value.clientHeight
-  const bandHeight = 24 * props.highlightBand.lines // Assuming 24px line height, should be measured
+  const bandHeight = measuredLineHeight.value * props.highlightBand.lines
   const bandTop = (viewportHeight * props.highlightBand.positionPct) / 100 - bandHeight / 2
-
   return {
     top: `${Math.max(0, bandTop)}px`,
     height: `${bandHeight}px`,
@@ -125,12 +154,10 @@ const highlightBandStyle = computed(() => {
 
 const dimmingStyle = computed(() => {
   if (!containerRef.value) return {}
-
   const viewportHeight = containerRef.value.clientHeight
-  const bandHeight = 24 * props.highlightBand.lines
+  const bandHeight = measuredLineHeight.value * props.highlightBand.lines
   const bandTop = (viewportHeight * props.highlightBand.positionPct) / 100 - bandHeight / 2
   const bandBottom = bandTop + bandHeight
-
   return {
     '--band-top': `${Math.max(0, bandTop)}px`,
     '--band-bottom': `${Math.max(0, viewportHeight - bandBottom)}px`,

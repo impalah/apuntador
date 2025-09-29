@@ -8,11 +8,15 @@
 import { onMounted } from 'vue'
 import { addSafeAreaInsets, isTouchDevice } from '@/utils/dom'
 import { useWindowInsets } from '@/utils/windowInsets'
+import { usePrefsStore } from '@/stores/usePrefsStore'
 
 // Initialize window insets for Android edge-to-edge support
 const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+const prefsStore = usePrefsStore()
 
 onMounted(() => {
+  // Load preferences (hotkeys, etc) on app mount
+  prefsStore.load()
   // Add safe area insets for mobile devices
   addSafeAreaInsets()
 
