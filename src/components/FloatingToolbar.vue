@@ -2,6 +2,7 @@
   <v-bottom-navigation
     v-model="activeTab"
     class="floating-toolbar"
+    :class="{ hidden: !isVisible }"
     color="primary"
     bg-color="rgba(0, 0, 0, 0.8)"
     height="80"
@@ -443,7 +444,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
@@ -485,11 +486,74 @@ const { isImmersive, isSupported: isImmersiveSupported, toggleImmersiveMode } = 
 // Desktop/Tauri functionality
 const { isDesktop, toggleFullscreen, minimizeWindow, maximizeWindow } = useTauri()
 
+// Toolbar visibility logic
+const isVisible = ref(true)
+let hideTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Show toolbar (optionally temporary)
+function showToolbar(temporary = false) {
+  isVisible.value = true
+
+  // Clear existing timeout
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+
+  // If temporary and playing, hide after 10 seconds
+  if (temporary && teleprompterStore.isPlaying) {
+    hideTimeout = setTimeout(() => {
+      if (teleprompterStore.isPlaying) {
+        isVisible.value = false
+      }
+    }, 10000)
+  }
+}
+
+// Hide toolbar
+function hideToolbar() {
+  isVisible.value = false
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+}
+
+// Handle screen tap during playback
+function handleScreenTap() {
+  if (teleprompterStore.isPlaying) {
+    showToolbar(true)
+  }
+}
+
+// Watch for play/pause state changes
+watch(
+  () => teleprompterStore.isPlaying,
+  (isPlaying) => {
+    if (isPlaying) {
+      hideToolbar()
+    } else {
+      showToolbar()
+    }
+  },
+  { immediate: true }
+)
+
 // Initialize Tauri when component mounts
 onMounted(async () => {
   // Initialize Tauri if running in desktop mode
   const { init } = useTauri()
   await init()
+
+  // Listen for screen taps
+  window.addEventListener('teleprompter-tap', handleScreenTap)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('teleprompter-tap', handleScreenTap)
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+  }
 })
 
 // State

@@ -295,7 +295,9 @@ function onHighlightBandPositionChange(positionPct: number) {
 }
 
 function onTeleprompterTap() {
-  // Toolbar stays always visible, no action needed
+  // Emit custom event for toolbar to listen
+  const event = new CustomEvent('teleprompter-tap')
+  window.dispatchEvent(event)
 }
 
 async function onEditorSave(content: string) {
