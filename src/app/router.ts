@@ -7,6 +7,12 @@ const routes = [
     name: 'teleprompter',
     component: TeleprompterPage,
   },
+  // Demo route to show modular component switching
+  ...(import.meta.env.DEV ? [{
+    path: '/modular-demo',
+    name: 'modular-demo',
+    component: () => import('@/pages/TeleprompterPageModular.vue'),
+  }] : []),
   {
     path: '/:pathMatch(.*)*',
     redirect: '/',

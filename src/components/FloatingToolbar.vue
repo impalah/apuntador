@@ -446,6 +446,7 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useDisplay } from 'vuetify'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
@@ -457,6 +458,9 @@ import TextAlignmentControls from './TextAlignmentControls.vue'
 
 // I18n
 const { t } = useI18n()
+
+// Display (for responsive logic)
+const { xs, sm } = useDisplay()
 
 // Emits
 const emit = defineEmits<{
@@ -531,7 +535,14 @@ watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
     if (isPlaying) {
-      hideToolbar()
+      // On mobile devices (xs/sm), keep toolbar visible during playback for easier control
+      if (xs.value || sm.value) {
+        // Keep toolbar visible on mobile
+        showToolbar()
+      } else {
+        // Hide toolbar on desktop/larger screens for clean reading experience
+        hideToolbar()
+      }
     } else {
       showToolbar()
     }

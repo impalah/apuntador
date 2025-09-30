@@ -9,14 +9,40 @@
       @tap="onTeleprompterTap"
     />
 
-    <FloatingToolbar
+    <!-- Modular FloatingToolbar - Using component interfaces -->
+    <FloatingToolbarModular
+      :scroll-state="{
+        offset: teleprompterStore.scrollOffset,
+        isPlaying: teleprompterStore.isPlaying,
+        canScrollUp: teleprompterStore.scrollOffset > 0,
+        canScrollDown: teleprompterStore.scrollOffset < teleprompterStore.maxOffset,
+        progress: teleprompterStore.maxOffset > 0 ? (teleprompterStore.scrollOffset / teleprompterStore.maxOffset) * 100 : 0
+      }"
+      :speed-config="{
+        current: prefsStore.speedPxPerSec,
+        min: prefsStore.speedMin,
+        max: prefsStore.speedMax
+      }"
+      :display-prefs="{
+        fontFamily: prefsStore.fontFamily,
+        fontSizePx: prefsStore.fontSizePx,
+        lineHeight: prefsStore.lineHeight,
+        fgColor: prefsStore.fgColor,
+        bgColor: prefsStore.bgColor,
+        mirrorH: prefsStore.mirrorH,
+        mirrorV: prefsStore.mirrorV,
+        textAlignment: prefsStore.textAlignment
+      }"
+      :is-visible="toolbarVisible"
+      :is-minimal="isMinimalLayout"
       @play="onPlay"
       @pause="onPause"
+      @toggle-play="teleprompterStore.toggle"
       @step-lines="onStepLines"
       @go-home="onGoHome"
       @go-end="onGoEnd"
-      @speed-change="onSpeedChange"
-      @font-size-change="onFontSizeChange"
+      @speed-change="(speed) => prefsStore.speedPxPerSec = speed"
+      @font-size-change="(size) => prefsStore.fontSizePx = size"
       @mirror-toggle="onMirrorToggle"
       @open-editor="onOpenEditor"
       @open-settings="onOpenSettings"
@@ -61,8 +87,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, watch } from 'vue'
+import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useDisplay } from 'vuetify'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
@@ -80,7 +107,7 @@ import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
 
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
-import FloatingToolbar from '@/components/FloatingToolbar.vue'
+import FloatingToolbarModular from '@/components/FloatingToolbarModular.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
@@ -94,6 +121,10 @@ const fileStore = useFileStore()
 
 // Composables
 const { locale } = useI18n()
+const { xs, sm } = useDisplay()
+
+// Responsive computed
+const isMinimalLayout = computed(() => xs.value || sm.value)
 
 // Modular component props
 const teleprompterFrameProps = useTeleprompterFrameProps()
@@ -106,6 +137,66 @@ const settingsOpen = ref(false)
 const editorOpen = ref(false)
 const fileLoaderOpen = ref(false)
 const currentOrientation = ref<'portrait' | 'landscape'>('landscape')
+
+// Toolbar visibility logic (modular approach)
+const toolbarVisible = ref(true)
+let hideTimeout: ReturnType<typeof setTimeout> | null = null
+
+// Show toolbar (optionally temporary)
+function showToolbar(temporary = false) {
+  toolbarVisible.value = true
+
+  // Clear existing timeout
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+
+  // If temporary and playing, hide after 10 seconds
+  if (temporary && teleprompterStore.isPlaying) {
+    hideTimeout = setTimeout(() => {
+      if (teleprompterStore.isPlaying) {
+        toolbarVisible.value = false
+      }
+    }, 10000)
+  }
+}
+
+// Hide toolbar
+function hideToolbar() {
+  toolbarVisible.value = false
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
+    hideTimeout = null
+  }
+}
+
+// Handle screen tap during playback
+function handleScreenTap() {
+  if (teleprompterStore.isPlaying) {
+    showToolbar(true)
+  }
+}
+
+// Watch for play/pause state changes with mobile-aware logic
+watch(
+  () => teleprompterStore.isPlaying,
+  (isPlaying) => {
+    if (isPlaying) {
+      // On mobile devices (xs/sm), keep toolbar visible during playback for easier control
+      if (xs.value || sm.value) {
+        // Keep toolbar visible on mobile
+        showToolbar()
+      } else {
+        // Hide toolbar on desktop/larger screens for clean reading experience
+        hideToolbar()
+      }
+    } else {
+      showToolbar()
+    }
+  },
+  { immediate: true }
+)
 
 // Touch device detection
 const isTouch = isTouchDevice()
@@ -152,6 +243,9 @@ onMounted(async () => {
   setupGamepad()
   gamepadManager.startListening()
 
+  // Listen for screen taps
+  window.addEventListener('teleprompter-tap', handleScreenTap)
+
   // Load sample content if no content exists
   if (!teleprompterStore.contentRaw) {
     await loadSampleContent()
@@ -166,6 +260,12 @@ onUnmounted(() => {
   if (isMobile()) {
     window.removeEventListener('orientationchange', handleOrientationChange)
     window.removeEventListener('resize', handleOrientationChange)
+  }
+
+  // Clean up screen tap listener and timeout
+  window.removeEventListener('teleprompter-tap', handleScreenTap)
+  if (hideTimeout) {
+    clearTimeout(hideTimeout)
   }
 })
 

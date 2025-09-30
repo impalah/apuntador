@@ -1,23 +1,178 @@
 # Copilot Instructions for **Apuntador**
 
-These instructions tell GitHub Copilot how to scaffold and evolve **Apuntador**, a mobile‑first teleprompter built with **Vue 3 + TypeScript**, **Vite**, and **Vuetify** (Material Design). Follow this spec when proposing files, code, tests, and docs.
+A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite**, and **Vuetify**. Features web, Android (Capacitor), and desktop (Tauri) deployments with advanced component architecture.
 
-> Note: This project is Vue‑based. **Do not** generate Angular artifacts (no `angular.json`, no `ng serve`). Use **Vite** commands instead.
+## Architecture Overview
 
----
+**Modular Component System**: Uses coordinators + adapters to decouple UI components from state management.
+- `src/coordinators/` - Business logic orchestration between components
+- `src/adapters/` - Bridge Pinia stores to component interfaces  
+- `src/types/component-interfaces.d.ts` - Type contracts for modular components
 
-## 1) Project Overview & Goals
+**Multi-Platform Deployment**:
+- **Web**: Vite build → static hosting (Vercel, Netlify, etc.)
+- **Android**: Capacitor → APK with automated GitHub Actions builds
+- **Desktop**: Tauri → native Windows/macOS/Linux apps with code signing
 
-A teleprompter web app with a distraction‑free reading surface and a touch‑friendly floating toolbar. It must:
+## Key Tech Stack
 
-- Display markdown text in a **main teleprompter frame** that auto‑scrolls on _Play_.
-- Provide actions: **Play/Pause**, **Rewind/Forward (by lines)**, **Home/End**, **Mirror H / V**, **Scroll Speed ±**, **Font Size ±**, **Open Editor**, **Settings**.
-- Offer an **inline highlight band** (1–2 lines tall) that shows the “current” line at normal brightness while dimming the rest. The band’s vertical position must be adjustable.
-- Support **Markdown editing** and **file import (.md/.txt)**.
-- Be **mobile/tablet‑first** and fully responsive; toolbar collapses to a minimal set (3 buttons + “More”).
-- Keep the reading surface clean; the toolbar auto‑hides during playback.
-- Persist user prefs (speed, font, colors, mirror, highlight band position, etc.) locally.
-- Ship with **high test coverage** (Vitest + Vue Test Utils; Playwright for e2e).
+- **Core**: Vue 3 (Composition API + `<script setup>`), TypeScript 5, Vite 5
+- **UI**: Vuetify 3 (Material Design 3), responsive mobile-first design
+- **State**: Pinia stores with `localforage` persistence
+- **Mobile**: Capacitor 7+ with native plugins (haptics, screen orientation, keyboard)
+- **Desktop**: Tauri 2+ with Rust backend for native window controls
+- **Testing**: Vitest (unit) + Playwright (e2e) with coverage thresholds
+- **Markdown**: `markdown-it` with plugins (anchor, sup/sub, mark, footnote)
+
+## Directory Structure (Actual)
+
+```
+src/
+├── coordinators/           # Component orchestration logic
+│   └── teleprompterCoordinator.ts
+├── adapters/              # Store-to-component bridges
+│   └── storeToComponent.ts
+├── components/            # Modular Vue components
+├── stores/               # Pinia state management
+│   ├── useTeleprompterStore.ts
+│   ├── usePrefsStore.ts
+│   ├── useFileStore.ts
+│   └── useI18nStore.ts
+├── utils/                # Pure utility functions
+│   ├── scrolling.ts      # AutoScroller class
+│   ├── markdown.ts       # Renderer with plugins
+│   ├── gamepadManager.ts # Gamepad input handling
+│   ├── hotkeys.ts        # Keyboard shortcuts
+│   └── persistence.ts    # Storage abstraction
+├── types/                # TypeScript definitions
+│   ├── index.d.ts        # Core interfaces
+│   └── component-interfaces.d.ts # Modular component contracts
+└── pages/                # Route components
+```
+
+## Critical Implementation Patterns
+
+### Scrolling Architecture
+- **AutoScroller class** (`utils/scrolling.ts`): Handles smooth `requestAnimationFrame`-based scrolling
+- **Virtual scroll offset**: Pixel-based positioning with line-height calculations
+- **Play/pause loop**: Store triggers AutoScroller start/stop via coordinator
+
+### Component Communication
+```typescript
+// Coordinator orchestrates multiple components
+const coordinator = useTeleprompterCoordinator()
+coordinator.teleprompterFrameProps  // Reactive props from stores
+coordinator.toolbarHandlers.onPlay() // Actions bridge to stores
+```
+
+### Store-to-Component Adapter Pattern
+```typescript
+// Converts Pinia state to component props format
+export function useTeleprompterFrameProps(): ComputedRef<TeleprompterFrameProps> {
+  return computed(() => ({
+    content: { raw: store.contentRaw, html: store.contentHtml },
+    scrollState: { offset: store.scrollOffset, isPlaying: store.isPlaying },
+    // ... transforms store data to component interface
+  }))
+}
+```
+
+### Multi-Platform Builds
+
+**Android APK** (automated):
+```bash
+npm run android:apk:build  # Windows PowerShell script
+./build-android-apk.sh     # Linux/macOS script
+make android-apk           # Cross-platform via Makefile
+```
+
+**Desktop** (Tauri):
+```bash
+npm run tauri:build:win    # Windows MSI
+npm run tauri:build:mac    # macOS universal binary
+make tauri-build-release   # Platform-specific build scripts
+```
+
+## Development Workflow
+
+**Core Commands**:
+```bash
+npm run dev         # Vite dev server (port 3000)
+npm run build       # Production web build
+npm run typecheck   # Vue + TS validation
+npm run test        # Vitest unit tests
+npm run test:e2e    # Playwright e2e tests
+npm run coverage    # Coverage report
+```
+
+**Testing Strategy**:
+- **Unit**: Focus on stores (`useTeleprompterStore`, `usePrefsStore`) and utils
+- **E2E**: Full user flows across mobile/desktop viewports
+- **Coverage**: Store logic >85%, utils >75% (components covered by e2e)
+
+## Component Interface Contracts
+
+Components communicate via typed interfaces in `types/component-interfaces.d.ts`:
+
+```typescript
+interface TeleprompterFrameProps {
+  content: TeleprompterContent
+  scrollState: ScrollState  
+  displayPrefs: DisplayPreferences
+  highlightBand: HighlightBandConfig
+}
+```
+
+This enables swapping component implementations without breaking the coordinator layer.
+
+## Input Handling Architecture
+
+**Multi-Input Support**:
+- **Keyboard**: `utils/hotkeys.ts` with customizable mappings
+- **Touch**: Vue touch directives for swipe/tap gestures  
+- **Gamepad**: `utils/gamepadManager.ts` for wireless controller support
+- **Accessibility**: ARIA roles, screen reader support
+
+## Platform-Specific Features
+
+**Android** (Capacitor):
+- Edge-to-edge immersive mode
+- Hardware back button handling
+- Haptic feedback for interactions
+- Screen orientation lock
+
+**Desktop** (Tauri):  
+- Native window controls (minimize/maximize/close)
+- Always-on-top mode for professional setups
+- File system access for script import/export
+- Code signing for Windows (self-signed certificate workflow)
+
+## Build & Deployment
+
+**Automated Android Builds**: GitHub Actions triggers on tags, outputs signed APK
+**Cross-Platform Scripts**: PowerShell (Windows) + Bash (Linux/macOS) build scripts
+**Makefile Integration**: Unified commands across all platforms
+
+Use existing build scripts in `scripts/` directory - don't recreate the wheel for platform-specific builds.
+
+## Performance Patterns
+
+- **60fps scrolling**: `requestAnimationFrame` with delta-time calculations
+- **Bundle splitting**: Manual chunks for Vue, Vuetify, Capacitor in `vite.config.ts`
+- **Virtual scrolling**: Only render visible content for large documents
+- **Memory management**: Cleanup watchers/timers in component unmount hooks
+
+## Key Files to Reference
+
+- `src/coordinators/teleprompterCoordinator.ts` - Component orchestration patterns
+- `src/stores/useTeleprompterStore.ts` - Core state management with AutoScroller
+- `src/utils/scrolling.ts` - Smooth scrolling implementation
+- `vite.config.ts` - Build configuration with test coverage thresholds
+- `Makefile` - Cross-platform build targets
+- `capacitor.config.ts` - Android app configuration
+- `src-tauri/` - Desktop app Rust backend
+
+When modifying this codebase, maintain the modular architecture and respect the existing build pipelines.
 
 ---
 
