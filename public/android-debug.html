@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Android Debug - Apuntador</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 10px; 
+            background: #f5f5f5;
+            margin: 0;
+        }
+        .debug-panel { 
+            background: white; 
+            padding: 15px; 
+            border-radius: 8px; 
+            margin: 10px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .status { 
+            padding: 8px; 
+            margin: 5px 0; 
+            border-radius: 4px; 
+            font-size: 14px;
+        }
+        .success { background: #d4edda; color: #155724; }
+        .warning { background: #fff3cd; color: #856404; }
+        .error { background: #f8d7da; color: #721c24; }
+        .info { background: #d1ecf1; color: #0c5460; }
+        
+        .test-button {
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 6px;
+            font-size: 16px;
+            margin: 8px 4px;
+            cursor: pointer;
+            min-width: 120px;
+        }
+        .test-button:hover { background: #0056b3; }
+        .test-button:active { background: #004494; }
+        .test-button.success { background: #28a745; }
+        .test-button.error { background: #dc3545; }
+        
+        .log-container {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 10px;
+            max-height: 200px;
+            overflow-y: auto;
+            font-family: monospace;
+            font-size: 12px;
+            margin: 10px 0;
+        }
+        .log-entry {
+            margin: 2px 0;
+            padding: 2px;
+        }
+        .log-entry.error { color: #dc3545; }
+        .log-entry.warn { color: #ffc107; }
+        .log-entry.info { color: #17a2b8; }
+        
+        h3 { margin: 15px 0 10px 0; color: #333; }
+    </style>
+</head>
+<body>
+    <div class="debug-panel">
+        <h2>🔧 Android Debug Panel - Apuntador</h2>
+        
+        <div class="status info">
+            <strong>Purpose:</strong> Diagnose play/pause issues on Android devices
+        </div>
+
+        <h3>Device Information</h3>
+        <div id="device-info">
+            <div class="status" id="platform-status">Platform: <span id="platform-result">Detecting...</span></div>
+            <div class="status" id="touch-status">Touch: <span id="touch-result">Detecting...</span></div>
+            <div class="status" id="capacitor-status">Capacitor: <span id="capacitor-result">Detecting...</span></div>
+        </div>
+
+        <h3>Play/Pause Tests</h3>
+        <button class="test-button" onclick="testDirectToggle()">Direct Toggle</button>
+        <button class="test-button" onclick="testSpaceKey()">Space Key</button>
+        <button class="test-button" onclick="testTouchEvent()">Touch Event</button>
+        <button class="test-button" onclick="clearLogs()">Clear Logs</button>
+
+        <h3>Live Logs</h3>
+        <div class="log-container" id="log-container"></div>
+
+        <h3>Quick Actions</h3>
+        <button class="test-button" onclick="window.open('/', '_self')">Open Apuntador</button>
+        <button class="test-button" onclick="location.reload()">Reload Debug</button>
+    </div>
+
+    <script>
+        // Logging system
+        const logContainer = document.getElementById('log-container');
+        let logCount = 0;
+
+        function log(message, type = 'info') {
+            logCount++;
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry ${type}`;
+            logEntry.textContent = `[${timestamp}] ${logCount}: ${message}`;
+            logContainer.appendChild(logEntry);
+            logContainer.scrollTop = logContainer.scrollHeight;
+            
+            // Also log to console for debugging
+            console.log(`[${type.toUpperCase()}] ${message}`);
+        }
+
+        function clearLogs() {
+            logContainer.innerHTML = '';
+            logCount = 0;
+        }
+
+        // Device detection
+        function detectDevice() {
+            const platformResult = document.getElementById('platform-result');
+            const touchResult = document.getElementById('touch-result');
+            const capacitorResult = document.getElementById('capacitor-result');
+            
+            // Platform detection
+            const isAndroid = /Android/i.test(navigator.userAgent);
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isMobile = isAndroid || isIOS;
+            
+            platformResult.textContent = isAndroid ? 'Android' : (isIOS ? 'iOS' : 'Desktop');
+            document.getElementById('platform-status').className = 
+                isMobile ? 'status success' : 'status warning';
+
+            // Touch detection
+            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            touchResult.textContent = hasTouch ? 'Supported' : 'Not supported';
+            document.getElementById('touch-status').className = 
+                hasTouch ? 'status success' : 'status warning';
+
+            // Capacitor detection
+            const hasCapacitor = window.Capacitor !== undefined;
+            capacitorResult.textContent = hasCapacitor ? 'Available' : 'Not available';
+            document.getElementById('capacitor-status').className = 
+                hasCapacitor ? 'status success' : 'status error';
+
+            log(`Platform: ${platformResult.textContent}, Touch: ${hasTouch}, Capacitor: ${hasCapacitor}`);
+        }
+
+        // Test functions
+        function testDirectToggle() {
+            log('Testing direct toggle...', 'info');
+            try {
+                // Simulate what the app would do
+                const event = new CustomEvent('teleprompter-toggle', {
+                    detail: { source: 'debug-test' }
+                });
+                window.dispatchEvent(event);
+                log('Direct toggle event dispatched', 'info');
+                
+                // Try to access localStorage to test if stores would work
+                const testData = { test: true, timestamp: Date.now() };
+                localStorage.setItem('apuntador-debug-test', JSON.stringify(testData));
+                const retrieved = JSON.parse(localStorage.getItem('apuntador-debug-test') || '{}');
+                log(`LocalStorage test: ${retrieved.test ? 'SUCCESS' : 'FAILED'}`, 
+                    retrieved.test ? 'info' : 'error');
+                    
+            } catch (error) {
+                log(`Direct toggle failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testSpaceKey() {
+            log('Testing space key simulation...', 'info');
+            try {
+                const keyEvent = new KeyboardEvent('keydown', {
+                    key: ' ',
+                    code: 'Space',
+                    keyCode: 32,
+                    which: 32,
+                    bubbles: true,
+                    cancelable: true
+                });
+                document.dispatchEvent(keyEvent);
+                log('Space key event dispatched', 'info');
+            } catch (error) {
+                log(`Space key test failed: ${error.message}`, 'error');
+            }
+        }
+
+        function testTouchEvent() {
+            log('Testing touch event simulation...', 'info');
+            try {
+                const touchEvent = new TouchEvent('touchstart', {
+                    bubbles: true,
+                    cancelable: true,
+                    touches: [{
+                        identifier: 0,
+                        target: document.body,
+                        clientX: 100,
+                        clientY: 100,
+                        pageX: 100,
+                        pageY: 100,
+                        screenX: 100,
+                        screenY: 100
+                    }]
+                });
+                document.body.dispatchEvent(touchEvent);
+                log('Touch event dispatched', 'info');
+            } catch (error) {
+                log(`Touch event test failed: ${error.message}`, 'error');
+            }
+        }
+
+        // Event listeners for debugging
+        window.addEventListener('keydown', (e) => {
+            log(`Key pressed: ${e.key} (${e.code})`, 'info');
+        });
+
+        window.addEventListener('touchstart', (e) => {
+            log(`Touch started: ${e.touches.length} touches`, 'info');
+        });
+
+        window.addEventListener('click', (e) => {
+            log(`Click detected on: ${e.target.tagName}`, 'info');
+        });
+
+        // Custom event listeners
+        window.addEventListener('teleprompter-toggle', (e) => {
+            log(`Teleprompter toggle event received: ${JSON.stringify(e.detail)}`, 'info');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            detectDevice();
+            log('Android Debug Panel initialized', 'info');
+            
+            // Test if we're in Capacitor
+            if (window.Capacitor) {
+                log('Running in Capacitor environment', 'info');
+                // Test Capacitor plugins
+                if (window.Capacitor.Plugins) {
+                    const plugins = Object.keys(window.Capacitor.Plugins);
+                    log(`Available plugins: ${plugins.join(', ')}`, 'info');
+                }
+            } else {
+                log('Running in browser environment', 'warn');
+            }
+        });
+
+        // Error handling
+        window.addEventListener('error', (e) => {
+            log(`Global error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
+        });
+
+        window.addEventListener('unhandledrejection', (e) => {
+            log(`Unhandled promise rejection: ${e.reason}`, 'error');
+        });
+    </script>
+</body>
+</html>

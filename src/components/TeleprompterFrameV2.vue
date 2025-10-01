@@ -6,6 +6,12 @@
 -->
 <template>
   <div ref="containerRef" class="teleprompter-frame" @click="onTap">
+    <!-- DEBUG INFO - Temporary for Android debugging -->
+    <div v-if="true" class="debug-info" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;">
+      <div>Playing: {{ scrollState.isPlaying ? 'YES' : 'NO' }}</div>
+      <div>Offset: {{ scrollState.offset.toFixed(1) }}</div>
+      <div>Debug Mode</div>
+    </div>
     <!-- Transformed content container -->
     <div ref="transformedContainerRef" class="teleprompter-container" :style="containerStyle">
       <!-- Content -->
@@ -100,17 +106,31 @@ const containerStyle = computed(() => {
 })
 
 const contentStyle = computed(() => {
+  // Calculate minimum height: ensure content is at least 2x viewport height
+  // or natural content height, whichever is greater
+  const minHeight = Math.max(
+    viewportHeight.value * 2, // At least 2x viewport for scrolling
+    measuredContentHeight.value || viewportHeight.value * 2 // Use measured or fallback
+  )
+  
+  console.log('[ANDROID DEBUG] contentStyle computed - viewport:', viewportHeight.value, 'measured:', measuredContentHeight.value, 'minHeight:', minHeight)
+  
   return {
     fontSize: `${props.displayPrefs.fontSizePx}px`,
     lineHeight: props.displayPrefs.lineHeight.toString(),
     fontFamily: props.displayPrefs.fontFamily,
     color: props.displayPrefs.fgColor,
     textAlign: props.displayPrefs.textAlignment,
+    minHeight: `${minHeight}px`, // Dynamic height based on content
   }
 })
 
 // Dynamic line height measurement
 const measuredLineHeight = ref(24)
+
+// Dynamic content height for optimal scrolling
+const measuredContentHeight = ref(0)
+const viewportHeight = ref(0)
 
 function measureLineHeight() {
   if (!contentRef.value) return
@@ -212,14 +232,19 @@ watch(
   }
 )
 
-// Watch for scroll offset changes and update container scrollTop
+// Watch for scroll offset changes and update container scrollTop * WITH DEBUG & SYNC *
 watch(
   () => props.scrollState.offset,
   (newOffset: number) => {
+    console.log('[ANDROID DEBUG] TeleprompterFrameV2 watcher triggered - newOffset:', newOffset.toFixed(1))
     if (transformedContainerRef.value) {
-      transformedContainerRef.value.scrollTop = newOffset
+      const el = transformedContainerRef.value
+      console.log('[ANDROID DEBUG] TeleprompterFrameV2 scrollHeight:', el.scrollHeight, 'clientHeight:', el.clientHeight)
+      el.scrollTop = newOffset
+      console.log('[ANDROID DEBUG] TeleprompterFrameV2 scrollTop set to:', el.scrollTop.toFixed(1))
     }
-  }
+  },
+  { flush: 'sync' } // Force immediate execution, don't wait for Vue's batch updates
 )
 
 // Watch for font changes
@@ -227,6 +252,17 @@ watch(
   () => [props.displayPrefs.fontSizePx, props.displayPrefs.lineHeight],
   () => {
     nextTick(measureDimensions)
+  }
+)
+
+// Watch for content changes to recalculate dimensions
+watch(
+  () => props.content.html,
+  () => {
+    // Wait for DOM to update, then measure
+    nextTick(() => {
+      setTimeout(measureDimensions, 100) // Small delay to ensure rendering is complete
+    })
   }
 )
 
@@ -261,11 +297,17 @@ function cleanupResizeObserver() {
 function measureDimensions() {
   if (!containerRef.value || !contentRef.value) return
 
-  const viewportHeight = containerRef.value.clientHeight
-  const contentHeight = contentRef.value.scrollHeight
+  const newViewportHeight = containerRef.value.clientHeight
+  const newContentHeight = contentRef.value.scrollHeight
+  
+  // Update reactive refs for computed styles
+  viewportHeight.value = newViewportHeight
+  measuredContentHeight.value = newContentHeight
+  
+  console.log('[ANDROID DEBUG] measureDimensions - viewport:', newViewportHeight, 'content:', newContentHeight)
 
-  emit('content-height-changed', contentHeight)
-  emit('viewport-height-changed', viewportHeight)
+  emit('content-height-changed', newContentHeight)
+  emit('viewport-height-changed', newViewportHeight)
 }
 
 // ========================================
@@ -357,7 +399,7 @@ defineExpose({
   height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
-  scroll-behavior: smooth;
+  /* TEMPORAL: scroll-behavior: smooth; - Disabled for debugging */
 
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none; /* IE and Edge */
@@ -389,7 +431,7 @@ defineExpose({
 
 .teleprompter-content {
   padding: 2rem;
-  min-height: 100%;
+  /* Dynamic min-height now controlled by computed contentStyle */
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

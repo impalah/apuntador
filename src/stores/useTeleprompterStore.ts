@@ -49,36 +49,63 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
   }
 
   function play() {
-    if (isPlaying.value) return
+    console.log('[ANDROID DEBUG] play() called, current isPlaying:', isPlaying.value)
+    if (isPlaying.value) {
+      console.log('[ANDROID DEBUG] play() - already playing, returning')
+      return
+    }
 
+    console.log('[ANDROID DEBUG] play() - setting isPlaying to true')
+    console.log('[ANDROID DEBUG] play() - dimensions check: contentHeight:', contentHeightPx.value, 'viewportHeight:', viewportHeightPx.value, 'maxOffset:', maxOffset.value)
+    console.log('[ANDROID DEBUG] play() - current scrollOffset:', scrollOffset.value, 'lineHeight:', lineHeightPx.value)
     isPlaying.value = true
 
     if (!autoScroller) {
+      console.log('[ANDROID DEBUG] play() - creating new AutoScroller, speed:', preferences.speedPxPerSec)
       autoScroller = new AutoScroller(
         updateScrollOffset,
         () => scrollOffset.value,
         preferences.speedPxPerSec
       )
     } else {
+      console.log('[ANDROID DEBUG] play() - updating existing AutoScroller speed:', preferences.speedPxPerSec)
       // Update speed for existing scroller
       autoScroller.setSpeed(preferences.speedPxPerSec)
     }
 
+    console.log('[ANDROID DEBUG] play() - starting AutoScroller')
     autoScroller.start()
+    console.log('[ANDROID DEBUG] play() - AutoScroller started successfully')
   }
 
   function pause() {
-    if (!isPlaying.value) return
+    console.log('[ANDROID DEBUG] pause() called, current isPlaying:', isPlaying.value)
+    if (!isPlaying.value) {
+      console.log('[ANDROID DEBUG] pause() - already paused, returning')
+      return
+    }
 
+    console.log('[ANDROID DEBUG] pause() - setting isPlaying to false')
     isPlaying.value = false
-    autoScroller?.stop()
+    
+    if (autoScroller) {
+      console.log('[ANDROID DEBUG] pause() - stopping AutoScroller')
+      autoScroller.stop()
+      console.log('[ANDROID DEBUG] pause() - AutoScroller stopped')
+    } else {
+      console.log('[ANDROID DEBUG] pause() - no AutoScroller to stop')
+    }
+    
     saveScrollPosition()
   }
 
   function toggle() {
+    console.log('[ANDROID DEBUG] toggle() called, current isPlaying:', isPlaying.value)
     if (isPlaying.value) {
+      console.log('[ANDROID DEBUG] toggle() - calling pause()')
       pause()
     } else {
+      console.log('[ANDROID DEBUG] toggle() - calling play()')
       play()
     }
   }
@@ -90,6 +117,9 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
       contentHeightPx.value,
       viewportHeightPx.value
     )
+    
+    console.log('[ANDROID DEBUG] updateScrollOffset - from:', previousOffset.toFixed(1), 'to:', clampedOffset.toFixed(1), 'content height:', contentHeightPx.value, 'viewport height:', viewportHeightPx.value)
+    
     scrollOffset.value = clampedOffset
 
     // Auto-pause when reaching the end of text while playing

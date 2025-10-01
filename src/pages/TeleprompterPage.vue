@@ -320,10 +320,12 @@ watch(
 
 // Teleprompter actions
 function onPlay() {
+  console.log('[ANDROID DEBUG] TeleprompterPage onPlay() called')
   teleprompterStore.play()
 }
 
 function onPause() {
+  console.log('[ANDROID DEBUG] TeleprompterPage onPause() called')
   teleprompterStore.pause()
 }
 
@@ -443,7 +445,10 @@ async function loadSampleContent() {
 // Hotkey setup
 function setupHotkeys() {
   const actions = {
-    'toggle-play': () => teleprompterStore.toggle(),
+    'toggle-play': () => {
+      console.log('[ANDROID DEBUG] hotkey toggle-play triggered')
+      teleprompterStore.toggle()
+    },
     'step-up': () => onStepLines(-1),
     'step-down': () => onStepLines(1),
     'step-up-5': () => onStepLines(-5),

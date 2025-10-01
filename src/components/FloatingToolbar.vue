@@ -573,9 +573,12 @@ const moreMenuOpen = ref(false)
 
 // Actions
 function togglePlay() {
+  console.log('[ANDROID DEBUG] FloatingToolbar togglePlay() called, isPlaying:', teleprompterStore.isPlaying)
   if (teleprompterStore.isPlaying) {
+    console.log('[ANDROID DEBUG] FloatingToolbar emitting pause event')
     emit('pause')
   } else {
+    console.log('[ANDROID DEBUG] FloatingToolbar emitting play event')
     emit('play')
   }
 }
