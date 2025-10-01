@@ -74,6 +74,11 @@ apuntador.apk
 
 *.der
 
+# ProGuard/R8 mapping files (contain sensitive app structure info)
+mapping.txt
+android/app/build/outputs/mapping/
+android-release/mapping.txt
+
 # Build script temporary files
 build-*.log
 build-*.tmp

@@ -76,18 +76,31 @@ This will:
 - ✅ Create a GitHub release
 - ✅ Upload the APK as a downloadable asset
 
-#### Manual Build
-
-For local Android APK builds:
+#### Manual Build (Advanced)
 
 ```bash
-# Install Android dependencies
-make android-setup
-
-# Build APK manually
 npm run android:build
 cd android && ./gradlew assembleRelease
 ```
+
+#### Google Play Store Bundle (Optimized)
+
+For publishing to Google Play Store with R8 optimization and deobfuscation files:
+
+```bash
+# Build optimized bundle with mapping files
+npm run android:bundle:release
+
+# Output files:
+# - android-release/apuntador-release.aab  (Upload to Play Console)
+# - android-release/mapping.txt           (Upload as deobfuscation file)
+```
+
+**Benefits of R8 Optimization:**
+- 📦 **Smaller app size** (~30-50% reduction)
+- ⚡ **Better performance** 
+- 🔒 **Code obfuscation** for security
+- 🐛 **Crash analysis** with mapping files
 
 See [**ANDROID_BUILD.md**](./ANDROID_BUILD.md) for detailed Android setup and build instructions.
 

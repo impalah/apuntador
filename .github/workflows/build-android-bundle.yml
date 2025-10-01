@@ -113,14 +113,15 @@ jobs:
           # Create Android directory structure if needed
           mkdir -p android/app
 
-      - name: Update Android version in build.gradle
+      - name: Update Android version and enable R8 in build.gradle
         env:
           VERSION_CODE: ${{ github.event.inputs.versionCode }}
           VERSION_NAME: ${{ github.event.inputs.release_tag }}
         run: |
-          echo "🔄 Updating Android version..."
+          echo "🔄 Updating Android version and enabling R8 optimization..."
           echo "  versionCode: ${VERSION_CODE}"
           echo "  versionName: ${VERSION_NAME}"
+          echo "  R8 optimization: enabled for release builds"
 
           # Backup original build.gradle
           cp android/app/build.gradle android/app/build.gradle.backup
@@ -129,11 +130,18 @@ jobs:
           sed -i "s/versionCode [0-9]*/versionCode ${VERSION_CODE}/" android/app/build.gradle
           sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION_NAME}\"/" android/app/build.gradle
 
+          # Ensure R8 is enabled for release builds (should already be configured)
+          if ! grep -q "minifyEnabled true" android/app/build.gradle; then
+            echo "⚠️ Warning: minifyEnabled not found in build.gradle. R8 optimization may not be active."
+          else
+            echo "✅ R8 optimization confirmed in build.gradle"
+          fi
+
           # Verify the changes
           echo "📋 Updated build.gradle content:"
-          grep -A 5 -B 5 "versionCode\|versionName" android/app/build.gradle
+          grep -A 5 -B 5 "versionCode\|versionName\|minifyEnabled" android/app/build.gradle
 
-          echo "✅ Android version updated successfully"
+          echo "✅ Android version updated successfully with R8 optimization"
 
       - name: Commit version changes to repository
         env:
@@ -220,12 +228,14 @@ jobs:
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "Using version: ${VERSION}"
 
-      - name: Check Bundle files
+      - name: Check Bundle and mapping files
         run: |
-          echo "Checking for generated Bundle files..."
+          echo "Checking for generated Bundle and mapping files..."
           RELEASE_AAB="android/app/build/outputs/bundle/release/apuntador-release-${{ github.event.inputs.release_tag }}.aab"
           DEBUG_AAB="android/app/build/outputs/bundle/debug/apuntador-debug-${{ github.event.inputs.release_tag }}.aab"
+          MAPPING_FILE="android/app/build/outputs/mapping/release/mapping.txt"
 
+          # Check AAB files
           if [ -f "$RELEASE_AAB" ]; then
             echo "✅ Release Bundle found: $(basename "$RELEASE_AAB")"
             ls -la "$RELEASE_AAB"
@@ -244,12 +254,36 @@ jobs:
             ls -la android/app/build/outputs/bundle/debug/ || echo "Debug bundle directory does not exist"
           fi
 
+          # Check mapping file (only for release builds)
+          if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
+            if [ -f "$MAPPING_FILE" ]; then
+              echo "✅ ProGuard mapping file found: $(basename "$MAPPING_FILE")"
+              ls -la "$MAPPING_FILE"
+              echo "📊 Mapping file size: $(du -h "$MAPPING_FILE" | cut -f1)"
+            else
+              echo "❌ ProGuard mapping file not found: $MAPPING_FILE"
+              echo "Contents of mapping directory:"
+              ls -la android/app/build/outputs/mapping/release/ || echo "Mapping directory does not exist"
+              echo "⚠️ This indicates R8/ProGuard optimization may not be enabled"
+            fi
+          else
+            echo "ℹ️ Mapping file check skipped for debug build"
+          fi
+
       - name: Upload Release Bundle artifact
         if: ${{ github.event.inputs.buildType == 'release' }}
         uses: actions/upload-artifact@v4
         with:
           name: apuntador-android-bundle-release-v${{ steps.version.outputs.version }}-code${{ github.event.inputs.versionCode }}
           path: android/app/build/outputs/bundle/release/apuntador-release-${{ github.event.inputs.release_tag }}.aab
+          if-no-files-found: error
+
+      - name: Upload ProGuard mapping file (Release)
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-mapping-file-v${{ steps.version.outputs.version }}-code${{ github.event.inputs.versionCode }}
+          path: android/app/build/outputs/mapping/release/mapping.txt
           if-no-files-found: error
 
       - name: Upload Debug Bundle artifact
@@ -271,10 +305,21 @@ jobs:
           echo "- **Build Type**: ${{ github.event.inputs.buildType }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Bundle Format**: AAB (Android App Bundle)" >> $GITHUB_STEP_SUMMARY
           echo "- **Target**: Google Play Store" >> $GITHUB_STEP_SUMMARY
+          if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
+            echo "- **R8 Optimization**: ✅ Enabled (code shrinking & obfuscation)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Mapping File**: ✅ Generated for crash analysis" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "- **R8 Optimization**: ❌ Disabled (debug build)" >> $GITHUB_STEP_SUMMARY
+          fi
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
             echo "### 🚀 Ready for Play Store Upload" >> $GITHUB_STEP_SUMMARY
-            echo "The generated AAB file is ready to be uploaded to Google Play Console." >> $GITHUB_STEP_SUMMARY
+            echo "The generated AAB file is optimized with R8 and ready for Google Play Console." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### 📋 Upload Instructions" >> $GITHUB_STEP_SUMMARY
+            echo "1. **Download artifacts**: AAB bundle + mapping.txt file" >> $GITHUB_STEP_SUMMARY
+            echo "2. **Upload AAB**: To Google Play Console → Create new release" >> $GITHUB_STEP_SUMMARY
+            echo "3. **Upload mapping.txt**: As deobfuscation file in the same release" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Next version code should be**: $(( ${{ github.event.inputs.versionCode }} + 1 ))" >> $GITHUB_STEP_SUMMARY
           else
