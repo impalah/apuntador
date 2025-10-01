@@ -97,13 +97,12 @@ jobs:
 
       - name: Create Release
         id: create_release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          IMAGE_TAG: ${{ env.IMAGE_TAG }}
         with:
           tag_name: ${{ steps.version.outputs.version }}
-          release_name: Apuntador Web v${{ steps.version.outputs.version }}
+          name: Apuntador Web v${{ steps.version.outputs.version }}
           body: |
             ## Apuntador Web v${{ steps.version.outputs.version }}
 
@@ -134,16 +133,7 @@ jobs:
 
             ### 🔧 Installation
             Extract the ZIP file and serve from any web server or static hosting service.
+          files: |
+            ${{ steps.version.outputs.version }}.zip
           draft: false
           prerelease: false
-
-      - name: Upload Release Asset
-        id: upload_release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ github.workspace }}/${{ steps.version.outputs.version }}.zip
-          asset_name: ${{ steps.version.outputs.version }}.zip
-          asset_content_type: application/zip
