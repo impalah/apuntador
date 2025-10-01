@@ -172,29 +172,45 @@ npm --version     # Requires 9+
 
 ### Development Commands
 
+## Development
+
 ```bash
-# Core development
-npm run dev       # Start dev server
-npm run build     # Production build
-npm run preview   # Preview build
+# Install dependencies
+npm install
 
-# Code quality
-npm run typecheck # TypeScript validation
-npm run lint      # ESLint checking
-npm run format    # Prettier formatting
-npm run stylelint # CSS/SCSS linting
+# Start development server (debug window visible)
+npm run dev
 
-# Testing
-npm run test      # Unit tests (Vitest)
-npm run test:ui   # Interactive test runner
-npm run test:e2e  # E2E tests (Playwright)
-npm run coverage  # Coverage report
+# Build for production (clean, no debug)
+npm run build
 
-# Documentation
-npm run docs:api  # Generate API docs
-npm run docs:dev  # Start docs server
-npm run docs:build # Build documentation
+# Build for production with debug window enabled
+npm run build:debug
+
+# Preview production build
+npm run preview
 ```
+
+### Debug Window
+
+The application includes a debug window that shows real-time information about scroll state, content dimensions, and playback status.
+
+**Debug window visibility:**
+- **Development mode**: Always visible when running `npm run dev`
+- **Production mode**: Hidden by default in `npm run build`
+- **Debug production**: Visible when using `npm run build:debug`
+
+**For Android debugging:**
+```bash
+# Build with debug window enabled
+npm run build:debug
+
+# Sync and run on Android
+npx cap sync android
+npx cap run android
+```
+
+**Manual environment control:**\n\n*Windows PowerShell:*\n```powershell\n# Force debug mode in any build\n$env:VITE_DEBUG_MODE=\"true\"; npm run build\n\n# Disable debug in development (rare case)\n$env:VITE_DEBUG_MODE=\"false\"; npm run dev\n```\n\n*Linux/macOS:*\n```bash\n# Force debug mode in any build\nVITE_DEBUG_MODE=true npm run build\n\n# Disable debug in development (rare case)\nVITE_DEBUG_MODE=false npm run dev\n```
 
 ### Project Structure
 

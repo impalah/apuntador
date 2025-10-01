@@ -7,10 +7,31 @@
 <template>
   <div ref="containerRef" class="teleprompter-frame" @click="onTap">
     <!-- DEBUG INFO - Temporary for Android debugging -->
-    <div v-if="true" class="debug-info" style="position: fixed; top: 10px; right: 10px; background: rgba(0,0,0,0.8); color: white; padding: 10px; border-radius: 5px; font-size: 12px; z-index: 9999;">
-      <div>Playing: {{ scrollState.isPlaying ? 'YES' : 'NO' }}</div>
-      <div>Offset: {{ scrollState.offset.toFixed(1) }}</div>
-      <div>Debug Mode</div>
+    <!-- Debug Info Window - Controlled by environment variables -->
+    <div v-if="showDebug" class="debug-info">
+      <div class="debug-header">🛠️ DEBUG MODE</div>
+      <div class="debug-row">
+        <span class="debug-label">Status:</span>
+        <span :class="['debug-value', { 'playing': scrollState.isPlaying }]">
+          {{ scrollState.isPlaying ? 'PLAYING' : 'PAUSED' }}
+        </span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Offset:</span>
+        <span class="debug-value">{{ scrollState.offset.toFixed(1) }}px</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Content:</span>
+        <span class="debug-value">{{ measuredContentHeight || 'N/A' }}px</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Viewport:</span>
+        <span class="debug-value">{{ viewportHeight || 'N/A' }}px</span>
+      </div>
+      <div class="debug-row">
+        <span class="debug-label">Scroll:</span>
+        <span class="debug-value">{{ Math.round((scrollState.offset / Math.max(1, (measuredContentHeight || 1) - (viewportHeight || 1))) * 100) }}%</span>
+      </div>
     </div>
     <!-- Transformed content container -->
     <div ref="transformedContainerRef" class="teleprompter-container" :style="containerStyle">
@@ -131,6 +152,21 @@ const measuredLineHeight = ref(24)
 // Dynamic content height for optimal scrolling
 const measuredContentHeight = ref(0)
 const viewportHeight = ref(0)
+
+// Debug window visibility based on environment variables
+const showDebug = ref(false)
+
+// Set debug visibility based on environment
+if (import.meta.env.DEV) {
+  showDebug.value = true
+  console.log('Debug enabled: development mode')
+} else if (import.meta.env.VITE_DEBUG_MODE === 'true') {
+  showDebug.value = true
+  console.log('Debug enabled: VITE_DEBUG_MODE=true')
+} else {
+  showDebug.value = false
+  console.log('Debug disabled: production mode')
+}
 
 function measureLineHeight() {
   if (!contentRef.value) return
@@ -404,6 +440,56 @@ defineExpose({
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
+}
+
+/* Debug Info Window Styles */
+.debug-info {
+  position: fixed;
+  top: 10px;
+  right: 10px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  padding: 12px;
+  border-radius: 8px;
+  font-family: 'Courier New', monospace;
+  font-size: 11px;
+  z-index: 9999;
+  min-width: 200px;
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.debug-header {
+  font-weight: bold;
+  margin-bottom: 8px;
+  text-align: center;
+  color: #00ff88;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  padding-bottom: 4px;
+}
+
+.debug-row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4px;
+  align-items: center;
+}
+
+.debug-label {
+  color: #aaaaaa;
+  font-weight: normal;
+}
+
+.debug-value {
+  color: #ffffff;
+  font-weight: bold;
+  text-align: right;
+}
+
+.debug-value.playing {
+  color: #00ff88;
+  text-shadow: 0 0 4px rgba(0, 255, 136, 0.3);
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

@@ -7,6 +7,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "build:debug": "cross-env VITE_DEBUG_MODE=true vite build",
     "preview": "vite preview",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint .",
@@ -81,6 +82,7 @@
     "@vitest/coverage-v8": "^1.6.0",
     "@vue/test-utils": "^2.4.0",
     "@vue/tsconfig": "^0.5.0",
+    "cross-env": "^10.1.0",
     "eslint": "^8.55.0",
     "eslint-plugin-vue": "^9.19.0",
     "jsdom": "^23.0.0",
