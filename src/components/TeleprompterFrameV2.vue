@@ -445,7 +445,7 @@ defineExpose({
 /* Debug Info Window Styles */
 .debug-info {
   position: fixed;
-  top: 10px;
+  top: 70px;
   right: 10px;
   background: rgba(0, 0, 0, 0.9);
   color: white;
@@ -490,6 +490,29 @@ defineExpose({
 .debug-value.playing {
   color: #00ff88;
   text-shadow: 0 0 4px rgba(0, 255, 136, 0.3);
+}
+
+/* Responsive debug positioning */
+@media (max-width: 768px) {
+  .debug-info {
+    top: 60px; /* Smaller top margin on mobile */
+    right: 5px;
+    left: 5px; /* Full width on mobile for better readability */
+    min-width: auto;
+    font-size: 10px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .debug-info {
+    top: 80px; /* More space on tablets */
+  }
+}
+
+@media (min-width: 1025px) {
+  .debug-info {
+    top: 70px; /* Standard desktop positioning */
+  }
 }
 
 /* Hide scrollbar for Chrome, Safari and Opera */

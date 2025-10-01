@@ -60,6 +60,14 @@
           @click="toggleMobileView"
         />
 
+        <!-- Markdown Help button -->
+        <v-btn
+          icon="mdi-help-circle-outline"
+          @click="onMarkdownHelp"
+          :title="t('editor.markdownHelp')"
+          data-testid="markdown-help-button"
+        />
+
         <v-btn icon="mdi-check" @click="onApply" />
       </v-toolbar>
 
@@ -320,6 +328,11 @@ function onCancel() {
   } else {
     emit('update:modelValue', false)
   }
+}
+
+function onMarkdownHelp() {
+  // Open Markdown help in a new window/tab
+  window.open('https://www.markdownguide.org/basic-syntax/', '_blank', 'noopener,noreferrer')
 }
 
 function toggleMobileView() {
