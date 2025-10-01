@@ -41,8 +41,8 @@
       @step-lines="onStepLines"
       @go-home="onGoHome"
       @go-end="onGoEnd"
-      @speed-change="(speed) => prefsStore.speedPxPerSec = speed"
-      @font-size-change="(size) => prefsStore.fontSizePx = size"
+      @speed-change="onSpeedChange"
+      @font-size-change="onFontSizeChange"
       @mirror-toggle="onMirrorToggle"
       @open-editor="onOpenEditor"
       @open-settings="onOpenSettings"
@@ -233,11 +233,9 @@ onMounted(async () => {
     window.addEventListener('resize', handleOrientationChange)
   }
 
-  // Setup hotkeys for non-touch devices
-  if (!isTouch) {
-    setupHotkeys()
-    hotkeyManager.startListening()
-  }
+  // Setup hotkeys (always enabled for Bluetooth keyboard support)
+  setupHotkeys()
+  hotkeyManager.startListening()
 
   // Setup gamepad support (always available, regardless of device type)
   setupGamepad()
@@ -288,9 +286,7 @@ watch(
 watch(
   () => prefsStore.customHotkeys,
   (newHotkeys) => {
-    if (!isTouch) {
-      hotkeyManager.updateMapping(newHotkeys)
-    }
+    hotkeyManager.updateMapping(newHotkeys)
   },
   { deep: true }
 )
@@ -317,9 +313,7 @@ watch(
     prefsStore.customGamepadMappings = updatedGamepad
 
     // Update managers with new descriptions
-    if (!isTouch) {
-      hotkeyManager.updateMapping(updatedHotkeys)
-    }
+    hotkeyManager.updateMapping(updatedHotkeys)
     gamepadManager.updateMapping(updatedGamepad)
   }
 )

@@ -54,12 +54,12 @@ onMounted(() => {
   measureContainer()
   window.addEventListener('resize', measureContainer)
 
-  // Add passive touch event listeners for better performance
+  // Add touch event listeners for drag interaction (non-passive to allow preventDefault)
   if (handleLeftRef.value) {
-    handleLeftRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+    handleLeftRef.value.addEventListener('touchstart', onTouchStart, { passive: false })
   }
   if (handleRightRef.value) {
-    handleRightRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
+    handleRightRef.value.addEventListener('touchstart', onTouchStart, { passive: false })
   }
 })
 
@@ -95,7 +95,14 @@ function onMouseDown(event: MouseEvent) {
 function onTouchStart(event: TouchEvent) {
   if (event.touches.length !== 1) return
 
-  event.preventDefault()
+  // Prevent default scroll behavior during drag
+  try {
+    event.preventDefault()
+  } catch (e) {
+    // Handle case where preventDefault is not allowed (should not happen with passive: false)
+    console.warn('Could not prevent default touch behavior:', e)
+  }
+  
   const touch = event.touches[0]
   startDrag(touch.clientY)
 }
