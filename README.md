@@ -167,8 +167,6 @@ The desktop app maintains full compatibility with all web features while adding 
 ### CI/CD Integration
 
 - **GitHub Actions** - Automated testing and deployment (web + Android)
-- **GitLab CI** - Complete DevOps pipeline
-- **Vercel/Netlify** - Git-based deployments
 
 See [**GITHUB_SECRETS.md**](./GITHUB_SECRETS.md) for Android APK build secrets configuration.  
 See [**SCRIPTS_REFERENCE.md**](./SCRIPTS_REFERENCE.md) for cross-platform build scripts documentation.  
@@ -248,19 +246,8 @@ apuntador/
 ├── playwright.config.ts    # E2E configuration
 ├── vite.config.ts          # Build configuration
 └── typedoc.json           # API docs configuration
-```on Auto-scrolling** - Smooth 60fps scrolling with sub-pixel accuracy
-- 📱 **Mobile/Tablet-First** - Optimized for touch devices with responsive design
-- ✨ **Adjustable Highlight Band** - Focus reading area with configurable position and height
-- 🪞 **Professional Mirror Modes** - H/V/Both mirroring for beam-splitter glass setups
-- ⌨️ **Comprehensive Keyboard Shortcuts** - Full desktop control with intuitive hotkeys
-- 👆 **Advanced Touch Gestures** - Swipe navigation and press-hold quick actions
-- 📝 **Live Markdown Editor** - Real-time preview with syntax highlighting
-- 📁 **Flexible File Import** - Drag-and-drop support for .md/.txt files
-- 🎨 **Extensive Customization** - Fonts, colors, speeds, animations, and behavior
-- 💾 **Privacy-First Storage** - Local-only data with no external dependencies
-- 🚀 **High Performance** - Optimized rendering with virtual scrolling
-- 🧪 **100% Test Coverage** - Comprehensive unit and E2E test suites
-- 🔧 **Developer-Friendly** - Full TypeScript, extensive documentation, clean architecture
+
+````
 
 ## 🏗️ Technical Architecture
 
@@ -301,7 +288,7 @@ apuntador/
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/apuntador.git
+git clone https://github.com/impalah/apuntador.git
 cd apuntador
 
 # Install dependencies (npm or pnpm)
@@ -311,7 +298,7 @@ pnpm install
 
 # Start development server
 npm run dev
-# Open http://localhost:5173 in your browser
+# Open http://localhost:3000 in your browser
 ````
 
 ### Development Workflow
@@ -600,34 +587,6 @@ graph LR
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
-### Development Setup
-
-```bash
-# 1. Fork and clone the repository
-git clone https://github.com/yourusername/apuntador.git
-cd apuntador
-
-# 2. Install dependencies
-npm install
-
-# 3. Start development server
-npm run dev
-
-# 4. Make changes and test
-npm run test
-npm run test:e2e
-
-# 5. Submit pull request
-```
-
-### Quality Standards
-
-- ✅ **Type Safety**: 100% TypeScript coverage
-- ✅ **Test Coverage**: ≥85% all metrics
-- ✅ **Code Style**: ESLint + Prettier compliance
-- ✅ **Accessibility**: WCAG 2.1 AA standards
-- ✅ **Performance**: Lighthouse scores >90
-
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) file for details.
@@ -635,9 +594,8 @@ MIT License - see [LICENSE](LICENSE) file for details.
 ## 🆘 Support & Community
 
 - 📖 **[Complete Documentation](./docs/)** - Comprehensive guides and API reference
-- 🐛 **[Issue Tracker](https://github.com/yourusername/apuntador/issues)** - Bug reports and feature requests
-- 💬 **[Discussions](https://github.com/yourusername/apuntador/discussions)** - Community support and ideas
-- 📧 **[Contact](mailto:support@example.com)** - Direct support for enterprise users
+- 🐛 **[Issue Tracker](https://github.com/impalah/apuntador/issues)** - Bug reports and feature requests
+- 💬 **[Discussions](https://github.com/impalah/apuntador/discussions)** - Community support and ideas
 
 ## 🎯 Roadmap
 
@@ -652,8 +610,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 - [ ] **Voice Control** - Hands-free operation
 - [ ] **AI Integration** - Script optimization suggestions
-- [ ] **Mobile Apps** - Native iOS/Android apps
-- [ ] **Hardware Integration** - Physical teleprompter support
 
 ---
 
@@ -661,6 +617,6 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 **Made with ❤️ for content creators, presenters, and public speakers**
 
-[🌟 Star on GitHub](https://github.com/yourusername/apuntador) • [📖 Read the Docs](./docs/) • [🚀 Try Live Demo](https://apuntador.vercel.app)
+[🌟 Star on GitHub](https://github.com/impalah/apuntador) • [📖 Read the Docs](./docs/) • [🚀 Try Live Demo](https://app.apuntador.io)
 
 </div>
