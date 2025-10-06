@@ -17,7 +17,12 @@
     "info": "Información",
     "success": "Éxito",
     "line": "línea",
-    "lines": "líneas"
+    "lines": "líneas",
+    "left": "Izquierda",
+    "center": "Centro",
+    "right": "Derecha",
+    "home": "Inicio",
+    "end": "Final"
   },
   "toolbar": {
     "play": "Reproducir",

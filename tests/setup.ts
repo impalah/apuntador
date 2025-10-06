@@ -1,5 +1,10 @@
 // Test setup file
 import { vi } from 'vitest'
+import { config } from '@vue/test-utils'
+import { createTestI18n } from './utils/i18n-helper'
+
+// Setup global i18n for all tests
+config.global.plugins = [createTestI18n()]
 
 // Mock all CSS imports globally
 vi.mock('*.css', () => ({}))

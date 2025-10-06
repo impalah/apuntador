@@ -4,6 +4,7 @@ import { createVuetify } from 'vuetify'
 import { createPinia, setActivePinia } from 'pinia'
 import TextAlignmentControls from '@/components/TextAlignmentControls.vue'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { createTestI18n } from '../../utils/i18n-helper'
 
 // Mock the pinia store
 vi.mock('@/stores/usePrefsStore')
@@ -27,7 +28,7 @@ describe('TextAlignmentControls', () => {
     // Create component
     wrapper = mount(TextAlignmentControls, {
       global: {
-        plugins: [createVuetify()],
+        plugins: [createVuetify(), createTestI18n()],
         stubs: {
           'v-btn-toggle': {
             template:

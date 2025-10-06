@@ -93,7 +93,7 @@
                     class="flex-btn"
                     @click="handleGoHome"
                   >
-                    Home
+                    {{ t('common.home') }}
                   </v-btn>
                   <v-btn
                     variant="outlined"
@@ -102,7 +102,7 @@
                     class="flex-btn"
                     @click="handleGoEnd"
                   >
-                    End
+                    {{ t('common.end') }}
                   </v-btn>
                 </div>
               </div>
@@ -128,7 +128,7 @@
                     data-testid="mirror-h-button"
                     @click="handleMirrorToggle('h')"
                   >
-                    Mirror H
+                    {{ t('toolbar.mirrorHorizontal') }}
                   </v-btn>
                   <v-btn
                     :variant="displayPrefs.mirrorV ? 'flat' : 'outlined'"
@@ -138,7 +138,7 @@
                     data-testid="mirror-v-button"
                     @click="handleMirrorToggle('v')"
                   >
-                    Mirror V
+                    {{ t('toolbar.mirrorVertical') }}
                   </v-btn>
                 </div>
 
@@ -152,7 +152,7 @@
                     data-testid="immersive-mode-button"
                     @click="toggleImmersiveMode"
                   >
-                    {{ isImmersive ? 'Exit Fullscreen' : 'Fullscreen' }}
+                    {{ isImmersive ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen') }}
                   </v-btn>
                 </div>
               </div>
@@ -319,7 +319,7 @@
                     data-testid="mirror-h-button"
                     @click="handleMirrorToggle('h')"
                   >
-                    Mirror H
+                    {{ t('toolbar.mirrorHorizontal') }}
                   </v-btn>
                   <v-btn
                     :variant="displayPrefs.mirrorV ? 'flat' : 'outlined'"
@@ -329,7 +329,7 @@
                     data-testid="mirror-v-button"
                     @click="handleMirrorToggle('v')"
                   >
-                    Mirror V
+                    {{ t('toolbar.mirrorVertical') }}
                   </v-btn>
                 </div>
               </div>
@@ -452,6 +452,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { useImmersiveMode } from '@/utils/immersiveMode'
 import { useTauri } from '@/utils/tauri'
 import SpeedControl from './SpeedControl.vue'
@@ -476,6 +477,12 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const emit = defineEmits<ToolbarEvents>()
+
+// ========================================
+// Composables
+// ========================================
+
+const { t } = useI18n()
 
 // ========================================
 // Local State (UI only, no business logic)

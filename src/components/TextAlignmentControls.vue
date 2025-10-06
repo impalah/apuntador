@@ -9,7 +9,7 @@
   >
     <v-btn
       value="left"
-      aria-label="Align Left"
+      :aria-label="t('toolbar.alignLeft')"
       data-testid="align-left-button"
       size="small"
       :class="props.isMenuLayout ? 'flex-btn' : ''"
@@ -17,12 +17,12 @@
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-left' : undefined"
     >
       <v-icon v-if="!props.isMenuLayout">mdi-format-align-left</v-icon>
-      <span v-if="props.isMenuLayout">Left</span>
+      <span v-if="props.isMenuLayout">{{ t('common.left') }}</span>
     </v-btn>
 
     <v-btn
       value="center"
-      aria-label="Align Center"
+      :aria-label="t('toolbar.alignCenter')"
       data-testid="align-center-button"
       size="small"
       :class="props.isMenuLayout ? 'flex-btn' : ''"
@@ -30,12 +30,12 @@
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-center' : undefined"
     >
       <v-icon v-if="!props.isMenuLayout">mdi-format-align-center</v-icon>
-      <span v-if="props.isMenuLayout">Center</span>
+      <span v-if="props.isMenuLayout">{{ t('common.center') }}</span>
     </v-btn>
 
     <v-btn
       value="right"
-      aria-label="Align Right"
+      :aria-label="t('toolbar.alignRight')"
       data-testid="align-right-button"
       size="small"
       :class="props.isMenuLayout ? 'flex-btn' : ''"
@@ -43,12 +43,13 @@
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-right' : undefined"
     >
       <v-icon v-if="!props.isMenuLayout">mdi-format-align-right</v-icon>
-      <span v-if="props.isMenuLayout">Right</span>
+      <span v-if="props.isMenuLayout">{{ t('common.right') }}</span>
     </v-btn>
   </v-btn-toggle>
 </template>
 
 <script setup lang="ts">
+import { useI18n } from 'vue-i18n'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import type { TextAlignment } from '@/utils/constants'
 
@@ -60,6 +61,7 @@ const props = withDefaults(defineProps<Props>(), {
   isMenuLayout: false,
 })
 
+const { t } = useI18n()
 const prefsStore = usePrefsStore()
 
 function updateAlignment(alignment: TextAlignment) {
