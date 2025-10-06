@@ -15,6 +15,7 @@
       @content-height-changed="coordinator.teleprompterFrameHandlers.onContentHeightChanged"
       @viewport-height-changed="coordinator.teleprompterFrameHandlers.onViewportHeightChanged"
       @highlight-band-position-change="coordinator.highlightBandHandlers.onPositionChange"
+      @manual-scroll="coordinator.teleprompterFrameHandlers.onManualScroll"
       @tap="coordinator.teleprompterFrameHandlers.onTap"
     />
 

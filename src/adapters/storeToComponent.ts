@@ -114,12 +114,17 @@ export function useTeleprompterFrameEventHandlers() {
   return {
     onContentHeightChanged: (height: number) => {
       // Update store with new content height
-      teleprompterStore.setViewportHeight(height)
+      teleprompterStore.setContentHeight(height)
     },
 
     onViewportHeightChanged: (height: number) => {
       // Update store with new viewport height
       teleprompterStore.setViewportHeight(height)
+    },
+
+    onManualScroll: (scrollTop: number) => {
+      // Sync manual scroll position with store
+      teleprompterStore.syncScrollFromDOM(scrollTop)
     },
 
     onTap: () => {

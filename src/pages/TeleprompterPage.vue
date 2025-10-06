@@ -6,6 +6,7 @@
       @content-height-changed="onContentHeightChanged"
       @viewport-height-changed="onViewportHeightChanged"
       @highlight-band-position-change="onHighlightBandPositionChange"
+      @manual-scroll="onManualScroll"
       @tap="onTeleprompterTap"
     />
 
@@ -388,6 +389,10 @@ function onViewportHeightChanged(height: number) {
 
 function onHighlightBandPositionChange(positionPct: number) {
   prefsStore.highlightBandPosPct = positionPct
+}
+
+function onManualScroll(scrollTop: number) {
+  teleprompterStore.syncScrollFromDOM(scrollTop)
 }
 
 function onTeleprompterTap() {

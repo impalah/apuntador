@@ -230,6 +230,29 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     await loadScrollPosition()
   }
 
+  /**
+   * Update scroll offset from manual scroll (e.g., mouse wheel, touch)
+   * This is called when the user manually scrolls the content
+   */
+  function syncScrollFromDOM(domScrollTop: number) {
+    // Only sync if we're not currently playing (to avoid conflicts with auto-scroll)
+    if (!isPlaying.value) {
+      const clampedOffset = clampScrollOffset(
+        domScrollTop,
+        contentHeightPx.value,
+        viewportHeightPx.value
+      )
+      
+      console.log('[SCROLL SYNC] Manual scroll detected - DOM:', domScrollTop.toFixed(1), 'clamped:', clampedOffset.toFixed(1))
+      
+      // Update our internal state without triggering the watcher
+      scrollOffset.value = clampedOffset
+      
+      // Save the new position
+      saveScrollPosition()
+    }
+  }
+
   return {
     // State
     contentRaw,
@@ -265,5 +288,6 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     saveScrollPosition,
     loadScrollPosition,
     initialize,
+    syncScrollFromDOM,
   }
 })

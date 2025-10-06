@@ -54,6 +54,7 @@ export interface TeleprompterEvents {
   'content-height-changed': [height: number]
   'viewport-height-changed': [height: number]
   'highlight-band-position-change': [positionPct: number]
+  'manual-scroll': [scrollTop: number]
   tap: []
   'swipe-up': []
   'swipe-down': []

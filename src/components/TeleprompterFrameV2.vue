@@ -114,6 +114,14 @@ const SWIPE_THRESHOLD = 50
 const PRESS_HOLD_DURATION = 500
 
 // ========================================
+// Scroll Synchronization State
+// ========================================
+
+let isScrollingSynchronizing = false // Flag to prevent infinite loops
+let scrollTimeout: number | null = null
+const SCROLL_DEBOUNCE_MS = 50 // Debounce scroll events
+
+// ========================================
 // Computed Styles
 // ========================================
 
@@ -242,6 +250,11 @@ onMounted(() => {
     containerRef.value.addEventListener('touchend', onTouchEnd, { passive: true })
   }
 
+  // Add scroll listener to sync manual scroll with store
+  if (transformedContainerRef.value) {
+    transformedContainerRef.value.addEventListener('scroll', onManualScroll, { passive: true })
+  }
+
   // Initial measurement after content loads
   nextTick(measureDimensions)
 })
@@ -253,6 +266,16 @@ onUnmounted(() => {
   if (containerRef.value) {
     containerRef.value.removeEventListener('touchstart', onTouchStart)
     containerRef.value.removeEventListener('touchend', onTouchEnd)
+  }
+
+  // Remove scroll event listener
+  if (transformedContainerRef.value) {
+    transformedContainerRef.value.removeEventListener('scroll', onManualScroll)
+  }
+
+  // Clean up scroll timeout
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout)
   }
 })
 
@@ -272,12 +295,19 @@ watch(
 watch(
   () => props.scrollState.offset,
   (newOffset: number) => {
-    console.log('[ANDROID DEBUG] TeleprompterFrameV2 watcher triggered - newOffset:', newOffset.toFixed(1))
-    if (transformedContainerRef.value) {
+    console.log('[SCROLL SYNC] Store offset changed to:', newOffset.toFixed(1))
+    if (transformedContainerRef.value && !isScrollingSynchronizing) {
       const el = transformedContainerRef.value
-      console.log('[ANDROID DEBUG] TeleprompterFrameV2 scrollHeight:', el.scrollHeight, 'clientHeight:', el.clientHeight)
+      console.log('[SCROLL SYNC] Updating DOM scrollTop from', el.scrollTop.toFixed(1), 'to', newOffset.toFixed(1))
+      
+      // Set flag to prevent sync loop
+      isScrollingSynchronizing = true
       el.scrollTop = newOffset
-      console.log('[ANDROID DEBUG] TeleprompterFrameV2 scrollTop set to:', el.scrollTop.toFixed(1))
+      
+      // Reset flag after a brief moment
+      setTimeout(() => {
+        isScrollingSynchronizing = false
+      }, 10)
     }
   },
   { flush: 'sync' } // Force immediate execution, don't wait for Vue's batch updates
@@ -395,6 +425,32 @@ function onTap() {
 
 function onHighlightBandPositionChange(position: number) {
   emit('highlight-band-position-change', position)
+}
+
+// ========================================
+// Manual Scroll Synchronization
+// ========================================
+
+function onManualScroll(event: Event) {
+  // Skip if we're in the middle of programmatic scrolling
+  if (isScrollingSynchronizing) {
+    return
+  }
+
+  const target = event.target as HTMLElement
+  const scrollTop = target.scrollTop
+  
+  console.log('[SCROLL SYNC] Manual scroll detected:', scrollTop.toFixed(1))
+  
+  // Debounce the scroll events to avoid too many updates
+  if (scrollTimeout) {
+    clearTimeout(scrollTimeout)
+  }
+  
+  scrollTimeout = window.setTimeout(() => {
+    console.log('[SCROLL SYNC] Emitting manual scroll offset:', scrollTop.toFixed(1))
+    emit('manual-scroll', scrollTop)
+  }, SCROLL_DEBOUNCE_MS)
 }
 
 // ========================================
