@@ -179,20 +179,15 @@ function handleScreenTap() {
   }
 }
 
-// Watch for play/pause state changes with mobile-aware logic
+// Watch for play/pause state changes with consistent behavior
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
     if (isPlaying) {
-      // On mobile devices (xs/sm), keep toolbar visible during playback for easier control
-      if (xs.value || sm.value) {
-        // Keep toolbar visible on mobile
-        showToolbar()
-      } else {
-        // Hide toolbar on desktop/larger screens for clean reading experience
-        hideToolbar()
-      }
+      // Hide toolbar during playback for clean reading experience on all devices
+      hideToolbar()
     } else {
+      // Show toolbar when paused
       showToolbar()
     }
   },
@@ -396,7 +391,20 @@ function onManualScroll(scrollTop: number) {
 }
 
 function onTeleprompterTap() {
-  // Emit custom event for toolbar to listen
+  // Handle toolbar visibility on tap
+  if (teleprompterStore.isPlaying) {
+    // If playing, show toolbar temporarily (it will auto-hide)
+    showToolbar(true)
+  } else {
+    // If paused, toggle toolbar visibility
+    if (toolbarVisible.value) {
+      hideToolbar()
+    } else {
+      showToolbar()
+    }
+  }
+  
+  // Emit custom event for backward compatibility
   const event = new CustomEvent('teleprompter-tap')
   window.dispatchEvent(event)
 }
