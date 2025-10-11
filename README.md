@@ -104,6 +104,85 @@ npm run android:bundle:release
 
 See [**ANDROID_BUILD.md**](./ANDROID_BUILD.md) for detailed Android setup and build instructions.
 
+### iOS Mobile App (iPhone & iPad)
+
+#### Prerequisites (macOS Only)
+
+iOS development requires macOS and **full Xcode installation** (not just Command Line Tools):
+
+```bash
+# 1. Install Xcode from App Store (required)
+# 2. Verify Xcode installation
+xcode-select -p
+
+# 3. Install CocoaPods (if not installed)
+sudo gem install cocoapods
+
+# 4. Accept Xcode license
+sudo xcodebuild -license accept
+```
+
+> **Note**: iOS simulators require full Xcode installation (~15GB). Command Line Tools alone are insufficient.
+
+#### Quick iOS Setup
+
+```bash
+# Automated setup (recommended)
+npm run ios:setup
+
+# Manual setup
+npm install @capacitor/ios
+npx cap add ios
+make ios-pods
+```
+
+#### Development & Testing
+
+```bash
+# Open in Xcode for debugging
+npm run ios:dev
+
+# Quick simulator testing
+npm run ios:run               # Default simulator
+npm run ios:run:iphone        # iPhone 15
+npm run ios:run:ipad          # iPad (10th gen)
+npm run ios:run:ipad-pro      # iPad Pro 12.9"
+
+# List available simulators
+npm run ios:list-simulators
+```
+
+#### Makefile Commands
+
+```bash
+# Complete setup
+make ios-setup && make ios-pods
+
+# Development
+make ios-dev                  # Open Xcode
+make ios-run-iphone          # iPhone simulator
+make ios-run-ipad            # iPad simulator
+
+# Assets
+make ios-icons               # Generate icons & splash
+```
+
+#### iOS-Specific Features
+
+- **Orientation support**: Portrait & landscape on iPhone, all orientations on iPad
+- **Status bar control**: Auto-hide during presentations
+- **Sleep prevention**: Screen stays on during teleprompter use
+- **Native performance**: Hardware-accelerated scrolling
+- **Background compatibility**: Works with screen recording
+
+#### Distribution Options
+
+- **Development**: Direct install via Xcode
+- **TestFlight**: Beta testing (requires Apple Developer account)
+- **App Store**: Full distribution (requires review)
+
+See [**BUILD-iOS.md**](./docs/BUILD-iOS.md) for detailed iOS setup and development instructions.
+
 ### Desktop Application (Tauri)
 
 #### Prerequisites
@@ -257,6 +336,8 @@ apuntador/
 - **Vite 5.0+** (Fast development + optimized builds)
 - **Vuetify 3.4+** (Material Design 3)
 - **Pinia 2.1+** (Modern state management)
+- **Capacitor 7.4+** (Android APK + iOS iPhone/iPad)
+- **Tauri 2.8+** (Native desktop apps)
 - **Vitest + Playwright** (Comprehensive testing)
 
 ### Performance Metrics
@@ -267,14 +348,22 @@ apuntador/
 - **Memory Usage**: <50MB sustained
 - **Scroll Performance**: Consistent 60fps
 
-### Browser Compatibility Matrix
-| Browser | Version | Mobile | Desktop | Features |
-|---------|---------|--------|---------|----------|
-| Chrome | 90+ | ✅ | ✅ | Full support |
-| Safari | 14+ | ✅ | ✅ | Full support |
-| Firefox | 88+ | ✅ | ✅ | Full support |
-| Edge | 90+ | ✅ | ✅ | Full support |
-| iOS Safari | 14+ | ✅ | N/A | Touch optimized |
+### Platform Compatibility Matrix
+| Platform | Version | Support | Native Features |
+|----------|---------|---------|-----------------|
+| **Web Browsers** |
+| Chrome | 90+ | ✅ | PWA, fullscreen |
+| Safari | 14+ | ✅ | Touch optimized |
+| Firefox | 88+ | ✅ | Full support |
+| Edge | 90+ | ✅ | Full support |
+| **Mobile Apps** |
+| Android | 7.0+ (API 24) | ✅ | APK distribution |
+| iPhone | iOS 13+ | ✅ | Native performance |
+| iPad | iPadOS 13+ | ✅ | Multi-orientation |
+| **Desktop Apps** |
+| macOS | 10.15+ | ✅ | Native window controls |
+| Windows | 10+ | ✅ | MSI installer |
+| Linux | Ubuntu 20.04+ | ✅ | AppImage/DEB |
 | Android Chrome | 90+ | ✅ | N/A | Touch optimized |
 
 ## 📦 Requirements

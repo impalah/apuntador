@@ -1,20 +1,46 @@
 {
-  "resources": {
+  "assets": {
+    "iconPath": "public/logo.png",
+    "iconBackgroundColor": "#000000",
+    "iconBackgroundColorDark": "#000000",
+    "splashPath": "public/logo.png",
+    "splashBackgroundColor": "#000000",
+    "splashBackgroundColorDark": "#000000"
+  },
+  "android": {
+    "iconDensity": {
+      "mdpi": 48,
+      "hdpi": 72,
+      "xhdpi": 96,
+      "xxhdpi": 144,
+      "xxxhdpi": 192
+    },
+    "adaptiveIcon": {
+      "foreground": "public/logo.png",
+      "background": "#000000"
+    },
+    "splash": {
+      "backgroundColor": "#000000",
+      "image": "public/logo.png",
+      "imageWidth": 200,
+      "imageHeight": 200
+    }
+  },
+  "ios": {
     "icon": {
       "sources": [
         {
-          "src": "resources/icon.png",
-          "type": "icon"
-        }
-      ],
-      "targets": [
-        {
-          "src": "resources/icon.png",
-          "dest": "android/app/src/main/res/",
-          "set": "mipmap",
-          "format": "png"
+          "src": "public/logo.png",
+          "size": 1024
         }
       ]
+    },
+    "splash": {
+      "backgroundColor": "#000000",
+      "image": "public/logo.png",
+      "imageWidth": 200,
+      "imageHeight": 200,
+      "showSpinner": false
     }
   }
 }

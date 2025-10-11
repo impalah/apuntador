@@ -6,6 +6,7 @@ const config: CapacitorConfig = {
   webDir: 'dist',
   server: {
     androidScheme: 'https',
+    iosScheme: 'ionic',
   },
   plugins: {
     StatusBar: {
@@ -23,12 +24,29 @@ const config: CapacitorConfig = {
     Haptics: {
       enabled: true,
     },
+    SplashScreen: {
+      launchShowDuration: 2000,
+      launchAutoHide: true,
+      backgroundColor: '#000000',
+      androidSplashResourceName: 'splash',
+      androidScaleType: 'CENTER_CROP',
+      showSpinner: false,
+      iosSpinnerStyle: 'small',
+      spinnerColor: '#ffffff',
+    },
   },
   android: {
     allowMixedContent: true,
     backgroundColor: '#000000',
-    // Enable fullscreen mode support
     webContentsDebuggingEnabled: false,
+  },
+  ios: {
+    scheme: 'Apuntador',
+    backgroundColor: '#000000',
+    webContentsDebuggingEnabled: false,
+    scrollEnabled: false,
+    // Configuración para orientaciones
+    contentInset: 'automatic',
   },
 }
 

@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 tauri-dev tauri-build tauri-build-win tauri-build-release tauri-build-mac tauri-build-mac-intel tauri-build-mac-release tauri-build-mac-universal tauri-build-mac-debug tauri-build-linux tauri-build-linux-debug tauri-build-linux-arm64 tauri-clean-linux
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve icons android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 ios-setup ios-pods ios-build ios-dev ios-run ios-run-iphone ios-run-iphone-pro ios-run-iphone-pro-max ios-run-ipad ios-run-ipad-pro ios-run-ipad-air ios-list ios-icons ios-splash ios-clean tauri-dev tauri-build tauri-build-win tauri-build-release tauri-build-mac tauri-build-mac-intel tauri-build-mac-release tauri-build-mac-universal tauri-build-mac-debug tauri-build-linux tauri-build-linux-debug tauri-build-linux-arm64 tauri-clean-linux
 
 install:
 	npm install
@@ -96,11 +96,92 @@ else
 	fi
 endif
 
+# iOS targets
+ios-setup:
+	@echo "🍎 Setting up iOS environment..."
+	@if [ "$$(uname)" != "Darwin" ]; then \
+		echo "❌ iOS development only available on macOS"; \
+		exit 1; \
+	fi
+	npm install @capacitor/ios @capacitor/splash-screen
+	npx cap add ios
+	npx cap copy ios
+	npx cap sync ios
+	@echo "✅ iOS setup complete. Run 'make ios-pods' to install CocoaPods"
+
+ios-pods:
+	@echo "☕ Installing CocoaPods dependencies..."
+	cd ios/App && pod install --repo-update
+
+ios-build: build
+	@echo "📱 Building iOS project..."
+	npx cap copy ios
+	npx cap sync ios
+
+ios-dev: ios-build
+	@echo "🔧 Opening iOS project in Xcode..."
+	npx cap open ios
+
+ios-run: ios-build
+	@echo "📱 Running in iOS simulator..."
+	npx cap run ios
+
+ios-run-iphone: ios-build
+	@echo "📱 Running in iPhone 15 simulator..."
+	npx cap run ios --target='iPhone 15'
+
+ios-run-iphone-pro: ios-build
+	@echo "📱 Running in iPhone 15 Pro simulator..."
+	npx cap run ios --target='iPhone 15 Pro'
+
+ios-run-iphone-pro-max: ios-build
+	@echo "📱 Running in iPhone 15 Pro Max simulator..."
+	npx cap run ios --target='iPhone 15 Pro Max'
+
+ios-run-ipad: ios-build
+	@echo "📱 Running in iPad simulator..."
+	npx cap run ios --target='iPad (10th generation)'
+
+ios-run-ipad-pro: ios-build
+	@echo "📱 Running in iPad Pro simulator..."
+	npx cap run ios --target='iPad Pro (12.9-inch) (6th generation)'
+
+ios-run-ipad-air: ios-build
+	@echo "📱 Running in iPad Air simulator..."
+	npx cap run ios --target='iPad Air (5th generation)'
+
+ios-list:
+	@echo "📱 Available iOS simulators:"
+	npx cap run ios --list
+
+icons: 
+	@echo "🎨 Generating icons and splash screens for all platforms from public/logo.png..."
+	@if [ ! -d "resources" ]; then mkdir -p resources; fi
+	@cp public/logo.png resources/icon.png
+	@cp public/logo.png resources/splash.png
+	npx capacitor-assets generate --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#000000' --splashBackgroundColorDark '#000000'
+
+ios-icons: 
+	@echo "🎨 Generating iOS icons and splash screens from public/logo.png..."
+	@if [ ! -d "resources" ]; then mkdir -p resources; fi
+	@cp public/logo.png resources/icon.png
+	@cp public/logo.png resources/splash.png
+	npx capacitor-assets generate --iconBackgroundColor '#000000' --iconBackgroundColorDark '#000000' --splashBackgroundColor '#000000' --splashBackgroundColorDark '#000000' --ios
+
+ios-splash: 
+	@echo "🎨 Creating custom iOS splash screens with resized logo..."
+	@./scripts/create-ios-splash.sh
+	@npx cap sync ios
+
+ios-clean:
+	@echo "🧹 Cleaning iOS build..."
+	rm -rf ios/App/build ios/App/Pods ios/App/Podfile.lock
+
 clean:
 	rm -rf node_modules dist coverage test-results playwright-report .nyc_output docs/api docs/.vitepress/dist
 	npm cache clean --force
 
-clean-all: clean android-clean
+clean-all: clean android-clean ios-clean
 	rm -f package-lock.json
 	
 clean-generated:
