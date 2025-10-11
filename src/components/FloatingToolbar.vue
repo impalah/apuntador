@@ -153,6 +153,23 @@
               <!-- Desktop Window Controls -->
               <div v-if="isDesktop" class="menu-section desktop-controls">
                 <v-divider class="mb-2" />
+                
+                <!-- Theater Mode (True Fullscreen) -->
+                <div class="control-group-horizontal mb-2">
+                  <v-btn
+                    :variant="isTheaterMode ? 'flat' : 'outlined'"
+                    :icon="isTheaterMode ? 'mdi-theater' : 'mdi-theater'"
+                    :loading="isTheaterLoading"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="theater-mode-button"
+                    @click="toggleTheaterMode"
+                  >
+                    {{ isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theater') }}
+                  </v-btn>
+                </div>
+                
+                <!-- Standard Window Controls -->
                 <div class="control-group-horizontal">
                   <v-btn
                     variant="outlined"
@@ -434,6 +451,17 @@
         @click="toggleFullscreen"
       />
 
+      <!-- Theater Mode (Desktop only) -->
+      <v-btn
+        v-if="isDesktop"
+        :icon="isTheaterMode ? 'mdi-theater' : 'mdi-theater'"
+        :variant="isTheaterMode ? 'flat' : 'outlined'"
+        :loading="isTheaterLoading"
+        :title="isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theater')"
+        data-testid="theater-mode-button"
+        @click="toggleTheaterMode"
+      />
+
       <!-- Desktop Window Controls (Non-fullscreen) -->
       <v-btn
         v-if="isDesktop"
@@ -459,6 +487,7 @@ import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
 import { useFullscreen } from '@/utils/fullscreen'
 import { useTauri } from '@/utils/tauri'
+import { useTheaterMode } from '@/composables/useTheaterMode'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
 import TextAlignmentControls from './TextAlignmentControls.vue'
@@ -493,6 +522,14 @@ const prefsStore = usePrefsStore()
 
 // Unified fullscreen functionality
 const { isFullscreen, isSupported: isFullscreenSupported, toggleFullscreen, platform } = useFullscreen()
+
+// Theater mode functionality (true fullscreen without menu bar)
+const { 
+  isTheaterMode, 
+  isLoading: isTheaterLoading, 
+  isTauri, 
+  toggleTheaterMode 
+} = useTheaterMode()
 
 // Desktop/Tauri functionality (for window controls only)
 const { isDesktop, minimizeWindow, maximizeWindow } = useTauri()

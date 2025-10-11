@@ -39,6 +39,8 @@
     "mirrorVertical": "Espejo vertical",
     "fullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
+    "theater": "Modo Teatro",
+    "exitTheater": "Salir del Teatro",
     "openEditor": "Abrir editor",
     "openSettings": "Abrir configuración",
     "openFile": "Abrir archivo",

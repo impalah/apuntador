@@ -39,6 +39,8 @@
     "mirrorVertical": "Mirror vertical",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
+    "theater": "Theater Mode",
+    "exitTheater": "Exit Theater",
     "openEditor": "Open editor",
     "openSettings": "Open settings",
     "openFile": "Open file",

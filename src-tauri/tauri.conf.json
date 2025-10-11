@@ -19,11 +19,14 @@
         "minHeight": 600,
         "resizable": true,
         "fullscreen": false,
+        "maximizable": true,
+        "minimizable": true,
         "center": true,
         "decorations": true,
         "alwaysOnTop": false,
         "skipTaskbar": false,
-        "visible": true
+        "visible": true,
+        "titleBarStyle": "Visible"
       }
     ],
     "security": {
@@ -51,6 +54,13 @@
       "certificateThumbprint": "",
       "digestAlgorithm": "sha256",
       "timestampUrl": ""
+    },
+    "macOS": {
+      "entitlements": null,
+      "exceptionDomain": "",
+      "frameworks": [],
+      "providerShortName": null,
+      "signingIdentity": null
     }
   },
   "plugins": {}
