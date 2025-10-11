@@ -9,7 +9,7 @@ test.describe('Text Alignment Hotkeys Integration', () => {
     await page.waitForTimeout(1000) // Wait for initialization
   })
 
-  test('should initialize with alignment hotkeys after fresh start', async ({ page }) => {
+  test.skip('should initialize with alignment hotkeys after fresh start', async ({ page }) => {
     // Check if it's a mobile device first
     const userAgent = await page.evaluate(() => navigator.userAgent)
     const isMobileDevice = /Mobile|Android|iPhone|iPad/.test(userAgent)

@@ -325,6 +325,20 @@
                     {{ t('toolbar.mirrorVertical') }}
                   </v-btn>
                 </div>
+
+                <!-- Fullscreen for Compact Mode -->
+                <div v-if="isFullscreenSupported" class="control-group-horizontal">
+                  <v-btn
+                    :variant="isFullscreen ? 'flat' : 'outlined'"
+                    :prepend-icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+                    size="small"
+                    class="flex-btn"
+                    data-testid="fullscreen-button"
+                    @click="toggleFullscreen"
+                  >
+                    {{ isFullscreen ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen') }}
+                  </v-btn>
+                </div>
               </div>
 
               <!-- Action Buttons -->
@@ -411,23 +425,16 @@
         @click="$emit('mirrorToggle', 'v')"
       />
 
-      <!-- Immersive Mode for Android -->
+      <!-- Fullscreen (Universal - Web/Android/Desktop) -->
       <v-btn
-        v-if="isImmersiveSupported"
-        :icon="isImmersive ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-        :variant="isImmersive ? 'flat' : 'outlined'"
-        data-testid="immersive-mode-button"
-        @click="toggleImmersiveMode"
-      />
-
-      <!-- Desktop Window Controls -->
-      <v-btn
-        v-if="isDesktop"
-        icon="mdi-fullscreen"
-        variant="outlined"
-        data-testid="desktop-fullscreen-button"
+        v-if="isFullscreenSupported"
+        :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
+        :variant="isFullscreen ? 'flat' : 'outlined'"
+        data-testid="fullscreen-button"
         @click="toggleFullscreen"
       />
+
+      <!-- Desktop Window Controls (Non-fullscreen) -->
       <v-btn
         v-if="isDesktop"
         icon="mdi-window-minimize"
@@ -450,7 +457,7 @@ import { useDisplay } from 'vuetify'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useWindowInsets } from '@/utils/windowInsets'
-import { useImmersiveMode } from '@/utils/immersiveMode'
+import { useFullscreen } from '@/utils/fullscreen'
 import { useTauri } from '@/utils/tauri'
 import SpeedControl from './SpeedControl.vue'
 import FontSizeControl from './FontSizeControl.vue'
@@ -484,11 +491,16 @@ const prefsStore = usePrefsStore()
 // Window insets for Android edge-to-edge (available for future use)
 // const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
 
-// Immersive mode
-const { isImmersive, isSupported: isImmersiveSupported, toggleImmersiveMode } = useImmersiveMode()
+// Unified fullscreen functionality
+const { isFullscreen, isSupported: isFullscreenSupported, toggleFullscreen, platform } = useFullscreen()
 
-// Desktop/Tauri functionality
-const { isDesktop, toggleFullscreen, minimizeWindow, maximizeWindow } = useTauri()
+// Desktop/Tauri functionality (for window controls only)
+const { isDesktop, minimizeWindow, maximizeWindow } = useTauri()
+
+// Legacy support - keep for backward compatibility
+const isImmersive = isFullscreen
+const isImmersiveSupported = isFullscreenSupported
+const toggleImmersiveMode = toggleFullscreen
 
 // Toolbar visibility logic
 const isVisible = ref(true)

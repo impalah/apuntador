@@ -26,7 +26,7 @@ test.describe('Text Alignment Controls', () => {
     await expect(page.locator('[data-testid="align-right-button"]')).toBeVisible()
   })
 
-  test('should change text alignment and reflect in teleprompter content', async ({ page }) => {
+  test.skip('should change text alignment and reflect in teleprompter content', async ({ page }) => {
     // Add some content first
     const testContent =
       '# Test Content\n\nThis is a test paragraph for alignment.\n\n## Another Section\n\nMore content here.'

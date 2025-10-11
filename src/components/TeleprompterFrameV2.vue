@@ -5,7 +5,7 @@
   making it completely swappable with other implementations.
 -->
 <template>
-  <div ref="containerRef" class="teleprompter-frame" @click="onTap">
+  <div ref="containerRef" class="teleprompter-frame" :class="{ 'tauri-desktop': isTauri() }" @click="onTap">
     <!-- DEBUG INFO - Temporary for Android debugging -->
     <!-- Debug Info Window - Controlled by environment variables -->
     <div v-if="showDebug" class="debug-info">
@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { throttle } from '@/utils/dom'
+import { isTauri } from '@/utils/tauri'
 import HighlightBandHandle from './HighlightBandHandle.vue'
 import type { TeleprompterFrameProps, TeleprompterEvents } from '@/types/component-interfaces'
 
@@ -467,14 +468,64 @@ defineExpose({
   position: relative;
   width: 100%;
   height: 100vh;
-  overflow: hidden;
+  overflow: hidden !important;
   background: v-bind('displayPrefs.bgColor');
   cursor: default;
   user-select: none;
 
   /* Ensure no scrollbars on parent container */
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none !important; /* IE and Edge */
+  scrollbar-width: none !important; /* Firefox */
+}
+
+/* Tauri/Desktop specific: more aggressive scrollbar hiding */
+@media screen and (min-width: 1024px) {
+  .teleprompter-frame,
+  .teleprompter-container,
+  .transformed-container {
+    overflow: hidden !important;
+    -ms-overflow-style: none !important;
+    scrollbar-width: none !important;
+  }
+
+  .teleprompter-frame::-webkit-scrollbar,
+  .teleprompter-container::-webkit-scrollbar,
+  .transformed-container::-webkit-scrollbar {
+    display: none !important;
+    width: 0 !important;
+    height: 0 !important;
+  }
+}
+
+/* Specific styles for Tauri desktop environment */
+.tauri-desktop {
+  overflow: hidden !important;
+}
+
+.tauri-desktop .teleprompter-container {
+  overflow-y: scroll !important; /* Keep scroll functionality */
+  overflow-x: hidden !important;
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.tauri-desktop .teleprompter-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+.tauri-desktop .transformed-container {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
+.tauri-desktop .transformed-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
 }
 
 /* Hide scrollbars on parent container too */
@@ -592,6 +643,40 @@ defineExpose({
 .teleprompter-container::-webkit-scrollbar-corner {
   display: none;
   background: transparent;
+}
+
+/* Hide scrollbar for Firefox */
+.teleprompter-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+/* Also hide scrollbars on the transformed container */
+.transformed-container::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent;
+}
+
+.transformed-container::-webkit-scrollbar-track {
+  display: none;
+  background: transparent;
+}
+
+.transformed-container::-webkit-scrollbar-thumb {
+  display: none;
+  background: transparent;
+}
+
+.transformed-container::-webkit-scrollbar-corner {
+  display: none;
+  background: transparent;
+}
+
+.transformed-container {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
 }
 
 .teleprompter-content {

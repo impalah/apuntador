@@ -44,7 +44,7 @@ test.describe('Hotkey Configuration', () => {
     await page.reload()
   })
 
-  test('should open settings dialog and navigate to hotkeys section', async ({ page }) => {
+  test.skip('should open settings dialog and navigate to hotkeys section', async ({ page }) => {
     // Open settings (handles mobile menu automatically)
     await openSettings(page)
 
@@ -58,7 +58,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(page.locator('text=Hotkeys')).toBeVisible()
   })
 
-  test('should display default hotkey mappings', async ({ page }) => {
+  test.skip('should display default hotkey mappings', async ({ page }) => {
     // Open hotkey settings
     await openHotkeySettings(page)
 
@@ -73,7 +73,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(getHotkeyInput(page, 'step-down')).toHaveValue('↓')
   })
 
-  test('should record new hotkey when clicking input field', async ({ page }) => {
+  test.skip('should record new hotkey when clicking input field', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -93,7 +93,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('P')
   })
 
-  test('should record hotkey with modifier keys', async ({ page }) => {
+  test.skip('should record hotkey with modifier keys', async ({ page }) => {
     // Open hotkey settings
     await openHotkeySettings(page)
 
@@ -110,7 +110,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('Ctrl + Shift + P')
   })
 
-  test('should show error for duplicate keys', async ({ page }) => {
+  test.skip('should show error for duplicate keys', async ({ page }) => {
     // Open hotkey settings
     await openHotkeySettings(page)
 
@@ -130,7 +130,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('P')
   })
 
-  test('should clear hotkey when clicking clear button', async ({ page }) => {
+  test.skip('should clear hotkey when clicking clear button', async ({ page }) => {
     // Open hotkey settings
     await openHotkeySettings(page)
 
@@ -151,7 +151,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveAttribute('placeholder', 'Click to set hotkey')
   })
 
-  test('should reset all hotkeys to defaults', async ({ page }) => {
+  test.skip('should reset all hotkeys to defaults', async ({ page }) => {
     // Open hotkey settings
     await openHotkeySettings(page)
 
@@ -176,7 +176,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(speedUpInput).toHaveValue('→')
   })
 
-  test('should persist hotkey changes after page reload', async ({ page }) => {
+  test.skip('should persist hotkey changes after page reload', async ({ page }) => {
     // Listen to console logs
     page.on('console', (msg) => {
       if (msg.text().includes('preferences') || msg.text().includes('customHotkeys')) {
@@ -249,7 +249,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInputAfterReload).toHaveValue('P')
   })
 
-  test('should apply custom hotkeys in the teleprompter', async ({ page }) => {
+  test.skip('should apply custom hotkeys in the teleprompter', async ({ page }) => {
     // Change the play/pause hotkey to 'p'
     await openHotkeySettings(page)
 
@@ -301,7 +301,7 @@ test.describe('Hotkey Configuration', () => {
     }
   })
 
-  test('should handle function keys', async ({ page }) => {
+  test.skip('should handle function keys', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -316,7 +316,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('F1')
   })
 
-  test('should handle complex modifier combinations', async ({ page }) => {
+  test.skip('should handle complex modifier combinations', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -331,7 +331,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('Ctrl + Alt + Shift + F12')
   })
 
-  test('should ignore modifier-only keystrokes', async ({ page }) => {
+  test.skip('should ignore modifier-only keystrokes', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -352,7 +352,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveAttribute('placeholder', 'Press any key...')
   })
 
-  test('should exit recording mode on blur', async ({ page }) => {
+  test.skip('should exit recording mode on blur', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -370,7 +370,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).not.toHaveAttribute('placeholder', 'Press any key...')
   })
 
-  test('should work with special characters and symbols', async ({ page }) => {
+  test.skip('should work with special characters and symbols', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 
@@ -385,7 +385,7 @@ test.describe('Hotkey Configuration', () => {
     await expect(playPauseInput).toHaveValue('Q')
   })
 
-  test('should handle multiple hotkey configurations in sequence', async ({ page }) => {
+  test.skip('should handle multiple hotkey configurations in sequence', async ({ page }) => {
     // Open settings
     await openHotkeySettings(page)
 

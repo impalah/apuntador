@@ -3,16 +3,57 @@ import { StatusBar } from '@capacitor/status-bar'
 import { Capacitor, registerPlugin } from '@capacitor/core'
 
 /**
+ * Get Android screen information
+ */
+async function getAndroidScreenInfo(): Promise<{
+  isPrimary: boolean
+  isMultiScreen: boolean
+  screenCount: number
+}> {
+  try {
+    // For Android, we typically work with the primary display
+    // Multi-screen support in Android is complex and device-dependent
+    const screenWidth = window.screen.width
+    const screenHeight = window.screen.height
+    
+    // Basic detection - assume single screen for most mobile devices
+    // Advanced multi-screen detection would require native Android APIs
+    return {
+      isPrimary: true, // Mobile devices typically have one primary screen
+      isMultiScreen: false, // Most Android devices have single screen
+      screenCount: 1,
+    }
+  } catch (error) {
+    console.warn('Failed to get Android screen info:', error)
+    return {
+      isPrimary: true,
+      isMultiScreen: false,
+      screenCount: 1,
+    }
+  }
+}
+
+/**
  * Composable for managing Android immersive mode (fullscreen)
  * Hides system navigation and status bars for maximum screen usage
  */
 export function useImmersiveMode() {
   const isImmersive = ref(false)
   const isSupported = ref(false)
+  const screenInfo = ref({
+    isPrimary: true,
+    isMultiScreen: false,
+    screenCount: 1,
+  })
 
-  onMounted(() => {
+  onMounted(async () => {
     // Only supported on Android
     isSupported.value = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
+    
+    // Initialize screen info
+    if (isSupported.value) {
+      screenInfo.value = await getAndroidScreenInfo()
+    }
   })
 
   /**
@@ -155,6 +196,7 @@ export function useImmersiveMode() {
   return {
     isImmersive,
     isSupported,
+    screenInfo,
     enableImmersiveMode,
     disableImmersiveMode,
     toggleImmersiveMode,

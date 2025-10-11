@@ -1,0 +1,17 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 Community Support & Questions
+    url: https://github.com/impalah/apuntador/discussions/categories/q-a
+    about: Get help from the community and ask questions about using Apuntador
+  - name: � Feature Ideas & Suggestions
+    url: https://github.com/impalah/apuntador/discussions/categories/ideas
+    about: Share your ideas for new features and improvements
+  - name: 🎯 Development Roadmap
+    url: https://github.com/impalah/apuntador/blob/main/ROADMAP.md
+    about: View our planned features and development timeline
+  - name: 📖 Documentation
+    url: https://github.com/impalah/apuntador/blob/main/README.md
+    about: Check our comprehensive documentation and guides
+  - name: 🤝 Contributing Guidelines
+    url: https://github.com/impalah/apuntador/blob/main/CONTRIBUTING.md
+    about: Learn how to contribute to the project

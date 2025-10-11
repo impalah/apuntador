@@ -169,7 +169,7 @@ describe('Tauri Utils', () => {
         const result = await toggleFullscreen()
         
         expect(mockGetCurrentWindow).not.toHaveBeenCalled()
-        expect(result).toBeUndefined()
+        expect(result).toBe(false)
       })
 
       it('should set always on top', async () => {

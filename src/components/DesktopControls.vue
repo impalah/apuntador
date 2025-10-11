@@ -48,6 +48,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTauri } from '@/utils/tauri'
+import { useFullscreen } from '@/utils/fullscreen'
 
 // I18n
 const { t } = useI18n()
@@ -55,10 +56,15 @@ const { t } = useI18n()
 // Tauri composable
 const tauriComposable = useTauri()
 
+// Unified fullscreen
+const fullscreenComposable = useFullscreen()
+
 // State
 const isMaximized = ref(false)
-const isFullscreen = ref(false)
 const alwaysOnTop = ref(false)
+
+// Use reactive fullscreen state from composable
+const { isFullscreen } = fullscreenComposable
 
 // Actions
 const toggleMaximize = async () => {
@@ -69,10 +75,8 @@ const toggleMaximize = async () => {
 }
 
 const toggleFullscreen = async () => {
-  const fullscreen = await tauriComposable.toggleFullscreen()
-  if (typeof fullscreen === 'boolean') {
-    isFullscreen.value = fullscreen
-  }
+  await fullscreenComposable.toggleFullscreen()
+  // State is automatically updated by the composable
 }
 
 const toggleAlwaysOnTop = async () => {

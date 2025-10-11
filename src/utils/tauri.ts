@@ -16,11 +16,84 @@ export function isTauri(): boolean {
 }
 
 /**
+ * Get desktop screen/monitor information using Tauri APIs
+ */
+async function getDesktopScreenInfo(): Promise<{
+  isPrimary: boolean
+  isMultiScreen: boolean
+  screenCount: number
+  currentMonitor: any
+  allMonitors: any[]
+}> {
+  try {
+    // Dynamic import to avoid loading Tauri APIs in web mode
+    const { getCurrentWindow } = await import('@tauri-apps/api/window')
+    
+    // Try to get monitor information
+    let currentMonitor: any = null
+    let allMonitors: any[] = []
+    
+    try {
+      // Try to get current monitor (API may vary by Tauri version)
+      const window = getCurrentWindow()
+      // Note: Some Tauri versions may not have currentMonitor method
+      // We'll handle this gracefully
+      if ('currentMonitor' in window && typeof window.currentMonitor === 'function') {
+        currentMonitor = await (window as any).currentMonitor()
+      }
+    } catch (error) {
+      console.warn('currentMonitor API not available:', error)
+    }
+    
+    try {
+      // Try to get all available monitors
+      const { availableMonitors } = await import('@tauri-apps/api/window')
+      if (availableMonitors) {
+        allMonitors = await availableMonitors()
+      }
+    } catch (error) {
+      console.warn('availableMonitors API not available:', error)
+    }
+
+    const screenCount = allMonitors.length || 1
+    const isMultiScreen = screenCount > 1
+    
+    // Current window's monitor is considered primary for fullscreen purposes
+    const isPrimary = true
+
+    return {
+      isPrimary,
+      isMultiScreen,
+      screenCount,
+      currentMonitor: currentMonitor || null,
+      allMonitors: allMonitors || [],
+    }
+  } catch (error) {
+    console.warn('Failed to get desktop screen info:', error)
+    return {
+      isPrimary: true,
+      isMultiScreen: false,
+      screenCount: 1,
+      currentMonitor: null,
+      allMonitors: [],
+    }
+  }
+}
+
+/**
  * Composable for Tauri-specific functionality
  */
 export function useTauri() {
   const isDesktop = computed(() => isTauri())
   const isReady = ref(false)
+  const isFullscreen = ref(false)
+  const screenInfo = ref({
+    isPrimary: true,
+    isMultiScreen: false,
+    screenCount: 1,
+    currentMonitor: null as any,
+    allMonitors: [] as any[],
+  })
 
   // Initialize Tauri APIs when available
   const init = async () => {
@@ -35,6 +108,12 @@ export function useTauri() {
 
       // Set up window event listeners
       await setupWindowListeners()
+
+      // Initialize screen information
+      screenInfo.value = await getDesktopScreenInfo()
+
+      // Initialize fullscreen state
+      await updateFullscreenState()
 
       isReady.value = true
       console.log('✅ Tauri initialized successfully')
@@ -75,17 +154,30 @@ export function useTauri() {
 
   // Window control functions
   const toggleFullscreen = async () => {
+    if (!isDesktop.value) return false
+
+    try {
+      const { getCurrentWindow } = await import('@tauri-apps/api/window')
+      const window = getCurrentWindow()
+      const currentFullscreen = await window.isFullscreen()
+      await window.setFullscreen(!currentFullscreen)
+      isFullscreen.value = !currentFullscreen
+      return !currentFullscreen
+    } catch (error) {
+      console.error('Failed to toggle fullscreen:', error)
+      return false
+    }
+  }
+
+  const updateFullscreenState = async () => {
     if (!isDesktop.value) return
 
     try {
       const { getCurrentWindow } = await import('@tauri-apps/api/window')
       const window = getCurrentWindow()
-      const isFullscreen = await window.isFullscreen()
-      await window.setFullscreen(!isFullscreen)
-      return !isFullscreen
+      isFullscreen.value = await window.isFullscreen()
     } catch (error) {
-      console.error('Failed to toggle fullscreen:', error)
-      return false
+      console.warn('Failed to update fullscreen state:', error)
     }
   }
 
@@ -166,8 +258,11 @@ export function useTauri() {
   return {
     isDesktop,
     isReady,
+    isFullscreen,
+    screenInfo,
     init,
     toggleFullscreen,
+    updateFullscreenState,
     setAlwaysOnTop,
     minimizeWindow,
     maximizeWindow,

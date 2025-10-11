@@ -599,17 +599,22 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🎯 Roadmap
 
-### Version 1.1 (Next Release)
+See our comprehensive **[Development Roadmap](./ROADMAP.md)** for detailed feature plans and release schedules.
 
-- [ ] **Cloud Sync** - Optional cloud storage integration
-- [ ] **Collaboration** - Multi-user script editing
-- [ ] **Templates** - Pre-built script templates
-- [ ] **Analytics** - Reading performance insights
+### Current Version 1.0 ✅
+Complete professional teleprompter with multi-platform support, advanced scrolling, mirror modes, and comprehensive customization.
 
-### Version 1.2 (Future)
+### Upcoming Version 1.1 🔄
+- **Cloud Sync** - Optional cloud storage integration
+- **Collaboration** - Multi-user script editing  
+- **Templates** - Pre-built script templates
+- **Analytics** - Reading performance insights
 
-- [ ] **Voice Control** - Hands-free operation
-- [ ] **AI Integration** - Script optimization suggestions
+### Future Version 1.2 📋
+- **Voice Control** - Hands-free operation
+- **AI Integration** - Script optimization suggestions
+
+**[👉 View Complete Roadmap](./ROADMAP.md)** for detailed features, timelines, and contribution opportunities.
 
 ---
 
