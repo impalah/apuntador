@@ -1,6 +1,6 @@
 # Makefile for Apuntador development
 
-.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve icons android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 ios-setup ios-pods ios-build ios-dev ios-run ios-run-iphone ios-run-iphone-pro ios-run-iphone-pro-max ios-run-ipad ios-run-ipad-pro ios-run-ipad-air ios-list ios-icons ios-splash ios-clean tauri-dev tauri-build tauri-build-win tauri-build-release tauri-build-mac tauri-build-mac-intel tauri-build-mac-release tauri-build-mac-universal tauri-build-mac-debug tauri-build-linux tauri-build-linux-debug tauri-build-linux-arm64 tauri-clean-linux
+.PHONY: install dev build preview lint format stylelint typecheck test test-e2e coverage clean docs docs-api docs-dev docs-build docs-serve icons android-setup android-build android-release android-apk android-debug android-clean android-keystore-base64 ios-setup ios-pods ios-build ios-dev ios-run ios-run-iphone ios-run-iphone-pro ios-run-iphone-pro-max ios-run-ipad ios-run-ipad-pro ios-run-ipad-air ios-list ios-icons ios-splash ios-appstore ios-screenshots ios-setup-github ios-clean tauri-dev tauri-build tauri-build-win tauri-build-release tauri-build-mac tauri-build-mac-intel tauri-build-mac-release tauri-build-mac-universal tauri-build-mac-debug tauri-build-linux tauri-build-linux-debug tauri-build-linux-arm64 tauri-clean-linux
 
 install:
 	npm install
@@ -172,6 +172,18 @@ ios-splash:
 	@echo "🎨 Creating custom iOS splash screens with resized logo..."
 	@./scripts/create-ios-splash.sh
 	@npx cap sync ios
+
+ios-appstore:
+	@echo "🍎 Preparing iOS build for App Store submission..."
+	@./scripts/build-ios-appstore.sh
+
+ios-screenshots:
+	@echo "📸 Capturing App Store screenshots..."
+	@./scripts/capture-appstore-screenshots.sh
+
+ios-setup-github:
+	@echo "🔐 Setting up iOS GitHub Actions secrets..."
+	@./scripts/setup-ios-github-secrets.sh
 
 ios-clean:
 	@echo "🧹 Cleaning iOS build..."
