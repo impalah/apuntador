@@ -48,6 +48,7 @@
     "ios:screenshots": "./scripts/capture-appstore-screenshots.sh",
     "ios:setup-github": "./scripts/setup-ios-github-secrets.sh",
     "ios:verify-bundle": "./scripts/verify-ios-bundle-id.sh",
+    "ios:testflight": "./scripts/ios-testflight-deploy.sh",
     "capacitor:sync": "npx cap sync",
     "tauri:dev": "tauri dev",
     "tauri:build": "tauri build",

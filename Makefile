@@ -193,6 +193,10 @@ ios-detect-device:
 	@echo "📱 Detecting connected iOS devices for registration..."
 	@./scripts/detect-ios-device.sh
 
+ios-testflight:
+	@echo "🚀 Building and uploading iOS app to TestFlight via GitHub Actions..."
+	@./scripts/ios-testflight-deploy.sh
+
 ios-clean:
 	@echo "🧹 Cleaning iOS build..."
 	rm -rf ios/App/build ios/App/Pods ios/App/Podfile.lock

@@ -175,13 +175,35 @@ make ios-icons               # Generate icons & splash
 - **Native performance**: Hardware-accelerated scrolling
 - **Background compatibility**: Works with screen recording
 
+#### TestFlight Automation (Recommended)
+
+**Status**: ✅ **Manual Xcode ➔ TestFlight upload SUCCESSFUL!**
+
+Automate iOS builds and TestFlight uploads with GitHub Actions:
+
+```bash
+# 1. One-time setup (configure GitHub secrets)
+npm run ios:setup-github
+
+# 2. Deploy to TestFlight automatically
+npm run ios:testflight
+```
+
+**What happens during automation**:
+- ✅ **Builds iOS app** with GitHub Actions (macOS + Xcode)  
+- ✅ **Signs automatically** with your Apple certificates
+- ✅ **Uploads to TestFlight** without manual steps
+- ✅ **Ready for testing** in 8-12 minutes total
+
+**📖 Complete Guide**: [iOS TestFlight Automation Summary](docs/IOS_TESTFLIGHT_AUTOMATION_SUMMARY.md)
+
 #### Distribution Options
 
 - **Development**: Direct install via Xcode
-- **TestFlight**: Beta testing (requires Apple Developer account)
+- **TestFlight**: ✅ **Automated via GitHub Actions** (recommended)
 - **App Store**: Full distribution (requires review)
 
-See [**BUILD-iOS.md**](./docs/BUILD-iOS.md) for detailed iOS setup and development instructions.
+See [**IOS_GITHUB_ACTIONS_AUTOMATION.md**](./docs/IOS_GITHUB_ACTIONS_AUTOMATION.md) for complete automation setup and [**IOS_QUICK_START.md**](./docs/IOS_QUICK_START.md) for manual development.
 
 ### Desktop Application (Tauri)
 
