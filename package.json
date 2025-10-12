@@ -27,7 +27,7 @@
     "android:run": "npm run android:build && npx cap run android",
     "android:icons": "npx capacitor-assets generate",
     "android:apk": "npm run android:build && npx cap open android",
-    "android:release": "npm run android:build && cd android && ./gradlew assembleRelease",
+    "android:release": "npm run android:build && cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew assembleRelease",
     "android:apk:build": "powershell -ExecutionPolicy Bypass -File build-android-apk.ps1",
     "android:apk:build:linux": "./build-android-apk.sh",
     "android:bundle:release": "powershell -ExecutionPolicy Bypass -File scripts/build-release-bundle.ps1",
