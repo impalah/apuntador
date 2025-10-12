@@ -7,11 +7,17 @@
 - [ ] **Identity verification completed**
 - [ ] **Latest agreements accepted** in App Store Connect
 
-### 2. App Store Connect App Record
+### 2. Apple Developer App ID (FIRST)
+- [ ] **Create App ID** at https://developer.apple.com/account/
+  - Description: `Apuntador - Professional Teleprompter`
+  - Bundle ID: `io.apuntador.app` (Explicit)
+  - Capabilities: None (initially)
+
+### 3. App Store Connect App Record
 - [ ] **Create app** at https://appstoreconnect.apple.com
   - App Name: `Apuntador`
-  - Bundle ID: `io.apuntador.app`
-  - SKU: `apuntador-ios-v1`
+  - Bundle ID: Select `io.apuntador.app` from list
+  - SKU: `apuntador-ios-2025`
   - Category: `Productivity`
 
 ---
@@ -27,22 +33,38 @@ make ios-appstore
 
 ### 2. Configure Signing in Xcode (FIRST TIME ONLY)
 1. **Open project**: Xcode opens automatically from script
-2. **App target** → **Signing & Capabilities**
-3. **Team**: Select your Apple Developer Team
-4. **Bundle ID**: Verify `io.apuntador.app`
-5. **Auto-manage**: ✅ "Automatically manage signing"
+2. **Navigate to App Target**:
+   - In **Navigator panel** (left), click on blue project icon "**App**" (at the top)
+   - In center panel, ensure "**App**" target is selected (not "App (iOS)")
+   - Click on "**Signing & Capabilities**" tab
+3. **Configure Team**: 
+   - In "**Signing**" section, "**Team**" dropdown → Select your Apple Developer Team
+4. **Verify Bundle ID**: 
+   - Verify "**Bundle Identifier**" shows `io.apuntador.app`
+5. **Enable Auto-signing**: 
+   - ✅ Check "**Automatically manage signing**"
 
 ### 3. Archive in Xcode  
-1. **Device selection**: Select `Any iOS Device (arm64)` 
-2. **Archive**: `Product` → `Archive` (will sign automatically)
+1. **Device selection**: 
+   - In top toolbar, click dropdown next to ▶️ button
+   - Select "**Any iOS Device (arm64)**" (NOT a simulator)
+2. **Archive**: 
+   - Menu **Product** → **Archive** (signs automatically)
 3. **Wait**: Archive process completes (~2-5 minutes)
 
 ### 4. Upload to App Store
-1. **Organizer opens**: Select your archive
-2. **Distribute**: Click `Distribute App`
-3. **Destination**: Choose `App Store Connect`
-4. **Signing**: Select "Automatically manage signing" (recommended)
-5. **Upload**: Follow wizard (~5-15 minutes)
+1. **Organizer opens**: 
+   - Xcode automatically opens "**Organizer**" window
+   - Select your most recent archive from the list
+2. **Distribute**: 
+   - Click blue "**Distribute App**" button
+3. **Destination**: 
+   - Select "**App Store Connect**" → **Next**
+4. **Signing**: 
+   - Select "**Upload**" → **Next**
+   - Leave "**Automatically manage signing**" checked → **Next**
+5. **Upload**: 
+   - Review and click "**Upload**" → Follow wizard (~5-15 minutes)
 
 ---
 
@@ -51,35 +73,35 @@ make ios-appstore
 ### Required Information
 ```
 App Name: Apuntador
-Subtitle: Teleprompter Profesional
+Subtitle: Professional Teleprompter
 Category: Productivity
 ```
 
-### Description (Spanish)
+### Description (English)
 ```
-Apuntador es un teleprompter modular y profesional diseñado para creadores de contenido, presentadores y profesionales de la comunicación.
+Apuntador is a modular, professional teleprompter designed for content creators, presenters, and communication professionals.
 
-CARACTERÍSTICAS PRINCIPALES:
-• Interfaz limpia y fácil de usar
-• Control de velocidad ajustable
-• Compatibilidad con markdown
-• Modo espejo horizontal y vertical
-• Soporte para múltiples orientaciones
-• Optimizado para iPhone y iPad
+KEY FEATURES:
+• Clean and easy-to-use interface
+• Adjustable speed control
+• Markdown compatibility
+• Horizontal and vertical mirror modes
+• Multi-orientation support
+• Optimized for iPhone and iPad
 
-PERFECTO PARA:
-• Presentaciones profesionales
-• Videos en redes sociales
-• Discursos y conferencias
-• Creación de contenido
-• Streaming y podcasts
+PERFECT FOR:
+• Professional presentations
+• Social media videos
+• Speeches and conferences
+• Content creation
+• Streaming and podcasts
 
-Apuntador te ayuda a mantener contacto visual con tu audiencia mientras lees tu script de manera fluida y profesional.
+Apuntador helps you maintain eye contact with your audience while reading your script smoothly and professionally.
 ```
 
 ### Keywords
 ```
-teleprompter,prompter,video,presentacion,speech,streaming,content creator
+teleprompter,prompter,video,presentation,speech,streaming,content creator
 ```
 
 ---
@@ -153,10 +175,18 @@ npm run ios:appstore
 
 ## 🚨 Common Issues & Fixes
 
-### "No signing certificate"
+### "No signing certificate" or "No devices registered"
+**Cause**: Apple Developer needs at least one registered device
+**Quick solution**:
+1. **Connect your iPhone/iPad** to Mac via USB
+2. **Xcode** → **Window** → **Devices and Simulators** (verify it appears)
+3. **Return to Signing & Capabilities** (errors should disappear)
+
+**Without physical iPhone/iPad**:
 ```
 Xcode → Preferences → Accounts → Download Manual Profiles
 ```
+See complete guide: `docs/IOS_SIGNING_ERRORS_EN.md`
 
 ### "Missing app icon"  
 ```bash

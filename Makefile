@@ -185,6 +185,14 @@ ios-setup-github:
 	@echo "🔐 Setting up iOS GitHub Actions secrets..."
 	@./scripts/setup-ios-github-secrets.sh
 
+ios-verify-bundle:
+	@echo "🔍 Verifying iOS Bundle ID configuration..."
+	@./scripts/verify-ios-bundle-id.sh
+
+ios-detect-device:
+	@echo "📱 Detecting connected iOS devices for registration..."
+	@./scripts/detect-ios-device.sh
+
 ios-clean:
 	@echo "🧹 Cleaning iOS build..."
 	rm -rf ios/App/build ios/App/Pods ios/App/Podfile.lock

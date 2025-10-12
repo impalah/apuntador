@@ -19,14 +19,27 @@ This guide covers the complete process to prepare and submit Apuntador to the Ap
 
 ## Phase 1: App Store Connect Setup
 
-### 1.1 Create App Store Connect Record
+### 1.1 Create App ID (FIRST - Required)
+**⚠️ You must create the App ID BEFORE creating the app in App Store Connect**
+
+1. Go to **Apple Developer Portal**: https://developer.apple.com/account/
+2. **Certificates, Identifiers & Profiles** → **Identifiers** → **+**
+3. **App IDs** → **Continue**
+4. Fill in details:
+   - **Description**: `Apuntador - Professional Teleprompter`
+   - **Bundle ID**: `io.apuntador.app` (Explicit)
+   - **Capabilities**: None needed initially
+
+**📖 Detailed guide**: `docs/APPLE_DEVELOPER_APP_ID.md`
+
+### 1.2 Create App Store Connect Record
 1. Go to https://appstoreconnect.apple.com
 2. **My Apps** → **+** → **New App**
 3. Fill in details:
    - **App Name**: `Apuntador`
    - **Primary Language**: Spanish (or your preference)
-   - **Bundle ID**: `io.apuntador.app` (must match Xcode project)
-   - **SKU**: `apuntador-ios-v1` (unique identifier)
+   - **Bundle ID**: Select `io.apuntador.app` from dropdown
+   - **SKU**: `apuntador-ios-2025` (unique identifier)
 
 ### 1.2 App Information
 - **Category**: Productivity (or Utilities)
