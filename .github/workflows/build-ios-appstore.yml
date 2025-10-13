@@ -41,7 +41,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.1'
 
       - name: Install dependencies (minimal for Capacitor)
         run: npm ci
@@ -210,6 +210,16 @@ jobs:
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
         run: |
           echo "🚀 Uploading to TestFlight..."
+
+          # Check if API key secrets are available
+          if [ -z "$APP_STORE_CONNECT_API_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_API_ISSUER_ID" ] || [ -z "$APP_STORE_CONNECT_API_KEY_BASE64" ]; then
+            echo "⚠️ App Store Connect API Key secrets not configured"
+            echo "📱 Manual upload required:"
+            echo "  1. Download IPA from GitHub Actions artifacts"
+            echo "  2. Use Xcode Organizer or Transporter app to upload"
+            echo "  3. Or configure API Key secrets for automatic upload"
+            exit 0
+          fi
 
           # Decode API key
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode > AuthKey.p8
