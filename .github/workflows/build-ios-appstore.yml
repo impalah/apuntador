@@ -157,16 +157,16 @@ jobs:
           echo "📋 Available destinations:"
           xcodebuild -workspace App.xcworkspace -scheme App -showdestinations | grep -E "(platform|id|name)"
 
-          # Build archive for Any iOS Device
+          # Build archive for iOS (without specifying destination - let Xcode choose)
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
-            -destination "generic/platform=iOS" \
             -archivePath ${{ github.workspace }}/App.xcarchive \
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
-            CODE_SIGN_IDENTITY="Apple Distribution"
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            -sdk iphoneos
 
           echo "✅ Archive created successfully"
 
