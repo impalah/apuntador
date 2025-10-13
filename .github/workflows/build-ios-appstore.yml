@@ -163,44 +163,77 @@ jobs:
           echo "📋 Available destinations (full):"
           xcodebuild -workspace App.xcworkspace -scheme App -showdestinations
 
+      - name: Fix iOS Scheme Configuration  
+        run: |
+          echo "🔧 Fixing iOS scheme configuration for archiving..."
+          cd ios/App
+          
+          # Check if scheme exists and is configured for archiving
+          echo "� Checking scheme configuration..."
+          if [ -f "App.xcodeproj/xcshareddata/xcschemes/App.xcscheme" ]; then
+            echo "✅ Scheme file exists"
+            cat App.xcodeproj/xcshareddata/xcschemes/App.xcscheme
+          else
+            echo "❌ Scheme file missing, creating xcshareddata structure..."
+            mkdir -p App.xcodeproj/xcshareddata/xcschemes
+          fi
+          
+          # Force recreate the scheme with proper archive action
+          echo "�️ Recreating scheme with archive configuration..."
+          xcodebuild -workspace App.xcworkspace -scheme App -showBuildSettings > /dev/null 2>&1 || {
+            echo "⚠️ Scheme issues detected, attempting to fix..."
+            
+            # Create a proper scheme file
+            cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << 'EOF'
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Scheme
+             LastUpgradeVersion = "1600"
+             version = "1.7">
+             <BuildAction
+                parallelizeBuildables = "YES"
+                buildImplicitDependencies = "YES">
+                <BuildActionEntries>
+                   <BuildActionEntry
+                      buildForTesting = "YES"
+                      buildForRunning = "YES"
+                      buildForProfiling = "YES"
+                      buildForArchiving = "YES"
+                      buildForAnalyzing = "YES">
+                      <BuildableReference
+                         BuildableIdentifier = "primary"
+                         BlueprintIdentifier = "92DBD88DE9BF7D494EA9DA49"
+                         BuildableName = "App.app"
+                         BlueprintName = "App"
+                         ReferencedContainer = "container:App.xcodeproj">
+                      </BuildableReference>
+                   </BuildActionEntry>
+                </BuildActionEntries>
+             </BuildAction>
+             <ArchiveAction
+                buildConfiguration = "Release"
+                revealArchiveInOrganizer = "YES">
+             </ArchiveAction>
+          </Scheme>
+          EOF
+          }
+
       - name: Build and Archive iOS app
         run: |
           echo "🏗️ Building iOS app for App Store..."
           cd ios/App
 
-          # Use available certificate identity (Apple Development detected)
-          echo "🔨 Detecting available certificate identity..."
-          CERT_IDENTITY=$(security find-identity -v -p codesigning | grep "Apple" | head -1 | cut -d '"' -f 2)
-          echo "🎯 Using certificate: ${CERT_IDENTITY}"
-          
-          # Try building with detected certificate and automatic provisioning
-          echo "🔧 Building with available certificate..."
+          # Simple archive approach - let Xcode handle destinations
+          echo "📦 Creating archive with simplified approach..."
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
             -archivePath ${{ github.workspace }}/App.xcarchive \
-            CODE_SIGN_STYLE=Automatic \
-            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
-            CODE_SIGN_IDENTITY="${CERT_IDENTITY}" \
-            ONLY_ACTIVE_ARCH=NO \
-            VALID_ARCHS="arm64" \
-            ARCHS="arm64" || {
-              echo "❌ Automatic signing failed, trying manual with available identity..."
-              
-              # Fallback: Try with manual signing but available identity
-              xcodebuild archive \
-                -workspace App.xcworkspace \
-                -scheme App \
-                -configuration Release \
-                -archivePath ${{ github.workspace }}/App.xcarchive \
-                CODE_SIGN_STYLE=Manual \
-                PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
-                CODE_SIGN_IDENTITY="${CERT_IDENTITY}" \
-                ONLY_ACTIVE_ARCH=NO \
-                VALID_ARCHS="arm64" \
-                ARCHS="arm64"
-            }
+            CODE_SIGN_STYLE=Manual \
+            PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            SKIP_INSTALL=NO \
+            BUILD_LIBRARY_FOR_DISTRIBUTION=NO
 
           echo "✅ Archive created successfully"
 
