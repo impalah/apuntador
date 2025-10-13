@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - develop
+      - 'feature/*'
+      - 'hotfix/*'
   workflow_dispatch:
     inputs:
       logLevel:
@@ -72,12 +75,52 @@ jobs:
         run: |
           npm run build
 
+      - name: Determine branch suffix
+        id: branch_suffix
+        run: |
+          BRANCH_NAME=${GITHUB_REF#refs/heads/}
+          echo "Branch: $BRANCH_NAME"
+          
+          case "$BRANCH_NAME" in
+            "main")
+              SUFFIX=""
+              BRANCH_TYPE="main"
+              ;;
+            "develop")
+              SUFFIX="-dev"
+              BRANCH_TYPE="develop"
+              ;;
+            feature/*)
+              SUFFIX="-feature"
+              BRANCH_TYPE="feature"
+              ;;
+            hotfix/*)
+              SUFFIX="-hotfix"
+              BRANCH_TYPE="hotfix"
+              ;;
+            *)
+              SUFFIX="-${BRANCH_NAME//\//-}"
+              BRANCH_TYPE="other"
+              ;;
+          esac
+          
+          echo "suffix=${SUFFIX}" >> $GITHUB_OUTPUT
+          echo "branch_type=${BRANCH_TYPE}" >> $GITHUB_OUTPUT
+          echo "branch_name=${BRANCH_NAME}" >> $GITHUB_OUTPUT
+          echo "Branch suffix: '${SUFFIX}'"
+
       - name: Read VERSION and set ImageTag
         id: version
         run: |
-          VERSION=$(node -p "require('./package.json').version")
+          BASE_VERSION=$(node -p "require('./package.json').version")
+          SUFFIX="${{ steps.branch_suffix.outputs.suffix }}"
+          VERSION="${BASE_VERSION}${SUFFIX}"
+          echo "Base version: ${BASE_VERSION}"
+          echo "Suffix: ${SUFFIX}"
+          echo "Final version: ${VERSION}"
           echo "IMAGE_TAG=${VERSION}" >> $GITHUB_ENV
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
+          echo "base_version=${BASE_VERSION}" >> $GITHUB_OUTPUT
 
       - name: Compress dist directory
         run: |
@@ -108,32 +151,31 @@ jobs:
 
             ### 📦 Web Application Release
             This release contains the built web application ready for deployment.
+            
+            **Branch**: `${{ steps.branch_suffix.outputs.branch_name }}` (${{ steps.branch_suffix.outputs.branch_type }})
+            **Base Version**: ${{ steps.version.outputs.base_version }}
+            **Release Tag**: ${{ steps.version.outputs.version }}
 
             ### 🚀 Deployment Options
-            - **Static Hosting**: Extract the ZIP to any web server
-            - **GitHub Pages**: Deploy directly from this release  
-            - **S3/CloudFront**: Use with the deploy-release workflow
-            - **Android APK**: Use this release with the build-android-apk workflow
+            - **Static Hosting**: Extract the ZIP to any web server or CDN
+            - **Cloud Deployment**: Use the `deploy-release` workflow with:
+              - Release tag: `${{ steps.version.outputs.version }}`
+              - Environment: `dev` / `pre` / `pro`
 
-            ### 📱 To Create Android APK
-            1. Go to Actions → Build Android APK
-            2. Run workflow manually
-            3. Enter this release tag: `${{ steps.version.outputs.version }}`
-            4. Select build type (release/debug)
-
-            ### ✨ Features
-            - Mobile-first responsive design
-            - Auto-scrolling teleprompter
-            - Highlight band for current line focus
-            - Mirror modes (horizontal/vertical)
-            - Touch and keyboard controls
-            - Markdown support with live editing
-            - Dark/Light themes
-            - File import (.md/.txt)
+            ### 📱 To Create Native Packages
+            Use the available build workflows with this release tag: `${{ steps.version.outputs.version }}`
+            
+            **Available Workflows:**
+            - `build-android-apk` - Android APK
+            - `build-android-bundle` - Android AAB (Play Store)
+            - `build-windows-desktop` - Windows MSI/NSIS
+            - `build-macos-desktop` - macOS DMG
+            - `build-linux-desktop` - Linux AppImage/DEB
+            - `build-ios-appstore` - iOS App Store
 
             ### 🔧 Installation
             Extract the ZIP file and serve from any web server or static hosting service.
           files: |
             ${{ steps.version.outputs.version }}.zip
-          draft: false
-          prerelease: false
+          draft: ${{ steps.branch_suffix.outputs.branch_type != 'main' }}
+          prerelease: ${{ steps.branch_suffix.outputs.branch_type != 'main' }}
