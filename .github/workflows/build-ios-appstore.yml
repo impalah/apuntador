@@ -157,7 +157,15 @@ jobs:
           echo "📋 Available destinations:"
           xcodebuild -workspace App.xcworkspace -scheme App -showdestinations | grep -E "(platform|id|name)"
 
-          # Build archive for iOS (without specifying destination - let Xcode choose)
+          # Check available SDKs and build archive
+          echo "📋 Available iOS SDKs:"
+          xcodebuild -showsdks | grep -i ios
+          
+          # Use the latest available iOS SDK (not hardcoded version)
+          IOS_SDK=$(xcodebuild -showsdks | grep -o 'iphoneos[0-9]*\.[0-9]*' | tail -1)
+          echo "🎯 Using SDK: ${IOS_SDK}"
+          
+          # Build archive for iOS with available SDK
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
@@ -166,7 +174,8 @@ jobs:
             CODE_SIGN_STYLE=Manual \
             PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
             CODE_SIGN_IDENTITY="Apple Distribution" \
-            -sdk iphoneos
+            -sdk "${IOS_SDK}" \
+            ONLY_ACTIVE_ARCH=NO
 
           echo "✅ Archive created successfully"
 
