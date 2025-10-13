@@ -13,17 +13,29 @@ The iOS workflow (`build-ios-appstore.yml`) can:
 ## Prerequisites
 
 ### 1. Apple Developer Account
-- **Apple Developer Program** membership ($99/year)
-- **App Store Connect** access
+- **Apple Developer Program** membership ($99/year) ⚠️ **REQUIRED**
+- **App Store Connect** access 
 - **Certificates & Profiles** management rights
+
+> **⚠️ Important**: Free Apple Developer accounts CANNOT create distribution certificates. You need a paid membership ($99/year) to see distribution certificate options in the portal.
 
 ### 2. Required Certificates & Profiles
 You need these from Apple Developer Portal:
 
+> **⚠️ Important**: Certificate names may vary. Look for these alternatives:
+> - **"Apple Distribution"** ✅ (preferred)
+> - **"iOS Distribution (App Store and Ad Hoc)"** ✅ (older name)
+> - **"Distribution (App Store and Ad Hoc)"** ✅ (alternative)
+> 
+> **❌ NOT these**: "Apple Development", "iOS Development", "Mac Distribution"
+
 #### Distribution Certificate
 1. Go to [Apple Developer Portal](https://developer.apple.com/account/)
-2. **Certificates** → **+** → **Apple Distribution**
-3. Download certificate (.cer) and private key (.p12)
+2. **Certificates, Identifiers & Profiles** → **Certificates** → **+** 
+3. Select **"iOS Distribution (App Store and Ad Hoc)"** or **"Apple Distribution"**
+4. Upload your Certificate Signing Request (CSR)
+5. Download certificate (.cer) and install in Keychain
+6. Export from Keychain as .p12 (includes private key)
 
 #### App Store Provisioning Profile  
 1. **Profiles** → **+** → **App Store**
@@ -100,14 +112,32 @@ base64 -i AuthKey_ABC123DEFG.p8 | pbcopy
 
 ## Step-by-Step Setup
 
-### Step 1: Create Distribution Certificate
+> **🎯 Quick Help**: If you can't find the right certificate type, see: [Certificate Visual Guide](./IOS_CERTIFICATE_VISUAL_GUIDE.md)
 
-1. **Mac Keychain**: Open **Keychain Access**
-2. **Request Certificate**: Keychain Access → Certificate Assistant → Request a Certificate from a Certificate Authority
-3. **Fill details**: Your email, Common Name, Save to disk
-4. **Apple Portal**: Upload CSR → Download certificate
-5. **Install**: Double-click to install in Keychain
-6. **Export**: Right-click certificate → Export → .p12 format
+### Step 1: Create Certificate Signing Request (CSR)
+
+**FIRST**, you need to create a CSR on your Mac:
+
+1. **Open Keychain Access** (Applications → Utilities → Keychain Access)
+2. **Menu**: Keychain Access → Certificate Assistant → **"Request a Certificate From a Certificate Authority..."**
+3. **Fill form**:
+   - **User Email Address**: Your Apple ID email
+   - **Common Name**: Your name or company name
+   - **CA Email Address**: Leave empty
+   - **Request is**: Select **"Saved to disk"**
+4. **Save**: Choose location → Save as `CertificateSigningRequest.certSigningRequest`
+
+### Step 2: Create Distribution Certificate
+
+**NOW** go to Apple Developer Portal with your CSR:
+
+1. **Apple Developer Portal**: [developer.apple.com/account](https://developer.apple.com/account)
+2. **Navigate**: Certificates, Identifiers & Profiles → **Certificates** → **+**
+3. **Select type**: Choose **"iOS Distribution (App Store and Ad Hoc)"**
+4. **Upload CSR**: Choose the `.certSigningRequest` file you created
+5. **Download**: Download the `.cer` certificate file
+6. **Install**: Double-click the `.cer` file to add to Keychain
+7. **Export**: Right-click certificate in Keychain → Export → **Personal Information Exchange (.p12)**
 
 ### Step 2: Create Provisioning Profile
 
