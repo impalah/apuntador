@@ -168,20 +168,27 @@ jobs:
           echo "🏗️ Building iOS app for App Store..."
           cd ios/App
 
-          # Try a different approach - build first, then archive
-          echo "� Building for release first..."
-          xcodebuild build \
+          # Use available certificate identity (Apple Development detected)
+          echo "🔨 Detecting available certificate identity..."
+          CERT_IDENTITY=$(security find-identity -v -p codesigning | grep "Apple" | head -1 | cut -d '"' -f 2)
+          echo "🎯 Using certificate: ${CERT_IDENTITY}"
+          
+          # Try building with detected certificate and automatic provisioning
+          echo "🔧 Building with available certificate..."
+          xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
-            -destination "generic/platform=iOS" \
-            CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            ONLY_ACTIVE_ARCH=NO || {
-              echo "❌ Build failed, trying with 'Any iOS Device' destination..."
+            -archivePath ${{ github.workspace }}/App.xcarchive \
+            CODE_SIGN_STYLE=Automatic \
+            DEVELOPMENT_TEAM="${{ secrets.IOS_TEAM_ID }}" \
+            CODE_SIGN_IDENTITY="${CERT_IDENTITY}" \
+            ONLY_ACTIVE_ARCH=NO \
+            VALID_ARCHS="arm64" \
+            ARCHS="arm64" || {
+              echo "❌ Automatic signing failed, trying manual with available identity..."
               
-              # Alternative: Try archiving directly without destination
+              # Fallback: Try with manual signing but available identity
               xcodebuild archive \
                 -workspace App.xcworkspace \
                 -scheme App \
@@ -189,24 +196,11 @@ jobs:
                 -archivePath ${{ github.workspace }}/App.xcarchive \
                 CODE_SIGN_STYLE=Manual \
                 PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
-                CODE_SIGN_IDENTITY="Apple Distribution" \
+                CODE_SIGN_IDENTITY="${CERT_IDENTITY}" \
                 ONLY_ACTIVE_ARCH=NO \
                 VALID_ARCHS="arm64" \
                 ARCHS="arm64"
             }
-
-          # If build succeeded, now archive
-          echo "📦 Creating archive..."
-          xcodebuild archive \
-            -workspace App.xcworkspace \
-            -scheme App \
-            -configuration Release \
-            -destination "generic/platform=iOS" \
-            -archivePath ${{ github.workspace }}/App.xcarchive \
-            CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
-            CODE_SIGN_IDENTITY="Apple Distribution" \
-            ONLY_ACTIVE_ARCH=NO
 
           echo "✅ Archive created successfully"
 
