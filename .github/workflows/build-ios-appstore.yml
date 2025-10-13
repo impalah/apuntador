@@ -131,7 +131,7 @@ jobs:
 
           # Install provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/AppStore.mobileprovision
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Apuntador\ App\ Store\ Distribution.mobileprovision
 
           echo "✅ iOS signing configured"
 
@@ -161,7 +161,7 @@ jobs:
             -destination generic/platform=iOS \
             -archivePath ${{ github.workspace }}/App.xcarchive \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="AppStore" \
+            PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
             CODE_SIGN_IDENTITY="Apple Distribution"
 
           echo "✅ Archive created successfully"
