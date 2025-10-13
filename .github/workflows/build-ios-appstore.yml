@@ -168,23 +168,24 @@ jobs:
           echo "🔧 Fixing iOS scheme configuration for archiving..."
           cd ios/App
           
-          # Check if scheme exists and is configured for archiving
-          echo "� Checking scheme configuration..."
-          if [ -f "App.xcodeproj/xcshareddata/xcschemes/App.xcscheme" ]; then
-            echo "✅ Scheme file exists"
-            cat App.xcodeproj/xcshareddata/xcschemes/App.xcscheme
-          else
-            echo "❌ Scheme file missing, creating xcshareddata structure..."
-            mkdir -p App.xcodeproj/xcshareddata/xcschemes
+          # Get the actual target UUID from project.pbxproj
+          echo "🔍 Finding App target UUID..."
+          APP_TARGET_UUID=$(grep -A1 'targets = (' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
+          echo "🎯 App target UUID: ${APP_TARGET_UUID}"
+          
+          if [ -z "$APP_TARGET_UUID" ]; then
+            echo "❌ Could not find App target UUID, using alternative method..."
+            APP_TARGET_UUID=$(grep -E '\/\* App \*\/ = \{' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
+            echo "🔄 Alternative UUID: ${APP_TARGET_UUID}"
           fi
           
-          # Force recreate the scheme with proper archive action
-          echo "�️ Recreating scheme with archive configuration..."
-          xcodebuild -workspace App.xcworkspace -scheme App -showBuildSettings > /dev/null 2>&1 || {
-            echo "⚠️ Scheme issues detected, attempting to fix..."
-            
-            # Create a proper scheme file
-            cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << 'EOF'
+          # Check if scheme exists and is configured for archiving
+          echo "📋 Creating scheme directory..."
+          mkdir -p App.xcodeproj/xcshareddata/xcschemes
+          
+          # Create a proper scheme file with correct UUID
+          echo "🛠️ Creating scheme with correct target UUID..."
+          cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <Scheme
              LastUpgradeVersion = "1600"
@@ -201,7 +202,7 @@ jobs:
                       buildForAnalyzing = "YES">
                       <BuildableReference
                          BuildableIdentifier = "primary"
-                         BlueprintIdentifier = "92DBD88DE9BF7D494EA9DA49"
+                         BlueprintIdentifier = "\${APP_TARGET_UUID}"
                          BuildableName = "App.app"
                          BlueprintName = "App"
                          ReferencedContainer = "container:App.xcodeproj">
@@ -215,7 +216,8 @@ jobs:
              </ArchiveAction>
           </Scheme>
           EOF
-          }
+          
+          echo "✅ Scheme created with target UUID: \${APP_TARGET_UUID}"
 
       - name: Build and Archive iOS app
         run: |
