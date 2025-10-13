@@ -21,6 +21,9 @@ env:
 jobs:
   inspect-build-release:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
 
     steps:
       - name: Checkout code
@@ -69,7 +72,7 @@ jobs:
           git config --global user.email 'action@github.com'
           git add package.json
           git commit -m "Update version" || echo "No changes to commit"
-          git push origin HEAD
+          git push origin HEAD || echo "Push failed, continuing with release creation"
 
       - name: npm build
         run: |
@@ -177,5 +180,5 @@ jobs:
             Extract the ZIP file and serve from any web server or static hosting service.
           files: |
             ${{ steps.version.outputs.version }}.zip
-          draft: ${{ steps.branch_suffix.outputs.branch_type != 'main' }}
+          draft: false
           prerelease: ${{ steps.branch_suffix.outputs.branch_type != 'main' }}
