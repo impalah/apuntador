@@ -41,7 +41,7 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '15.4'
+          xcode-version: '16.1'
 
       - name: Install dependencies (minimal for Capacitor)
         run: npm ci
@@ -131,7 +131,7 @@ jobs:
 
           # Install provisioning profile
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
-          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/AppStore.mobileprovision
+          echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Apuntador\ App\ Store\ Distribution.mobileprovision
 
           echo "✅ iOS signing configured"
 
@@ -148,21 +148,94 @@ jobs:
           pod install --repo-update
           cd ../..
 
+      - name: Debug iOS Project Configuration
+        run: |
+          echo "🔍 Debugging iOS project configuration..."
+          cd ios/App
+          
+          # Check project settings
+          echo "📱 Project deployment target:"
+          grep -A5 -B5 "IPHONEOS_DEPLOYMENT_TARGET" App.xcodeproj/project.pbxproj | head -20
+          
+          echo "📋 Scheme configuration:"
+          xcodebuild -workspace App.xcworkspace -list
+          
+          echo "📋 Available destinations (full):"
+          xcodebuild -workspace App.xcworkspace -scheme App -showdestinations
+
+      - name: Fix iOS Scheme Configuration  
+        run: |
+          echo "🔧 Fixing iOS scheme configuration for archiving..."
+          cd ios/App
+          
+          # Get the actual target UUID from project.pbxproj
+          echo "🔍 Finding App target UUID..."
+          APP_TARGET_UUID=$(grep -A1 'targets = (' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
+          echo "🎯 App target UUID: ${APP_TARGET_UUID}"
+          
+          if [ -z "$APP_TARGET_UUID" ]; then
+            echo "❌ Could not find App target UUID, using alternative method..."
+            APP_TARGET_UUID=$(grep -E '\/\* App \*\/ = \{' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
+            echo "🔄 Alternative UUID: ${APP_TARGET_UUID}"
+          fi
+          
+          # Check if scheme exists and is configured for archiving
+          echo "📋 Creating scheme directory..."
+          mkdir -p App.xcodeproj/xcshareddata/xcschemes
+          
+          # Create a proper scheme file with correct UUID
+          echo "🛠️ Creating scheme with correct target UUID..."
+          cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <Scheme
+             LastUpgradeVersion = "1600"
+             version = "1.7">
+             <BuildAction
+                parallelizeBuildables = "YES"
+                buildImplicitDependencies = "YES">
+                <BuildActionEntries>
+                   <BuildActionEntry
+                      buildForTesting = "YES"
+                      buildForRunning = "YES"
+                      buildForProfiling = "YES"
+                      buildForArchiving = "YES"
+                      buildForAnalyzing = "YES">
+                      <BuildableReference
+                         BuildableIdentifier = "primary"
+                         BlueprintIdentifier = "\${APP_TARGET_UUID}"
+                         BuildableName = "App.app"
+                         BlueprintName = "App"
+                         ReferencedContainer = "container:App.xcodeproj">
+                      </BuildableReference>
+                   </BuildActionEntry>
+                </BuildActionEntries>
+             </BuildAction>
+             <ArchiveAction
+                buildConfiguration = "Release"
+                revealArchiveInOrganizer = "YES">
+             </ArchiveAction>
+          </Scheme>
+          EOF
+          
+          echo "✅ Scheme created with target UUID: \${APP_TARGET_UUID}"
+
       - name: Build and Archive iOS app
         run: |
           echo "🏗️ Building iOS app for App Store..."
           cd ios/App
 
-          # Build archive
+          # Simple archive approach - let Xcode handle destinations
+          echo "📦 Creating archive with simplified approach..."
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
             -configuration Release \
-            -destination generic/platform=iOS \
             -archivePath ${{ github.workspace }}/App.xcarchive \
             CODE_SIGN_STYLE=Manual \
-            PROVISIONING_PROFILE_SPECIFIER="AppStore" \
-            CODE_SIGN_IDENTITY="Apple Distribution"
+            PROVISIONING_PROFILE_SPECIFIER="Apuntador App Store Distribution" \
+            CODE_SIGN_IDENTITY="Apple Distribution" \
+            SKIP_INSTALL=NO \
+            BUILD_LIBRARY_FOR_DISTRIBUTION=NO
 
           echo "✅ Archive created successfully"
 
@@ -210,6 +283,16 @@ jobs:
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
         run: |
           echo "🚀 Uploading to TestFlight..."
+
+          # Check if API key secrets are available
+          if [ -z "$APP_STORE_CONNECT_API_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_API_ISSUER_ID" ] || [ -z "$APP_STORE_CONNECT_API_KEY_BASE64" ]; then
+            echo "⚠️ App Store Connect API Key secrets not configured"
+            echo "📱 Manual upload required:"
+            echo "  1. Download IPA from GitHub Actions artifacts"
+            echo "  2. Use Xcode Organizer or Transporter app to upload"
+            echo "  3. Or configure API Key secrets for automatic upload"
+            exit 0
+          fi
 
           # Decode API key
           echo "$APP_STORE_CONNECT_API_KEY_BASE64" | base64 --decode > AuthKey.p8

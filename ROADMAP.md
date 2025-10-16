@@ -43,10 +43,9 @@ This document outlines the current features and planned development roadmap for 
   - Native window controls
   - Code signing for Windows
   - Fullscreen mode with native APIs
-- [ ] **iOS Mobile App** (Capacitor)
+- ✅ **iOS Mobile App** (Capacitor)
   - Automated package builds via GitHub Actions
   - Apple App Store bundle optimization
-  - Hardware back button handling
 
 
 ### User Interface & Experience
