@@ -58,6 +58,7 @@
     "behavior": "Comportamento",
     "controls": "Controlli",
     "data": "Dati",
+    "about": "Informazioni",
     "language": "Lingua",
     "languageAuto": "Automatico",
     "languageSpanish": "Spagnolo",
@@ -96,8 +97,11 @@
     "settingsImported": "Impostazioni importate",
     "settingsReset": "Impostazioni ripristinate",
     "dataCleared": "Tutti i dati sono stati cancellati",
-    "exportError": "Errore nell'esportazione delle impostazioni",
-    "importError": "Errore nell'importazione delle impostazioni"
+        "exportError": "Errore durante l'esportazione delle impostazioni",
+    "importError": "Errore durante l'importazione delle impostazioni",
+    "subtitle": "Teleprompter professionale",
+    "version": "Versione",
+    "copyright": "Diritti d'autore"
   },
   "editor": {
     "title": "Editor Markdown",

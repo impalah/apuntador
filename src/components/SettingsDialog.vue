@@ -22,6 +22,7 @@
           <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
           <v-tab value="controls" data-testid="controls-tab">{{ t('settings.controls') }}</v-tab>
           <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
+          <v-tab value="about" data-testid="about-tab">{{ t('settings.about') }}</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="activeTab">
@@ -308,6 +309,34 @@
               </div>
             </div>
           </v-tabs-window-item>
+
+          <!-- About Tab -->
+          <v-tabs-window-item value="about">
+            <div class="mt-4 text-center">
+              <!-- App Title and Subtitle -->
+              <div class="mb-6">
+                <h2 class="text-h4 mb-2">{{ versionInfo.name }} - {{ t('settings.subtitle') }}</h2>
+                <p class="text-body-1 text-medium-emphasis">{{ t('settings.version') }}: {{ versionInfo.version }}</p>
+              </div>
+
+              <!-- Copyright -->
+              <div class="mb-4">
+                <p class="text-body-2 text-medium-emphasis">{{ versionInfo.copyright }}</p>
+              </div>
+
+              <!-- Repository Link -->
+              <div>
+                <v-btn 
+                  :href="versionInfo.repositoryUrl" 
+                  target="_blank" 
+                  variant="outlined" 
+                  prepend-icon="mdi-github"
+                >
+                  GitHub Repository
+                </v-btn>
+              </div>
+            </div>
+          </v-tabs-window-item>
         </v-tabs-window>
       </v-card-text>
 
@@ -335,6 +364,7 @@ import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'
 import type { HotkeyDefinition } from '@/types'
 import { useGamepad } from '@/utils/gamepad'
+import { getVersionInfo } from '@/utils/version'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 
@@ -359,6 +389,9 @@ const i18nStore = useI18nStore()
 
 // Gamepad composable
 const gamepadComposable = useGamepad()
+
+// Version info
+const versionInfo = getVersionInfo()
 
 // Computed
 const gamepadSupported = computed(() => gamepadComposable.isSupported.value)

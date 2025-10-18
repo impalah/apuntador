@@ -58,6 +58,7 @@
     "behavior": "Behavior",
     "controls": "Controls",
     "data": "Data",
+    "about": "About",
     "language": "Language",
     "languageAuto": "Automatic",
     "languageSpanish": "Español",
@@ -97,7 +98,10 @@
     "settingsReset": "Settings reset successfully",
     "dataCleared": "All data has been cleared",
     "exportError": "Error exporting settings",
-    "importError": "Error importing settings"
+    "importError": "Error importing settings",
+    "subtitle": "Professional Teleprompter",
+    "version": "Version",
+    "copyright": "Copyright"
   },
   "editor": {
     "title": "Markdown Editor",

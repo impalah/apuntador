@@ -58,6 +58,7 @@
     "behavior": "Comportement",
     "controls": "Contrôles",
     "data": "Données",
+    "about": "À propos",
     "language": "Langue",
     "languageAuto": "Automatique",
     "languageSpanish": "Espagnol",
@@ -97,7 +98,10 @@
     "settingsReset": "Paramètres réinitialisés",
     "dataCleared": "Toutes les données ont été effacées",
     "exportError": "Erreur lors de l'exportation des paramètres",
-    "importError": "Erreur lors de l'importation des paramètres"
+    "importError": "Erreur lors de l'importation des paramètres",
+    "subtitle": "Télésouffleur professionnel",
+    "version": "Version",
+    "copyright": "Droits d'auteur"
   },
   "editor": {
     "title": "Éditeur Markdown",

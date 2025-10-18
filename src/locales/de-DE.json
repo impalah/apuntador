@@ -58,6 +58,7 @@
     "behavior": "Verhalten",
     "controls": "Steuerung",
     "data": "Daten",
+    "about": "Über",
     "language": "Sprache",
     "languageAuto": "Automatisch",
     "languageSpanish": "Spanisch",
@@ -97,7 +98,10 @@
     "settingsReset": "Einstellungen zurückgesetzt",
     "dataCleared": "Alle Daten wurden gelöscht",
     "exportError": "Fehler beim Exportieren der Einstellungen",
-    "importError": "Fehler beim Importieren der Einstellungen"
+    "importError": "Fehler beim Importieren der Einstellungen",
+    "subtitle": "Professioneller Teleprompter",
+    "version": "Version",
+    "copyright": "Urheberrecht"
   },
   "editor": {
     "title": "Markdown-Editor",

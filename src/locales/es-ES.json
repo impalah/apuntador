@@ -58,6 +58,7 @@
     "behavior": "Comportamiento",
     "controls": "Controles",
     "data": "Datos",
+    "about": "Acerca de",
     "language": "Idioma",
     "languageAuto": "Automático",
     "languageSpanish": "Español",
@@ -97,7 +98,10 @@
     "settingsReset": "Configuración restablecida",
     "dataCleared": "Todos los datos han sido limpiados",
     "exportError": "Error al exportar la configuración",
-    "importError": "Error al importar la configuración"
+    "importError": "Error al importar la configuración",
+    "subtitle": "Teleprompter profesional",
+    "version": "Versión",
+    "copyright": "Derechos de autor"
   },
   "editor": {
     "title": "Editor de Markdown",
