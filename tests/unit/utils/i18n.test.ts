@@ -55,6 +55,13 @@ describe('i18n utils', () => {
         { value: 'auto', label: 'Auto' },
         { value: 'es-ES', label: 'Español' },
         { value: 'en-US', label: 'English' },
+        { value: 'ca-ES', label: 'Català' },
+        { value: 'gl-ES', label: 'Galego' },
+        { value: 'pt-BR', label: 'Português (Brasil)' },
+        { value: 'pt-PT', label: 'Português (Portugal)' },
+        { value: 'fr-FR', label: 'Français' },
+        { value: 'de-DE', label: 'Deutsch' },
+        { value: 'it-IT', label: 'Italiano' },
       ])
     })
   })
@@ -103,7 +110,7 @@ describe('i18n utils', () => {
     })
 
     it('should default to es-ES for unknown languages', () => {
-      mockNavigator.language = 'fr-FR'
+      mockNavigator.language = 'zh-CN' // Use Chinese as truly unsupported language
 
       setLanguage('auto')
 
@@ -133,7 +140,7 @@ describe('i18n utils', () => {
     })
 
     it('should default to Spanish for unsupported languages', () => {
-      const unsupportedLanguages = ['fr-FR', 'de-DE', 'it-IT', 'pt-BR', 'zh-CN']
+      const unsupportedLanguages = ['zh-CN', 'ja-JP', 'ko-KR', 'ar-SA', 'he-IL']
 
       unsupportedLanguages.forEach((lang) => {
         mockNavigator.language = lang
