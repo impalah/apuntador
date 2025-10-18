@@ -117,12 +117,15 @@ This document outlines the current features and planned development roadmap for 
 
 ## 🌟 Version 1.1 - Cloud Integration & Professional Features (Q4 2025)
 
-**Status**: 🔄 **In Development**
+**Status**: ✅ **Completed** *(v1.0.32)*
 
 ### Multilanguage integration
-- [ ] **Support for multilanguage**
-  - Increase the list of available languages.
-  - RTL, LTR support.
+- [x] **Support for multilanguage**
+  - ✅ **New languages implemented**: Català (ca-ES), Galego (gl-ES), Português Brasil (pt-BR), Português Portugal (pt-PT), Français (fr-FR), Deutsch (de-DE), Italiano (it-IT)
+  - ✅ **Automatic browser detection** for all supported languages
+  - ✅ **Fallback system** with Spanish as default
+  - [ ] **RTL support** for Hebrew, Arabic, and other RTL languages
+  - [x] **Dynamic language switching** with persistence
 
 ### Integration Capabilities
 - [ ] **Third-party integrations**
@@ -247,6 +250,11 @@ This document outlines the current features and planned development roadmap for 
   - Multi-tenant architecture
   - Usage analytics and reporting
   - Custom branding options
+
+### Multilanguage integration
+- [ ] **Support for multilanguage**
+  - Increase the list of available languages.
+  - RTL, LTR support.
 
 ---
 
