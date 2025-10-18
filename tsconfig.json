@@ -6,7 +6,8 @@
     "src/**/*.vue",
     "tests/**/*",
     "vite.config.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "config/**/*"
   ],
   "exclude": ["src/**/__tests__/*"],
   "compilerOptions": {

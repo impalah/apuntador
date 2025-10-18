@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 import { fileURLToPath, URL } from 'node:url'
+import { versionSync } from './config/vite-plugin-version-sync'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -12,6 +13,11 @@ export default defineConfig({
       styles: {
         configFile: 'src/styles/variables.scss',
       },
+    }),
+    versionSync({
+      packageJsonPath: './package.json',
+      versionFilePath: './src/utils/version.ts',
+      updateInDev: true
     }),
   ],
   resolve: {
