@@ -143,7 +143,7 @@ const contentStyle = computed(() => {
     measuredContentHeight.value || viewportHeight.value * 2 // Use measured or fallback
   )
   
-  console.log('[ANDROID DEBUG] contentStyle computed - viewport:', viewportHeight.value, 'measured:', measuredContentHeight.value, 'minHeight:', minHeight)
+  // console.log('[ANDROID DEBUG] contentStyle computed - viewport:', viewportHeight.value, 'measured:', measuredContentHeight.value, 'minHeight:', minHeight)
   
   return {
     fontSize: `${props.displayPrefs.fontSizePx}px`,
@@ -296,10 +296,10 @@ watch(
 watch(
   () => props.scrollState.offset,
   (newOffset: number) => {
-    console.log('[SCROLL SYNC] Store offset changed to:', newOffset.toFixed(1))
+    // console.log('[SCROLL SYNC] Store offset changed to:', newOffset.toFixed(1))
     if (transformedContainerRef.value && !isScrollingSynchronizing) {
       const el = transformedContainerRef.value
-      console.log('[SCROLL SYNC] Updating DOM scrollTop from', el.scrollTop.toFixed(1), 'to', newOffset.toFixed(1))
+      // console.log('[SCROLL SYNC] Updating DOM scrollTop from', el.scrollTop.toFixed(1), 'to', newOffset.toFixed(1))
       
       // Set flag to prevent sync loop
       isScrollingSynchronizing = true
@@ -371,7 +371,7 @@ function measureDimensions() {
   viewportHeight.value = newViewportHeight
   measuredContentHeight.value = newContentHeight
   
-  console.log('[ANDROID DEBUG] measureDimensions - viewport:', newViewportHeight, 'content:', newContentHeight)
+  // console.log('[ANDROID DEBUG] measureDimensions - viewport:', newViewportHeight, 'content:', newContentHeight)
 
   emit('content-height-changed', newContentHeight)
   emit('viewport-height-changed', newViewportHeight)
@@ -441,7 +441,7 @@ function onManualScroll(event: Event) {
   const target = event.target as HTMLElement
   const scrollTop = target.scrollTop
   
-  console.log('[SCROLL SYNC] Manual scroll detected:', scrollTop.toFixed(1))
+  // console.log('[SCROLL SYNC] Manual scroll detected:', scrollTop.toFixed(1))
   
   // Debounce the scroll events to avoid too many updates
   if (scrollTimeout) {
@@ -449,7 +449,7 @@ function onManualScroll(event: Event) {
   }
   
   scrollTimeout = window.setTimeout(() => {
-    console.log('[SCROLL SYNC] Emitting manual scroll offset:', scrollTop.toFixed(1))
+    // console.log('[SCROLL SYNC] Emitting manual scroll offset:', scrollTop.toFixed(1))
     emit('manual-scroll', scrollTop)
   }, SCROLL_DEBOUNCE_MS)
 }

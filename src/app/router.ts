@@ -7,6 +7,11 @@ const routes = [
     name: 'teleprompter',
     component: TeleprompterPage,
   },
+  {
+    path: '/oauth-callback',
+    name: 'oauth-callback',
+    component: () => import('@/pages/OAuthCallback.vue'),
+  },
   // Demo route to show modular component switching (DISABLED - has issues)
   // ...(import.meta.env.DEV ? [{
   //   path: '/modular-demo',

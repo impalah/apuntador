@@ -6,6 +6,7 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "open": "Abrir",
     "reset": "Restablecer",
     "apply": "Aplicar",
     "auto": "Auto",
@@ -226,5 +227,39 @@
     "close": "Cerrar ventana",
     "alwaysOnTop": "Siempre arriba",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "cloud": {
+    "files": {
+      "loading": "Cargando archivos...",
+      "empty": "No hay archivos en esta carpeta",
+      "openFile": "Abrir desde la nube",
+      "saveFile": "Guardar en la nube", 
+      "deleteFile": "Eliminar archivo",
+      "fileName": "Nombre del archivo",
+      "selectFile": "Selecciona un archivo",
+      "upload": "Subir archivo",
+      "download": "Descargar",
+      "back": "Volver"
+    }
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Conecta tu cuenta de Dropbox para abrir y guardar scripts directamente en la nube.",
+      "connect": "Conectar con Dropbox",
+      "connecting": "Conectando con Dropbox...",
+      "connected": "Conectado",
+      "disconnect": "Desconectar"
+    },
+    "files": {
+      "loading": "Cargando archivos...",
+      "empty": "No hay archivos en esta carpeta",
+      "openFile": "Abrir archivo",
+      "saveFile": "Guardar archivo",
+      "deleteFile": "Eliminar archivo",
+      "fileName": "Nombre del archivo",
+      "upload": "Subir archivo",
+      "download": "Descargar",
+      "back": "Volver"
+    }
   }
 }

@@ -226,5 +226,25 @@
     "close": "Close window",
     "alwaysOnTop": "Always on top",
     "fullscreen": "Toggle fullscreen"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Connect your Dropbox account to open and save scripts directly from the cloud.",
+      "connect": "Connect to Dropbox",
+      "connecting": "Connecting to Dropbox...",
+      "connected": "Connected",
+      "disconnect": "Disconnect"
+    },
+    "files": {
+      "loading": "Loading files...",
+      "empty": "No files in this folder",
+      "openFile": "Open file",
+      "saveFile": "Save file",
+      "deleteFile": "Delete file",
+      "fileName": "File name",
+      "upload": "Upload file",
+      "download": "Download",
+      "back": "Back"
+    }
   }
 }

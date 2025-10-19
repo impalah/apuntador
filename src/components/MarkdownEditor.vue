@@ -44,6 +44,22 @@
           data-testid="open-file-button"
         />
 
+        <!-- Cloud Open button -->
+        <v-btn 
+          icon="mdi-cloud" 
+          @click="onOpenCloud" 
+          :title="t('cloud.files.openFile', 'Abrir desde la nube')" 
+        />
+
+        <!-- Save to Cloud button -->
+        <v-btn 
+          icon="mdi-cloud-upload" 
+          variant="text"
+          @click="onSaveToCloud" 
+          :disabled="!dropboxStore.isConnected || saving"
+          :title="t('cloud.files.saveFile', 'Guardar en la nube')" 
+        />
+
         <v-divider vertical class="mx-2" />
 
         <!-- Desktop layout toggle -->
@@ -166,29 +182,142 @@ Code block
           </v-card-actions>
         </v-card>
       </v-dialog>
+
+      <!-- Dropbox Dialog - Compact File Picker Style -->
+      <!-- Cloud File Explorer Dialog -->
+      <v-dialog 
+        v-model="showCloudDialog"
+        max-width="900"
+        max-height="600"
+        persistent
+        scrollable
+      >
+        <v-card class="dropbox-file-picker">
+          <v-card-title class="d-flex align-center py-3 px-4 bg-surface-variant">
+            <v-icon
+              color="primary"
+              class="me-2"
+            >
+              mdi-cloud
+            </v-icon>
+            {{ t('cloud.files.openFile', 'Abrir desde la nube') }}
+            <v-spacer />
+            <v-btn
+              icon="mdi-close"
+              variant="text"
+              size="small"
+              @click="onCancelCloud"
+            />
+          </v-card-title>
+          
+          <!-- Compact content area -->
+          <div class="dropbox-content-container">
+            <!-- Mostrar conexión si no está conectado -->
+            <div
+              v-if="!dropboxStore.isConnected"
+              class="pa-6 text-center"
+            >
+              <DropboxConnection />
+            </div>
+            
+            <!-- Mostrar explorador compacto si está conectado -->
+            <div
+              v-else
+              class="dropbox-explorer-container"
+            >
+              <DropboxFileExplorer
+                @file-selected="onCloudFileSelected"
+                compact-mode
+              />
+            </div>
+          </div>
+
+          <!-- Action buttons -->
+          <v-card-actions class="px-4 py-3 bg-surface-variant">
+            <v-spacer />
+            <v-btn
+              variant="text"
+              @click="onCancelCloud"
+            >
+              {{ t('common.cancel', 'Cancelar') }}
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="flat"
+              :disabled="!selectedCloudFile"
+              @click="onAcceptCloud"
+            >
+              {{ t('common.open', 'Abrir') }}
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
+    </v-card>
+  </v-dialog>
+
+  <!-- Cloud Save Dialog -->
+  <v-dialog 
+    v-model="showCloudSaveDialog" 
+    max-width="900px" 
+    persistent 
+    scrollable
+  >
+    <v-card>
+      <v-card-title>
+        <span class="text-h6">{{ t('dropbox.files.saveFile', 'Guardar archivo') }}</span>
+      </v-card-title>
+
+      <v-card-text style="max-height: 600px;">
+        <!-- File Explorer for navigation -->
+        <DropboxFileExplorer 
+          :compact-mode="true"
+          @file-selected="onSaveLocationSelected"
+        />
+        
+        <!-- File name input -->
+        <v-divider class="my-4" />
+        <v-text-field
+          v-model="suggestedFileName"
+          :label="t('cloud.files.fileName', 'Nombre del archivo')"
+          variant="outlined"
+          density="compact"
+          hint="Incluye la extensión (.md, .txt)"
+          persistent-hint
+          class="mt-2"
+        />
+      </v-card-text>
+
+      <v-card-actions>
+        <v-spacer />
+        <v-btn
+          variant="text"
+          @click="onCancelCloudSave"
+        >
+          {{ t('common.cancel', 'Cancelar') }}
+        </v-btn>
+        <v-btn
+          color="primary"
+          variant="flat"
+          :disabled="!suggestedFileName.trim() || saving"
+          :loading="saving"
+          @click="onSaveCloudFile"
+        >
+          {{ t('cloud.files.saveFile', 'Guardar') }}
+        </v-btn>
+      </v-card-actions>
     </v-card>
   </v-dialog>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, nextTick } from 'vue'
+import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { compileMarkdown } from '@/utils/markdown'
-import { usePrefsStore } from '@/stores/usePrefsStore'
-import { useFileStore } from '@/stores/useFileStore'
-import {
-  saveFile,
-  saveToFileHandle,
-  isFileSystemAccessSupported,
-  ensureMarkdownExtension,
-} from '@/utils/fileSystem'
-import {
-  refreshFromSource,
-  readSourceContent,
-  saveWithConflictCheck,
-  compareWithSource,
-} from '@/utils/fileSync'
+import { useDropboxStore } from '@/stores/useDropboxStore'
+import DropboxConnection from '@/components/cloud/DropboxConnection.vue'
+import DropboxFileExplorer from '@/components/cloud/DropboxFileExplorer.vue'
 import type { EditorProps, EditorEmits } from '@/types/editor'
+import type { CloudFile } from '@/types/cloud'
 /**
  * MarkdownEditor: Editor modular e intercambiable para contenido markdown.
  * Props y eventos definidos en src/types/editor.d.ts
@@ -215,6 +344,13 @@ const showHelp = ref(false)
 const textareaRef = ref()
 const saving = ref(false)
 const refreshing = ref(false)
+
+// Cloud state
+const dropboxStore = useDropboxStore()
+const showCloudDialog = ref(false)
+const selectedCloudFile = ref<CloudFile | null>(null)
+const showCloudSaveDialog = ref(false)
+const suggestedFileName = ref('')
 
 // Computed
 const compiledPreview = computed(() => {
@@ -314,6 +450,117 @@ async function onOpenFile() {
   emit('open-file')
 }
 
+async function onOpenCloud() {
+  // Initialize Dropbox if not connected (in the future, could select provider)
+  if (!dropboxStore.isConnected) {
+    await dropboxStore.initialize()
+  }
+  
+  // Show Cloud file explorer
+  showCloudDialog.value = true
+}
+
+function onCloudFileSelected(file: CloudFile) {
+  // Only select the file, don't download yet
+  selectedCloudFile.value = file
+  console.log('📁 File selected:', file.name)
+}
+
+function onCancelCloud() {
+  selectedCloudFile.value = null
+  showCloudDialog.value = false
+}
+
+async function onAcceptCloud() {
+  if (!selectedCloudFile.value) return
+  
+  try {
+    // Download the selected file
+    console.log('⬇️ Downloading file:', selectedCloudFile.value.name)
+    const content = await dropboxStore.downloadFile(selectedCloudFile.value.path)
+    
+    // Load content into editor
+    localContent.value = content
+    
+    // Close dialog and reset selection
+    selectedCloudFile.value = null
+    showCloudDialog.value = false
+    
+    console.log('✅ File loaded successfully')
+    
+  } catch (error) {
+    console.error('❌ Error downloading file:', error)
+    // TODO: Show error message to user
+  }
+}
+
+async function onSaveToCloud() {
+  // Initialize Dropbox if not connected (in the future, could select provider)
+  if (!dropboxStore.isConnected) {
+    await dropboxStore.initialize()
+  }
+  
+  // Load files from last cloud path (or root if no path saved)
+  try {
+    await dropboxStore.loadFiles()
+  } catch (error) {
+    console.error('Error loading cloud files:', error)
+  }
+  
+  // Show Cloud save dialog
+  showCloudSaveDialog.value = true
+  
+  // Set suggested filename from last opened cloud file
+  suggestedFileName.value = dropboxStore.getLastCloudFileName() || 'untitled.md'
+}
+
+function onSaveLocationSelected(file: CloudFile) {
+  // If it's a folder, navigate to it
+  if (file.isFolder) {
+    dropboxStore.navigateToFolder(file.path)
+  } else {
+    // If it's a file, use its name as suggestion
+    suggestedFileName.value = file.name
+  }
+}
+
+function onCancelCloudSave() {
+  showCloudSaveDialog.value = false
+  suggestedFileName.value = ''
+}
+
+async function onSaveCloudFile() {
+  if (!suggestedFileName.value.trim()) return
+  
+  saving.value = true
+  
+  try {
+    // Construct full path
+    const fileName = suggestedFileName.value.trim()
+    const currentPath = dropboxStore.currentPath
+    const fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
+    
+    console.log('💾 Saving file to cloud:', fullPath)
+    
+    // Upload file to cloud (currently using Dropbox)
+    await dropboxStore.uploadFile(fullPath, localContent.value)
+    
+    // Close dialog
+    showCloudSaveDialog.value = false
+    suggestedFileName.value = ''
+    
+    console.log('✅ File saved successfully to cloud')
+    
+    // TODO: Show success message to user
+    
+  } catch (error) {
+    console.error('❌ Error saving file to Dropbox:', error)
+    // TODO: Show error message to user
+  } finally {
+    saving.value = false
+  }
+}
+
 function onApply() {
   emit('save', localContent.value)
 }
@@ -398,6 +645,12 @@ function onKeyDown(event: KeyboardEvent) {
     }
   }
 }
+
+// Inicializar Dropbox cuando se monta el componente
+onMounted(async () => {
+  console.log('🎯 MarkdownEditor: Component mounted, checking Dropbox connection...')
+  await dropboxStore.refreshConnectionStatus()
+})
 </script>
 
 <style scoped>
@@ -537,5 +790,36 @@ function onKeyDown(event: KeyboardEvent) {
 .preview-content :deep(mark) {
   background: #ffeb3b;
   padding: 0.1em 0.2em;
+}
+
+/* Dropbox File Picker Styles */
+.dropbox-file-picker {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dropbox-content-container {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.dropbox-explorer-container {
+  flex: 1;
+  overflow: hidden;
+  background: rgba(var(--v-theme-surface-variant), 0.3);
+}
+
+/* Action buttons styling */
+.dropbox-file-picker .v-card-actions {
+  flex-shrink: 0;
+  border-top: 1px solid rgba(var(--v-theme-outline), 0.12);
+}
+
+/* Ensure dialog has proper dimensions */
+.dropbox-file-picker :deep(.v-dialog) {
+  max-height: 90vh;
 }
 </style>

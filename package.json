@@ -75,6 +75,7 @@
     "@capacitor/status-bar": "^7.0.2",
     "@mdi/font": "^7.3.0",
     "@tauri-apps/api": "^2.8.0",
+    "dropbox": "^10.34.0",
     "localforage": "^1.10.0",
     "markdown-it": "^14.0.0",
     "markdown-it-anchor": "^8.6.0",

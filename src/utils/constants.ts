@@ -103,6 +103,7 @@ export const STORAGE_KEYS = {
   PREFERENCES: 'apuntador:preferences',
   CONTENT: 'apuntador:content',
   SCROLL_POSITION: 'apuntador:scrollPosition',
+  DROPBOX_TOKEN: 'apuntador:dropbox_token',
 } as const
 
 // Breakpoints (matching Vuetify)
