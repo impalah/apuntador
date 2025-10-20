@@ -90,7 +90,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
       if (isSessionRestored) {
         // Obtener info del usuario para confirmar conexión
         const userData = await dropboxService.getUserInfo()
-        console.log('👤 Store: User info retrieved:', userData?.name?.display_name || 'Unknown')
+        console.log('👤 Store: User info retrieved:', userData?.name || 'Unknown')
         
         isConnected.value = true
         userInfo.value = userData

@@ -312,7 +312,7 @@ export class DropboxService implements CloudService {
       } else if (response.result && (response.result as any).fileBlob) {
         console.log('💾 Service: Found fileBlob')
         fileContent = (response.result as any).fileBlob
-      } else if (response.fileBinary) {
+      } else if ((response as any).fileBinary) {
         console.log('💾 Service: Found response.fileBinary')
         fileContent = (response as any).fileBinary
       } else if (response.result) {
@@ -410,7 +410,7 @@ export class DropboxService implements CloudService {
     }
   }
 
-    async getUserInfo(): Promise<{ name: { display_name: string }; email: string } | null> {
+    async getUserInfo(): Promise<{ name: string; email: string }> {
     try {
       if (!this.dropbox) {
         console.log('❌ Service: No Dropbox client available for getUserInfo')
@@ -452,7 +452,7 @@ export class DropboxService implements CloudService {
         })
         
         return {
-          name: { display_name: response.result.name?.display_name || 'Unknown' },
+          name: response.result.name?.display_name || 'Unknown',
           email: response.result.email || 'unknown@dropbox.com'
         }
         
@@ -472,7 +472,7 @@ export class DropboxService implements CloudService {
           
           // Return fake user info for App Folder apps
           return {
-            name: { display_name: 'App Folder User' },
+            name: 'App Folder User',
             email: 'appfolder@dropbox.local'
           }
           

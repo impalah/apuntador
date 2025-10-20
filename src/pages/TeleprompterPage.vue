@@ -411,7 +411,8 @@ function onTeleprompterTap() {
 
 async function onEditorSave(content: string) {
   await teleprompterStore.setContent(content)
-  editorOpen.value = false
+  fileStore.markAsSaved()
+  // DON'T close editor automatically - only close on Apply/Cancel
 }
 
 async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {

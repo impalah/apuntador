@@ -143,21 +143,6 @@
         </p>
       </div>
 
-      <!-- Botón subir archivo -->
-      <div class="mt-4">
-        <v-btn
-          color="primary"
-          variant="outlined"
-          block
-          @click="showUploadDialog = true"
-        >
-          <v-icon start>
-            mdi-upload
-          </v-icon>
-          {{ $t('dropbox.files.upload') }}
-        </v-btn>
-      </div>
-
       <!-- Error -->
       <v-alert
         v-if="dropboxStore.error"
@@ -202,48 +187,6 @@
     </v-dialog>
 
     <!-- Diálogo de subida de archivo -->
-    <v-dialog
-      v-model="showUploadDialog"
-      max-width="500"
-    >
-      <v-card>
-        <v-card-title>
-          {{ $t('dropbox.files.upload') }}
-        </v-card-title>
-        <v-card-text>
-          <v-text-field
-            v-model="uploadFileName"
-            :label="$t('dropbox.files.fileName')"
-            variant="outlined"
-            suffix=".md"
-            class="mb-4"
-          />
-          <v-textarea
-            v-model="uploadContent"
-            label="Contenido del archivo"
-            variant="outlined"
-            rows="10"
-            placeholder="# Mi script&#10;&#10;Este es el contenido del script..."
-          />
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            text
-            @click="showUploadDialog = false"
-          >
-            {{ $t('common.cancel') }}
-          </v-btn>
-          <v-btn
-            color="primary"
-            :loading="isUploading"
-            @click="uploadFile"
-          >
-            {{ $t('dropbox.files.upload') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
   </div>
 </template>
 
@@ -251,7 +194,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { useDropboxStore } from '@/stores/useDropboxStore'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
-import { useI18n } from 'vue-i18n'
 import type { CloudFile } from '@/types/cloud'
 
 // Props
@@ -274,7 +216,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<Emits>()
 
 // Composables
-const { t } = useI18n()
 const dropboxStore = useDropboxStore()
 const teleprompterStore = useTeleprompterStore()
 
@@ -282,11 +223,7 @@ const teleprompterStore = useTeleprompterStore()
 const isLoading = ref(false)
 const selectedFile = ref<CloudFile | null>(null)
 const showDeleteDialog = ref(false)
-const showUploadDialog = ref(false)
 const fileToDelete = ref<CloudFile | null>(null)
-const uploadFileName = ref('')
-const uploadContent = ref('')
-const isUploading = ref(false)
 
 // Computed
 const currentPathDisplay = computed(() => {
@@ -334,11 +271,10 @@ const openFile = async (file: CloudFile): Promise<void> => {
     // Cargar contenido en el teleprompter
     teleprompterStore.setContent(content)
     
-    // Emitir evento
-    emit('file-selected', file, content)
+    // Emitir evento (solo el archivo, no el contenido)
+    emit('file-selected', file)
     
-    // Cerrar diálogo si está en modal
-    emit('update:modelValue', false)
+    // DON'T close dialog automatically - let user decide when to exit editor
   } catch (error) {
     console.error('Error opening file:', error)
   } finally {
@@ -381,33 +317,6 @@ const deleteFile = async (): Promise<void> => {
     fileToDelete.value = null
   } catch (error) {
     console.error('Error deleting file:', error)
-  }
-}
-
-const uploadFile = async (): Promise<void> => {
-  if (!uploadFileName.value.trim() || !uploadContent.value.trim()) return
-  
-  try {
-    isUploading.value = true
-    
-    const fileName = uploadFileName.value.endsWith('.md') 
-      ? uploadFileName.value 
-      : `${uploadFileName.value}.md`
-    
-    const filePath = dropboxStore.currentPath 
-      ? `${dropboxStore.currentPath}/${fileName}`
-      : `/${fileName}`
-    
-    await dropboxStore.uploadFile(filePath, uploadContent.value)
-    
-    // Limpiar formulario
-    uploadFileName.value = ''
-    uploadContent.value = ''
-    showUploadDialog.value = false
-  } catch (error) {
-    console.error('Error uploading file:', error)
-  } finally {
-    isUploading.value = false
   }
 }
 

@@ -198,12 +198,12 @@ const fileActions = computed(() => ({
   setFileHandle: fileStore.setFileHandle,
 }))
 
-async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
+async function onFileImported(content: string) {
+  // Update teleprompter content (this is the primary content state)
   await teleprompterStore.setContent(content)
-  if (fileInfo) {
-    fileStore.setContent(content)
-    // File name is handled internally by the store
-  }
+  
+  // The FileStore should already be updated by FileLoader when auto-import is enabled
+  // No need to duplicate the fileStore update here
 }
 
 async function onEditorSave(content: string) {

@@ -191,11 +191,16 @@ async function processFile(file: File) {
     }
 
     // Note: Traditional file input doesn't provide a handle for File System Access API
-    // This is handled separately by openWithFileAPI function
-
-    // Auto-import if enabled
+    // But we still want to update the file store for consistency
     if (props.autoImport) {
-      onImport()
+      // Update file store without handle (traditional file input)
+      fileStore.setFileHandle(null, file.name)
+      fileStore.setContent(sanitized)
+      
+      // Emit fileImported event
+      emit('fileImported', sanitized, { name: file.name, handle: null })
+      // DON'T close dialog automatically - let user decide when to exit
+      resetState()
     }
   } catch (err) {
     error.value = `Error reading file: ${err instanceof Error ? err.message : 'Unknown error'}`
@@ -239,7 +244,7 @@ function onFileSelect() {
 function onImport() {
   if (fileContent.value && fileInfo.value) {
     emit('fileImported', fileContent.value, { name: fileInfo.value.name })
-    emit('update:modelValue', false) // Close dialog automatically
+    // DON'T close dialog automatically - let user decide when to exit editor
     resetState()
   }
 }
@@ -267,7 +272,7 @@ async function openWithFileAPI() {
       // Auto-import if enabled
       if (props.autoImport) {
         emit('fileImported', sanitized, { name: result.name, handle: result.handle })
-        emit('update:modelValue', false)
+        // DON'T close dialog automatically - let user decide when to exit
         resetState()
       }
     }

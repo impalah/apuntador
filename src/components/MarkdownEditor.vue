@@ -428,21 +428,61 @@ async function onNew() {
     }
   }
 
+  // Clear everything - both file store and local content
   props.fileActions.createNew()
   localContent.value = ''
-  // Note: Do NOT emit 'save' here - keep editor open
+  
+  // Also update teleprompter store to keep everything in sync
+  emit('save', '')
+  
+  // Note: Do NOT close editor here - keep editor open
   // Only 'onApply' should close the editor
 }
 
 async function onSave() {
-  if (!props.fileState.canSave) return
-  // Aquí deberías emitir un evento o llamar a una acción pasada por props para guardar
+  if (!props.fileState.canSave) {
+    // If can't save directly (new file or no handle), trigger save as new file
+    await onSaveAsNewFile()
+    return
+  }
+  // Save directly to existing file
   emit('save', localContent.value)
 }
 
 async function onSaveCopy() {
-  // Aquí deberías emitir un evento o llamar a una acción pasada por props para guardar copia
-  emit('save', localContent.value)
+  // Always save as a new file
+  await onSaveAsNewFile()
+}
+
+async function onSaveAsNewFile() {
+  try {
+    saving.value = true
+    
+    // Use File System Access API to save as new file
+    const { saveFile } = await import('@/utils/fileSystem')
+    const fileHandle = await saveFile(localContent.value, {
+      suggestedName: props.fileState.isNewFile ? 'script.md' : props.fileState.fileName
+    })
+    
+    if (fileHandle) {
+      // Update file store with new file handle
+      props.fileActions.setFileHandle(fileHandle, fileHandle.name)
+      props.fileActions.setContent(localContent.value)
+      props.fileActions.markAsSaved(localContent.value)
+      
+      // Update teleprompter content
+      emit('save', localContent.value)
+      
+      console.log('✅ File saved successfully:', fileHandle.name)
+    } else {
+      // User cancelled or fallback download occurred
+      console.log('❌ Save cancelled or completed via download')
+    }
+  } catch (error) {
+    console.error('Error saving file:', error)
+  } finally {
+    saving.value = false
+  }
 }
 
 async function onOpenFile() {
@@ -475,18 +515,34 @@ async function onAcceptCloud() {
   if (!selectedCloudFile.value) return
   
   try {
+    const fileName = selectedCloudFile.value.name
+    
     // Download the selected file
-    console.log('⬇️ Downloading file:', selectedCloudFile.value.name)
+    console.log('⬇️ Downloading file:', fileName)
     const content = await dropboxStore.downloadFile(selectedCloudFile.value.path)
     
     // Load content into editor
     localContent.value = content
     
-    // Close dialog and reset selection
+    // Update file state - cloud files are treated as new files that need to be saved locally
+    props.fileActions.setContent(content)
+    
+    // For cloud files, we don't set a fileHandle because they can't be saved directly
+    // Instead, we create a new file state but preserve the filename
+    props.fileActions.createNew()
+    // Update the store to use the cloud filename as the base name
+    if (props.fileActions.setFileHandle) {
+      props.fileActions.setFileHandle(null, fileName)
+    }
+    
+    // Update teleprompter content
+    emit('save', content)
+    
+    // Close cloud dialog after successful file load
     selectedCloudFile.value = null
     showCloudDialog.value = false
     
-    console.log('✅ File loaded successfully')
+    console.log('✅ File loaded successfully from cloud:', fileName)
     
   } catch (error) {
     console.error('❌ Error downloading file:', error)
@@ -510,8 +566,18 @@ async function onSaveToCloud() {
   // Show Cloud save dialog
   showCloudSaveDialog.value = true
   
-  // Set suggested filename from last opened cloud file
-  suggestedFileName.value = dropboxStore.getLastCloudFileName() || 'untitled.md'
+  // Set suggested filename based on current file state
+  if (props.fileState.isNewFile || props.fileState.fileName === 'New File') {
+    suggestedFileName.value = 'NewFile.md'
+  } else {
+    // Use current filename, ensure it has .md extension
+    const currentName = props.fileState.fileName
+    if (currentName.endsWith('.md') || currentName.endsWith('.txt')) {
+      suggestedFileName.value = currentName
+    } else {
+      suggestedFileName.value = `${currentName}.md`
+    }
+  }
 }
 
 function onSaveLocationSelected(file: CloudFile) {
@@ -545,7 +611,7 @@ async function onSaveCloudFile() {
     // Upload file to cloud (currently using Dropbox)
     await dropboxStore.uploadFile(fullPath, localContent.value)
     
-    // Close dialog
+    // Close dialog after successful save
     showCloudSaveDialog.value = false
     suggestedFileName.value = ''
     
@@ -563,6 +629,7 @@ async function onSaveCloudFile() {
 
 function onApply() {
   emit('save', localContent.value)
+  emit('update:modelValue', false) // Close editor after applying changes
 }
 
 function onCancel() {
