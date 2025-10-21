@@ -183,12 +183,35 @@ function handleScreenTap() {
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
+    // Always hide toolbar if editor is open
+    if (editorOpen.value || settingsOpen.value) {
+      hideToolbar()
+      return
+    }
+    
     if (isPlaying) {
       // Hide toolbar during playback for clean reading experience on all devices
       hideToolbar()
     } else {
       // Show toolbar when paused
       showToolbar()
+    }
+  },
+  { immediate: true }
+)
+
+// Watch for editor/settings state changes - always hide toolbar when modals are open
+watch(
+  () => [editorOpen.value, settingsOpen.value, fileLoaderOpen.value],
+  ([editor, settings, fileLoader]) => {
+    if (editor || settings || fileLoader) {
+      // Hide toolbar when any modal is open
+      hideToolbar()
+    } else {
+      // When modals close, restore toolbar based on play state
+      if (!teleprompterStore.isPlaying) {
+        showToolbar()
+      }
     }
   },
   { immediate: true }
@@ -546,17 +569,15 @@ function setupGamepad() {
   background: var(--teleprompter-bg, #000000);
   color: var(--teleprompter-fg, #ffffff);
 
-  /* Android edge-to-edge support */
-  padding-top: env(safe-area-inset-top, 0px);
+  /* Android edge-to-edge support - no top padding for full immersion */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   /* Don't add bottom padding here - let FloatingToolbar handle it */
 }
 
-/* Ensure content area respects safe areas on Android */
+/* Ensure content area respects safe areas on Android - no top padding for immersive teleprompter */
 @supports (padding: max(0px)) {
   .teleprompter-page {
-    padding-top: max(0px, env(safe-area-inset-top, 0px));
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
   }

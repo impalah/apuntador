@@ -16,10 +16,20 @@
             android:exported="true"
             android:documentLaunchMode="always"
             android:resizeableActivity="true"
-            android:enableOnBackInvokedCallback="true">
+            android:enableOnBackInvokedCallback="true"
+            android:windowSoftInputMode="adjustResize"
+            android:fitsSystemWindows="false">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+            <!-- Custom URL Scheme for Dropbox OAuth Callback -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="apuntador" android:host="oauth-callback" />
             </intent-filter>
         </activity>
 

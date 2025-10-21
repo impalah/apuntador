@@ -39,6 +39,9 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
     backgroundColor: '#000000',
     webContentsDebuggingEnabled: false,
+    // Configuración para edge-to-edge y safe areas
+    appendUserAgent: 'Apuntador/1.1.5',
+    captureInput: true,
   },
   ios: {
     scheme: 'Apuntador',

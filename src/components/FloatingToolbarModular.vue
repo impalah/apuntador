@@ -919,4 +919,55 @@ function handleOpenFile() {
     font-size: 0.85rem;
   }
 }
+
+/* Android 15+ edge-to-edge specific fixes */
+@supports (padding: max(0px)) {
+  /* Capacitor Android detection and edge-to-edge support */
+  html.android .floating-toolbar,
+  html[data-android] .floating-toolbar,
+  .capacitor-android .floating-toolbar {
+    /* Force respect for safe area insets on Android */
+    margin-bottom: max(
+      var(--safe-area-inset-bottom, 0px),
+      env(safe-area-inset-bottom, 0px),
+      env(keyboard-inset-height, 0px),
+      72px
+    ) !important;
+    
+    /* Additional padding for gesture navigation */
+    padding-bottom: max(
+      var(--safe-area-inset-bottom, 0px),
+      env(safe-area-inset-bottom, 0px),
+      16px
+    ) !important;
+  }
+
+  /* Specific fix for Android API 35 (Android 15) */
+  html[data-android-version="35"] .floating-toolbar,
+  html[data-android-api="35"] .floating-toolbar {
+    margin-bottom: max(
+      var(--safe-area-inset-bottom, 0px),
+      env(safe-area-inset-bottom, 0px),
+      env(keyboard-inset-height, 0px),
+      88px
+    ) !important;
+  }
+}
+
+/* Alternative approach using CSS custom properties */
+.floating-toolbar {
+  --android-safe-bottom: max(
+    var(--safe-area-inset-bottom, 0px),
+    env(safe-area-inset-bottom, 0px),
+    48px
+  );
+}
+
+/* Force toolbar to stay above system UI */
+html.android .floating-toolbar,
+html[data-android] .floating-toolbar {
+  z-index: 9999 !important;
+  position: fixed !important;
+  bottom: var(--android-safe-bottom) !important;
+}
 </style>
