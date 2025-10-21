@@ -8,6 +8,11 @@ const routes = [
     component: TeleprompterPage,
   },
   {
+    path: '/edit',
+    name: 'editor',
+    component: () => import('@/pages/EditorPage.vue'),
+  },
+  {
     path: '/oauth-callback',
     name: 'oauth-callback',
     component: () => import('@/pages/OAuthCallback.vue'),

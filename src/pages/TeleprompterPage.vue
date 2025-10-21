@@ -53,37 +53,12 @@
     <!-- Settings Dialog -->
     <SettingsDialog v-model="settingsOpen" @file-imported="onFileImported" />
 
-    <!-- Markdown Editor -->
-    <MarkdownEditor
-      v-model="editorOpen"
-      :content="teleprompterStore.contentRaw"
-      :display-prefs="{
-        textAlignment: prefsStore.textAlignment,
-        bgColor: prefsStore.bgColor,
-        fgColor: prefsStore.fgColor,
-      }"
-      :file-state="{
-        displayName: fileStore.displayName,
-        originalContent: fileStore.originalContent,
-        hasUnsavedChanges: fileStore.hasUnsavedChanges,
-        canSave: fileStore.canSave,
-        canSaveAsNewCopy: fileStore.canSaveAsNewCopy,
-        isNewFile: fileStore.isNewFile,
-        fileName: fileStore.fileName,
-      }"
-      :file-actions="{
-        createNew: fileStore.createNew,
-        markAsModified: fileStore.markAsModified,
-        markAsSaved: fileStore.markAsSaved,
-        setContent: fileStore.setContent,
-        setFileHandle: fileStore.setFileHandle,
-      }"
-      @save="onEditorSave"
-      @open-file="onOpenFile"
-    />
-
     <!-- File Loader -->
-    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
+    <FileLoader 
+      v-model="fileLoaderOpen" 
+      auto-import 
+      @file-imported="onFileImported" 
+    />
   </div>
 </template>
 
@@ -91,6 +66,7 @@
 import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDisplay } from 'vuetify'
+import { useRouter } from 'vue-router'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
@@ -98,19 +74,14 @@ import { useFileStore } from '@/stores/useFileStore'
 import { useTeleprompterFrameProps } from '@/adapters/storeToComponent'
 import {
   hotkeyManager,
-  DEFAULT_HOTKEYS,
   updateDescriptionsInMapping,
   updateDescriptionsInGamepadMapping,
 } from '@/utils/hotkeys'
 import { gamepadManager } from '@/utils/gamepadManager'
-import { isTouchDevice } from '@/utils/dom'
-import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
-
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbarModular from '@/components/FloatingToolbarModular.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
-import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 
@@ -123,6 +94,7 @@ const fileStore = useFileStore()
 // Composables
 const { locale } = useI18n()
 const { xs, sm } = useDisplay()
+const router = useRouter()
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
@@ -135,7 +107,6 @@ const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()
 
 // UI state
 const settingsOpen = ref(false)
-const editorOpen = ref(false)
 const fileLoaderOpen = ref(false)
 const currentOrientation = ref<'portrait' | 'landscape'>('landscape')
 
@@ -183,8 +154,8 @@ function handleScreenTap() {
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
-    // Always hide toolbar if editor is open
-    if (editorOpen.value || settingsOpen.value) {
+    // Always hide toolbar if settings or file loader is open
+    if (settingsOpen.value || fileLoaderOpen.value) {
       hideToolbar()
       return
     }
@@ -200,11 +171,11 @@ watch(
   { immediate: true }
 )
 
-// Watch for editor/settings state changes - always hide toolbar when modals are open
+// Watch for settings/file loader state changes - always hide toolbar when modals are open
 watch(
-  () => [editorOpen.value, settingsOpen.value, fileLoaderOpen.value],
-  ([editor, settings, fileLoader]) => {
-    if (editor || settings || fileLoader) {
+  () => [settingsOpen.value, fileLoaderOpen.value],
+  ([settings, fileLoader]) => {
+    if (settings || fileLoader) {
       // Hide toolbar when any modal is open
       hideToolbar()
     } else {
@@ -216,9 +187,6 @@ watch(
   },
   { immediate: true }
 )
-
-// Touch device detection
-const isTouch = isTouchDevice()
 
 // Handle orientation changes
 const handleOrientationChange = async () => {
@@ -385,7 +353,7 @@ function onMirrorToggle(axis: 'h' | 'v') {
 }
 
 function onOpenEditor() {
-  editorOpen.value = true
+  router.push('/edit')
 }
 
 function onOpenSettings() {
@@ -432,11 +400,7 @@ function onTeleprompterTap() {
   window.dispatchEvent(event)
 }
 
-async function onEditorSave(content: string) {
-  await teleprompterStore.setContent(content)
-  fileStore.markAsSaved()
-  // DON'T close editor automatically - only close on Apply/Cancel
-}
+
 
 async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
   await teleprompterStore.setContent(content)
@@ -506,7 +470,6 @@ function setupHotkeys() {
     'align-right': () => prefsStore.setTextAlignment('right'),
     'close-modal': () => {
       settingsOpen.value = false
-      editorOpen.value = false
       fileLoaderOpen.value = false
     },
   }
@@ -544,7 +507,6 @@ function setupGamepad() {
     'align-right': () => prefsStore.setTextAlignment('right'),
     'close-modal': () => {
       settingsOpen.value = false
-      editorOpen.value = false
       fileLoaderOpen.value = false
     },
   }
