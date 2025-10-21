@@ -7,15 +7,16 @@ export function useDeepLinks() {
   const router = useRouter()
 
   const handleAppUrl = async (data: { url: string }) => {
-    console.log('🔗 [ANDROID DEBUG] Deep link received:', data.url)
+    const platform = Capacitor.getPlatform()
+    console.log(`🔗 [${platform.toUpperCase()}] Deep link received:`, data.url)
     
     try {
-      // En Android, las URLs con esquemas personalizados pueden no parsear correctamente con new URL()
+      // En plataformas nativas, las URLs con esquemas personalizados pueden no parsear correctamente con new URL()
       // Vamos a hacer parsing manual para URLs de apuntador
       const urlString = data.url
       
       if (urlString.startsWith('apuntador://oauth-callback')) {
-        console.log('🚀 [ANDROID DEBUG] Processing Dropbox OAuth deep link')
+        console.log(`🚀 [${platform.toUpperCase()}] Processing Dropbox OAuth deep link`)
         
         // Extraer parámetros manualmente
         const queryStart = urlString.indexOf('?')
@@ -29,7 +30,7 @@ export function useDeepLinks() {
         const error = params.get('error')
         const state = params.get('state')
         
-        console.log('📋 [ANDROID DEBUG] OAuth params - code:', code ? 'PRESENT' : 'MISSING', 'error:', error, 'state:', state)
+        console.log(`📋 [${platform.toUpperCase()}] OAuth params - code:`, code ? 'PRESENT' : 'MISSING', 'error:', error, 'state:', state)
         
         // Navegar al callback con los parámetros
         const query: Record<string, string> = {}
@@ -37,19 +38,19 @@ export function useDeepLinks() {
         if (error) query.error = error
         if (state) query.state = state
         
-        console.log('🧭 [ANDROID DEBUG] Navigating to oauth-callback with query:', query)
+        console.log(`🧭 [${platform.toUpperCase()}] Navigating to oauth-callback with query:`, query)
         
         await router.push({
           name: 'oauth-callback',
           query
         })
         
-        console.log('✅ [ANDROID DEBUG] Navigated to OAuth callback page')
+        console.log(`✅ [${platform.toUpperCase()}] Navigated to OAuth callback page`)
       } else {
-        console.log('🔍 [ANDROID DEBUG] Unknown deep link format, ignoring. URL:', urlString)
+        console.log(`🔍 [${platform.toUpperCase()}] Unknown deep link format, ignoring. URL:`, urlString)
       }
     } catch (error) {
-      console.error('❌ [ANDROID DEBUG] Error processing deep link:', error)
+      console.error(`❌ [${platform.toUpperCase()}] Error processing deep link:`, error)
     }
   }
 

@@ -527,6 +527,8 @@ async function onAcceptCloudSave() {
   flex-direction: column;
   background: #ffffff; /* Light background for editor */
   color: #000000; /* Dark text for editor */
+  /* Safe area padding to avoid system UI overlap */
+  padding-top: max(44px, env(safe-area-inset-top, 0px));
 }
 
 .editor-container {
@@ -550,7 +552,7 @@ async function onAcceptCloudSave() {
 
 .mobile .editor-panel,
 .mobile .preview-panel {
-  height: calc(100vh - 64px); /* Account for toolbar */
+  height: calc(100vh - 64px - max(44px, env(safe-area-inset-top, 0px))); /* Account for toolbar and safe area */
 }
 
 .help-content {
@@ -580,7 +582,7 @@ async function onAcceptCloudSave() {
   max-width: 100%;
 }
 
-/* Android edge-to-edge support */
+/* Additional safe area support for left, right and bottom */
 .editor-page {
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);

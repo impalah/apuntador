@@ -2,6 +2,8 @@ import { Dropbox, DropboxAuth } from 'dropbox'
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
 import { storage } from '@/utils/persistence'
 import { STORAGE_KEYS } from '@/utils/constants'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
 
 export class DropboxService implements CloudService {
   private dropbox: Dropbox | null = null
@@ -54,7 +56,15 @@ export class DropboxService implements CloudService {
       localStorage.setItem('dropbox_code_verifier', this.codeVerifier)
 
       // Redirigir al usuario a Dropbox para autorizar
-      window.location.href = authUrl
+      if (Capacitor.isNativePlatform()) {
+        // En plataformas nativas (iOS/Android), usar Browser plugin para abrir en navegador del sistema
+        console.log('📱 Service: Opening OAuth URL in system browser (native platform)')
+        await Browser.open({ url: authUrl })
+      } else {
+        // En web, usar redirección normal
+        console.log('🌐 Service: Redirecting to OAuth URL (web platform)')
+        window.location.href = authUrl
+      }
     } catch (error) {
       console.error('❌ Service: Error connecting to Dropbox:', error)
       throw new Error(`Failed to initiate Dropbox connection: ${error}`)
