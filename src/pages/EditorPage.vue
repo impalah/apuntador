@@ -9,7 +9,6 @@
       :refreshing="refreshing"
       :dropbox-connected="dropboxStore.isConnected"
       :show-preview="showPreview"
-      :mobile-view="mobileView"
       @close="onClose"
       @new="onNew"
       @save="onSave"
@@ -18,7 +17,6 @@
       @open-cloud="onOpenCloud"
       @save-to-cloud="onSaveToCloud"
       @toggle-preview="onTogglePreview"
-      @toggle-mobile-view="onToggleMobileView"
       @markdown-help="onMarkdownHelp"
       @apply="onApply"
     />
@@ -28,45 +26,10 @@
       fluid 
       class="editor-container pa-0"
     >
-      <!-- Desktop: Side-by-side layout -->
-      <v-row 
-        v-if="!$vuetify.display.mobile" 
-        no-gutters 
-        class="editor-content"
-      >
-        <v-col :cols="showPreview ? 6 : 12">
-          <div class="editor-panel">
-            <TextEditor
-              ref="textEditorRef"
-              :content="localContent"
-              @update:content="onContentChange"
-            />
-          </div>
-        </v-col>
-
-        <v-divider 
-          v-if="showPreview" 
-          vertical 
-        />
-
-        <v-col 
-          v-if="showPreview" 
-          cols="6"
-        >
-          <MarkdownPreviewer
-            :content="localContent"
-            :display-prefs="displayPrefs"
-          />
-        </v-col>
-      </v-row>
-
-      <!-- Mobile: Single view with toggle -->
-      <div 
-        v-else 
-        class="editor-content mobile"
-      >
+      <!-- Single view for all resolutions -->
+      <div class="editor-content">
         <div 
-          v-if="mobileView === 'edit'" 
+          v-if="!showPreview" 
           class="editor-panel"
         >
           <TextEditor
@@ -186,8 +149,8 @@ Code block
             class="dropbox-explorer-container"
           >
             <DropboxFileExplorer
-              @file-selected="onCloudFileSelected"
               compact-mode
+              @file-selected="onCloudFileSelected"
             />
           </div>
         </div>
@@ -298,8 +261,7 @@ const prefsStore = usePrefsStore()
 // Refs
 const textEditorRef = ref()
 const localContent = ref(t('editor.defaultContent'))
-const showPreview = ref(true)
-const mobileView = ref<'edit' | 'preview'>('edit')
+const showPreview = ref(false)
 const showHelp = ref(false)
 const fileLoaderOpen = ref(false)
 const saving = ref(false)
@@ -413,10 +375,6 @@ async function onSaveToCloud() {
 
 function onTogglePreview() {
   showPreview.value = !showPreview.value
-}
-
-function onToggleMobileView() {
-  mobileView.value = mobileView.value === 'edit' ? 'preview' : 'edit'
 }
 
 function onMarkdownHelp() {

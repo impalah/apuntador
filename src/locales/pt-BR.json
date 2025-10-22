@@ -108,8 +108,10 @@
   "editor": {
     "title": "Editor de Markdown",
     "placeholder": "Comece a digitar seu conteúdo markdown aqui...",
-    "preview": "Visualizar",
+    "preview": "Visualização",
     "edit": "Editar",
+    "editMode": "Modo edição",
+    "previewMode": "Modo visualização",
     "fullscreen": "Tela cheia",
     "exitFullscreen": "Sair da tela cheia",
     "wordWrap": "Quebra de linha",

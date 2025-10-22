@@ -110,6 +110,8 @@
     "placeholder": "Comienza a escribir tu contenido markdown aquí...",
     "preview": "Vista previa",
     "edit": "Editar",
+    "editMode": "Modo edición",
+    "previewMode": "Modo previsualización",
     "fullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
     "wordWrap": "Ajuste de línea",

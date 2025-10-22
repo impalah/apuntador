@@ -1,6 +1,10 @@
 <template>
   <v-toolbar color="primary" density="compact" class="editor-toolbar">
-    <v-btn icon="mdi-close" @click="onClose" />
+    <v-btn 
+      icon="mdi-close"
+      data-testid="close-button"
+      @click="onClose"
+    />
 
     <v-toolbar-title>{{ fileDisplayName }}</v-toolbar-title>
 
@@ -54,18 +58,11 @@
 
     <v-divider vertical class="mx-2" />
 
-    <!-- Desktop layout toggle -->
+    <!-- Preview toggle (same for all screen sizes) -->
     <v-btn
-      v-if="!$vuetify.display.mobile"
-      :icon="showPreview ? 'mdi-view-split-vertical' : 'mdi-eye'"
+      :icon="showPreview ? 'mdi-pencil' : 'mdi-eye'"
       @click="onTogglePreview"
-    />
-
-    <!-- Mobile preview toggle -->
-    <v-btn
-      v-if="$vuetify.display.mobile"
-      :icon="mobileView === 'edit' ? 'mdi-eye' : 'mdi-pencil'"
-      @click="onToggleMobileView"
+      :title="showPreview ? t('editor.editMode', 'Modo edición') : t('editor.previewMode', 'Modo previsualización')"
     />
 
     <!-- Markdown Help button -->
@@ -76,7 +73,11 @@
       data-testid="markdown-help-button"
     />
 
-    <v-btn icon="mdi-check" @click="onApply" />
+    <v-btn 
+      icon="mdi-check"
+      data-testid="apply-button"
+      @click="onApply"
+    />
   </v-toolbar>
 </template>
 
@@ -92,7 +93,6 @@ interface Props {
   refreshing: boolean
   dropboxConnected: boolean
   showPreview: boolean
-  mobileView: 'edit' | 'preview'
 }
 
 defineProps<Props>()
@@ -107,7 +107,6 @@ const emit = defineEmits<{
   openCloud: []
   saveToCloud: []
   togglePreview: []
-  toggleMobileView: []
   markdownHelp: []
   apply: []
 }>()
@@ -146,10 +145,6 @@ function onSaveToCloud() {
 
 function onTogglePreview() {
   emit('togglePreview')
-}
-
-function onToggleMobileView() {
-  emit('toggleMobileView')
 }
 
 function onMarkdownHelp() {

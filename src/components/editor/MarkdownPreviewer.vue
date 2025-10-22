@@ -44,7 +44,6 @@ const previewStyle = computed(() => ({
   textAlign: props.displayPrefs.textAlignment as any,
   fontFamily: 'inherit',
   lineHeight: '1.6',
-  padding: '16px',
 }))
 </script>
 
@@ -57,7 +56,7 @@ const previewStyle = computed(() => ({
 
 .preview-content {
   width: 100%;
-  height: 100%;
+  min-height: 100%;
   padding: 16px;
 }
 
@@ -66,6 +65,16 @@ const previewStyle = computed(() => ({
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   line-height: 1.6;
   word-wrap: break-word;
+}
+
+/* Remove top margin from first element */
+:deep(.preview-content > *:first-child) {
+  margin-top: 0;
+}
+
+/* Remove bottom margin from last element */
+:deep(.preview-content > *:last-child) {
+  margin-bottom: 0;
 }
 
 :deep(.preview-content h1) {

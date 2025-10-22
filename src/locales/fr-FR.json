@@ -110,6 +110,8 @@
     "placeholder": "Commencez à taper votre contenu markdown ici...",
     "preview": "Aperçu",
     "edit": "Modifier",
+    "editMode": "Mode édition",
+    "previewMode": "Mode aperçu",
     "fullscreen": "Plein écran",
     "exitFullscreen": "Quitter le plein écran",
     "wordWrap": "Retour à la ligne",

@@ -110,6 +110,8 @@
     "placeholder": "Beginnen Sie hier mit der Eingabe Ihres Markdown-Inhalts...",
     "preview": "Vorschau",
     "edit": "Bearbeiten",
+    "editMode": "Bearbeitungsmodus",
+    "previewMode": "Vorschaumodus",
     "fullscreen": "Vollbild",
     "exitFullscreen": "Vollbild verlassen",
     "wordWrap": "Zeilenumbruch",

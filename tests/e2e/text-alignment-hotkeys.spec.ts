@@ -22,15 +22,24 @@ test.describe('Text Alignment Hotkeys', () => {
     const editorButton = page.locator('[data-testid="editor-button"]').first()
     await editorButton.click()
 
-    const editorDialog = page.locator('[role="dialog"]')
-    await expect(editorDialog).toBeVisible()
-
-    const textarea = editorDialog.locator('textarea')
+    // Wait for navigation to editor page (route is /edit, not /editor)
+    await page.waitForURL('**/edit')
+    
+    // Editor is now a full page, not a dialog
+    const textarea = page.locator('textarea')
+    await expect(textarea).toBeVisible()
     await textarea.fill(testContent)
 
-    const saveButton = editorDialog.locator('button[icon="mdi-check"], button:has(.mdi-check)')
-    await saveButton.click()
-    await expect(editorDialog).not.toBeVisible()
+    // Apply changes and return to teleprompter
+    const applyButton = page.locator('[data-testid="apply-button"]')
+    await applyButton.click()
+    
+    // Wait for navigation back to home
+    await page.waitForURL('**/')
+    
+    // Wait for teleprompter content to be visible and ready
+    await expect(page.locator('[data-testid="teleprompter-content"]')).toBeVisible()
+    await page.waitForTimeout(300) // Small delay for content to stabilize
 
     // Test hotkey 1 for left alignment
     // On mobile devices, hotkeys might not work, so test the button instead
