@@ -213,4 +213,4 @@ Con esta configuración completada, estarás listo para:
 
 ---
 
-*Creado para Apuntador v1.1.3 - Actualizado: Octubre 2024*
+*Creado para Apuntador v1.1.3 - Actualizado: Octubre 2025*
