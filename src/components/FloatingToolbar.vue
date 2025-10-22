@@ -211,14 +211,6 @@
                   />
                   <v-btn
                     variant="outlined"
-                    icon="mdi-folder-open"
-                    size="small"
-                    class="action-btn"
-                    data-testid="file-button"
-                    @click="$emit('openFile')"
-                  />
-                  <v-btn
-                    variant="outlined"
                     icon="mdi-cog"
                     size="small"
                     class="action-btn"
@@ -368,14 +360,6 @@
                     class="action-btn"
                     data-testid="editor-button"
                     @click="$emit('openEditor')"
-                  />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-folder-open"
-                    size="small"
-                    class="action-btn"
-                    data-testid="file-button"
-                    @click="$emit('openFile')"
                   />
                   <v-btn
                     variant="outlined"
