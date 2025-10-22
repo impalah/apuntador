@@ -2,6 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { DropboxService } from '@/services/dropbox/dropboxService'
 import { DROPBOX_CONFIG } from '@/services/dropbox/config'
+import { tauriService } from '@/services/tauriService'
 import type { CloudFile, CloudProvider } from '@/types/cloud'
 
 export const useDropboxStore = defineStore('dropbox', () => {
@@ -36,8 +37,42 @@ export const useDropboxStore = defineStore('dropbox', () => {
     error.value = null
 
     try {
-      await dropboxService.connect()
-      // La conexión se completa en handleOAuthCallback
+      // Detectar si estamos en Tauri
+      const isTauri = await tauriService.isAvailable()
+      
+      if (isTauri) {
+        console.log('🖥️ Using Tauri OAuth flow')
+        
+        // PRIMERO: Configurar el listener ANTES de abrir el navegador
+        console.log('👂 Configurando listener OAuth...')
+        const callbackPromise = tauriService.listenForOAuthCallback()
+        console.log('✅ OAuth listener configured')
+        
+        // SEGUNDO: Iniciar OAuth (esto abrirá el navegador)
+        console.log('🚀 Iniciando flujo OAuth...')
+        const authUrl = await tauriService.startDropboxOAuth()
+        console.log('🔗 Auth URL generated:', authUrl)
+        console.log('⏳ Esperando callback OAuth...')
+        
+        // TERCERO: Esperar callback
+        const callbackData = await callbackPromise
+        console.log('📞 OAuth callback received:', callbackData)
+        
+        // Intercambiar código por token
+        const tokenResponse = await tauriService.exchangeOAuthCode(
+          callbackData.code, 
+          callbackData.state
+        )
+        
+        // Guardar token y completar conexión
+        dropboxService.setAccessToken(tokenResponse.access_token)
+        await refreshConnectionStatus()
+        
+      } else {
+        console.log('🌐 Using web OAuth flow')
+        await dropboxService.connect()
+        // La conexión se completa en handleOAuthCallback
+      }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error connecting to Dropbox'
       console.error('Dropbox connection error:', err)
@@ -120,7 +155,29 @@ export const useDropboxStore = defineStore('dropbox', () => {
       // Si no se especifica path, usar la última ruta guardada o raíz
       const targetPath = path !== undefined ? path : (lastCloudPath.value || '')
       
-      const files = await dropboxService.listFiles(targetPath)
+      // Detectar si estamos en Tauri
+      const isTauri = await tauriService.isAvailable()
+      let files: CloudFile[]
+      
+      if (isTauri) {
+        console.log('🖥️ Using Tauri list files')
+        const token = await dropboxService.getAccessToken()
+        const rawFiles = await tauriService.listDropboxFiles(token, targetPath)
+        
+        // Convertir respuesta de Tauri a CloudFile[]
+        files = rawFiles.map((file: any) => ({
+          id: file.id || file.path_lower,
+          name: file.name,
+          path: file.path_display || file.path_lower,
+          size: file.size || 0,
+          modified: new Date(file.server_modified || Date.now()),
+          isFolder: file['.tag'] === 'folder'
+        }))
+      } else {
+        console.log('🌐 Using web list files')
+        files = await dropboxService.listFiles(targetPath)
+      }
+      
       currentFiles.value = files
       currentPath.value = targetPath
     } catch (err) {
@@ -137,7 +194,20 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
     try {
       error.value = null
-      const content = await dropboxService.downloadFile(filePath)
+      
+      // Detectar si estamos en Tauri
+      const isTauri = await tauriService.isAvailable()
+      let content: string
+      
+      if (isTauri) {
+        console.log('🖥️ Using Tauri download')
+        const token = await dropboxService.getAccessToken()
+        const fileData = await tauriService.downloadDropboxFile(token, filePath)
+        content = fileData.content
+      } else {
+        console.log('🌐 Using web download')
+        content = await dropboxService.downloadFile(filePath)
+      }
       
       // Guardar información del último archivo abierto
       const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
@@ -158,7 +228,29 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
     try {
       error.value = null
-      const file = await dropboxService.uploadFile(path, content)
+      
+      // Detectar si estamos en Tauri
+      const isTauri = await tauriService.isAvailable()
+      let file: CloudFile
+      
+      if (isTauri) {
+        console.log('🖥️ Using Tauri upload')
+        const token = await dropboxService.getAccessToken()
+        const result = await tauriService.uploadDropboxFile(token, path, content)
+        
+        // Convertir respuesta de Tauri a CloudFile
+        file = {
+          id: result.id || path,
+          name: result.name,
+          path: result.path_display || path,
+          size: content.length,
+          modified: new Date(result.server_modified || Date.now()),
+          isFolder: false
+        }
+      } else {
+        console.log('🌐 Using web upload')
+        file = await dropboxService.uploadFile(path, content)
+      }
       
       // Actualizar lista de archivos si estamos en la misma carpeta
       const fileDir = path.substring(0, path.lastIndexOf('/'))

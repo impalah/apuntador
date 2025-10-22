@@ -192,6 +192,40 @@ export class DropboxService implements CloudService {
     this.initializeAuth()
   }
 
+  /**
+   * Set access token directly (usado por Tauri)
+   */
+  async setAccessToken(token: string): Promise<void> {
+    console.log('🔐 Service: Setting access token directly (Tauri mode)')
+    
+    // Configurar auth
+    if (this.auth) {
+      this.auth.setAccessToken(token)
+    }
+    
+    // Crear cliente con token directo
+    this.dropbox = new Dropbox({ 
+      accessToken: token,
+      fetch: fetch.bind(globalThis)
+    })
+    
+    // Guardar token
+    await storage.set(STORAGE_KEYS.DROPBOX_TOKEN, token)
+    
+    console.log('✅ Service: Access token set successfully')
+  }
+
+  /**
+   * Get current access token (usado por Tauri)
+   */
+  async getAccessToken(): Promise<string> {
+    const token = await storage.get<string>(STORAGE_KEYS.DROPBOX_TOKEN)
+    if (!token) {
+      throw new Error('No access token available')
+    }
+    return token
+  }
+
   isConnected(): boolean {
     const token = localStorage.getItem('dropbox_access_token')
     return !!token && !!this.dropbox
