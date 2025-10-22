@@ -6,8 +6,10 @@
     "save": "Salva",
     "cancel": "Annulla",
     "close": "Chiudi",
+    "open": "Apri",
     "reset": "Ripristina",
     "apply": "Applica",
+    "delete": "Elimina",
     "auto": "Auto",
     "yes": "Sì",
     "no": "No",
@@ -175,7 +177,9 @@
     "saveCopy": "Salva copia",
     "fullscreen": "Schermo intero",
     "showHelp": "Mostra aiuto",
-    "resetToDefaults": "Ripristina predefiniti"
+    "resetToDefaults": "Ripristina predefiniti",
+    "pressAnyKey": "Premi un tasto qualsiasi...",
+    "clickToSet": "Clicca per impostare la scorciatoia"
   },
   "gamepad": {
     "status": "Stato gamepad",
@@ -184,8 +188,10 @@
     "connected": "{count} gamepad connessi e pronti all'uso.",
     "buttonAssignments": "Assegnazioni pulsanti",
     "assignmentInstructions": "Assegna i pulsanti del gamepad alle azioni del teleprompter. Clicca su un campo di input e premi qualsiasi pulsante del gamepad per assegnarlo.",
-    "resetToDefaults": "Ripristina predefiniti (Tutto a Nessuno)",
+    "resetToDefaults": "Ripristina predefiniti (Tutti su Nessuno)",
     "leftStick": "Stick sinistro",
+    "pressAnyButton": "Premi un pulsante qualsiasi del gamepad...",
+    "clickToAssign": "Clicca per assegnare il pulsante",
     "rightStick": "Stick destro",
     "dpad": "Croce direzionale",
     "buttonA": "Pulsante A",
@@ -210,7 +216,8 @@
     "networkError": "Errore di rete",
     "unknownError": "Errore sconosciuto",
     "gamepadNotConnected": "Gamepad non connesso",
-    "gamepadError": "Errore gamepad"
+    "gamepadError": "Errore gamepad",
+    "reconnectError": "Errore di riconnessione"
   },
   "messages": {
     "loadingFile": "Caricamento file...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "File caricato completamente",
     "fileSaveComplete": "File salvato completamente",
     "gamepadConnected": "Gamepad connesso",
-    "gamepadDisconnected": "Gamepad disconnesso"
+    "gamepadDisconnected": "Gamepad disconnesso",
+    "welcomeContent": "# Benvenuto in Apuntador\n\nInizia importando il tuo script o usa l'editor per creare nuovi contenuti."
   },
   "desktop": {
     "minimize": "Riduci finestra",
@@ -226,5 +234,37 @@
     "close": "Chiudi finestra",
     "alwaysOnTop": "Sempre in primo piano",
     "fullscreen": "Commuta schermo intero"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Collega il tuo account Dropbox per aprire e salvare script direttamente dal cloud.",
+      "connect": "Connetti a Dropbox",
+      "connecting": "Connessione a Dropbox...",
+      "connected": "Connesso",
+      "disconnect": "Disconnetti"
+    },
+    "files": {
+      "title": "Esplora file",
+      "loading": "Caricamento file...",
+      "empty": "Nessun file in questa cartella",
+      "openFile": "Apri file",
+      "saveFile": "Salva file",
+      "deleteFile": "Elimina file",
+      "deleteConfirm": "Sei sicuro di voler eliminare \"{name}\"?",
+      "fileName": "Nome file",
+      "upload": "Carica file",
+      "download": "Scarica",
+      "back": "Indietro"
+    },
+    "oauth": {
+      "processing": "Stiamo elaborando la tua autorizzazione, ci vorranno solo pochi secondi.",
+      "successTitle": "Connesso con successo!",
+      "successMessage": "Il tuo account Dropbox è stato connesso correttamente.",
+      "continueButton": "Continua a Apuntador",
+      "errorTitle": "Errore di connessione",
+      "retryButton": "Riprova",
+      "backButton": "Torna a Apuntador",
+      "noAuthCode": "Nessun codice di autorizzazione ricevuto"
+    }
   }
 }

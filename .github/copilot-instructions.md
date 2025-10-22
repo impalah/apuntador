@@ -37,13 +37,15 @@ src/
 │   ├── useTeleprompterStore.ts
 │   ├── usePrefsStore.ts
 │   ├── useFileStore.ts
-│   └── useI18nStore.ts
+│   ├── useI18nStore.ts
+│   └── useDropboxStore.ts  # Dropbox OAuth & cloud sync
 ├── utils/                # Pure utility functions
 │   ├── scrolling.ts      # AutoScroller class
 │   ├── markdown.ts       # Renderer with plugins
 │   ├── gamepadManager.ts # Gamepad input handling
 │   ├── hotkeys.ts        # Keyboard shortcuts
-│   └── persistence.ts    # Storage abstraction
+│   ├── persistence.ts    # Storage abstraction
+│   └── tauri.ts          # Tauri desktop integration
 ├── types/                # TypeScript definitions
 │   ├── index.d.ts        # Core interfaces
 │   └── component-interfaces.d.ts # Modular component contracts
@@ -146,6 +148,9 @@ This enables swapping component implementations without breaking the coordinator
 - Always-on-top mode for professional setups
 - File system access for script import/export
 - Code signing for Windows (self-signed certificate workflow)
+- **OAuth 2.0 + PKCE flow** for Dropbox integration
+- Local HTTP server (localhost:8080) for OAuth callbacks
+- Event-based communication between Rust backend and Vue frontend
 
 ## Build & Deployment
 
@@ -166,11 +171,13 @@ Use existing build scripts in `scripts/` directory - don't recreate the wheel fo
 
 - `src/coordinators/teleprompterCoordinator.ts` - Component orchestration patterns
 - `src/stores/useTeleprompterStore.ts` - Core state management with AutoScroller
+- `src/stores/useDropboxStore.ts` - Dropbox OAuth & cloud file management
 - `src/utils/scrolling.ts` - Smooth scrolling implementation
+- `src/utils/tauri.ts` - Tauri desktop integration utilities
 - `vite.config.ts` - Build configuration with test coverage thresholds
 - `Makefile` - Cross-platform build targets
 - `capacitor.config.ts` - Android app configuration
-- `src-tauri/` - Desktop app Rust backend
+- `src-tauri/src/lib.rs` - Tauri Rust backend with OAuth server implementation
 
 When modifying this codebase, maintain the modular architecture and respect the existing build pipelines.
 
@@ -301,13 +308,30 @@ apuntador/
 - Save updates to store and persistence.
 - File import (.md/.txt): accept drag‑and‑drop and file picker; validate with Zod; read as UTF‑8.
 - Provide a default sample script (`public/sample.md`).
+- **Cloud integration**: Dropbox OAuth 2.0 + PKCE for secure file sync across devices.
 
-### 5.5 Settings
+### 5.5 Cloud Storage Integration (Dropbox)
+
+- **OAuth 2.0 + PKCE**: Secure authentication without client secrets
+- **Platform-specific implementations**:
+  - **Web/Mobile**: Direct browser-based OAuth flow with PKCE code verifier/challenge
+  - **Desktop (Tauri)**: Rust backend HTTP server on localhost:8080 for OAuth callbacks
+- **File operations**: List, download, upload markdown files to Dropbox
+- **Event-based architecture**: Tauri emits events to Vue frontend on OAuth callbacks
+- **Token management**: Secure storage of access tokens in platform-appropriate stores
+- **API endpoints**:
+  - `start_dropbox_oauth()` - Initialize OAuth flow and open browser
+  - `exchange_oauth_code(code, state)` - Exchange authorization code for access token
+  - `list_dropbox_files(access_token, path)` - List files in Dropbox folder
+  - `download_dropbox_file(access_token, path)` - Download file content
+  - `upload_dropbox_file(access_token, path, content)` - Upload/update file
+
+### 5.6 Settings
 
 - Options: font family, base font size, line height, foreground color, background color, highlight band height/position, scroll speed min/max, mirror defaults, dimming intensity.
 - Persist via `localforage` under namespaced keys; schema‑validate with Zod and migrate on version bumps.
 
-### 5.6 Accessibility & Input
+### 5.7 Accessibility & Input
 
 - Keyboard shortcuts on desktop: Space (Play/Pause), ↑/↓ (line ±1), PgUp/PgDn (line ±5), Home/End, `[`/`]` (speed −/+), `=`/`-` (font +/−), `H`/`V` (mirror), `E` (editor), `S` (settings).
 - Touch gestures: swipe up/down (line ±1), press‑and‑hold → show toolbar.
@@ -352,6 +376,28 @@ state: {
   highlightBandPosPct: number // 0..100 from top
 }
 actions: { load(), save(), reset() }
+```
+
+`useDropboxStore`:
+
+```ts
+state: {
+  isConnected: boolean,
+  accessToken: string | null,
+  files: DropboxFile[],
+  currentFolder: string,
+  isLoading: boolean,
+  error: string | null
+}
+actions: {
+  startOAuth(), // Platform-specific OAuth initialization
+  handleCallback(code: string, state: string), // Process OAuth callback
+  disconnect(), // Clear token and reset state
+  listFiles(path?: string), // Fetch files from Dropbox
+  downloadFile(path: string), // Download file content
+  uploadFile(path: string, content: string), // Upload/update file
+  loadScript(path: string) // Download and load into teleprompter
+}
 ```
 
 ---
@@ -416,8 +462,18 @@ Copilot must generate a `README.md` that covers:
 
 ## 12) Security & Privacy
 
-- No network calls by default. Import is local‑file only.
-- Persisted data stays in browser storage; provide a “Clear all data” button.
+- **Local-first**: No network calls by default. Import is local‑file only.
+- **OAuth Security**: 
+  - PKCE (Proof Key for Code Exchange) flow eliminates need for client secrets
+  - State parameter validation prevents CSRF attacks
+  - Code verifier/challenge using SHA256 hashing
+  - Tokens stored securely in platform-appropriate storage
+- **Tauri Desktop Security**:
+  - OAuth callback server only accepts connections on localhost (127.0.0.1:8080)
+  - Server automatically validates state parameter before token exchange
+  - Event emission to frontend only after successful validation
+- Persisted data stays in browser/platform storage; provide a "Clear all data" button.
+- Dropbox integration is opt-in; users must explicitly authorize access.
 
 ---
 
@@ -429,11 +485,84 @@ Copilot must generate a `README.md` that covers:
 4. Full toolbar with all actions; keyboard & touch.
 5. Settings dialog and persistence.
 6. Markdown editor + file import.
-7. Tests (unit → e2e); README; Makefile.
+7. Cloud integration (Dropbox OAuth + file operations).
+8. Tests (unit → e2e); README; Makefile.
+
+## 14) Cloud Integration Implementation Guide
+
+### Dropbox OAuth Flow (Platform-Specific)
+
+**Web/Mobile (Capacitor)**:
+```typescript
+// Direct browser-based PKCE flow
+const { code_verifier, code_challenge } = await generatePKCE()
+const authUrl = `https://www.dropbox.com/oauth2/authorize?` +
+  `response_type=code&client_id=${CLIENT_ID}` +
+  `&redirect_uri=${REDIRECT_URI}` +
+  `&code_challenge=${code_challenge}` +
+  `&code_challenge_method=S256&state=${state}`
+window.location.href = authUrl
+```
+
+**Desktop (Tauri)**:
+```rust
+// Rust backend HTTP server for OAuth callbacks
+#[tauri::command]
+async fn start_dropbox_oauth(app_handle: AppHandle) -> Result<String, String> {
+  let code_verifier = generate_code_verifier();
+  let code_challenge = generate_code_challenge(&code_verifier);
+  
+  // Start local server on localhost:8080
+  start_oauth_server(app_handle).await?;
+  
+  // Open browser with OAuth URL
+  open_browser(&auth_url)?;
+  
+  Ok(auth_url)
+}
+
+// Server handles callback and emits event to frontend
+app_handle.emit("oauth-callback", json!({ code, state }))
+```
+
+**Token Exchange** (Both platforms use PKCE without client_secret):
+```typescript
+const params = {
+  client_id: CLIENT_ID,
+  code: authorizationCode,
+  code_verifier: codeVerifier,
+  grant_type: 'authorization_code',
+  redirect_uri: REDIRECT_URI
+}
+// POST to https://api.dropboxapi.com/oauth2/token
+```
+
+### Tauri Commands Reference
+
+All Tauri commands in `src-tauri/src/lib.rs`:
+
+- `start_dropbox_oauth()` - Initialize OAuth flow, start server, open browser
+- `exchange_oauth_code(code, state)` - Exchange code for access token using PKCE
+- `list_dropbox_files(access_token, path)` - List folder contents
+- `download_dropbox_file(access_token, path)` - Download file as string
+- `upload_dropbox_file(access_token, path, content)` - Upload/overwrite file
+- `test_event_emit()` - Debug helper for testing event emission
+
+### Frontend Event Handling
+
+```typescript
+// Listen for OAuth callback events from Tauri backend
+import { listen } from '@tauri-apps/api/event'
+
+await listen('oauth-callback', async (event) => {
+  const { code, state } = event.payload
+  await handleOAuthCallback(code, state)
+})
+```
 
 ---
 
-## 14) Example Prompts for Copilot (inline comments)
+## 15) Example Prompts for Copilot (inline comments)
 
 - _“Create `TeleprompterFrame.vue` with a scrollable container, accepts `contentHtml`, applies mirror transforms from prefs, exposes methods `play()`, `pause()`, `stepLines(n)`.”_
 - _“Implement `scrolling.ts` with `pxPerLine(el: HTMLElement): number` and `offsetForLines(n: number): number` using measured line‑height.”_
@@ -443,7 +572,7 @@ Copilot must generate a `README.md` that covers:
 
 ---
 
-## 15) Acceptance Criteria
+## 16) Acceptance Criteria
 
 - All core actions work on desktop and mobile.
 - Clean reading surface during playback; toolbar hides.

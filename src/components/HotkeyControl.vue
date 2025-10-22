@@ -7,7 +7,7 @@
       <div class="hotkey-input">
         <v-text-field
           :model-value="displayKey"
-          :placeholder="isRecording ? 'Press any key...' : 'Click to set hotkey'"
+          :placeholder="isRecording ? $t('hotkeys.pressAnyKey') : $t('hotkeys.clickToSet')"
           :error="hasError"
           :error-messages="errorMessage"
           readonly

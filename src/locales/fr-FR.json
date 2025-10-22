@@ -6,8 +6,10 @@
     "save": "Enregistrer",
     "cancel": "Annuler",
     "close": "Fermer",
+    "open": "Ouvrir",
     "reset": "Réinitialiser",
     "apply": "Appliquer",
+    "delete": "Supprimer",
     "auto": "Auto",
     "yes": "Oui",
     "no": "Non",
@@ -175,7 +177,9 @@
     "saveCopy": "Enregistrer une copie",
     "fullscreen": "Plein écran",
     "showHelp": "Afficher l'aide",
-    "resetToDefaults": "Rétablir les valeurs par défaut"
+    "resetToDefaults": "Rétablir les valeurs par défaut",
+    "pressAnyKey": "Appuyez sur une touche...",
+    "clickToSet": "Cliquer pour définir le raccourci"
   },
   "gamepad": {
     "status": "État de la manette",
@@ -186,6 +190,8 @@
     "assignmentInstructions": "Assignez les boutons de la manette aux actions du télésouffleur. Cliquez sur un champ de saisie et appuyez sur n'importe quel bouton de la manette pour l'assigner.",
     "resetToDefaults": "Rétablir les valeurs par défaut (Tout à Aucun)",
     "leftStick": "Stick gauche",
+    "pressAnyButton": "Appuyez sur un bouton de la manette...",
+    "clickToAssign": "Cliquer pour assigner un bouton",
     "rightStick": "Stick droit",
     "dpad": "Croix directionnelle",
     "buttonA": "Bouton A",
@@ -210,7 +216,8 @@
     "networkError": "Erreur réseau",
     "unknownError": "Erreur inconnue",
     "gamepadNotConnected": "Manette non connectée",
-    "gamepadError": "Erreur de manette"
+    "gamepadError": "Erreur de manette",
+    "reconnectError": "Erreur de reconnexion"
   },
   "messages": {
     "loadingFile": "Chargement du fichier...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "Fichier chargé complètement",
     "fileSaveComplete": "Fichier enregistré complètement",
     "gamepadConnected": "Manette connectée",
-    "gamepadDisconnected": "Manette déconnectée"
+    "gamepadDisconnected": "Manette déconnectée",
+    "welcomeContent": "# Bienvenue à Apuntador\n\nCommencez par importer votre script ou utilisez l'éditeur pour créer un nouveau contenu."
   },
   "desktop": {
     "minimize": "Réduire la fenêtre",
@@ -226,5 +234,37 @@
     "close": "Fermer la fenêtre",
     "alwaysOnTop": "Toujours au premier plan",
     "fullscreen": "Basculer en plein écran"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Connectez votre compte Dropbox pour ouvrir et enregistrer des scripts directement depuis le cloud.",
+      "connect": "Se connecter à Dropbox",
+      "connecting": "Connexion à Dropbox...",
+      "connected": "Connecté",
+      "disconnect": "Déconnecter"
+    },
+    "files": {
+      "title": "Explorateur de fichiers",
+      "loading": "Chargement des fichiers...",
+      "empty": "Aucun fichier dans ce dossier",
+      "openFile": "Ouvrir le fichier",
+      "saveFile": "Enregistrer le fichier",
+      "deleteFile": "Supprimer le fichier",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer \"{name}\"?",
+      "fileName": "Nom du fichier",
+      "upload": "Télécharger le fichier",
+      "download": "Télécharger",
+      "back": "Retour"
+    },
+    "oauth": {
+      "processing": "Nous traitons votre autorisation, cela ne prendra que quelques secondes.",
+      "successTitle": "Connecté avec succès!",
+      "successMessage": "Votre compte Dropbox a été connecté avec succès.",
+      "continueButton": "Continuer vers Apuntador",
+      "errorTitle": "Erreur de connexion",
+      "retryButton": "Réessayer",
+      "backButton": "Retour à Apuntador",
+      "noAuthCode": "Aucun code d'autorisation reçu"
+    }
   }
 }

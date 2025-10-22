@@ -6,7 +6,7 @@ import { tauriService } from '@/services/tauriService'
 import type { CloudFile, CloudProvider } from '@/types/cloud'
 
 export const useDropboxStore = defineStore('dropbox', () => {
-  // Estado
+  // State
   const isConnected = ref(false)
   const isConnecting = ref(false)
   const userInfo = ref<{ name: string; email: string } | null>(null)
@@ -14,11 +14,11 @@ export const useDropboxStore = defineStore('dropbox', () => {
   const currentPath = ref<string>('')
   const error = ref<string | null>(null)
   
-  // Estado para recordar último archivo cloud
+  // State to remember last cloud file
   const lastCloudPath = ref<string>('')
   const lastCloudFileName = ref<string>('')
 
-  // Servicio Dropbox
+  // Dropbox Service
   const dropboxService = new DropboxService(DROPBOX_CONFIG)
 
   // Computed
@@ -29,7 +29,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
     userInfo: userInfo.value || undefined
   }))
 
-  // Acciones
+  // Actions
   const connect = async (): Promise<void> => {
     if (isConnecting.value) return
     
@@ -37,41 +37,41 @@ export const useDropboxStore = defineStore('dropbox', () => {
     error.value = null
 
     try {
-      // Detectar si estamos en Tauri
+      // Detect if we are in Tauri
       const isTauri = await tauriService.isAvailable()
       
       if (isTauri) {
         console.log('🖥️ Using Tauri OAuth flow')
         
-        // PRIMERO: Configurar el listener ANTES de abrir el navegador
-        console.log('👂 Configurando listener OAuth...')
+        // FIRST: Configure listener BEFORE opening browser
+        console.log('👂 Setting up OAuth listener...')
         const callbackPromise = tauriService.listenForOAuthCallback()
         console.log('✅ OAuth listener configured')
         
-        // SEGUNDO: Iniciar OAuth (esto abrirá el navegador)
-        console.log('🚀 Iniciando flujo OAuth...')
+        // SECOND: Start OAuth (this will open browser)
+        console.log('🚀 Starting OAuth flow...')
         const authUrl = await tauriService.startDropboxOAuth()
         console.log('🔗 Auth URL generated:', authUrl)
-        console.log('⏳ Esperando callback OAuth...')
+        console.log('⏳ Waiting for OAuth callback...')
         
-        // TERCERO: Esperar callback
+        // THIRD: Wait for callback
         const callbackData = await callbackPromise
         console.log('📞 OAuth callback received:', callbackData)
         
-        // Intercambiar código por token
+        // Exchange code for token
         const tokenResponse = await tauriService.exchangeOAuthCode(
           callbackData.code, 
           callbackData.state
         )
         
-        // Guardar token y completar conexión
+        // Save token and complete connection
         dropboxService.setAccessToken(tokenResponse.access_token)
         await refreshConnectionStatus()
         
       } else {
         console.log('🌐 Using web OAuth flow')
         await dropboxService.connect()
-        // La conexión se completa en handleOAuthCallback
+        // Connection completes in handleOAuthCallback
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error connecting to Dropbox'
@@ -96,7 +96,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
       console.error('❌ Store: OAuth callback error:', err)
       error.value = err instanceof Error ? err.message : 'Error completing Dropbox authentication'
       console.error('OAuth callback error:', err)
-      throw err // Re-throw para que la página de callback lo capture
+      throw err // Re-throw so callback page can catch it
     } finally {
       isConnecting.value = false
     }
@@ -209,7 +209,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
         content = await dropboxService.downloadFile(filePath)
       }
       
-      // Guardar información del último archivo abierto
+      // Save last opened cloud file info
       const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
       await saveLastCloudFile(filePath, fileName)
       
@@ -229,7 +229,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
     try {
       error.value = null
       
-      // Detectar si estamos en Tauri
+      // Detect if we are in Tauri
       const isTauri = await tauriService.isAvailable()
       let file: CloudFile
       
@@ -238,7 +238,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
         const token = await dropboxService.getAccessToken()
         const result = await tauriService.uploadDropboxFile(token, path, content)
         
-        // Convertir respuesta de Tauri a CloudFile
+        // Convert Tauri response to CloudFile
         file = {
           id: result.id || path,
           name: result.name,

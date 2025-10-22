@@ -4,7 +4,7 @@ use tauri::{State, Emitter};
 use serde::{Deserialize, Serialize};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 
-// Estado compartido para OAuth
+// Shared state for OAuth
 #[derive(Debug, Clone)]
 struct PendingOAuthRequest {
     code_verifier: String,
@@ -28,7 +28,7 @@ struct DropboxFile {
     content: String,
 }
 
-// Comandos para controlar el modo theater
+// Commands to control theater mode
 #[tauri::command]
 fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
   #[cfg(target_os = "macos")]
@@ -38,11 +38,11 @@ fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
     let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
     
     if is_fullscreen {
-      // Salir del modo theater
+      // Exit theater mode
       window.set_fullscreen(false).map_err(|e| e.to_string())?;
       window.set_decorations(true).map_err(|e| e.to_string())?;
       
-      // Restaurar tamaño normal
+      // Restore normal size
       if let Ok(monitor) = window.current_monitor() {
         if let Some(monitor) = monitor {
           let scale_factor = monitor.scale_factor();
@@ -54,7 +54,7 @@ fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
       
       return Ok(false);
     } else {
-      // Entrar en modo theater (fullscreen sin decoraciones ni menubar)
+      // Enter theater mode (fullscreen without decorations or menubar)
       window.set_decorations(false).map_err(|e| e.to_string())?;
       
       if let Ok(monitor) = window.current_monitor() {
@@ -84,7 +84,7 @@ fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
   }
 }
 
-// Funciones de utilidad para OAuth
+// OAuth utility functions
 fn generate_code_verifier() -> String {
   use rand::Rng;
   let mut rng = rand::thread_rng();
@@ -116,7 +116,7 @@ fn generate_state() -> String {
     .collect()
 }
 
-// Comando para iniciar OAuth
+// Command to start OAuth flow
 #[tauri::command]
 async fn start_dropbox_oauth(
   app_handle: tauri::AppHandle,
@@ -127,7 +127,7 @@ async fn start_dropbox_oauth(
   let code_challenge = generate_code_challenge(&code_verifier);
   let state = generate_state();
   
-  // Guardar el code_verifier para usar después
+  // Save the code_verifier for later use
   {
     let mut pending = oauth_state.pending_requests.lock().unwrap();
     pending.insert(state.clone(), PendingOAuthRequest {
@@ -136,13 +136,13 @@ async fn start_dropbox_oauth(
     });
   }
   
-  // Iniciar servidor local si no está corriendo
-  println!("🚀 Iniciando servidor OAuth en localhost:8080...");
+  // Start local server if not already running
+  println!("🚀 Starting OAuth server on localhost:8080...");
   start_oauth_server(app_handle.clone(), oauth_state.clone()).await?;
-  println!("✅ Servidor OAuth iniciado correctamente");
+  println!("✅ OAuth server started successfully");
   
-  // Construir URL de autorización
-  let client_id = "qej36t232go21e8"; // Tu client ID de Dropbox
+  // Build authorization URL
+  let client_id = "qej36t232go21e8"; // Your Dropbox client ID
   let redirect_uri = "http://localhost:8080/oauth/callback";
   
   let auth_url = format!(
@@ -153,25 +153,25 @@ async fn start_dropbox_oauth(
     state
   );
   
-  // Abrir navegador
+  // Open browser
   tauri_plugin_opener::open_url(&auth_url, None::<&str>)
     .map_err(|e| format!("Failed to open browser: {}", e))?;
   
   Ok(auth_url)
 }
 
-// Comando para obtener token usando código de autorización
+// Command to exchange authorization code for access token
 #[tauri::command]
 async fn exchange_oauth_code(
   code: String,
   state: String,
   oauth_state: State<'_, OAuthState>,
 ) -> Result<OAuthResponse, String> {
-  println!("🔄 Iniciando intercambio de código por token...");
+  println!("🔄 Starting code-to-token exchange...");
   println!("📝 Code: {}", code);
   println!("📝 State: {}", state);
   
-  // Recuperar code_verifier
+  // Retrieve code_verifier
   let code_verifier = {
     let mut pending = oauth_state.pending_requests.lock().unwrap();
     println!("🔍 Pending requests count: {}", pending.len());
@@ -189,12 +189,12 @@ async fn exchange_oauth_code(
   
   println!("🔐 Code verifier retrieved, length: {}", code_verifier.len());
   
-  // Intercambiar código por token
+  // Exchange code for token
   let client_id = "qej36t232go21e8";
   let redirect_uri = "http://localhost:8080/oauth/callback";
   
   let client = reqwest::Client::new();
-  // PKCE - exactamente igual que la versión web (sin client_secret)
+  // PKCE - exactly like web version (without client_secret)
   let params = [
     ("client_id", client_id),
     ("code", code.as_str()),
@@ -253,7 +253,7 @@ async fn exchange_oauth_code(
   })
 }
 
-// Comando para listar archivos de Dropbox
+// Command to list Dropbox files
 #[tauri::command]
 async fn list_dropbox_files(
   access_token: String,
@@ -289,7 +289,7 @@ async fn list_dropbox_files(
   Ok(entries.clone())
 }
 
-// Comando para descargar archivo de Dropbox
+// Command to download file from Dropbox
 #[tauri::command]
 async fn download_dropbox_file(
   access_token: String,
@@ -319,7 +319,7 @@ async fn download_dropbox_file(
   })
 }
 
-// Comando para subir archivo a Dropbox
+// Command to upload file to Dropbox
 #[tauri::command]
 async fn upload_dropbox_file(
   access_token: String,
@@ -352,7 +352,7 @@ async fn upload_dropbox_file(
   Ok(result)
 }
 
-// Iniciar servidor OAuth local
+// Start local OAuth server
 async fn start_oauth_server(
   app_handle: tauri::AppHandle,
   oauth_state: State<'_, OAuthState>,
@@ -368,12 +368,12 @@ async fn start_oauth_server(
   use tokio::net::TcpListener;
   use url::Url;
   
-  // Verificar si el servidor ya está corriendo
+  // Check if server is already running
   {
     let server_handle = oauth_state.server_handle.lock().unwrap();
     if server_handle.is_some() {
-      println!("⚡ Servidor OAuth ya está corriendo");
-      return Ok(()); // Ya está corriendo
+      println!("⚡ OAuth server already running");
+      return Ok(()); // Already running
     }
   }
   
@@ -381,9 +381,9 @@ async fn start_oauth_server(
   
   let server_task = tokio::spawn(async move {
     let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
-    println!("🔗 Intentando bind en {}", addr);
+    println!("🔗 Attempting to bind to {}", addr);
     let listener = TcpListener::bind(addr).await.unwrap();
-    println!("🎯 Servidor OAuth listening en {}", addr);
+    println!("🎯 OAuth server listening on {}", addr);
     
     loop {
       let (stream, _) = listener.accept().await.unwrap();
@@ -398,25 +398,25 @@ async fn start_oauth_server(
             let uri = req.uri();
             
           if uri.path() == "/oauth/callback" {
-            println!("📥 Recibida petición OAuth callback: {}", uri);
+            println!("📥 Received OAuth callback request: {}", uri);
             if let Some(_query) = uri.query() {
               let parsed_url = format!("http://localhost:8080{}", uri);
                 if let Ok(url) = Url::parse(&parsed_url) {
                   let params: std::collections::HashMap<String, String> = url.query_pairs().into_owned().collect();
                   
                   if let (Some(code), Some(state)) = (params.get("code"), params.get("state")) {
-                    println!("✅ OAuth callback válido - emitiendo evento al frontend");
-                    println!("📡 Código: {}, State: {}", code, state);
+                    println!("✅ Valid OAuth callback - emitting event to frontend");
+                    println!("📡 Code: {}, State: {}", code, state);
                     
-                    // Emitir evento al frontend - usando emit para la ventana principal
+                    // Emit event to frontend - using emit for main window
                     let emit_result = app_handle.emit("oauth-callback", serde_json::json!({
                       "code": code,
                       "state": state
                     }));
                     
                     match emit_result {
-                      Ok(_) => println!("✅ Evento oauth-callback emitido correctamente"),
-                      Err(e) => println!("❌ Error emitiendo evento: {}", e),
+                      Ok(_) => println!("✅ oauth-callback event emitted successfully"),
+                      Err(e) => println!("❌ Error emitting event: {}", e),
                     }
                     
                     let html = r#"
@@ -487,13 +487,13 @@ fn is_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
   let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
   let has_decorations = window.is_decorated().map_err(|e| e.to_string())?;
   
-  // En modo theater: fullscreen o sin decoraciones
+  // In theater mode: fullscreen or without decorations
   Ok(is_fullscreen || !has_decorations)
 }
 
 #[tauri::command]
 fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
-  println!("🧪 Test: Emitiendo evento de prueba...");
+  println!("🧪 Test: Emitting test event...");
   
   let result = app_handle.emit("test-event", serde_json::json!({
     "message": "test successful",

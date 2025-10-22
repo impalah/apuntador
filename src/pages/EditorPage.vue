@@ -239,7 +239,7 @@ Code block
             :label="t('cloud.files.fileName', 'Nombre del archivo')"
             variant="outlined"
             density="compact"
-            hint="Incluye la extensión (.md, .txt)"
+            :hint="t('editor.fileNameHint')"
             persistent-hint
             class="mt-2"
           />
@@ -297,7 +297,7 @@ const prefsStore = usePrefsStore()
 
 // Refs
 const textEditorRef = ref()
-const localContent = ref('# Mi Script\n\nEscribe tu contenido aquí...')
+const localContent = ref(t('editor.defaultContent'))
 const showPreview = ref(true)
 const mobileView = ref<'edit' | 'preview'>('edit')
 const showHelp = ref(false)

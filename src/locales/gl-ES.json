@@ -6,8 +6,10 @@
     "save": "Gardar",
     "cancel": "Cancelar",
     "close": "Pechar",
+    "open": "Abrir",
     "reset": "Restablecer",
     "apply": "Aplicar",
+    "delete": "Eliminar",
     "auto": "Auto",
     "yes": "Si",
     "no": "Non",
@@ -175,7 +177,9 @@
     "saveCopy": "Gardar copia",
     "fullscreen": "Pantalla completa",
     "showHelp": "Mostrar axuda",
-    "resetToDefaults": "Restablecer por defecto"
+    "resetToDefaults": "Restablecer por defecto",
+    "pressAnyKey": "Preme calquera tecla...",
+    "clickToSet": "Click para configurar atallo"
   },
   "gamepad": {
     "status": "Estado do gamepad",
@@ -186,6 +190,8 @@
     "assignmentInstructions": "Asigna botóns do gamepad a accións do teleprompter. Fai clic nun campo de entrada e preme calquera botón do gamepad para asignalo.",
     "resetToDefaults": "Restablecer por defecto (Todo a Ningún)",
     "leftStick": "Stick esquerdo",
+    "pressAnyButton": "Preme calquera botón do gamepad...",
+    "clickToAssign": "Click para asignar botón",
     "rightStick": "Stick dereito",
     "dpad": "Cruceta",
     "buttonA": "Botón A",
@@ -210,7 +216,8 @@
     "networkError": "Erro de rede",
     "unknownError": "Erro descoñecido",
     "gamepadNotConnected": "Gamepad non conectado",
-    "gamepadError": "Erro do gamepad"
+    "gamepadError": "Erro do gamepad",
+    "reconnectError": "Erro ao reconectar"
   },
   "messages": {
     "loadingFile": "Cargando arquivo...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "Arquivo cargado completamente",
     "fileSaveComplete": "Arquivo gardado completamente",
     "gamepadConnected": "Gamepad conectado",
-    "gamepadDisconnected": "Gamepad desconectado"
+    "gamepadDisconnected": "Gamepad desconectado",
+    "welcomeContent": "# Benvido a Apuntador\n\nComeza importando o teu guión ou usando o editor para crear novo contido."
   },
   "desktop": {
     "minimize": "Minimizar ventá",
@@ -226,5 +234,37 @@
     "close": "Pechar ventá",
     "alwaysOnTop": "Sempre arriba",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Conecta a túa conta de Dropbox para abrir e gardar scripts directamente dende a nube.",
+      "connect": "Conectar con Dropbox",
+      "connecting": "Conectando con Dropbox...",
+      "connected": "Conectado",
+      "disconnect": "Desconectar"
+    },
+    "files": {
+      "title": "Explorador de arquivos",
+      "loading": "Cargando arquivos...",
+      "empty": "Non hai arquivos nesta carpeta",
+      "openFile": "Abrir arquivo",
+      "saveFile": "Gardar arquivo",
+      "deleteFile": "Eliminar arquivo",
+      "deleteConfirm": "Estás seguro de que queres eliminar \"{name}\"?",
+      "fileName": "Nome do arquivo",
+      "upload": "Subir arquivo",
+      "download": "Descargar",
+      "back": "Volver"
+    },
+    "oauth": {
+      "processing": "Estamos procesando a túa autorización, isto só levará uns segundos.",
+      "successTitle": "Conectado con éxito!",
+      "successMessage": "A túa conta de Dropbox foi conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Erro de conexión",
+      "retryButton": "Tentar de novo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "Non se recibiu código de autorización"
+    }
   }
 }

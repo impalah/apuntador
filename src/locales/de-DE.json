@@ -6,8 +6,10 @@
     "save": "Speichern",
     "cancel": "Abbrechen",
     "close": "Schließen",
+    "open": "Öffnen",
     "reset": "Zurücksetzen",
     "apply": "Anwenden",
+    "delete": "Löschen",
     "auto": "Auto",
     "yes": "Ja",
     "no": "Nein",
@@ -175,7 +177,9 @@
     "saveCopy": "Kopie speichern",
     "fullscreen": "Vollbild",
     "showHelp": "Hilfe anzeigen",
-    "resetToDefaults": "Auf Standard zurücksetzen"
+    "resetToDefaults": "Auf Standard zurücksetzen",
+    "pressAnyKey": "Beliebige Taste drücken...",
+    "clickToSet": "Klicken zum Festlegen der Tastenkombination"
   },
   "gamepad": {
     "status": "Gamepad-Status",
@@ -183,9 +187,11 @@
     "noGamepads": "Keine Gamepads verbunden. Schließen Sie ein Gamepad an und drücken Sie eine beliebige Taste, um zu beginnen.",
     "connected": "{count} Gamepad(s) verbunden und einsatzbereit.",
     "buttonAssignments": "Tastenzuweisungen",
-    "assignmentInstructions": "Weisen Sie Gamepad-Tasten zu Teleprompter-Aktionen zu. Klicken Sie auf ein Eingabefeld und drücken Sie eine beliebige Gamepad-Taste, um sie zuzuweisen.",
+    "assignmentInstructions": "Weisen Sie Gamepad-Tasten Teleprompter-Aktionen zu. Klicken Sie auf ein Eingabefeld und drücken Sie eine beliebige Gamepad-Taste, um sie zuzuweisen.",
     "resetToDefaults": "Auf Standard zurücksetzen (Alle auf Keine)",
     "leftStick": "Linker Stick",
+    "pressAnyButton": "Beliebige Gamepad-Taste drücken...",
+    "clickToAssign": "Klicken zum Zuweisen der Taste",
     "rightStick": "Rechter Stick",
     "dpad": "Steuerkreuz",
     "buttonA": "Taste A",
@@ -210,7 +216,8 @@
     "networkError": "Netzwerkfehler",
     "unknownError": "Unbekannter Fehler",
     "gamepadNotConnected": "Gamepad nicht verbunden",
-    "gamepadError": "Gamepad-Fehler"
+    "gamepadError": "Gamepad-Fehler",
+    "reconnectError": "Fehler beim Wiederverbinden"
   },
   "messages": {
     "loadingFile": "Datei wird geladen...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "Datei vollständig geladen",
     "fileSaveComplete": "Datei vollständig gespeichert",
     "gamepadConnected": "Gamepad verbunden",
-    "gamepadDisconnected": "Gamepad getrennt"
+    "gamepadDisconnected": "Gamepad getrennt",
+    "welcomeContent": "# Willkommen bei Apuntador\n\nBeginnen Sie, indem Sie Ihr Skript importieren oder den Editor verwenden, um neue Inhalte zu erstellen."
   },
   "desktop": {
     "minimize": "Fenster minimieren",
@@ -226,5 +234,37 @@
     "close": "Fenster schließen",
     "alwaysOnTop": "Immer im Vordergrund",
     "fullscreen": "Vollbild umschalten"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Verbinden Sie Ihr Dropbox-Konto, um Skripte direkt aus der Cloud zu öffnen und zu speichern.",
+      "connect": "Mit Dropbox verbinden",
+      "connecting": "Verbindung mit Dropbox...",
+      "connected": "Verbunden",
+      "disconnect": "Trennen"
+    },
+    "files": {
+      "title": "Datei-Explorer",
+      "loading": "Dateien werden geladen...",
+      "empty": "Keine Dateien in diesem Ordner",
+      "openFile": "Datei öffnen",
+      "saveFile": "Datei speichern",
+      "deleteFile": "Datei löschen",
+      "deleteConfirm": "Sind Sie sicher, dass Sie \"{name}\" löschen möchten?",
+      "fileName": "Dateiname",
+      "upload": "Datei hochladen",
+      "download": "Herunterladen",
+      "back": "Zurück"
+    },
+    "oauth": {
+      "processing": "Wir verarbeiten Ihre Autorisierung, dies dauert nur wenige Sekunden.",
+      "successTitle": "Erfolgreich verbunden!",
+      "successMessage": "Ihr Dropbox-Konto wurde erfolgreich verbunden.",
+      "continueButton": "Weiter zu Apuntador",
+      "errorTitle": "Verbindungsfehler",
+      "retryButton": "Erneut versuchen",
+      "backButton": "Zurück zu Apuntador",
+      "noAuthCode": "Kein Autorisierungscode erhalten"
+    }
   }
 }

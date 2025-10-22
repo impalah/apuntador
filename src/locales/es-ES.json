@@ -9,6 +9,7 @@
     "open": "Abrir",
     "reset": "Restablecer",
     "apply": "Aplicar",
+    "delete": "Eliminar",
     "auto": "Auto",
     "yes": "Sí",
     "no": "No",
@@ -128,7 +129,9 @@
     "confirmRefreshLocalChanges": "El contenido local ha sido modificado. ¿Desea descartar la edición y cargar los datos del origen?",
     "confirmRefreshSourceChanged": "El archivo origen ha sido modificado. ¿Desea cargar los nuevos datos del origen?",
     "refreshFromSourceError": "Error al actualizar desde el archivo origen",
-    "saveError": "Error al guardar el archivo"
+    "saveError": "Error al guardar el archivo",
+    "defaultContent": "# Mi Script\n\nEscribe tu contenido aquí...",
+    "fileNameHint": "Incluye la extensión (.md, .txt)"
   },
   "fileLoader": {
     "title": "Importar archivo",
@@ -176,7 +179,9 @@
     "saveCopy": "Guardar copia",
     "fullscreen": "Pantalla completa",
     "showHelp": "Mostrar ayuda",
-    "resetToDefaults": "Restablecer por defecto"
+    "resetToDefaults": "Restablecer por defecto",
+    "pressAnyKey": "Presiona cualquier tecla...",
+    "clickToSet": "Click para configurar atajo"
   },
   "gamepad": {
     "status": "Estado del gamepad",
@@ -187,6 +192,8 @@
     "assignmentInstructions": "Asigna botones del gamepad a acciones del teleprompter. Haz clic en un campo de entrada y presiona cualquier botón del gamepad para asignarlo.",
     "resetToDefaults": "Restablecer por defecto (Todo a Ninguno)",
     "leftStick": "Stick izquierdo",
+    "pressAnyButton": "Presiona cualquier botón...",
+    "clickToAssign": "Click para asignar botón",
     "rightStick": "Stick derecho",
     "dpad": "Cruceta",
     "buttonA": "Botón A",
@@ -211,7 +218,8 @@
     "networkError": "Error de red",
     "unknownError": "Error desconocido",
     "gamepadNotConnected": "Gamepad no conectado",
-    "gamepadError": "Error del gamepad"
+    "gamepadError": "Error del gamepad",
+    "reconnectError": "Error al reconectar"
   },
   "messages": {
     "loadingFile": "Cargando archivo...",
@@ -219,7 +227,8 @@
     "fileLoadComplete": "Archivo cargado completamente",
     "fileSaveComplete": "Archivo guardado completamente",
     "gamepadConnected": "Gamepad conectado",
-    "gamepadDisconnected": "Gamepad desconectado"
+    "gamepadDisconnected": "Gamepad desconectado",
+    "welcomeContent": "# Bienvenido a Apuntador\n\nComienza importando tu guión o usando el editor para crear nuevo contenido."
   },
   "desktop": {
     "minimize": "Minimizar ventana",
@@ -251,15 +260,27 @@
       "disconnect": "Desconectar"
     },
     "files": {
+      "title": "Explorador de archivos",
       "loading": "Cargando archivos...",
       "empty": "No hay archivos en esta carpeta",
       "openFile": "Abrir archivo",
       "saveFile": "Guardar archivo",
       "deleteFile": "Eliminar archivo",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{name}\"?",
       "fileName": "Nombre del archivo",
       "upload": "Subir archivo",
       "download": "Descargar",
       "back": "Volver"
+    },
+    "oauth": {
+      "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",
+      "successTitle": "¡Conectado con éxito!",
+      "successMessage": "Tu cuenta de Dropbox ha sido conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de conexión",
+      "retryButton": "Intentar de nuevo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "No se recibió código de autorización"
     }
   }
 }

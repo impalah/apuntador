@@ -281,7 +281,7 @@ Code block
           :label="t('cloud.files.fileName', 'Nombre del archivo')"
           variant="outlined"
           density="compact"
-          hint="Incluye la extensión (.md, .txt)"
+          :hint="t('editor.fileNameHint')"
           persistent-hint
           class="mt-2"
         />

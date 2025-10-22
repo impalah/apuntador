@@ -6,8 +6,10 @@
     "save": "Desar",
     "cancel": "Cancel·lar",
     "close": "Tancar",
+    "open": "Obrir",
     "reset": "Restablir",
     "apply": "Aplicar",
+    "delete": "Eliminar",
     "auto": "Auto",
     "yes": "Sí",
     "no": "No",
@@ -175,7 +177,9 @@
     "saveCopy": "Desar còpia",
     "fullscreen": "Pantalla completa",
     "showHelp": "Mostrar ajuda",
-    "resetToDefaults": "Restablir per defecte"
+    "resetToDefaults": "Restablir per defecte",
+    "pressAnyKey": "Prem qualsevol tecla...",
+    "clickToSet": "Clic per configurar drecera"
   },
   "gamepad": {
     "status": "Estat del gamepad",
@@ -186,6 +190,8 @@
     "assignmentInstructions": "Assigna botons del gamepad a accions del teleprompter. Fes clic en un camp d'entrada i prem qualsevol botó del gamepad per assignar-lo.",
     "resetToDefaults": "Restablir per defecte (Tot a Cap)",
     "leftStick": "Stick esquerre",
+    "pressAnyButton": "Prem qualsevol botó del gamepad...",
+    "clickToAssign": "Clic per assignar botó",
     "rightStick": "Stick dret",
     "dpad": "Creueta",
     "buttonA": "Botó A",
@@ -210,7 +216,8 @@
     "networkError": "Error de xarxa",
     "unknownError": "Error desconegut",
     "gamepadNotConnected": "Gamepad no connectat",
-    "gamepadError": "Error del gamepad"
+    "gamepadError": "Error del gamepad",
+    "reconnectError": "Error al reconnectar"
   },
   "messages": {
     "loadingFile": "Carregant arxiu...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "Arxiu carregat completament",
     "fileSaveComplete": "Arxiu desat completament",
     "gamepadConnected": "Gamepad connectat",
-    "gamepadDisconnected": "Gamepad desconnectat"
+    "gamepadDisconnected": "Gamepad desconnectat",
+    "welcomeContent": "# Benvingut a Apuntador\n\nComença important el teu guió o utilitzant l'editor per crear nou contingut."
   },
   "desktop": {
     "minimize": "Minimitzar finestra",
@@ -226,5 +234,37 @@
     "close": "Tancar finestra",
     "alwaysOnTop": "Sempre a dalt",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Connecta el teu compte de Dropbox per obrir i desar scripts directament des del núvol.",
+      "connect": "Connectar amb Dropbox",
+      "connecting": "Connectant amb Dropbox...",
+      "connected": "Connectat",
+      "disconnect": "Desconnectar"
+    },
+    "files": {
+      "title": "Explorador d'arxius",
+      "loading": "Carregant arxius...",
+      "empty": "No hi ha arxius en aquesta carpeta",
+      "openFile": "Obrir arxiu",
+      "saveFile": "Desar arxiu",
+      "deleteFile": "Eliminar arxiu",
+      "deleteConfirm": "Estàs segur que vols eliminar \"{name}\"?",
+      "fileName": "Nom de l'arxiu",
+      "upload": "Pujar arxiu",
+      "download": "Descarregar",
+      "back": "Tornar"
+    },
+    "oauth": {
+      "processing": "Estem processant la teva autorització, això només trigarà uns segons.",
+      "successTitle": "Connectat amb èxit!",
+      "successMessage": "El teu compte de Dropbox s'ha connectat correctament.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de connexió",
+      "retryButton": "Tornar a intentar",
+      "backButton": "Tornar a Apuntador",
+      "noAuthCode": "No s'ha rebut codi d'autorització"
+    }
   }
 }

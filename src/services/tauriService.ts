@@ -79,28 +79,28 @@ export class TauriService {
   }
 
   async listenForOAuthCallback(): Promise<{ code: string; state: string }> {
-    console.log('👂 TauriService: Configurando listener para oauth-callback')
+    console.log('👂 TauriService: Setting up listener for oauth-callback')
     
-    this.stopOAuthListener() // Limpiar listener anterior
+    this.stopOAuthListener() // Clean up previous listener
     
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        console.log('⏰ TauriService: OAuth timeout después de 5 minutos')
+        console.log('⏰ TauriService: OAuth timeout after 5 minutes')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
-      }, 300000) // 5 minutos timeout
+      }, 300000) // 5 minutes timeout
 
-      // Configurar el listener y manejar la Promise
+      // Set up listener and handle Promise
       listen('oauth-callback', (event: any) => {
-        console.log('📞 TauriService: Evento oauth-callback recibido:', event.payload)
+        console.log('📞 TauriService: oauth-callback event received:', event.payload)
         clearTimeout(timeout)
         this.stopOAuthListener()
         resolve(event.payload)
       }).then((unlistenFn) => {
         this.oauthCallbackListener = unlistenFn
-        console.log('✅ TauriService: Listener oauth-callback configurado')
+        console.log('✅ TauriService: oauth-callback listener configured')
       }).catch((error) => {
-        console.error('❌ TauriService: Error configurando listener:', error)
+        console.error('❌ TauriService: Error setting up listener:', error)
         clearTimeout(timeout)
         reject(error)
       })
@@ -135,12 +135,12 @@ export class TauriService {
   async testEventEmit(): Promise<void> {
     console.log('🧪 Testing event emission...')
     
-    // Configurar listener de prueba
+    // Set up test listener
     const unlisten = await listen('test-event', (event: any) => {
       console.log('✅ Test event received:', event.payload)
     })
     
-    // Emitir evento de prueba
+    // Emit test event
     try {
       const result = await invoke('test_event_emit')
       console.log('🚀 Test emit result:', result)
@@ -148,7 +148,7 @@ export class TauriService {
       console.error('❌ Test emit failed:', error)
     }
     
-    // Limpiar listener después de 2 segundos
+    // Clean up listener after 2 seconds
     setTimeout(() => {
       unlisten()
       console.log('🧹 Test listener cleaned up')

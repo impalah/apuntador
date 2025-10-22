@@ -6,8 +6,10 @@
     "save": "Save",
     "cancel": "Cancel",
     "close": "Close",
+    "open": "Open",
     "reset": "Reset",
     "apply": "Apply",
+    "delete": "Delete",
     "auto": "Auto",
     "yes": "Yes",
     "no": "No",
@@ -175,7 +177,9 @@
     "saveCopy": "Save copy",
     "fullscreen": "Fullscreen",
     "showHelp": "Show help",
-    "resetToDefaults": "Reset to Defaults"
+    "resetToDefaults": "Reset to Defaults",
+    "pressAnyKey": "Press any key...",
+    "clickToSet": "Click to set hotkey"
   },
   "gamepad": {
     "status": "Gamepad Status",
@@ -186,6 +190,8 @@
     "assignmentInstructions": "Assign gamepad buttons to teleprompter actions. Click on an input field and press any gamepad button to assign it.",
     "resetToDefaults": "Reset to Defaults (All None)",
     "leftStick": "Left stick",
+    "pressAnyButton": "Press any gamepad button...",
+    "clickToAssign": "Click to assign button",
     "rightStick": "Right stick",
     "dpad": "D-pad",
     "buttonA": "Button A",
@@ -210,7 +216,8 @@
     "networkError": "Network error",
     "unknownError": "Unknown error",
     "gamepadNotConnected": "Gamepad not connected",
-    "gamepadError": "Gamepad error"
+    "gamepadError": "Gamepad error",
+    "reconnectError": "Error reconnecting"
   },
   "messages": {
     "loadingFile": "Loading file...",
@@ -218,7 +225,8 @@
     "fileLoadComplete": "File loaded successfully",
     "fileSaveComplete": "File saved successfully",
     "gamepadConnected": "Gamepad connected",
-    "gamepadDisconnected": "Gamepad disconnected"
+    "gamepadDisconnected": "Gamepad disconnected",
+    "welcomeContent": "# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content."
   },
   "desktop": {
     "minimize": "Minimize window",
@@ -236,15 +244,27 @@
       "disconnect": "Disconnect"
     },
     "files": {
+      "title": "File Explorer",
       "loading": "Loading files...",
       "empty": "No files in this folder",
       "openFile": "Open file",
       "saveFile": "Save file",
       "deleteFile": "Delete file",
+      "deleteConfirm": "Are you sure you want to delete \"{name}\"?",
       "fileName": "File name",
       "upload": "Upload file",
       "download": "Download",
       "back": "Back"
+    },
+    "oauth": {
+      "processing": "We are processing your authorization, this will only take a few seconds.",
+      "successTitle": "Successfully connected!",
+      "successMessage": "Your Dropbox account has been connected successfully.",
+      "continueButton": "Continue to Apuntador",
+      "errorTitle": "Connection error",
+      "retryButton": "Try again",
+      "backButton": "Back to Apuntador",
+      "noAuthCode": "No authorization code received"
     }
   }
 }

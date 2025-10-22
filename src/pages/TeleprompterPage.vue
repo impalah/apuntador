@@ -434,11 +434,8 @@ async function loadSampleContent() {
     await teleprompterStore.setContent(content)
   } catch (error) {
     console.warn('Failed to load sample content:', error)
-    // Fallback content based on locale
-    const fallbackContent =
-      locale.value === 'es-ES'
-        ? '# Bienvenido a Apuntador\n\nComienza importando tu guión o usando el editor para crear nuevo contenido.'
-        : '# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.'
+    // Fallback content using i18n
+    const fallbackContent = t('messages.welcomeContent')
     await teleprompterStore.setContent(fallbackContent)
   }
 }

@@ -10,9 +10,9 @@
             size="64"
             class="mb-4"
           />
-          <h2 class="text-h5 mb-2">Conectando con Dropbox...</h2>
+          <h2 class="text-h5 mb-2">{{ $t('dropbox.connection.connecting') }}</h2>
           <p class="text-body-2 text-medium-emphasis">
-            Estamos procesando tu autorización, esto solo tomará unos segundos.
+            {{ $t('dropbox.oauth.processing') }}
           </p>
         </div>
 
@@ -25,16 +25,16 @@
           >
             mdi-check-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">¡Conectado con éxito!</h2>
+          <h2 class="text-h5 mb-2">{{ $t('dropbox.oauth.successTitle') }}</h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            Tu cuenta de Dropbox ha sido conectada correctamente.
+            {{ $t('dropbox.oauth.successMessage') }}
           </p>
           <v-btn
             color="primary"
             variant="elevated"
             @click="redirectToApp"
           >
-            Continuar a Apuntador
+            {{ $t('dropbox.oauth.continueButton') }}
           </v-btn>
         </div>
 
@@ -47,7 +47,7 @@
           >
             mdi-alert-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">Error de conexión</h2>
+          <h2 class="text-h5 mb-2">{{ $t('dropbox.oauth.errorTitle') }}</h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
             {{ error }}
           </p>
@@ -57,14 +57,14 @@
               variant="outlined"
               @click="retryConnection"
             >
-              Intentar de nuevo
+              {{ $t('dropbox.oauth.retryButton') }}
             </v-btn>
             <v-btn
               color="grey"
               variant="text"
               @click="redirectToApp"
             >
-              Volver a Apuntador
+              {{ $t('dropbox.oauth.backButton') }}
             </v-btn>
           </div>
         </div>
@@ -76,11 +76,13 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { useI18n } from 'vue-i18n'
 import { useDropboxStore } from '@/stores/useDropboxStore'
 
 // Composables
 const router = useRouter()
 const route = useRoute()
+const { t } = useI18n()
 const dropboxStore = useDropboxStore()
 
 // Estado
@@ -108,9 +110,9 @@ const processOAuthCallback = async (): Promise<void> => {
       throw new Error(`OAuth error: ${errorParam}`)
     }
 
-    // Verificar que tenemos el código de autorización
+    // Check that we have the authorization code
     if (!code) {
-      throw new Error('No se recibió código de autorización')
+      throw new Error(t('dropbox.oauth.noAuthCode'))
     }
 
     console.log('🚀 Calling dropboxStore.handleOAuthCallback...')
@@ -129,7 +131,7 @@ const processOAuthCallback = async (): Promise<void> => {
 
   } catch (err) {
     console.error('OAuth callback error:', err)
-    error.value = err instanceof Error ? err.message : 'Error desconocido'
+    error.value = err instanceof Error ? err.message : t('errors.unknownError')
     isProcessing.value = false
   }
 }
@@ -142,7 +144,7 @@ const retryConnection = async (): Promise<void> => {
   try {
     await dropboxStore.connect()
   } catch (err) {
-    error.value = err instanceof Error ? err.message : 'Error al reconectar'
+    error.value = err instanceof Error ? err.message : t('errors.reconnectError')
     isProcessing.value = false
   }
 }

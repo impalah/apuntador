@@ -166,7 +166,7 @@
           {{ $t('dropbox.files.deleteFile') }}
         </v-card-title>
         <v-card-text>
-          ¿Estás seguro de que quieres eliminar "{{ fileToDelete?.name }}"?
+          {{ $t('dropbox.files.deleteConfirm', { name: fileToDelete?.name }) }}
         </v-card-text>
         <v-card-actions>
           <v-spacer />
@@ -227,7 +227,7 @@ const fileToDelete = ref<CloudFile | null>(null)
 
 // Computed
 const currentPathDisplay = computed(() => {
-  if (!dropboxStore.currentPath) return 'Apuntador'
+  if (!dropboxStore.currentPath) return 'Apuntador' // App name, not translatable
   return dropboxStore.currentPath.split('/').pop() || 'Apuntador'
 })
 
