@@ -248,6 +248,31 @@
     "gamepadDisconnected": "Gamepad disconnected",
     "welcomeContent": "# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content."
   },
+  "cloud": {
+    "activeProvider": "Active provider",
+    "availableProviders": "Available providers",
+    "connect": "Connect",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Are you sure you want to disconnect this provider?",
+    "setAsActive": "Set as active",
+    "files": {
+      "root": "Root",
+      "title": "File Explorer",
+      "loading": "Loading files...",
+      "empty": "No files in this folder",
+      "openFile": "Open file",
+      "saveFile": "Save file",
+      "deleteFile": "Delete file",
+      "deleteConfirm": "Are you sure you want to delete '{name}'?",
+      "fileName": "File name",
+      "selectFile": "Select a file",
+      "upload": "Upload file",
+      "download": "Download",
+      "back": "Back"
+    }
+  },
   "desktop": {
     "minimize": "Minimize window",
     "maximize": "Maximize window",

@@ -77,13 +77,14 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { useDropboxStore } from '@/stores/useDropboxStore'
+import { useCloudStore } from '@/stores/useCloudStore'
+import type { CloudProviderId } from '@/types/cloud'
 
 // Composables
 const router = useRouter()
 const route = useRoute()
 const { t } = useI18n()
-const dropboxStore = useDropboxStore()
+const cloudStore = useCloudStore()
 
 // Estado
 const isProcessing = ref(true)
@@ -101,8 +102,10 @@ const processOAuthCallback = async (): Promise<void> => {
     const code = route.query.code as string
     const errorParam = route.query.error as string
     const state = route.query.state as string
+    const provider = route.query.provider as CloudProviderId | undefined
 
     console.log('🔑 Code:', code ? 'RECEIVED' : 'MISSING')
+    console.log('🏢 Provider:', provider || 'NOT SPECIFIED (will detect)')
     console.log('❌ Error:', errorParam || 'NONE')
 
     // Verificar si hay error de OAuth
@@ -115,9 +118,10 @@ const processOAuthCallback = async (): Promise<void> => {
       throw new Error(t('dropbox.oauth.noAuthCode'))
     }
 
-    console.log('🚀 Calling dropboxStore.handleOAuthCallback...')
-    // Procesar el callback con Dropbox
-    await dropboxStore.handleOAuthCallback(code)
+    console.log('🚀 Calling cloudStore.handleOAuthCallback...')
+    // Procesar el callback con el proveedor apropiado
+    // Si no se especifica provider, el store intentará detectarlo
+    await cloudStore.handleOAuthCallback(code, provider)
     console.log('✅ OAuth callback completed successfully')
 
     // Éxito
@@ -141,12 +145,8 @@ const retryConnection = async (): Promise<void> => {
   isProcessing.value = true
   isSuccess.value = false
   
-  try {
-    await dropboxStore.connect()
-  } catch (err) {
-    error.value = err instanceof Error ? err.message : t('errors.reconnectError')
-    isProcessing.value = false
-  }
+  // Redirect to settings to retry connection
+  router.push('/#options/cloud')
 }
 
 const redirectToApp = (): void => {

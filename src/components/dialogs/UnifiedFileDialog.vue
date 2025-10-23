@@ -74,7 +74,7 @@
           <!-- Cloud Tab -->
           <v-tabs-window-item value="cloud">
             <!-- Not connected message -->
-            <div v-if="!dropboxStore.isConnected" class="pa-6 text-center">
+            <div v-if="!cloudStore.isConnected" class="pa-6 text-center">
               <v-icon size="64" color="warning" class="mb-4">
                 mdi-cloud-off-outline
               </v-icon>
@@ -99,7 +99,7 @@
 
             <!-- Cloud file explorer -->
             <div v-else class="dropbox-explorer-container">
-              <DropboxFileExplorer
+              <CloudFileExplorer
                 compact-mode
                 @file-selected="onCloudFileSelected"
               />
@@ -129,7 +129,7 @@
           {{ t('common.cancel') }}
         </v-btn>
         <v-btn
-          v-if="activeTab === 'cloud' && dropboxStore.isConnected"
+          v-if="activeTab === 'cloud' && cloudStore.isConnected"
           color="primary"
           variant="flat"
           :disabled="!canAccept"
@@ -145,12 +145,12 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useDropboxStore } from '@/stores/useDropboxStore'
-import DropboxFileExplorer from '@/components/cloud/DropboxFileExplorer.vue'
+import { useCloudStore } from '@/stores/useCloudStore'
+import CloudFileExplorer from '@/components/cloud/CloudFileExplorer.vue'
 import type { CloudFile } from '@/types/cloud'
 
 const { t } = useI18n()
-const dropboxStore = useDropboxStore()
+const cloudStore = useCloudStore()
 
 // Props
 interface Props {

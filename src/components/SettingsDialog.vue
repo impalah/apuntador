@@ -291,12 +291,9 @@
               <!-- Cloud Storage Providers -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">{{ t('settings.cloudProviders') }}</h3>
-                <p class="text-caption text-medium-emphasis mb-4">
-                  {{ t('settings.cloudProvidersDescription') }}
-                </p>
 
-                <!-- Dropbox Connection -->
-                <DropboxConnection />
+                <!-- Cloud Provider Selector -->
+                <CloudProviderSelector />
               </div>
             </div>
           </v-tabs-window-item>
@@ -385,6 +382,7 @@ import { getVersionInfo } from '@/utils/version'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import DropboxConnection from './cloud/DropboxConnection.vue'
+import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 
 // I18n
 const { t } = useI18n()

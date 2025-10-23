@@ -9,18 +9,22 @@ import { onMounted } from 'vue'
 import { addSafeAreaInsets, isTouchDevice } from '@/utils/dom'
 import { useWindowInsets } from '@/utils/windowInsets'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useCloudStore } from '@/stores/useCloudStore'
 import { useDeepLinks } from '@/composables/useDeepLinks'
 
 // Initialize window insets for Android edge-to-edge support
 const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
 const prefsStore = usePrefsStore()
+const cloudStore = useCloudStore()
 
 // Initialize deep links for OAuth callbacks in native apps
 useDeepLinks()
 
-onMounted(() => {
+onMounted(async () => {
   // Load preferences (hotkeys, etc) on app mount
   prefsStore.load()
+  // Initialize cloud store (load saved provider)
+  await cloudStore.initialize()
   // Add safe area insets for mobile devices
   addSafeAreaInsets()
 

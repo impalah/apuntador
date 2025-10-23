@@ -258,12 +258,22 @@
     "fullscreen": "Alternar pantalla completa"
   },
   "cloud": {
+    "activeProvider": "Proveedor activo",
+    "availableProviders": "Proveedores disponibles",
+    "connect": "Conectar",
+    "connected": "Conectado",
+    "notConnected": "No conectado",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Estás seguro de que quieres desconectar este proveedor?",
+    "setAsActive": "Establecer como activo",
     "files": {
+      "title": "Explorador de archivos",
       "loading": "Cargando archivos...",
       "empty": "No hay archivos en esta carpeta",
       "openFile": "Abrir desde la nube",
       "saveFile": "Guardar en la nube", 
       "deleteFile": "Eliminar archivo",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar '{name}'?",
       "fileName": "Nombre del archivo",
       "selectFile": "Selecciona un archivo",
       "upload": "Subir archivo",

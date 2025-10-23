@@ -10,8 +10,10 @@ export interface CloudFile {
   downloadUrl?: string
 }
 
+export type CloudProviderId = 'dropbox' | 'googledrive'
+
 export interface CloudProvider {
-  id: string
+  id: CloudProviderId
   name: string
   isConnected: boolean
   userInfo?: {
@@ -24,11 +26,14 @@ export interface CloudService {
   connect(): Promise<void>
   disconnect(): Promise<void>
   isConnected(): boolean
+  initialize?(): Promise<void>
   listFiles(path?: string): Promise<CloudFile[]>
   downloadFile(fileId: string): Promise<string>
   uploadFile(path: string, content: string): Promise<CloudFile>
   deleteFile(fileId: string): Promise<void>
   getUserInfo(): Promise<{ name: string; email: string }>
+  setAccessToken?(token: string): void
+  handleOAuthCallback?(code: string): Promise<void>
 }
 
 export interface OAuthConfig {

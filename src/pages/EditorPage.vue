@@ -128,7 +128,7 @@ import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { useFileStore } from '@/stores/useFileStore'
-import { useDropboxStore } from '@/stores/useDropboxStore'
+import { useCloudStore } from '@/stores/useCloudStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import type { CloudFile } from '@/types/cloud'
 
@@ -146,7 +146,7 @@ const { t } = useI18n()
 // Stores
 const teleprompterStore = useTeleprompterStore()
 const fileStore = useFileStore()
-const dropboxStore = useDropboxStore()
+const cloudStore = useCloudStore()
 const prefsStore = usePrefsStore()
 
 // Refs
@@ -257,7 +257,7 @@ async function onLocalFileSelected(file: File) {
 
 async function onCloudFileSelected(path: string) {
   try {
-    const content = await dropboxStore.downloadFile(path)
+    const content = await cloudStore.downloadFile(path)
     if (typeof content === 'string') {
       localContent.value = content
       await teleprompterStore.setContent(content)
@@ -298,10 +298,10 @@ async function onSaveLocal() {
 async function onSaveCloudFile(fileName: string) {
   saving.value = true
   try {
-    const currentPath = dropboxStore.currentPath
+    const currentPath = cloudStore.currentPath
     const fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
     
-    await dropboxStore.uploadFile(fullPath, localContent.value)
+    await cloudStore.uploadFile(fullPath, localContent.value)
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
     showUnifiedSaveDialog.value = false
