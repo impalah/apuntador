@@ -103,7 +103,10 @@
     "importError": "Error importing settings",
     "subtitle": "Professional Teleprompter",
     "version": "Version",
-    "copyright": "Copyright"
+    "copyright": "Copyright",
+    "cloud": "Cloud",
+    "cloudProviders": "Cloud Storage Providers",
+    "cloudProvidersDescription": "Connect your cloud storage accounts to sync and access your scripts from any device."
   },
   "editor": {
     "title": "Markdown Editor",

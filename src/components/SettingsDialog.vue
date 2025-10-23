@@ -21,6 +21,7 @@
           }}</v-tab>
           <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
           <v-tab value="controls" data-testid="controls-tab">{{ t('settings.controls') }}</v-tab>
+          <v-tab value="cloud" data-testid="cloud-tab">{{ t('settings.cloud') }}</v-tab>
           <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
           <v-tab value="about" data-testid="about-tab">{{ t('settings.about') }}</v-tab>
         </v-tabs>
@@ -284,6 +285,22 @@
             </v-form>
           </v-tabs-window-item>
 
+          <!-- Cloud Tab -->
+          <v-tabs-window-item value="cloud">
+            <div class="mt-4">
+              <!-- Cloud Storage Providers -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.cloudProviders') }}</h3>
+                <p class="text-caption text-medium-emphasis mb-4">
+                  {{ t('settings.cloudProvidersDescription') }}
+                </p>
+
+                <!-- Dropbox Connection -->
+                <DropboxConnection />
+              </div>
+            </div>
+          </v-tabs-window-item>
+
           <!-- Data Tab -->
           <v-tabs-window-item value="data">
             <div class="mt-4">
@@ -357,7 +374,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
@@ -367,6 +384,7 @@ import { useGamepad } from '@/utils/gamepad'
 import { getVersionInfo } from '@/utils/version'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
+import DropboxConnection from './cloud/DropboxConnection.vue'
 
 // I18n
 const { t } = useI18n()
@@ -374,9 +392,26 @@ const { t } = useI18n()
 // Props
 interface Props {
   modelValue: boolean
+  initialTab?: string
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  initialTab: 'appearance'
+})
+
+// Watch for prop changes to update active tab
+watch(() => props.initialTab, (newTab) => {
+  if (newTab && props.modelValue) {
+    activeTab.value = newTab
+  }
+})
+
+// Watch for dialog opening to set initial tab
+watch(() => props.modelValue, (isOpen) => {
+  if (isOpen && props.initialTab) {
+    activeTab.value = props.initialTab
+  }
+})
 
 // Emits
 const emit = defineEmits<{
@@ -398,7 +433,7 @@ const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
 const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
 // State
-const activeTab = ref('appearance')
+const activeTab = ref(props.initialTab)
 
 // Font families available
 const fontFamilies = [

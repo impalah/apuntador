@@ -103,7 +103,10 @@
     "importError": "Error al importar la configuración",
     "subtitle": "Teleprompter profesional",
     "version": "Versión",
-    "copyright": "Derechos de autor"
+    "copyright": "Derechos de autor",
+    "cloud": "Nube",
+    "cloudProviders": "Proveedores de almacenamiento en la nube",
+    "cloudProvidersDescription": "Conecta tus cuentas de almacenamiento en la nube para sincronizar y acceder a tus scripts desde cualquier dispositivo."
   },
   "editor": {
     "title": "Editor de Markdown",

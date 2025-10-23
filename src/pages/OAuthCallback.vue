@@ -150,9 +150,8 @@ const retryConnection = async (): Promise<void> => {
 }
 
 const redirectToApp = (): void => {
-  // Redirigir a la página principal o donde el usuario estaba
-  const returnTo = (route.query.returnTo as string) || '/'
-  router.push(returnTo)
+  // Redirigir a la página principal con hash para abrir opciones en pestaña cloud
+  router.push('/#options/cloud')
 }
 
 // Lifecycle

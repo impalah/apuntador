@@ -48,6 +48,7 @@
         <v-btn 
           icon="mdi-cloud" 
           @click="onOpenCloud" 
+          :disabled="!dropboxStore.isConnected"
           :title="t('cloud.files.openFile', 'Abrir desde la nube')" 
         />
 
@@ -183,7 +184,6 @@ Code block
         </v-card>
       </v-dialog>
 
-      <!-- Dropbox Dialog - Compact File Picker Style -->
       <!-- Cloud File Explorer Dialog -->
       <v-dialog 
         v-model="showCloudDialog"
@@ -210,21 +210,9 @@ Code block
             />
           </v-card-title>
           
-          <!-- Compact content area -->
+          <!-- File Explorer -->
           <div class="dropbox-content-container">
-            <!-- Mostrar conexión si no está conectado -->
-            <div
-              v-if="!dropboxStore.isConnected"
-              class="pa-6 text-center"
-            >
-              <DropboxConnection />
-            </div>
-            
-            <!-- Mostrar explorador compacto si está conectado -->
-            <div
-              v-else
-              class="dropbox-explorer-container"
-            >
+            <div class="dropbox-explorer-container">
               <DropboxFileExplorer
                 @file-selected="onCloudFileSelected"
                 compact-mode
@@ -314,7 +302,6 @@ import { ref, computed, watch, nextTick, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { compileMarkdown } from '@/utils/markdown'
 import { useDropboxStore } from '@/stores/useDropboxStore'
-import DropboxConnection from '@/components/cloud/DropboxConnection.vue'
 import DropboxFileExplorer from '@/components/cloud/DropboxFileExplorer.vue'
 import type { EditorProps, EditorEmits } from '@/types/editor'
 import type { CloudFile } from '@/types/cloud'
@@ -491,9 +478,17 @@ async function onOpenFile() {
 }
 
 async function onOpenCloud() {
-  // Initialize Dropbox if not connected (in the future, could select provider)
+  // Initialize Dropbox if not already done
   if (!dropboxStore.isConnected) {
     await dropboxStore.initialize()
+  }
+  
+  // If still not connected after initialization, redirect to settings
+  if (!dropboxStore.isConnected) {
+    // Close editor and redirect to settings cloud tab
+    emit('update:modelValue', false)
+    window.location.hash = '#options/cloud'
+    return
   }
   
   // Show Cloud file explorer
@@ -551,9 +546,17 @@ async function onAcceptCloud() {
 }
 
 async function onSaveToCloud() {
-  // Initialize Dropbox if not connected (in the future, could select provider)
+  // Initialize Dropbox if not already done
   if (!dropboxStore.isConnected) {
     await dropboxStore.initialize()
+  }
+  
+  // If still not connected after initialization, redirect to settings
+  if (!dropboxStore.isConnected) {
+    // Close editor and redirect to settings cloud tab
+    emit('update:modelValue', false)
+    window.location.hash = '#options/cloud'
+    return
   }
   
   // Load files from last cloud path (or root if no path saved)

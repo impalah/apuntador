@@ -11,7 +11,7 @@
     />
 
     <!-- Modular FloatingToolbar - Using component interfaces -->
-    <FloatingToolbarModular
+    <FloatingToolbar
       :scroll-state="{
         offset: teleprompterStore.scrollOffset,
         isPlaying: teleprompterStore.isPlaying,
@@ -51,7 +51,11 @@
     />
 
     <!-- Settings Dialog -->
-    <SettingsDialog v-model="settingsOpen" @file-imported="onFileImported" />
+    <SettingsDialog 
+      v-model="settingsOpen" 
+      :initial-tab="settingsInitialTab"
+      @file-imported="onFileImported" 
+    />
 
     <!-- File Loader -->
     <FileLoader 
@@ -80,7 +84,7 @@ import {
 import { gamepadManager } from '@/utils/gamepadManager'
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
-import FloatingToolbarModular from '@/components/FloatingToolbarModular.vue'
+import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
@@ -107,6 +111,7 @@ const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()
 
 // UI state
 const settingsOpen = ref(false)
+const settingsInitialTab = ref('appearance')
 const fileLoaderOpen = ref(false)
 const currentOrientation = ref<'portrait' | 'landscape'>('landscape')
 
@@ -210,6 +215,9 @@ onMounted(async () => {
 
   // Apply CSS variables
   prefsStore.applyCSSVariables()
+
+  // Check for hash-based navigation (e.g., /#options/cloud)
+  parseHashNavigation()
 
   // Get initial orientation on mobile
   if (isMobile()) {
@@ -398,6 +406,36 @@ function onTeleprompterTap() {
   // Emit custom event for backward compatibility
   const event = new CustomEvent('teleprompter-tap')
   window.dispatchEvent(event)
+}
+
+// Parse hash navigation for deep linking (e.g., /#options/cloud)
+function parseHashNavigation() {
+  const hash = window.location.hash
+  
+  if (!hash || hash === '#' || hash === '#/') {
+    return
+  }
+
+  // Remove the leading '#' or '#/'
+  const path = hash.replace(/^#\/?/, '')
+  
+  // Parse the path segments
+  const segments = path.split('/')
+  
+  // Handle different navigation patterns
+  if (segments[0] === 'options' && segments.length > 1) {
+    // Open settings dialog with specific tab
+    const tab = segments[1]
+    settingsInitialTab.value = tab
+    
+    // Use nextTick to ensure the dialog opens after the tab is set
+    nextTick(() => {
+      settingsOpen.value = true
+    })
+    
+    // Clear the hash after processing to avoid re-triggering
+    window.history.replaceState(null, '', window.location.pathname)
+  }
 }
 
 

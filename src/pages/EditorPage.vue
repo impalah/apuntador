@@ -135,19 +135,7 @@ Code block
         
         <!-- Cloud content area -->
         <div class="dropbox-content-container">
-          <!-- Show connection if not connected -->
-          <div
-            v-if="!dropboxStore.isConnected"
-            class="pa-6 text-center"
-          >
-            <DropboxConnection />
-          </div>
-          
-          <!-- Show file explorer if connected -->
-          <div
-            v-else
-            class="dropbox-explorer-container"
-          >
+          <div class="dropbox-explorer-container">
             <DropboxFileExplorer
               compact-mode
               @file-selected="onCloudFileSelected"
@@ -245,7 +233,6 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
 import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
-import DropboxConnection from '@/components/cloud/DropboxConnection.vue'
 import DropboxFileExplorer from '@/components/cloud/DropboxFileExplorer.vue'
 
 // Composables
@@ -363,12 +350,34 @@ function onOpenFile() {
   fileLoaderOpen.value = true
 }
 
-function onOpenCloud() {
+async function onOpenCloud() {
+  // Initialize Dropbox if not already done
+  if (!dropboxStore.isConnected) {
+    await dropboxStore.initialize()
+  }
+  
+  // If still not connected after initialization, redirect to settings
+  if (!dropboxStore.isConnected) {
+    router.push('/#options/cloud')
+    return
+  }
+  
   showCloudDialog.value = true
   selectedCloudFile.value = null
 }
 
 async function onSaveToCloud() {
+  // Initialize Dropbox if not already done
+  if (!dropboxStore.isConnected) {
+    await dropboxStore.initialize()
+  }
+  
+  // If still not connected after initialization, redirect to settings
+  if (!dropboxStore.isConnected) {
+    router.push('/#options/cloud')
+    return
+  }
+  
   suggestedFileName.value = fileStore.fileName || 'script.md'
   showCloudSaveDialog.value = true
 }
