@@ -13,25 +13,7 @@
     <!-- File Operations -->
     <v-btn icon="mdi-file-plus" @click="onNew" :title="t('fileLoader.newFile')" />
 
-    <!-- Save button - only show if can save directly -->
-    <v-btn
-      v-if="canSave"
-      icon="mdi-content-save"
-      @click="onSave"
-      :disabled="saving"
-      :title="t('fileLoader.save')"
-    />
-
-    <!-- Save Copy button - always available, more prominent if can't save directly -->
-    <v-btn
-      :icon="canSaveAsNewCopy ? 'mdi-content-save' : 'mdi-content-save-outline'"
-      @click="onSaveCopy"
-      :disabled="saving"
-      :title="canSaveAsNewCopy ? t('fileLoader.save') : t('fileLoader.saveCopy')"
-      :color="canSaveAsNewCopy ? 'primary' : undefined"
-    />
-
-    <!-- Open File button -->
+    <!-- Open File button (unified local + cloud) -->
     <v-btn
       icon="mdi-folder-open"
       @click="onOpenFile"
@@ -40,20 +22,12 @@
       data-testid="open-file-button"
     />
 
-    <!-- Cloud Open button -->
-    <v-btn 
-      icon="mdi-cloud" 
-      @click="onOpenCloud" 
-      :title="t('cloud.files.openFile', 'Abrir desde la nube')" 
-    />
-
-    <!-- Save to Cloud button -->
-    <v-btn 
-      icon="mdi-cloud-upload" 
-      variant="text"
-      @click="onSaveToCloud" 
-      :disabled="!dropboxConnected || saving"
-      :title="t('cloud.files.saveFile', 'Guardar en la nube')" 
+    <!-- Save button (unified local + cloud) -->
+    <v-btn
+      icon="mdi-content-save"
+      @click="onSave"
+      :disabled="saving"
+      :title="t('fileLoader.save')"
     />
 
     <v-divider vertical class="mx-2" />
@@ -62,7 +36,7 @@
     <v-btn
       :icon="showPreview ? 'mdi-pencil' : 'mdi-eye'"
       @click="onTogglePreview"
-      :title="showPreview ? t('editor.editMode', 'Modo edición') : t('editor.previewMode', 'Modo previsualización')"
+      :title="showPreview ? t('editor.editMode') : t('editor.previewMode')"
     />
 
     <!-- Markdown Help button -->
@@ -87,11 +61,8 @@ import { useI18n } from 'vue-i18n'
 // Props
 interface Props {
   fileDisplayName: string
-  canSave: boolean
-  canSaveAsNewCopy: boolean
   saving: boolean
   refreshing: boolean
-  dropboxConnected: boolean
   showPreview: boolean
 }
 
@@ -102,10 +73,7 @@ const emit = defineEmits<{
   close: []
   new: []
   save: []
-  saveCopy: []
   openFile: []
-  openCloud: []
-  saveToCloud: []
   togglePreview: []
   markdownHelp: []
   apply: []
@@ -127,20 +95,8 @@ function onSave() {
   emit('save')
 }
 
-function onSaveCopy() {
-  emit('saveCopy')
-}
-
 function onOpenFile() {
   emit('openFile')
-}
-
-function onOpenCloud() {
-  emit('openCloud')
-}
-
-function onSaveToCloud() {
-  emit('saveToCloud')
 }
 
 function onTogglePreview() {

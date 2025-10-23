@@ -159,6 +159,21 @@
     "saveAs": "Save as",
     "import": "Import"
   },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Cloud",
+    "localOpenTitle": "Open local file",
+    "localOpenDescription": "Select a markdown (.md) or text (.txt) file from your computer.",
+    "localSaveTitle": "Save local file",
+    "localSaveDescription": "Save the content to a file on your computer.",
+    "browseFiles": "Browse files",
+    "saveToComputer": "Save to computer",
+    "cloudNotConnected": "Not connected to cloud",
+    "cloudNotConnectedDescription": "There is no active connection to cloud storage services. Please configure your connection in Apuntador settings.",
+    "goToSettings": "Go to settings",
+    "fileName": "File name",
+    "fileNameHint": ".md extension will be added automatically if not present"
+  },
   "hotkeys": {
     "title": "Hotkeys",
     "playPause": "Play/Pause",

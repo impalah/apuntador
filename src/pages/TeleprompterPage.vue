@@ -96,7 +96,7 @@ const i18nStore = useI18nStore()
 const fileStore = useFileStore()
 
 // Composables
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const { xs, sm } = useDisplay()
 const router = useRouter()
 

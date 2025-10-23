@@ -161,6 +161,21 @@
     "saveAs": "Guardar como",
     "import": "Importar"
   },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Nube",
+    "localOpenTitle": "Abrir archivo local",
+    "localOpenDescription": "Selecciona un archivo markdown (.md) o texto (.txt) desde tu ordenador.",
+    "localSaveTitle": "Guardar archivo local",
+    "localSaveDescription": "Guarda el contenido en un archivo en tu ordenador.",
+    "browseFiles": "Examinar archivos",
+    "saveToComputer": "Guardar en ordenador",
+    "cloudNotConnected": "No conectado a la nube",
+    "cloudNotConnectedDescription": "No hay conexión activa con servicios de almacenamiento en la nube. Por favor, configure su conexión en las opciones de Apuntador.",
+    "goToSettings": "Ir a opciones",
+    "fileName": "Nombre del archivo",
+    "fileNameHint": "La extensión .md se agregará automáticamente si no está presente"
+  },
   "hotkeys": {
     "title": "Teclas de acceso rápido",
     "playPause": "Reproducir/Pausar",

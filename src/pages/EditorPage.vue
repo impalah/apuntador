@@ -3,19 +3,13 @@
     <!-- Editor Toolbar -->
     <EditorToolbar
       :file-display-name="fileStore.displayName"
-      :can-save="fileStore.canSave"
-      :can-save-as-new-copy="fileStore.canSaveAsNewCopy"
       :saving="saving"
       :refreshing="refreshing"
-      :dropbox-connected="dropboxStore.isConnected"
       :show-preview="showPreview"
       @close="onClose"
       @new="onNew"
-      @save="onSave"
-      @save-copy="onSaveCopy"
-      @open-file="onOpenFile"
-      @open-cloud="onOpenCloud"
-      @save-to-cloud="onSaveToCloud"
+      @save="onOpenSaveDialog"
+      @open-file="onOpenFileDialog"
       @toggle-preview="onTogglePreview"
       @markdown-help="onMarkdownHelp"
       @apply="onApply"
@@ -100,121 +94,31 @@ Code block
       </v-card>
     </v-dialog>
 
-    <!-- File Loader -->
+    <!-- File Loader (for backward compatibility, can be removed later) -->
     <FileLoader 
       v-model="fileLoaderOpen" 
       auto-import 
       @file-imported="onFileImported" 
     />
 
-    <!-- Cloud File Explorer Dialog -->
-    <v-dialog 
-      v-model="showCloudDialog"
-      max-width="900"
-      max-height="600"
-      persistent
-      scrollable
-    >
-      <v-card class="dropbox-file-picker">
-        <v-card-title class="d-flex align-center py-3 px-4 bg-surface-variant">
-          <v-icon
-            color="primary"
-            class="me-2"
-          >
-            mdi-cloud
-          </v-icon>
-          {{ t('cloud.files.openFile', 'Abrir desde la nube') }}
-          <v-spacer />
-          <v-btn
-            icon="mdi-close"
-            variant="text"
-            size="small"
-            @click="onCancelCloud"
-          />
-        </v-card-title>
-        
-        <!-- Cloud content area -->
-        <div class="dropbox-content-container">
-          <div class="dropbox-explorer-container">
-            <DropboxFileExplorer
-              compact-mode
-              @file-selected="onCloudFileSelected"
-            />
-          </div>
-        </div>
+    <!-- Unified File Dialog for Open -->
+    <UnifiedFileDialog
+      v-model="showUnifiedOpenDialog"
+      mode="open"
+      @file-selected-local="onLocalFileSelected"
+      @file-selected-cloud="onCloudFileSelected"
+      @open-settings="onOpenSettings"
+    />
 
-        <!-- Action buttons -->
-        <v-card-actions class="px-4 py-3 bg-surface-variant">
-          <v-spacer />
-          <v-btn
-            variant="text"
-            @click="onCancelCloud"
-          >
-            {{ t('common.cancel', 'Cancelar') }}
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :disabled="!selectedCloudFile"
-            @click="onAcceptCloud"
-          >
-            {{ t('common.open', 'Abrir') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
-    <!-- Cloud Save Dialog -->
-    <v-dialog 
-      v-model="showCloudSaveDialog" 
-      max-width="900px" 
-      persistent 
-      scrollable
-    >
-      <v-card>
-        <v-card-title>
-          <span class="text-h6">{{ t('dropbox.files.saveFile', 'Guardar archivo') }}</span>
-        </v-card-title>
-
-        <v-card-text style="max-height: 600px;">
-          <!-- File Explorer for navigation -->
-          <DropboxFileExplorer 
-            :compact-mode="true"
-            @file-selected="onSaveLocationSelected"
-          />
-          
-          <!-- File name input -->
-          <v-divider class="my-4" />
-          <v-text-field
-            v-model="suggestedFileName"
-            :label="t('cloud.files.fileName', 'Nombre del archivo')"
-            variant="outlined"
-            density="compact"
-            :hint="t('editor.fileNameHint')"
-            persistent-hint
-            class="mt-2"
-          />
-        </v-card-text>
-
-        <v-card-actions>
-          <v-spacer />
-          <v-btn
-            variant="text"
-            @click="onCancelCloudSave"
-          >
-            {{ t('common.cancel', 'Cancelar') }}
-          </v-btn>
-          <v-btn
-            color="primary"
-            variant="flat"
-            :disabled="!suggestedFileName.trim()"
-            @click="onAcceptCloudSave"
-          >
-            {{ t('common.save', 'Guardar') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
+    <!-- Unified File Dialog for Save -->
+    <UnifiedFileDialog
+      v-model="showUnifiedSaveDialog"
+      mode="save"
+      :suggested-file-name="suggestedFileName"
+      @save-local="onSaveLocal"
+      @save-cloud="onSaveCloudFile"
+      @open-settings="onOpenSettings"
+    />
   </div>
 </template>
 
@@ -233,7 +137,7 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
 import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
-import DropboxFileExplorer from '@/components/cloud/DropboxFileExplorer.vue'
+import UnifiedFileDialog from '@/components/dialogs/UnifiedFileDialog.vue'
 
 // Composables
 const router = useRouter()
@@ -254,10 +158,9 @@ const fileLoaderOpen = ref(false)
 const saving = ref(false)
 const refreshing = ref(false)
 
-// Cloud dialog state
-const showCloudDialog = ref(false)
-const showCloudSaveDialog = ref(false)
-const selectedCloudFile = ref<string | null>(null)
+// Unified file dialog state
+const showUnifiedOpenDialog = ref(false)
+const showUnifiedSaveDialog = ref(false)
 const suggestedFileName = ref('')
 
 // Computed
@@ -327,59 +230,90 @@ function onNew() {
   textEditorRef.value?.focus()
 }
 
-async function onSave() {
-  if (!fileStore.canSave) return
-  
+// Unified dialog handlers
+function onOpenFileDialog() {
+  showUnifiedOpenDialog.value = true
+}
+
+function onOpenSaveDialog() {
+  // Suggest current file name or default
+  suggestedFileName.value = fileStore.fileName || 'script.md'
+  showUnifiedSaveDialog.value = true
+}
+
+async function onLocalFileSelected(file: File) {
+  try {
+    const content = await file.text()
+    localContent.value = content
+    await teleprompterStore.setContent(content)
+    fileStore.setContent(content)
+    fileStore.createNew()
+    fileStore.setFileHandle(null, file.name)
+    showUnifiedOpenDialog.value = false
+  } catch (error) {
+    console.error('Error loading local file:', error)
+  }
+}
+
+async function onCloudFileSelected(path: string) {
+  try {
+    const content = await dropboxStore.downloadFile(path)
+    if (typeof content === 'string') {
+      localContent.value = content
+      await teleprompterStore.setContent(content)
+      fileStore.setContent(content)
+      fileStore.createNew()
+      
+      const fileName = path.split('/').pop() || 'cloud-file.md'
+      fileStore.setFileHandle(null, fileName)
+      showUnifiedOpenDialog.value = false
+    }
+  } catch (error) {
+    console.error('Error loading cloud file:', error)
+  }
+}
+
+async function onSaveLocal() {
   saving.value = true
   try {
+    // For now, trigger browser's native save dialog
+    const blob = new Blob([localContent.value], { type: 'text/markdown' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = suggestedFileName.value || 'script.md'
+    a.click()
+    URL.revokeObjectURL(url)
+    
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
+    showUnifiedSaveDialog.value = false
   } catch (error) {
-    console.error('Error saving file:', error)
+    console.error('Error saving file locally:', error)
   } finally {
     saving.value = false
   }
 }
 
-function onSaveCopy() {
-  // Open file loader to save as new file
-  fileLoaderOpen.value = true
+async function onSaveCloudFile(fileName: string) {
+  saving.value = true
+  try {
+    const currentPath = dropboxStore.currentPath
+    const fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
+    
+    await dropboxStore.uploadFile(fullPath, localContent.value)
+    await teleprompterStore.setContent(localContent.value)
+    fileStore.markAsSaved()
+    showUnifiedSaveDialog.value = false
+  } catch (error) {
+    console.error('Error saving to cloud:', error)
+  } finally {
+    saving.value = false
+  }
 }
 
-function onOpenFile() {
-  fileLoaderOpen.value = true
-}
-
-async function onOpenCloud() {
-  // Initialize Dropbox if not already done
-  if (!dropboxStore.isConnected) {
-    await dropboxStore.initialize()
-  }
-  
-  // If still not connected after initialization, redirect to settings
-  if (!dropboxStore.isConnected) {
-    router.push('/#options/cloud')
-    return
-  }
-  
-  showCloudDialog.value = true
-  selectedCloudFile.value = null
-}
-
-async function onSaveToCloud() {
-  // Initialize Dropbox if not already done
-  if (!dropboxStore.isConnected) {
-    await dropboxStore.initialize()
-  }
-  
-  // If still not connected after initialization, redirect to settings
-  if (!dropboxStore.isConnected) {
-    router.push('/#options/cloud')
-    return
-  }
-  
-  suggestedFileName.value = fileStore.fileName || 'script.md'
-  showCloudSaveDialog.value = true
+function onOpenSettings() {
+  router.push('/#options/cloud')
 }
 
 function onTogglePreview() {
@@ -410,80 +344,7 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   fileLoaderOpen.value = false
 }
 
-// Cloud dialog handlers
-function onCancelCloud() {
-  showCloudDialog.value = false
-  selectedCloudFile.value = null
-}
 
-function onCloudFileSelected(file: CloudFile) {
-  selectedCloudFile.value = file.path
-}
-
-async function onAcceptCloud() {
-  if (!selectedCloudFile.value) return
-  
-  try {
-    const content = await dropboxStore.downloadFile(selectedCloudFile.value)
-    if (typeof content === 'string') {
-      localContent.value = content
-      await teleprompterStore.setContent(content)
-      
-      // Update file store - cloud files are treated as new files that need to be saved locally
-      fileStore.setContent(content)
-      fileStore.createNew()
-      
-      // Extract filename from path and set it
-      const fileName = selectedCloudFile.value.split('/').pop() || 'cloud-file.md'
-      fileStore.setFileHandle(null, fileName)
-      
-      showCloudDialog.value = false
-      selectedCloudFile.value = null
-    }
-  } catch (error) {
-    console.error('Error loading cloud file:', error)
-  }
-}
-
-// Cloud save handlers
-function onCancelCloudSave() {
-  showCloudSaveDialog.value = false
-  suggestedFileName.value = ''
-}
-
-function onSaveLocationSelected(file: CloudFile) {
-  // This handler could be used if we want to navigate to specific folders
-  console.log('Selected folder:', file.path)
-}
-
-async function onAcceptCloudSave() {
-  if (!suggestedFileName.value.trim()) return
-  
-  try {
-    saving.value = true
-    
-    // Construct full path using dropbox store current path
-    const fileName = suggestedFileName.value.trim()
-    const currentPath = dropboxStore.currentPath
-    const fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
-    
-    console.log('💾 Saving file to cloud:', fullPath)
-    
-    // Upload file to cloud
-    await dropboxStore.uploadFile(fullPath, localContent.value)
-    
-    // Close dialog after successful save
-    showCloudSaveDialog.value = false
-    suggestedFileName.value = ''
-    
-    console.log('✅ File saved successfully to cloud')
-    
-  } catch (error) {
-    console.error('Error saving to cloud:', error)
-  } finally {
-    saving.value = false
-  }
-}
 </script>
 
 <style scoped>
