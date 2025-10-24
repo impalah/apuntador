@@ -15,6 +15,10 @@ export const useCloudStore = defineStore('cloud', () => {
   // State
   const activeProviderId = ref<CloudProviderId | null>(null)
   const isConnecting = ref(false)
+  const isLoadingFiles = ref(false)
+  const isDownloading = ref(false)
+  const isUploading = ref(false)
+  const isDeleting = ref(false)
   const currentFiles = ref<CloudFile[]>([])
   const currentPath = ref<string>('')
   const error = ref<string | null>(null)
@@ -53,7 +57,16 @@ export const useCloudStore = defineStore('cloud', () => {
     }
   })
 
-  const isConnected = computed(() => activeProvider.value?.isConnected || false)
+  const isConnected = computed(() => {
+    const connected = activeProvider.value?.isConnected || false
+    console.log('🔍 CloudStore isConnected computed:', {
+      hasActiveProvider: !!activeProvider.value,
+      activeProviderId: activeProviderId.value,
+      providerIsConnected: activeProvider.value?.isConnected,
+      result: connected
+    })
+    return connected
+  })
 
   const availableProviders = computed<CloudProvider[]>(() => [
     {
@@ -239,6 +252,9 @@ export const useCloudStore = defineStore('cloud', () => {
       throw new Error('No active cloud provider')
     }
 
+    isLoadingFiles.value = true
+    error.value = null
+
     try {
       const service = services[activeProviderId.value]
       const targetPath = path !== undefined ? path : currentPath.value
@@ -249,6 +265,8 @@ export const useCloudStore = defineStore('cloud', () => {
       error.value = err instanceof Error ? err.message : 'Error loading files'
       console.error('Error loading files:', err)
       throw err
+    } finally {
+      isLoadingFiles.value = false
     }
   }
 
@@ -262,21 +280,27 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Descarga un archivo
    */
-  const downloadFile = async (path: string): Promise<string> => {
+  const downloadFile = async (path: string, fileName?: string): Promise<string> => {
     if (!activeProviderId.value) {
       throw new Error('No active cloud provider')
     }
 
+    isDownloading.value = true
+    error.value = null
+
     try {
       const service = services[activeProviderId.value]
       lastCloudPath.value = path
-      lastCloudFileName.value = path.split('/').pop() || ''
+      // Use provided fileName or extract from path (for Dropbox compatibility)
+      lastCloudFileName.value = fileName || path.split('/').pop() || ''
       
       return await service.downloadFile(path)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error downloading file'
       console.error('Error downloading file:', err)
       throw err
+    } finally {
+      isDownloading.value = false
     }
   }
 
@@ -287,6 +311,9 @@ export const useCloudStore = defineStore('cloud', () => {
     if (!activeProviderId.value) {
       throw new Error('No active cloud provider')
     }
+
+    isUploading.value = true
+    error.value = null
 
     try {
       const service = services[activeProviderId.value]
@@ -300,6 +327,8 @@ export const useCloudStore = defineStore('cloud', () => {
       error.value = err instanceof Error ? err.message : 'Error uploading file'
       console.error('Error uploading file:', err)
       throw err
+    } finally {
+      isUploading.value = false
     }
   }
 
@@ -311,6 +340,9 @@ export const useCloudStore = defineStore('cloud', () => {
       throw new Error('No active cloud provider')
     }
 
+    isDeleting.value = true
+    error.value = null
+
     try {
       const service = services[activeProviderId.value]
       await service.deleteFile(fileId)
@@ -321,6 +353,8 @@ export const useCloudStore = defineStore('cloud', () => {
       error.value = err instanceof Error ? err.message : 'Error deleting file'
       console.error('Error deleting file:', err)
       throw err
+    } finally {
+      isDeleting.value = false
     }
   }
 
@@ -328,6 +362,10 @@ export const useCloudStore = defineStore('cloud', () => {
     // State
     activeProviderId,
     isConnecting,
+    isLoadingFiles,
+    isDownloading,
+    isUploading,
+    isDeleting,
     currentFiles,
     currentPath,
     error,

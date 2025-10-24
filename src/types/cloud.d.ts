@@ -38,6 +38,7 @@ export interface CloudService {
 
 export interface OAuthConfig {
   clientId: string
+  clientSecret?: string // Opcional, requerido para algunos tipos de clientes OAuth
   redirectUri: string
   scope: string
 }

@@ -37,6 +37,9 @@ export class DropboxService implements CloudService {
       
       console.log('🔐 Service: Generated PKCE parameters')
       
+      // Generar state para identificar el proveedor en el callback
+      const state = `dropbox-${Date.now()}`
+      
       // Construir URL manualmente con PKCE
       const params = new URLSearchParams({
         client_id: this.config.clientId,
@@ -44,7 +47,8 @@ export class DropboxService implements CloudService {
         redirect_uri: this.config.redirectUri,
         scope: this.config.scope,
         code_challenge: codeChallenge,
-        code_challenge_method: 'S256'
+        code_challenge_method: 'S256',
+        state: state // Agregar state para identificar el proveedor
       })
       
       const authUrl = `https://www.dropbox.com/oauth2/authorize?${params.toString()}`
@@ -227,8 +231,19 @@ export class DropboxService implements CloudService {
   }
 
   isConnected(): boolean {
-    const token = localStorage.getItem('dropbox_access_token')
-    return !!token && !!this.dropbox
+    // Usar la misma clave que se usa para guardar el token
+    const token = localStorage.getItem(STORAGE_KEYS.DROPBOX_TOKEN)
+    const hasDropbox = !!this.dropbox
+    const result = !!token && hasDropbox
+    
+    console.log('🔍 Dropbox isConnected():', {
+      tokenKey: STORAGE_KEYS.DROPBOX_TOKEN,
+      hasToken: !!token,
+      hasDropbox: hasDropbox,
+      result: result
+    })
+    
+    return result
   }
 
     async restoreSession(): Promise<boolean> {
@@ -301,6 +316,8 @@ export class DropboxService implements CloudService {
     }
 
     try {
+      console.log('📂 Dropbox listFiles called with path:', path)
+      
       const response = await this.dropbox.filesListFolder({
         path: path || '',
         recursive: false,
@@ -309,7 +326,13 @@ export class DropboxService implements CloudService {
         include_has_explicit_shared_members: false
       })
 
-      return response.result.entries.map(entry => ({
+      console.log('📋 Dropbox response:', {
+        entriesCount: response.result.entries.length,
+        hasMore: response.result.has_more,
+        cursor: response.result.cursor
+      })
+
+      const files = response.result.entries.map(entry => ({
         id: entry.path_lower || entry.name,
         name: entry.name,
         path: entry.path_lower || entry.name,
@@ -318,6 +341,14 @@ export class DropboxService implements CloudService {
         isFolder: entry['.tag'] === 'folder',
         downloadUrl: entry['.tag'] === 'file' ? entry.path_lower : undefined
       }))
+      
+      console.log('📁 Dropbox files mapped:', {
+        totalFiles: files.length,
+        folders: files.filter(f => f.isFolder).length,
+        files: files.filter(f => !f.isFolder).length
+      })
+
+      return files
     } catch (error) {
       console.error('Error listing files:', error)
       throw new Error('Failed to list Dropbox files')

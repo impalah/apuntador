@@ -269,6 +269,8 @@
     "files": {
       "title": "Explorador de archivos",
       "loading": "Cargando archivos...",
+      "downloading": "Descargando archivo...",
+      "uploading": "Subiendo archivo...",
       "empty": "No hay archivos en esta carpeta",
       "openFile": "Abrir desde la nube",
       "saveFile": "Guardar en la nube", 
@@ -279,6 +281,17 @@
       "upload": "Subir archivo",
       "download": "Descargar",
       "back": "Volver"
+    },
+    "oauth": {
+      "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",
+      "connecting": "Conectando con tu cuenta...",
+      "successTitle": "¡Conectado con éxito!",
+      "successMessage": "Tu cuenta ha sido conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de conexión",
+      "retryButton": "Intentar de nuevo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "No se recibió código de autorización"
     }
   },
   "dropbox": {

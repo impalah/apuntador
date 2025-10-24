@@ -2,6 +2,28 @@
 
 Esta guía te ayudará a configurar la integración de Google Drive en Apuntador para poder abrir y guardar archivos markdown directamente en la nube.
 
+## 🔐 Dos Opciones de Configuración
+
+### Opción 1: Cliente Android (✅ RECOMENDADA - Más Segura)
+
+- ✅ **NO requiere `client_secret`** (sin secrets expuestos)
+- ✅ Funciona para **Web, Móvil y Desktop**
+- ✅ Máxima seguridad para apps distribuidas
+- ⚠️ Requiere configurar SHA-1 fingerprint
+
+**📖 Sigue la guía**: [GOOGLE_DRIVE_ANDROID_CLIENT.md](./GOOGLE_DRIVE_ANDROID_CLIENT.md)
+
+### Opción 2: Aplicación de Escritorio (⚠️ Menos Segura)
+
+- ⚠️ Requiere `client_secret` (puede ser extraído del código)
+- ✅ Configuración más simple
+- ✅ Funciona para Web, Móvil y Desktop
+- ⚠️ Solo para desarrollo/uso personal
+
+**📖 Continúa con esta guía** si eliges esta opción.
+
+---
+
 ## Requisitos Previos
 
 - Cuenta de Google (Gmail)
@@ -125,14 +147,38 @@ Click en **"Guardar y continuar"**
 1. Click en **"+ Crear credenciales"** (parte superior)
 2. Selecciona **"ID de cliente de OAuth"**
 
-### 4.3 Configurar Cliente Web
+### 4.3 Configurar Cliente para Aplicación Pública
 
-1. **Tipo de aplicación**: Selecciona **"Aplicación web"**
-2. **Nombre**: `Apuntador Web Client` (o el nombre que prefieras)
+**⚠️ IMPORTANTE**: Para usar PKCE sin client_secret (más seguro para SPAs), necesitas configurar el cliente correctamente.
+
+1. **Tipo de aplicación**: Tienes dos opciones:
+
+   **Opción A - Aplicación de Escritorio** (Recomendado para PKCE):
+   - Selecciona **"Aplicación de escritorio"**
+   - Este tipo soporta PKCE sin client_secret
+   - Funciona perfectamente con aplicaciones web y móviles
+   - **Nombre**: `Apuntador Desktop Client`
+
+   **Opción B - Aplicación Web** (Requiere configuración adicional):
+   - Selecciona **"Aplicación web"**
+   - **Nombre**: `Apuntador Web Client`
+   - ⚠️ Este tipo normalmente requiere client_secret
+   - Solo usa esta opción si vas a configurar un backend
+
+> **Recomendación**: Usa **"Aplicación de escritorio"** para aplicaciones públicas (SPA, móvil) que no pueden mantener secrets de forma segura. Google permite este tipo de cliente para aplicaciones web modernas con PKCE.
 
 ### 4.4 Configurar URIs de Redirección
 
 **⚠️ IMPORTANTE**: Estas URIs deben coincidir exactamente con lo que usa la aplicación.
+
+#### Si elegiste "Aplicación de Escritorio":
+
+1. Click en **"Crear"** directamente
+2. **NO necesitas agregar URIs de redirección** - el tipo "Aplicación de escritorio" permite cualquier URI
+3. Las URIs que usa Apuntador (`http://localhost:3000/oauth-callback`, etc.) funcionarán automáticamente
+4. Continúa al paso 4.5
+
+#### Si elegiste "Aplicación Web":
 
 En la sección **"URIs de redireccionamiento autorizados"**:
 
@@ -154,8 +200,10 @@ apuntador://oauth-callback
 ```
 (Para aplicación nativa Android/iOS con deep linking)
 
-3. Verifica que las 3 URIs estén agregadas
+3. Verifica que las 3 URIs estén agregadas (solo si elegiste "Aplicación Web")
 4. Click en **"Crear"**
+
+> **Nota sobre URIs**: Si usas "Aplicación de escritorio", estas URIs funcionan automáticamente sin necesidad de agregarlas explícitamente. Google permite que aplicaciones de escritorio usen cualquier URI de redirección, incluyendo localhost y custom schemes.
 
 ### 4.5 Guardar Client ID
 
@@ -264,6 +312,41 @@ npm run dev
 
 ## Solución de Problemas
 
+### Error: "client_secret is missing"
+
+**Síntoma**: Error `400 Bad Request` con mensaje `"client_secret is missing"` al intercambiar el código de autorización.
+
+**Causa**: El tipo de cliente OAuth está configurado como "Aplicación web" en lugar de "Aplicación de escritorio".
+
+**Solución**:
+
+1. **Ve a Google Cloud Console → APIs y servicios → Credenciales**
+2. **Elimina el cliente OAuth actual** (o créalo de nuevo):
+   - Click en el icono de papelera del cliente existente
+   - Confirma la eliminación
+3. **Crea un nuevo cliente OAuth**:
+   - Click en "+ Crear credenciales" → "ID de cliente de OAuth"
+   - Selecciona **"Aplicación de escritorio"** (no "Aplicación web")
+   - Nombre: `Apuntador Desktop Client`
+   - Click en "Crear"
+4. **Copia el nuevo Client ID**
+5. **Actualiza tu archivo `.env`**:
+   ```env
+   VITE_GOOGLE_DRIVE_CLIENT_ID=nuevo-client-id.apps.googleusercontent.com
+   ```
+6. **Reinicia el servidor** (Ctrl+C y `npm run dev`)
+7. **Limpia el caché del navegador** (Ctrl+Shift+Del)
+8. **Intenta conectar de nuevo**
+
+**¿Por qué "Aplicación de escritorio"?**
+- Soporta PKCE sin client_secret (más seguro para apps públicas)
+- Permite cualquier URI de redirección (localhost, custom schemes)
+- Google lo recomienda para SPAs y aplicaciones móviles modernas
+- El nombre "escritorio" es histórico; funciona perfectamente para web
+
+**Alternativa** (no recomendada):
+Si necesitas usar "Aplicación web", deberías implementar un backend que maneje el client_secret de forma segura. Esto no es necesario para Apuntador.
+
 ### Error: "redirect_uri_mismatch"
 
 **Síntoma**: Aparece un error de Google diciendo que la URI de redirección no coincide.
@@ -343,6 +426,27 @@ npm run dev
 4. Si ves errores de CORS, verifica las URIs de redirección
 5. Si ves errores de "token exchange", verifica que el Client ID sea correcto
 
+### Error: "No provider specified for OAuth callback"
+
+**Síntoma**: Error en consola: `No provider specified for OAuth callback` después de autorizar.
+
+**Causa**: El parámetro `state` no se está pasando correctamente en el flujo OAuth.
+
+**Solución**:
+- Este error se corrigió en la versión 1.1.11+
+- El sistema ahora envía automáticamente `state=googledrive-{timestamp}` en la URL de OAuth
+- El callback detecta el proveedor desde el parámetro `state`
+- **Actualiza a la última versión** si ves este error
+- Si persiste:
+  1. Limpia el caché del navegador (Ctrl+Shift+Del)
+  2. Cierra todas las pestañas de Apuntador
+  3. Vuelve a iniciar el servidor de desarrollo
+  4. Intenta conectar de nuevo
+2. Ve a la pestaña **Console**
+3. Busca errores en rojo
+4. Si ves errores de CORS, verifica las URIs de redirección
+5. Si ves errores de "token exchange", verifica que el Client ID sea correcto
+
 ## Información Técnica
 
 ### Scopes Utilizados
@@ -365,10 +469,12 @@ Apuntador usa **OAuth 2.0 con PKCE** (Proof Key for Code Exchange):
 
 1. Genera un `code_verifier` aleatorio
 2. Calcula `code_challenge` usando SHA-256
-3. Redirige a Google con el challenge
-4. Google redirige de vuelta con un `code`
-5. Intercambia el code por un `access_token` usando el verifier
-6. **No usa Client Secret** (más seguro para apps públicas)
+3. Genera un `state` con el formato `googledrive-{timestamp}` para identificar el proveedor
+4. Redirige a Google con el challenge y el state
+5. Google redirige de vuelta con un `code` y el `state`
+6. Verifica el `state` para confirmar el proveedor
+7. Intercambia el code por un `access_token` usando el verifier
+8. **No usa Client Secret** (más seguro para apps públicas)
 
 ### Almacenamiento de Tokens
 
@@ -414,21 +520,98 @@ Google Drive API tiene estos límites gratuitos:
 - **1,000 queries** por usuario por 100 segundos
 - Más que suficiente para uso normal de Apuntador
 
-## Recursos Adicionales
-
-- [Google Drive API Documentation](https://developers.google.com/drive/api/v3/about-sdk)
-- [OAuth 2.0 Scopes for Google APIs](https://developers.google.com/identity/protocols/oauth2/scopes#drive)
-- [Google Cloud Console](https://console.cloud.google.com/)
-- [OAuth 2.0 for Mobile & Desktop Apps](https://developers.google.com/identity/protocols/oauth2/native-app)
-
 ## Seguridad y Privacidad
 
-- ✅ Solo accede a archivos creados por Apuntador
-- ✅ No lee ni modifica otros archivos de tu Drive
-- ✅ Usa OAuth 2.0 + PKCE (sin client secret)
-- ✅ Tokens almacenados solo localmente
-- ✅ No se envían datos a servidores externos
+### Consideraciones de Seguridad del Client Secret
+
+**⚠️ IMPORTANTE**: Google Drive OAuth tiene una limitación de seguridad fundamental:
+
+#### El Problema del Client Secret
+
+- Google requiere `client_secret` para el tipo "Aplicación de escritorio"
+- Este secret **NO se puede proteger completamente** en aplicaciones distribuidas (web SPA, móvil, desktop)
+- Cualquier usuario técnico puede extraer el secret desde:
+  - Variables de entorno compiladas en el bundle JavaScript
+  - Código fuente desensamblado de apps móviles/desktop
+  - Inspección de requests en DevTools
+
+#### Por Qué Esto es Aceptable
+
+A pesar de la limitación, el uso del `client_secret` en aplicaciones públicas es una práctica común y aceptada:
+
+1. **OAuth 2.0 + PKCE** añade una capa de seguridad adicional que protege contra ataques de intercepción
+2. **Tokens efímeros**: Los access tokens expiran rápidamente (1 hora típicamente)
+3. **Scopes limitados**: Apuntador solo solicita acceso a Drive, no a otros servicios
+4. **Verificación de Google**: Los refresh tokens están vinculados al usuario que autorizó
+5. **Cuotas de API**: Google limita el uso por proyecto, mitigando abusos masivos
+
+#### Alternativas Más Seguras (Para Considerar en el Futuro)
+
+**Opción 1: Backend OAuth Proxy** (Recomendado para producción)
+- Implementar un servidor backend que maneje el OAuth flow
+- El `client_secret` se mantiene seguro en el servidor
+- La aplicación solo recibe tokens temporales
+- ✅ Máxima seguridad
+- ❌ Requiere infraestructura y mantenimiento de servidor
+
+**Opción 2: Google Sign-In SDK**
+- Usar [Sign In With Google](https://developers.google.com/identity/gsi/web/guides/overview) en lugar de OAuth directo
+- Proceso simplificado y más seguro para SPAs
+- ✅ No requiere client_secret
+- ❌ Menos control sobre el flujo OAuth
+
+**Opción 3: Clientes Nativos Específicos**
+- Crear clientes OAuth tipo "Android" o "iOS" en Google Cloud Console
+- Estos tipos **NO requieren** `client_secret` según [la documentación oficial](https://developers.google.com/identity/protocols/oauth2/native-app)
+- ✅ Sin client_secret para apps nativas
+- ❌ No funciona para web (SPA)
+
+### Configuración Actual de Apuntador
+
+Por simplicidad y para evitar costos de backend, Apuntador usa:
+
+- **Client Secret** en variables de entorno (`.env` local, GitHub Secrets para builds)
+- **OAuth 2.0 + PKCE** para protección contra intercepción de código
+- **Scopes mínimos** (`https://www.googleapis.com/auth/drive` - necesario para ver archivos existentes)
+
+### Recomendaciones de Seguridad
+
+Si estás preocupado por la seguridad del client_secret:
+
+1. **Para uso personal/desarrollo**: La configuración actual es suficiente
+2. **Para distribución pública**: Considera implementar un backend OAuth proxy
+3. **Para apps nativas**: Usa clientes tipo Android/iOS sin client_secret
+4. **Monitoreo**: Revisa regularmente las cuotas de uso de tu proyecto en Google Cloud Console
+
+### Protección de Datos del Usuario
+
+- ✅ Tokens almacenados **solo localmente** (localStorage)
+- ✅ No se envían a servidores externos (excepto Google APIs)
+- ✅ Solo accede a archivos de Drive con consentimiento explícito del usuario
+- ✅ El usuario puede revocar acceso en cualquier momento desde [Google Account Permissions](https://myaccount.google.com/permissions)
 - ✅ Código fuente abierto y auditable
+
+## Recursos Adicionales
+
+### Documentación Oficial de Google
+
+- [Google Drive API Documentation](https://developers.google.com/drive/api/v3/about-sdk)
+- [OAuth 2.0 for Mobile & Desktop Apps](https://developers.google.com/identity/protocols/oauth2/native-app) - Documentación oficial sobre PKCE
+- [OAuth 2.0 Scopes for Google APIs](https://developers.google.com/identity/protocols/oauth2/scopes#drive)
+- [Google Sign-In for Web](https://developers.google.com/identity/gsi/web/guides/overview) - Alternativa más segura para SPAs
+- [Google Cloud Console](https://console.cloud.google.com/)
+
+### Puntos Clave de la Documentación
+
+De [OAuth 2.0 for Native Apps](https://developers.google.com/identity/protocols/oauth2/native-app):
+
+> **client_secret**: **Opcional**. Es el secreto del cliente que se obtuvo de Cloud Console.
+> 
+> _(El parámetro client_secret **no se aplica** a las solicitudes de clientes registrados como aplicaciones para **Android, iOS o Chrome**)._
+
+Sin embargo, en la práctica actual (2025), Google requiere `client_secret` para el tipo "Aplicación de escritorio" incluso cuando se usa PKCE. Para apps sin backend, esto es una limitación conocida que afecta la seguridad pero es ampliamente aceptada en la industria.
+
+## Soporte
 
 ## Soporte
 

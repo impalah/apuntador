@@ -161,6 +161,25 @@
       >
         {{ cloudStore.error }}
       </v-alert>
+
+      <!-- Overlay para operaciones de descarga/subida -->
+      <v-overlay
+        :model-value="cloudStore.isDownloading || cloudStore.isUploading"
+        contained
+        persistent
+        class="align-center justify-center"
+      >
+        <div class="text-center">
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="64"
+          />
+          <p class="text-body-1 mt-4 white--text">
+            {{ cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading') }}
+          </p>
+        </div>
+      </v-overlay>
     </div>
 
     <!-- Diálogo de confirmación para eliminar -->
@@ -172,10 +191,19 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn variant="text" @click="deleteDialog = false">
+          <v-btn 
+            variant="text" 
+            :disabled="cloudStore.isDeleting"
+            @click="deleteDialog = false"
+          >
             {{ t('common.cancel') }}
           </v-btn>
-          <v-btn color="error" variant="flat" @click="deleteFile">
+          <v-btn 
+            color="error" 
+            variant="flat"
+            :loading="cloudStore.isDeleting"
+            @click="deleteFile"
+          >
             {{ t('common.delete') }}
           </v-btn>
         </v-card-actions>
@@ -208,12 +236,13 @@ const { t } = useI18n()
 const cloudStore = useCloudStore()
 
 // State
-const isLoading = ref(false)
 const selectedFile = ref<CloudFile | null>(null)
 const deleteDialog = ref(false)
 const fileToDelete = ref<CloudFile | null>(null)
 
 // Computed
+const isLoading = computed(() => cloudStore.isLoadingFiles)
+
 const currentPathDisplay = computed(() => {
   if (!cloudStore.currentPath || cloudStore.currentPath === '' || cloudStore.currentPath === 'root') {
     return t('common.home', 'Home')
@@ -251,13 +280,10 @@ function formatDate(date: Date): string {
 }
 
 async function loadFiles(path?: string) {
-  isLoading.value = true
   try {
     await cloudStore.loadFiles(path)
   } catch (error) {
     console.error('Error loading files:', error)
-  } finally {
-    isLoading.value = false
   }
 }
 
@@ -289,7 +315,7 @@ function openFile(file: CloudFile) {
 
 async function downloadFile(file: CloudFile) {
   try {
-    const content = await cloudStore.downloadFile(file.path)
+    const content = await cloudStore.downloadFile(file.path, file.name)
     
     // Trigger browser download
     const blob = new Blob([content], { type: 'text/markdown' })

@@ -167,7 +167,7 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
   'file-selected-local': [file: File]
-  'file-selected-cloud': [filePath: string]
+  'file-selected-cloud': [file: CloudFile]
   'save-local': []
   'save-cloud': [fileName: string]
   'open-settings': []
@@ -241,7 +241,7 @@ function onCloudFileSelected(file: CloudFile) {
 
 function onAccept() {
   if (props.mode === 'open' && selectedCloudFile.value) {
-    emit('file-selected-cloud', selectedCloudFile.value.path)
+    emit('file-selected-cloud', selectedCloudFile.value)
     emit('update:modelValue', false)
   } else if (props.mode === 'save') {
     const finalFileName = fileName.value.endsWith('.md') || fileName.value.endsWith('.txt')
@@ -263,7 +263,7 @@ function onOpenSettings() {
 .dropbox-explorer-container {
   min-height: 400px;
   max-height: 500px;
-  overflow: hidden;
+  overflow: auto; /* Cambiar de hidden a auto para permitir scroll */
   display: flex;
   flex-direction: column;
 }

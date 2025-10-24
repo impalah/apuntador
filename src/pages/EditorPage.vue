@@ -15,6 +15,25 @@
       @apply="onApply"
     />
 
+    <!-- Loading Overlay for Cloud Operations -->
+    <v-overlay
+      :model-value="cloudStore.isDownloading || cloudStore.isUploading"
+      persistent
+      class="align-center justify-center"
+      style="z-index: 9999;"
+    >
+      <div class="text-center">
+        <v-progress-circular
+          indeterminate
+          color="primary"
+          size="64"
+        />
+        <p class="text-h6 mt-4">
+          {{ cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading') }}
+        </p>
+      </div>
+    </v-overlay>
+
     <!-- Editor Content Area -->
     <v-container 
       fluid 
@@ -255,17 +274,16 @@ async function onLocalFileSelected(file: File) {
   }
 }
 
-async function onCloudFileSelected(path: string) {
+async function onCloudFileSelected(file: CloudFile) {
   try {
-    const content = await cloudStore.downloadFile(path)
+    const content = await cloudStore.downloadFile(file.path, file.name)
     if (typeof content === 'string') {
       localContent.value = content
       await teleprompterStore.setContent(content)
       fileStore.setContent(content)
       fileStore.createNew()
       
-      const fileName = path.split('/').pop() || 'cloud-file.md'
-      fileStore.setFileHandle(null, fileName)
+      fileStore.setFileHandle(null, file.name)
       showUnifiedOpenDialog.value = false
     }
   } catch (error) {

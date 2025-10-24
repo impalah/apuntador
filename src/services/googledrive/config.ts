@@ -20,9 +20,23 @@ function getRedirectUri(): string {
 }
 
 export const GOOGLE_DRIVE_CONFIG: OAuthConfig = {
-  clientId: import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID || '',
+  // Seleccionar Client ID según la plataforma
+  clientId: isNative && import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID_ANDROID
+    ? import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID_ANDROID  // Cliente Android para móvil
+    : import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_ID || '',    // Cliente Web/Desktop para web
+  
+  // client_secret es OPCIONAL:
+  // - Para clientes tipo "Android" o "iOS": NO se debe usar (más seguro)
+  // - Para clientes tipo "Aplicación de escritorio": REQUERIDO (menos seguro)
+  // Solo usar client_secret en web/desktop si está disponible
+  clientSecret: !isNative && import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_SECRET
+    ? import.meta.env.VITE_GOOGLE_DRIVE_CLIENT_SECRET
+    : undefined,
+  
   redirectUri: getRedirectUri(),
-  scope: 'https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/drive.appdata'
+  // Usar drive para acceso completo a lectura/escritura de todos los archivos
+  // Alternativa: 'https://www.googleapis.com/auth/drive.readonly' solo para lectura
+  scope: 'https://www.googleapis.com/auth/drive'
 }
 
 // URLs para diferentes entornos (referencia)

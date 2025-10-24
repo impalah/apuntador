@@ -10,9 +10,9 @@
             size="64"
             class="mb-4"
           />
-          <h2 class="text-h5 mb-2">{{ $t('dropbox.connection.connecting') }}</h2>
+          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.connecting') }}</h2>
           <p class="text-body-2 text-medium-emphasis">
-            {{ $t('dropbox.oauth.processing') }}
+            {{ $t('cloud.oauth.processing') }}
           </p>
         </div>
 
@@ -25,16 +25,16 @@
           >
             mdi-check-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">{{ $t('dropbox.oauth.successTitle') }}</h2>
+          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.successTitle') }}</h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
-            {{ $t('dropbox.oauth.successMessage') }}
+            {{ $t('cloud.oauth.successMessage') }}
           </p>
           <v-btn
             color="primary"
             variant="elevated"
             @click="redirectToApp"
           >
-            {{ $t('dropbox.oauth.continueButton') }}
+            {{ $t('cloud.oauth.continueButton') }}
           </v-btn>
         </div>
 
@@ -47,7 +47,7 @@
           >
             mdi-alert-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">{{ $t('dropbox.oauth.errorTitle') }}</h2>
+          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.errorTitle') }}</h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
             {{ error }}
           </p>
@@ -57,14 +57,14 @@
               variant="outlined"
               @click="retryConnection"
             >
-              {{ $t('dropbox.oauth.retryButton') }}
+              {{ $t('cloud.oauth.retryButton') }}
             </v-btn>
             <v-btn
               color="grey"
               variant="text"
               @click="redirectToApp"
             >
-              {{ $t('dropbox.oauth.backButton') }}
+              {{ $t('cloud.oauth.backButton') }}
             </v-btn>
           </div>
         </div>
@@ -102,9 +102,19 @@ const processOAuthCallback = async (): Promise<void> => {
     const code = route.query.code as string
     const errorParam = route.query.error as string
     const state = route.query.state as string
-    const provider = route.query.provider as CloudProviderId | undefined
+    let provider = route.query.provider as CloudProviderId | undefined
+
+    // Si no se especificó provider en el query, intentar extraerlo del state
+    if (!provider && state) {
+      if (state.startsWith('dropbox-')) {
+        provider = 'dropbox'
+      } else if (state.startsWith('googledrive-')) {
+        provider = 'googledrive'
+      }
+    }
 
     console.log('🔑 Code:', code ? 'RECEIVED' : 'MISSING')
+    console.log('🏷️ State:', state || 'NONE')
     console.log('🏢 Provider:', provider || 'NOT SPECIFIED (will detect)')
     console.log('❌ Error:', errorParam || 'NONE')
 
@@ -115,7 +125,7 @@ const processOAuthCallback = async (): Promise<void> => {
 
     // Check that we have the authorization code
     if (!code) {
-      throw new Error(t('dropbox.oauth.noAuthCode'))
+      throw new Error(t('cloud.oauth.noAuthCode'))
     }
 
     console.log('🚀 Calling cloudStore.handleOAuthCallback...')

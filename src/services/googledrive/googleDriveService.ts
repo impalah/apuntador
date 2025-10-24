@@ -28,6 +28,9 @@ export class GoogleDriveService implements CloudService {
       
       console.log('🔐 GoogleDrive Service: Generated PKCE parameters')
       
+      // Generar state para identificar el proveedor en el callback
+      const state = `googledrive-${Date.now()}`
+      
       // Construir URL de autenticación
       const params = new URLSearchParams({
         client_id: this.config.clientId,
@@ -36,6 +39,7 @@ export class GoogleDriveService implements CloudService {
         scope: this.config.scope,
         code_challenge: codeChallenge,
         code_challenge_method: 'S256',
+        state: state, // Agregar state para identificar el proveedor
         access_type: 'offline', // Para obtener refresh token
         prompt: 'consent' // Forzar pantalla de consentimiento
       })
@@ -78,18 +82,44 @@ export class GoogleDriveService implements CloudService {
       }
       
       // Intercambiar código por token
+      // NOTA DE SEGURIDAD: Google requiere client_secret para tipo "Aplicación de escritorio"
+      // incluso con PKCE. Esto es una limitación conocida - el secret NO se puede proteger
+      // completamente en aplicaciones distribuidas (SPA/móvil/desktop) pero es práctica aceptada.
+      // 
+      // Alternativas más seguras (para considerar en producción):
+      // 1. Backend OAuth proxy que mantiene el secret servidor-side
+      // 2. Google Sign-In SDK en lugar de OAuth directo
+      // 3. Clientes tipo Android/iOS (no requieren secret pero no funcionan en web)
+      //
+      // Ver docs/GOOGLE_DRIVE_APP_SETUP.md sección "Consideraciones de Seguridad"
+      const tokenParams: Record<string, string> = {
+        client_id: this.config.clientId,
+        code: code,
+        code_verifier: codeVerifier,
+        grant_type: 'authorization_code',
+        redirect_uri: this.config.redirectUri
+      }
+      
+      // Agregar client_secret si está disponible (requerido por Google para tipo "Aplicación de escritorio")
+      if (this.config.clientSecret) {
+        tokenParams.client_secret = this.config.clientSecret
+      }
+      
+      console.log('📤 GoogleDrive Service: Token request params:', {
+        client_id: tokenParams.client_id.substring(0, 20) + '...',
+        has_code: !!tokenParams.code,
+        has_code_verifier: !!tokenParams.code_verifier,
+        grant_type: tokenParams.grant_type,
+        redirect_uri: tokenParams.redirect_uri,
+        has_client_secret: 'client_secret' in tokenParams
+      })
+      
       const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
         },
-        body: new URLSearchParams({
-          client_id: this.config.clientId,
-          code: code,
-          code_verifier: codeVerifier,
-          grant_type: 'authorization_code',
-          redirect_uri: this.config.redirectUri
-        })
+        body: new URLSearchParams(tokenParams)
       })
       
       if (!tokenResponse.ok) {
@@ -172,10 +202,13 @@ export class GoogleDriveService implements CloudService {
     await this.ensureToken()
 
     try {
+      // Tratar cadena vacía como 'root'
+      const targetPath = !path || path === 'root' ? 'root' : path
+      
       // Query para buscar solo archivos de markdown en la carpeta especificada
-      const query = path === 'root' 
+      const query = targetPath === 'root' 
         ? "mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder' and trashed=false"
-        : `'${path}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
+        : `'${targetPath}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
 
       const response = await fetch(
         `https://www.googleapis.com/drive/v3/files?` + new URLSearchParams({
