@@ -6,9 +6,11 @@
   "description": "Modular teleprompter platform with interchangeable components - built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "npm run check:env && vite build",
+    "build:skip-check": "vite build",
     "build:debug": "cross-env VITE_DEBUG_MODE=true vite build",
     "preview": "vite preview",
+    "check:env": "node scripts/check-env.js",
     "typecheck": "vue-tsc --noEmit",
     "lint": "eslint .",
     "format": "prettier --write .",

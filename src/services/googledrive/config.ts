@@ -9,13 +9,13 @@ const isNative = Capacitor.isNativePlatform()
 function getRedirectUri(): string {
   if (isNative) {
     // En aplicaciones nativas usar custom URL scheme
-    return 'apuntador://oauth-callback'
+    return import.meta.env.VITE_OAUTH_REDIRECT_URI_NATIVE || 'apuntador://oauth-callback'
   } else if (isDevelopment) {
     // En desarrollo web usar localhost
-    return 'http://localhost:3000/oauth-callback'
+    return import.meta.env.VITE_OAUTH_REDIRECT_URI_DEV || 'http://localhost:3000/oauth-callback'
   } else {
     // En producción web usar dominio principal
-    return 'https://app.apuntador.io/oauth-callback'
+    return import.meta.env.VITE_OAUTH_REDIRECT_URI_PROD || 'https://app.apuntador.io/oauth-callback'
   }
 }
 
@@ -41,7 +41,7 @@ export const GOOGLE_DRIVE_CONFIG: OAuthConfig = {
 
 // URLs para diferentes entornos (referencia)
 export const OAUTH_URLS = {
-  development: 'http://localhost:3000/oauth-callback',
-  production: 'https://app.apuntador.io/oauth-callback',
-  native: 'apuntador://oauth-callback'
+  development: import.meta.env.VITE_OAUTH_REDIRECT_URI_DEV || 'http://localhost:3000/oauth-callback',
+  production: import.meta.env.VITE_OAUTH_REDIRECT_URI_PROD || 'https://app.apuntador.io/oauth-callback',
+  native: import.meta.env.VITE_OAUTH_REDIRECT_URI_NATIVE || 'apuntador://oauth-callback'
 }

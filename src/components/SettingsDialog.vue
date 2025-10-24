@@ -2,7 +2,7 @@
   <v-dialog
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
-    max-width="600"
+    max-width="700"
     scrollable
     data-testid="settings-dialog"
   >
@@ -15,7 +15,7 @@
       <v-divider />
 
       <v-card-text style="height: 500px">
-        <v-tabs v-model="activeTab">
+        <v-tabs v-model="activeTab" show-arrows density="compact">
           <v-tab value="appearance" data-testid="appearance-tab">{{
             t('settings.appearance')
           }}</v-tab>

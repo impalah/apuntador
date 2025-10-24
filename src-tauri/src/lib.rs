@@ -142,8 +142,8 @@ async fn start_dropbox_oauth(
   println!("✅ OAuth server started successfully");
   
   // Build authorization URL
-  let client_id = "qej36t232go21e8"; // Your Dropbox client ID
-  let redirect_uri = "http://localhost:8080/oauth/callback";
+  let client_id = env!("DROPBOX_CLIENT_ID", "DROPBOX_CLIENT_ID not set in build.rs");
+  let redirect_uri = env!("OAUTH_REDIRECT_URI", "OAUTH_REDIRECT_URI not set in build.rs");
   
   let auth_url = format!(
     "https://www.dropbox.com/oauth2/authorize?response_type=code&client_id={}&redirect_uri={}&code_challenge={}&code_challenge_method=S256&state={}",
@@ -190,8 +190,8 @@ async fn exchange_oauth_code(
   println!("🔐 Code verifier retrieved, length: {}", code_verifier.len());
   
   // Exchange code for token
-  let client_id = "qej36t232go21e8";
-  let redirect_uri = "http://localhost:8080/oauth/callback";
+  let client_id = env!("DROPBOX_CLIENT_ID", "DROPBOX_CLIENT_ID not set in build.rs");
+  let redirect_uri = env!("OAUTH_REDIRECT_URI", "OAUTH_REDIRECT_URI not set in build.rs");
   
   let client = reqwest::Client::new();
   // PKCE - exactly like web version (without client_secret)
