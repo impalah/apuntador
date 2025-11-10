@@ -250,7 +250,12 @@ const currentPathDisplay = computed(() => {
     return t('common.home', 'Home')
   }
   
-  // For Google Drive, path is ID, so just show last part
+  // Si tenemos el nombre de la carpeta guardado, usarlo
+  if (cloudStore.currentFolderName) {
+    return cloudStore.currentFolderName
+  }
+  
+  // Fallback para Dropbox u otros proveedores que usan path con /
   const parts = cloudStore.currentPath.split('/')
   return parts[parts.length - 1] || t('common.home', 'Home')
 })
@@ -281,9 +286,9 @@ function formatDate(date: Date): string {
   return new Date(date).toLocaleDateString()
 }
 
-async function loadFiles(path?: string) {
+async function loadFiles(path?: string, folderName?: string) {
   try {
-    await cloudStore.loadFiles(path)
+    await cloudStore.loadFiles(path, folderName)
   } catch (error) {
     showError(t('errors.services.cloud.listFilesFailed'))
     console.error('Error loading files:', error)
@@ -305,7 +310,7 @@ async function navigateUp() {
 
 function handleFileClick(file: CloudFile) {
   if (file.isFolder) {
-    loadFiles(file.path)
+    loadFiles(file.path, file.name)
   } else {
     selectedFile.value = file
     emit('fileSelected', file)

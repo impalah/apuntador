@@ -315,26 +315,14 @@
     "disconnect": "Disconnect",
     "disconnectConfirm": "Are you sure you want to disconnect this provider?",
     "setAsActive": "Set as active",
-    "oauth": {
-      "processing": "Processing authorization...",
-      "connecting": "Connecting to cloud provider",
-      "successTitle": "Connection Successful",
-      "successMessage": "You have been successfully connected. You can now access your files.",
-      "continueButton": "Continue",
-      "errorTitle": "Connection Error",
-      "retryButton": "Try Again",
-      "backButton": "Back",
-      "noAuthCode": "No authorization code found in URL"
-    },
     "files": {
-      "root": "Root",
       "title": "File Explorer",
       "loading": "Loading files...",
       "downloading": "Downloading file...",
       "uploading": "Uploading file...",
       "empty": "No files in this folder",
-      "openFile": "Open file",
-      "saveFile": "Save file",
+      "openFile": "Open from cloud",
+      "saveFile": "Save to cloud",
       "deleteFile": "Delete file",
       "deleteConfirm": "Are you sure you want to delete '{name}'?",
       "fileName": "File name",
@@ -342,6 +330,17 @@
       "upload": "Upload file",
       "download": "Download",
       "back": "Back"
+    },
+    "oauth": {
+      "processing": "We are processing your authorization, this will only take a few seconds.",
+      "connecting": "Connecting to your account...",
+      "successTitle": "Successfully connected!",
+      "successMessage": "Your account has been successfully connected.",
+      "continueButton": "Continue to Apuntador",
+      "errorTitle": "Connection error",
+      "retryButton": "Try again",
+      "backButton": "Back to Apuntador",
+      "noAuthCode": "No authorization code received"
     }
   },
   "desktop": {

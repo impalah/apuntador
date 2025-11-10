@@ -22,6 +22,7 @@ export const useCloudStore = defineStore('cloud', () => {
   const isDeleting = ref(false)
   const currentFiles = ref<CloudFile[]>([])
   const currentPath = ref<string>('')
+  const currentFolderName = ref<string>('') // Nombre de la carpeta actual
   const error = ref<string | null>(null)
   
   // Provider-specific state
@@ -283,7 +284,7 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Carga archivos del proveedor activo
    */
-  const loadFiles = async (path?: string): Promise<void> => {
+  const loadFiles = async (path?: string, folderName?: string): Promise<void> => {
     if (!activeProviderId.value) {
       throw new Error('No active cloud provider')
     }
@@ -297,6 +298,16 @@ export const useCloudStore = defineStore('cloud', () => {
       
       currentFiles.value = await service.listFiles(targetPath)
       currentPath.value = targetPath
+      
+      // Actualizar el nombre de la carpeta
+      if (targetPath === '' || targetPath === 'root') {
+        currentFolderName.value = '' // Root no tiene nombre específico
+      } else if (folderName !== undefined) {
+        currentFolderName.value = folderName
+      }
+      // Si no se proporciona folderName y no es root, mantener el valor actual
+      // (útil cuando se recarga la misma carpeta)
+      
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error loading files'
       console.error('Error loading files:', err)
@@ -309,8 +320,8 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Navega a una carpeta
    */
-  const navigateToFolder = async (path: string): Promise<void> => {
-    await loadFiles(path)
+  const navigateToFolder = async (path: string, folderName?: string): Promise<void> => {
+    await loadFiles(path, folderName)
   }
 
   /**
@@ -404,6 +415,7 @@ export const useCloudStore = defineStore('cloud', () => {
     isDeleting,
     currentFiles,
     currentPath,
+    currentFolderName,
     error,
     lastCloudPath,
     lastCloudFileName,

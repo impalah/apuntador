@@ -208,9 +208,9 @@ export class GoogleDriveService implements CloudService {
       // Tratar cadena vacía como 'root'
       const targetPath = !path || path === 'root' ? 'root' : path
       
-      // Query para buscar solo archivos de markdown en la carpeta especificada
+      // Query para buscar archivos de markdown y carpetas en la ubicación especificada
       const query = targetPath === 'root' 
-        ? "mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder' and trashed=false"
+        ? "'root' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false"
         : `'${targetPath}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
 
       const response = await fetch(
@@ -285,13 +285,24 @@ export class GoogleDriveService implements CloudService {
     await this.ensureToken()
 
     try {
-      // Extraer nombre del archivo del path
-      const fileName = path.split('/').pop() || 'untitled.md'
+      // Para Google Drive, el path puede ser:
+      // - Solo el nombre del archivo: "file.md" → guarda en root
+      // - ID de carpeta/nombre: "folderId/file.md" → guarda en esa carpeta
+      // - Solo ID de carpeta: "folderId" → error, necesita nombre
+      
+      const parts = path.split('/')
+      const fileName = parts[parts.length - 1] || 'untitled.md'
+      const parentFolderId = parts.length > 1 ? parts[parts.length - 2] : null
       
       // Metadata del archivo
-      const metadata = {
+      const metadata: any = {
         name: fileName,
         mimeType: 'text/markdown',
+      }
+      
+      // Si hay un parent folder ID, incluirlo en metadata
+      if (parentFolderId && parentFolderId !== 'root') {
+        metadata.parents = [parentFolderId]
       }
 
       // Crear multipart request

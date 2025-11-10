@@ -325,7 +325,21 @@ async function onSaveCloudFile(fileName: string) {
   saving.value = true
   try {
     const currentPath = cloudStore.currentPath
-    const fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
+    
+    // Construir el path según el proveedor
+    // - Google Drive: usa IDs, formato "folderId/fileName" o solo "fileName" para root
+    // - Dropbox: usa rutas, formato "/folder/fileName" o "/fileName"
+    let fullPath: string
+    
+    if (cloudStore.activeProviderId === 'googledrive') {
+      // Para Google Drive, si estamos en una carpeta, usar "folderId/fileName"
+      fullPath = (currentPath && currentPath !== 'root') 
+        ? `${currentPath}/${fileName}` 
+        : fileName
+    } else {
+      // Para Dropbox y otros, usar formato de ruta tradicional
+      fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
+    }
     
     await cloudStore.uploadFile(fullPath, localContent.value)
     await teleprompterStore.setContent(localContent.value)
