@@ -7,6 +7,7 @@
 
 import { Capacitor } from '@capacitor/core'
 import MTLSClient from '@/plugins/mtlsClient'
+import { BACKEND_OAUTH_URL } from '@/config/api'
 
 export interface HttpRequestOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
@@ -186,6 +187,6 @@ export function createBackendClient(baseUrl?: string): MTLSHttpAdapter {
     import.meta.env.VITE_BACKEND_URL || 
     import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
     import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-    'https://api.apuntador.io'
+    BACKEND_OAUTH_URL
   return new MTLSHttpAdapter(url)
 }

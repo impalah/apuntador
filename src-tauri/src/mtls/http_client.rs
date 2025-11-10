@@ -1,9 +1,7 @@
 /// HTTP client with mTLS and certificate pinning support
 
-use crate::mtls::{CertificatePinner, CertificateStore, StoredCertificate};
-use reqwest::{Certificate, Client, Identity};
-use rustls::ClientConfig;
-use std::sync::Arc;
+use crate::mtls::StoredCertificate;
+use reqwest::{Client, Identity};
 
 /// Create an HTTP client with certificate pinning
 pub fn create_pinned_client(pins: Vec<String>) -> Result<Client, String> {
@@ -22,6 +20,8 @@ pub fn create_pinned_client(pins: Vec<String>) -> Result<Client, String> {
 }
 
 /// Create an HTTP client with mTLS (client certificate)
+/// TODO: Integrate this function when mTLS authentication is fully implemented
+#[allow(dead_code)]
 pub fn create_mtls_client(
     cert: &StoredCertificate,
     pins: Vec<String>,
@@ -52,6 +52,8 @@ pub fn create_mtls_client(
 }
 
 /// Create default HTTP client (no mTLS, no pinning)
+/// TODO: Remove if not needed for fallback scenarios
+#[allow(dead_code)]
 pub fn create_default_client() -> Result<Client, String> {
     Client::builder()
         .build()

@@ -1,4 +1,5 @@
 import type { OAuthConfig } from '@/types/cloud'
+import { GOOGLE_API_URLS } from '@/config/api'
 
 /**
  * Google Drive OAuth Configuration
@@ -25,10 +26,14 @@ export const GOOGLE_DRIVE_CONFIG: OAuthConfig = {
   scope: 'https://www.googleapis.com/auth/drive'
 }
 
+// Exportar URLs de Google API
+export { GOOGLE_API_URLS }
+
 // Debug logs para verificar configuración
 console.log('🔍 Google Drive Config (Backend Proxy Mode):')
 console.log('  - Redirect URI:', GOOGLE_DRIVE_CONFIG.redirectUri)
 console.log('  - Scope:', GOOGLE_DRIVE_CONFIG.scope)
+console.log('  - Google API URLs:', GOOGLE_API_URLS)
 
 // URLs para diferentes entornos (referencia)
 export const OAUTH_URLS = {

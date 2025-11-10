@@ -3,6 +3,7 @@ import { Capacitor } from '@capacitor/core'
 import { Browser } from '@capacitor/browser'
 import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
 import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
+import { GOOGLE_API_URLS } from '@/config/api'
 import { storage } from '@/utils/persistence'
 import { STORAGE_KEYS } from '@/utils/constants'
 import { isTauri } from '@/utils/tauri'
@@ -204,7 +205,7 @@ export class GoogleDriveService implements CloudService {
         : `'${targetPath}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
 
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files?` + new URLSearchParams({
+        `${GOOGLE_API_URLS.drive}/files?` + new URLSearchParams({
           q: query,
           fields: 'files(id,name,mimeType,size,modifiedTime,parents)',
           orderBy: 'folder,name'
@@ -244,7 +245,7 @@ export class GoogleDriveService implements CloudService {
 
     try {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`,
+        `${GOOGLE_API_URLS.drive}/files/${fileId}?alt=media`,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -294,7 +295,7 @@ export class GoogleDriveService implements CloudService {
         closeDelimiter
 
       const response = await fetch(
-        'https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart',
+        `${GOOGLE_API_URLS.upload}/files?uploadType=multipart`,
         {
           method: 'POST',
           headers: {
@@ -333,7 +334,7 @@ export class GoogleDriveService implements CloudService {
 
     try {
       const response = await fetch(
-        `https://www.googleapis.com/drive/v3/files/${fileId}`,
+        `${GOOGLE_API_URLS.drive}/files/${fileId}`,
         {
           method: 'DELETE',
           headers: {
@@ -361,7 +362,7 @@ export class GoogleDriveService implements CloudService {
 
     try {
       const response = await fetch(
-        'https://www.googleapis.com/drive/v3/about?fields=user',
+        `${GOOGLE_API_URLS.drive}/about?fields=user`,
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,

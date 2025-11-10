@@ -10,6 +10,8 @@ use std::sync::Arc;
 use std::time::SystemTime;
 
 /// Certificate pinner that validates against known SHA-256 hashes
+/// TODO: Integrate with HTTP client when certificate pinning is fully implemented
+#[allow(dead_code)]
 pub struct CertificatePinner {
     /// Known certificate pins (SHA-256 hashes in hex format)
     pins: Vec<String>,
@@ -17,6 +19,7 @@ pub struct CertificatePinner {
     use_system_roots: bool,
 }
 
+#[allow(dead_code)]
 impl CertificatePinner {
     /// Create a new certificate pinner with the given pins
     pub fn new(pins: Vec<String>) -> Self {
@@ -81,11 +84,14 @@ impl CertificatePinner {
 }
 
 /// Custom ServerCertVerifier that implements certificate pinning
+/// TODO: Integrate with rustls ClientConfig when certificate pinning is fully implemented
+#[allow(dead_code)]
 pub struct PinningVerifier {
     pinner: Arc<CertificatePinner>,
     webpki_verifier: Arc<dyn ServerCertVerifier>,
 }
 
+#[allow(dead_code)]
 impl PinningVerifier {
     pub fn new(pinner: CertificatePinner) -> Result<Self, TlsError> {
         let webpki_verifier = rustls::client::WebPkiVerifier::new(

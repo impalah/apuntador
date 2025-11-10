@@ -6,6 +6,7 @@
 
 import { Capacitor } from '@capacitor/core'
 import { isTauri } from '@/utils/tauri'
+import { BACKEND_OAUTH_URL } from '@/config/api'
 
 // Detectar entorno y plataforma
 const isDevelopment = import.meta.env.DEV
@@ -18,7 +19,7 @@ const isNative = Capacitor.isNativePlatform()
  * 1. VITE_BACKEND_OAUTH_URL_IOS_DEV si es iOS (siempre, no depende de isDevelopment)
  * 2. VITE_BACKEND_OAUTH_URL_DEV si está definida (para testing con backend local)
  * 3. VITE_BACKEND_OAUTH_URL_PROD si está definida
- * 4. Fallback a producción (https://api.apuntador.io)
+ * 4. Fallback a constante centralizada (BACKEND_OAUTH_URL de config/api.ts)
  */
 export function getBackendUrl(): string {
   const platform = Capacitor.getPlatform()
@@ -40,8 +41,8 @@ export function getBackendUrl(): string {
     return import.meta.env.VITE_BACKEND_OAUTH_URL_PROD
   }
   
-  // Fallback: siempre usar API de producción
-  return 'https://api.apuntador.io'
+  // Fallback: usar constante centralizada de config/api.ts
+  return BACKEND_OAUTH_URL
 }
 
 /**
@@ -71,6 +72,7 @@ export function getOAuthRedirectUri(): string {
 
 /**
  * URLs de referencia para documentación
+ * DEPRECATED: Usar BACKEND_OAUTH_URL de config/api.ts en su lugar
  */
 export const OAUTH_URLS = {
   development: {
@@ -78,11 +80,11 @@ export const OAUTH_URLS = {
     redirect: 'http://localhost:3000/oauth-callback'
   },
   production: {
-    backend: 'https://api.apuntador.io',
+    backend: BACKEND_OAUTH_URL,
     redirect: 'https://app.apuntador.io/oauth-callback'
   },
   native: {
-    backend: 'https://api.apuntador.io', // Siempre producción para native
+    backend: BACKEND_OAUTH_URL, // Siempre producción para native
     redirect: 'apuntador://oauth-callback'
   }
 }

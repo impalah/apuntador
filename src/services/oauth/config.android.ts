@@ -2,11 +2,11 @@
  * Configuración de Backend OAuth para Android
  * 
  * IMPORTANTE: Ahora usa la API de producción desplegada en AWS
- * - Producción: https://api.apuntador.io
- * - Desarrollo local: Solo si tienes el backend corriendo localmente
+ * URLs centralizadas en @/config/api.ts
  */
 
 import { Capacitor } from '@capacitor/core'
+import { BACKEND_OAUTH_URL } from '@/config/api'
 
 export function getAndroidBackendUrl(): string {
   // Siempre usar la API de producción desplegada
@@ -14,7 +14,7 @@ export function getAndroidBackendUrl(): string {
   return (
     import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
     import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-    'https://api.apuntador.io'
+    BACKEND_OAUTH_URL
   )
 }
 
@@ -35,7 +35,7 @@ export function getPlatformBackendUrl(): string {
   return (
     import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
     import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-    'https://api.apuntador.io'
+    BACKEND_OAUTH_URL
   )
 }
 

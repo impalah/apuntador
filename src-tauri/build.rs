@@ -25,5 +25,32 @@ fn main() {
   
   println!("cargo:rustc-env=OAUTH_REDIRECT_URI={}", redirect_uri);
   
+  // Read backend OAuth URL for Tauri desktop
+  let backend_url = std::env::var("VITE_BACKEND_OAUTH_URL_PROD")
+    .unwrap_or_else(|_| "https://api.apuntador.io".to_string());
+  
+  println!("cargo:rustc-env=BACKEND_OAUTH_URL={}", backend_url);
+  
+  // Read Dropbox API URLs
+  let dropbox_auth_url = std::env::var("VITE_DROPBOX_AUTH_URL")
+    .unwrap_or_else(|_| "https://www.dropbox.com/oauth2/authorize".to_string());
+  
+  println!("cargo:rustc-env=DROPBOX_AUTH_URL={}", dropbox_auth_url);
+  
+  let dropbox_token_url = std::env::var("VITE_DROPBOX_TOKEN_URL")
+    .unwrap_or_else(|_| "https://api.dropboxapi.com/oauth2/token".to_string());
+  
+  println!("cargo:rustc-env=DROPBOX_TOKEN_URL={}", dropbox_token_url);
+  
+  let dropbox_api_url = std::env::var("VITE_DROPBOX_API_URL")
+    .unwrap_or_else(|_| "https://api.dropboxapi.com/2".to_string());
+  
+  println!("cargo:rustc-env=DROPBOX_API_URL={}", dropbox_api_url);
+  
+  let dropbox_content_url = std::env::var("VITE_DROPBOX_CONTENT_URL")
+    .unwrap_or_else(|_| "https://content.dropboxapi.com/2".to_string());
+  
+  println!("cargo:rustc-env=DROPBOX_CONTENT_URL={}", dropbox_content_url);
+  
   tauri_build::build()
 }

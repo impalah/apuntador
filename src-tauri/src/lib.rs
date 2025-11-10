@@ -12,7 +12,7 @@ use mtls::{enrollment, CertificateStore};
 #[derive(Debug, Clone)]
 struct PendingOAuthRequest {
     code_verifier: String,
-    created_at: std::time::Instant,
+    // created_at removed: timeout logic not yet implemented
 }
 
 struct OAuthState {
@@ -175,7 +175,7 @@ async fn backend_oauth_authorize(
   println!("✅ HTTP client created");
   
   // 4. Make request to backend with certificate in header
-  let backend_url = "https://api.apuntador.io"; // Production API
+  let backend_url = env!("BACKEND_OAUTH_URL"); // From build.rs
   let url = format!("{}/oauth/authorize/{}", backend_url, provider);
   
   println!("📡 Making request to: {}", url);
@@ -218,11 +218,8 @@ async fn backend_oauth_token_exchange(
 ) -> Result<serde_json::Value, String> {
   println!("🔄 Backend OAuth token exchange for provider: {}", provider);
 
-  // Get backend URL from environment
-  let backend_url = match std::env::var("BACKEND_URL") {
-    Ok(url) => url,
-    Err(_) => "https://api.apuntador.io".to_string()
-  };
+  // Get backend URL from environment (injected at compile time)
+  let backend_url = env!("BACKEND_OAUTH_URL");
 
   // Load certificate from Keychain
   println!("📜 Loading client certificate from Keychain...");
@@ -293,7 +290,6 @@ async fn start_dropbox_oauth(
     let mut pending = oauth_state.pending_requests.lock().unwrap();
     pending.insert(state.clone(), PendingOAuthRequest {
       code_verifier: code_verifier.clone(),
-      created_at: std::time::Instant::now(),
     });
   }
   
@@ -305,9 +301,11 @@ async fn start_dropbox_oauth(
   // Build authorization URL
   let client_id = env!("DROPBOX_CLIENT_ID", "DROPBOX_CLIENT_ID not set in build.rs");
   let redirect_uri = env!("OAUTH_REDIRECT_URI", "OAUTH_REDIRECT_URI not set in build.rs");
+  let dropbox_auth_url = env!("DROPBOX_AUTH_URL");
   
   let auth_url = format!(
-    "https://www.dropbox.com/oauth2/authorize?response_type=code&client_id={}&redirect_uri={}&code_challenge={}&code_challenge_method=S256&state={}",
+    "{}?response_type=code&client_id={}&redirect_uri={}&code_challenge={}&code_challenge_method=S256&state={}",
+    dropbox_auth_url,
     client_id, 
     urlencoding::encode(redirect_uri),
     code_challenge,
@@ -364,12 +362,14 @@ async fn exchange_oauth_code(
     ("redirect_uri", redirect_uri),
   ];
   
+  let dropbox_token_url = env!("DROPBOX_TOKEN_URL");
+  
   println!("📞 Making token exchange request to Dropbox...");
-  println!("🔗 URL: https://api.dropboxapi.com/oauth2/token");
+  println!("🔗 URL: {}", dropbox_token_url);
   println!("📋 Params: {:?}", params);
   
   let response = client
-    .post("https://api.dropboxapi.com/oauth2/token")
+    .post(dropbox_token_url)
     .form(&params)
     .send()
     .await
@@ -422,6 +422,7 @@ async fn list_dropbox_files(
 ) -> Result<Vec<serde_json::Value>, String> {
   let client = reqwest::Client::new();
   let path = path.unwrap_or_else(|| "".to_string());
+  let dropbox_api_url = env!("DROPBOX_API_URL");
   
   let body = serde_json::json!({
     "path": if path.is_empty() { "" } else { &path },
@@ -430,7 +431,7 @@ async fn list_dropbox_files(
   });
   
   let response = client
-    .post("https://api.dropboxapi.com/2/files/list_folder")
+    .post(format!("{}/files/list_folder", dropbox_api_url))
     .header("Authorization", format!("Bearer {}", access_token))
     .header("Content-Type", "application/json")
     .json(&body)
@@ -457,9 +458,10 @@ async fn download_dropbox_file(
   path: String,
 ) -> Result<DropboxFile, String> {
   let client = reqwest::Client::new();
+  let dropbox_content_url = env!("DROPBOX_CONTENT_URL");
   
   let response = client
-    .post("https://content.dropboxapi.com/2/files/download")
+    .post(format!("{}/files/download", dropbox_content_url))
     .header("Authorization", format!("Bearer {}", access_token))
     .header("Dropbox-API-Arg", serde_json::json!({"path": path}).to_string())
     .send()
@@ -488,6 +490,7 @@ async fn upload_dropbox_file(
   content: String,
 ) -> Result<serde_json::Value, String> {
   let client = reqwest::Client::new();
+  let dropbox_content_url = env!("DROPBOX_CONTENT_URL");
   
   let api_arg = serde_json::json!({
     "path": path,
@@ -496,7 +499,7 @@ async fn upload_dropbox_file(
   });
   
   let response = client
-    .post("https://content.dropboxapi.com/2/files/upload")
+    .post(format!("{}/files/upload", dropbox_content_url))
     .header("Authorization", format!("Bearer {}", access_token))
     .header("Dropbox-API-Arg", api_arg.to_string())
     .header("Content-Type", "application/octet-stream")

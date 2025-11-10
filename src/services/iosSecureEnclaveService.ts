@@ -12,6 +12,7 @@
 import { Capacitor } from '@capacitor/core'
 import { SecureEnclave, AutoEnrollment } from '../plugins/ios-mtls'
 import { getSecureEnclaveNativeBridge } from './secureEnclaveNativeBridge'
+import { BACKEND_OAUTH_URL } from '@/config/api'
 
 // Simple logger replacement
 const logger = {
@@ -45,12 +46,12 @@ export class IOSSecureEnclaveService {
 
   private constructor() {
     // Obtener URL del backend desde variables de entorno
-    // Prioridad: iOS Dev > Dev genérico > Prod
+    // Prioridad: iOS Dev > Dev genérico > Prod > Constante centralizada
     this.backendUrl = 
       import.meta.env.VITE_BACKEND_OAUTH_URL_IOS_DEV || 
       import.meta.env.VITE_BACKEND_OAUTH_URL_DEV || 
       import.meta.env.VITE_BACKEND_OAUTH_URL_PROD || 
-      'https://api.apuntador.io'
+      BACKEND_OAUTH_URL
 
     // Detectar si el native bridge está disponible
     if (typeof (window as any).webkit !== 'undefined') {

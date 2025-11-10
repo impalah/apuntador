@@ -1,13 +1,12 @@
-/**
- * Desktop Enrollment Service
- * 
- * Handles mTLS device enrollment for Desktop platforms (Tauri)
- * - macOS: Uses Keychain for secure certificate storage
- * - Windows: Uses Certificate Store + DPAPI (TODO)
- * - Linux: Uses encrypted file storage (TODO)
- */
-
 import { invoke } from '@tauri-apps/api/core'
+import { BACKEND_OAUTH_URL } from '@/config/api'
+
+/**
+ * Desktop Enrollment Service (Tauri)
+ * 
+ * Maneja el proceso de enrollment de dispositivos desktop (Windows/macOS/Linux)
+ * usando Tauri y certificados almacenados en el Keychain del sistema.
+ */
 
 export interface DesktopDeviceInfo {
   device_id: string
@@ -30,11 +29,7 @@ export class DesktopEnrollmentService {
   private backendUrl: string
 
   constructor(backendUrl?: string) {
-    this.backendUrl =
-      backendUrl ||
-      import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
-      import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-      'https://api.apuntador.io'
+    this.backendUrl = backendUrl || BACKEND_OAUTH_URL
   }
 
   /**

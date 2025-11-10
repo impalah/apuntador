@@ -33,7 +33,7 @@ struct EnrollmentResponse {
     serial: String,
     issued_at: String,
     expires_at: String,
-    ca_certificate: Option<String>,
+    // ca_certificate removed: not used in enrollment flow
 }
 
 /// Check if device is already enrolled

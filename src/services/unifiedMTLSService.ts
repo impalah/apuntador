@@ -16,6 +16,7 @@ import DeviceEnrollment from '../plugins/deviceEnrollment'
 import { iosSecureEnclaveService } from './iosSecureEnclaveService'
 import { desktopEnrollmentService } from './desktopEnrollmentService'
 import { isTauri } from '@/utils/tauri'
+import { BACKEND_OAUTH_URL } from '@/config/api'
 
 export interface MTLSEnrollmentStatus {
   platform: 'android' | 'ios' | 'desktop' | 'web'
@@ -177,7 +178,7 @@ export class UnifiedMTLSService {
       const backendUrl = 
         import.meta.env.VITE_BACKEND_OAUTH_URL_DEV || 
         import.meta.env.VITE_BACKEND_OAUTH_URL_PROD || 
-        'https://api.apuntador.io'
+        BACKEND_OAUTH_URL
 
       const result = await DeviceEnrollment.enrollDevice({
         backendUrl,
@@ -244,7 +245,7 @@ export class UnifiedMTLSService {
       const backendUrl = 
         import.meta.env.VITE_BACKEND_OAUTH_URL_DEV || 
         import.meta.env.VITE_BACKEND_OAUTH_URL_PROD || 
-        'https://api.apuntador.io'
+        BACKEND_OAUTH_URL
 
       const result = await DeviceEnrollment.enrollDevice({
         backendUrl,
