@@ -103,7 +103,10 @@
     "importError": "Erro ao importar a configuración",
     "subtitle": "Teleprompter profesional",
     "version": "Versión",
-    "copyright": "Dereitos de autor"
+    "copyright": "Dereitos de autor",
+    "cloud": "Nube",
+    "cloudProviders": "Provedores de almacenamento na nube",
+    "cloudProvidersDescription": "Conecta as túas contas de almacenamento na nube para sincronizar e acceder aos teus scripts desde calquera dispositivo."
   },
   "editor": {
     "title": "Editor de Markdown",
@@ -131,7 +134,12 @@
     "confirmRefreshLocalChanges": "O contido local foi modificado. Desexa descartar a edición e cargar os datos da orixe?",
     "confirmRefreshSourceChanged": "O arquivo orixe foi modificado. Desexa cargar os novos datos da orixe?",
     "refreshFromSourceError": "Erro ao actualizar desde o arquivo orixe",
-    "saveError": "Erro ao gardar o arquivo"
+    "saveError": "Erro ao gardar o arquivo",
+    "defaultContent": "# O meu Script\n\nEscribe o teu contido aquí...",
+    "fileNameHint": "Inclúe a extensión (.md, .txt)"
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Preme o botón atrás outra vez para saír da aplicación"
   },
   "fileLoader": {
     "title": "Importar arquivo",
@@ -155,6 +163,21 @@
     "fileName": "Nome do arquivo",
     "saveAs": "Gardar como",
     "import": "Importar"
+  },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Nube",
+    "localOpenTitle": "Abrir arquivo local",
+    "localOpenDescription": "Selecciona un arquivo markdown (.md) ou texto (.txt) desde o teu ordenador.",
+    "localSaveTitle": "Gardar arquivo local",
+    "localSaveDescription": "Garda o contido nun arquivo no teu ordenador.",
+    "browseFiles": "Explorar arquivos",
+    "saveToComputer": "Gardar no ordenador",
+    "cloudNotConnected": "Non conectado á nube",
+    "cloudNotConnectedDescription": "Non hai conexión activa con servizos de almacenamento na nube. Por favor, configura a túa conexión nas opcións de Apuntador.",
+    "goToSettings": "Ir a opcións",
+    "fileName": "Nome do arquivo",
+    "fileNameHint": "A extensión .md engadirase automaticamente se non está presente"
   },
   "hotkeys": {
     "title": "Teclas de acceso rápido",
@@ -236,6 +259,44 @@
     "close": "Pechar ventá",
     "alwaysOnTop": "Sempre arriba",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "cloud": {
+    "activeProvider": "Provedor activo",
+    "availableProviders": "Provedores dispoñibles",
+    "connect": "Conectar",
+    "connected": "Conectado",
+    "notConnected": "Non conectado",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "Estás seguro de que queres desconectar este provedor?",
+    "setAsActive": "Establecer como activo",
+    "oauth": {
+      "processing": "Estamos procesando a túa autorización, isto só levará uns segundos.",
+      "connecting": "Conectando coa túa conta...",
+      "successTitle": "Conectado con éxito!",
+      "successMessage": "A túa conta foi conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Erro de conexión",
+      "retryButton": "Tentar de novo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "Non se recibiu código de autorización"
+    },
+    "files": {
+      "root": "Raíz",
+      "title": "Explorador de arquivos",
+      "loading": "Cargando arquivos...",
+      "downloading": "Descargando arquivo...",
+      "uploading": "Subindo arquivo...",
+      "empty": "Non hai arquivos nesta carpeta",
+      "openFile": "Abrir desde a nube",
+      "saveFile": "Gardar na nube",
+      "deleteFile": "Eliminar arquivo",
+      "deleteConfirm": "Estás seguro de que queres eliminar \"{name}\"?",
+      "fileName": "Nome do arquivo",
+      "selectFile": "Selecciona un arquivo",
+      "upload": "Subir arquivo",
+      "download": "Descargar",
+      "back": "Volver"
+    }
   },
   "dropbox": {
     "connection": {

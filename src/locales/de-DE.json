@@ -103,7 +103,10 @@
     "importError": "Fehler beim Importieren der Einstellungen",
     "subtitle": "Professioneller Teleprompter",
     "version": "Version",
-    "copyright": "Urheberrecht"
+    "copyright": "Urheberrecht",
+    "cloud": "Cloud",
+    "cloudProviders": "Cloud-Speicheranbieter",
+    "cloudProvidersDescription": "Verbinden Sie Ihre Cloud-Speicherkonten, um Ihre Skripte von jedem Gerät aus zu synchronisieren und darauf zuzugreifen."
   },
   "editor": {
     "title": "Markdown-Editor",
@@ -131,7 +134,12 @@
     "confirmRefreshLocalChanges": "Der lokale Inhalt wurde geändert. Möchten Sie die Bearbeitung verwerfen und die Daten von der Quelle laden?",
     "confirmRefreshSourceChanged": "Die Quelldatei wurde geändert. Möchten Sie die neuen Daten von der Quelle laden?",
     "refreshFromSourceError": "Fehler beim Aktualisieren von der Quelldatei",
-    "saveError": "Fehler beim Speichern der Datei"
+    "saveError": "Fehler beim Speichern der Datei",
+    "defaultContent": "# Mein Skript\n\nSchreiben Sie hier Ihren Inhalt...",
+    "fileNameHint": "Erweiterung einbeziehen (.md, .txt)"
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Drücken Sie erneut die Zurück-Taste, um die App zu beenden"
   },
   "fileLoader": {
     "title": "Datei importieren",
@@ -155,6 +163,21 @@
     "fileName": "Dateiname",
     "saveAs": "Speichern unter",
     "import": "Importieren"
+  },
+  "fileDialog": {
+    "local": "Lokal",
+    "cloud": "Cloud",
+    "localOpenTitle": "Lokale Datei öffnen",
+    "localOpenDescription": "Wählen Sie eine Markdown- (.md) oder Textdatei (.txt) von Ihrem Computer aus.",
+    "localSaveTitle": "Lokale Datei speichern",
+    "localSaveDescription": "Speichern Sie den Inhalt in einer Datei auf Ihrem Computer.",
+    "browseFiles": "Dateien durchsuchen",
+    "saveToComputer": "Auf Computer speichern",
+    "cloudNotConnected": "Nicht mit Cloud verbunden",
+    "cloudNotConnectedDescription": "Es besteht keine aktive Verbindung zu Cloud-Speicherdiensten. Bitte konfigurieren Sie Ihre Verbindung in den Apuntador-Einstellungen.",
+    "goToSettings": "Zu den Einstellungen gehen",
+    "fileName": "Dateiname",
+    "fileNameHint": "Die Erweiterung .md wird automatisch hinzugefügt, falls nicht vorhanden"
   },
   "hotkeys": {
     "title": "Tastenkürzel",
@@ -236,6 +259,44 @@
     "close": "Fenster schließen",
     "alwaysOnTop": "Immer im Vordergrund",
     "fullscreen": "Vollbild umschalten"
+  },
+  "cloud": {
+    "activeProvider": "Aktiver Anbieter",
+    "availableProviders": "Verfügbare Anbieter",
+    "connect": "Verbinden",
+    "connected": "Verbunden",
+    "notConnected": "Nicht verbunden",
+    "disconnect": "Trennen",
+    "disconnectConfirm": "Sind Sie sicher, dass Sie diesen Anbieter trennen möchten?",
+    "setAsActive": "Als aktiv festlegen",
+    "oauth": {
+      "processing": "Wir verarbeiten Ihre Autorisierung, dies dauert nur wenige Sekunden.",
+      "connecting": "Verbindung mit Ihrem Konto...",
+      "successTitle": "Erfolgreich verbunden!",
+      "successMessage": "Ihr Konto wurde erfolgreich verbunden.",
+      "continueButton": "Weiter zu Apuntador",
+      "errorTitle": "Verbindungsfehler",
+      "retryButton": "Erneut versuchen",
+      "backButton": "Zurück zu Apuntador",
+      "noAuthCode": "Kein Autorisierungscode erhalten"
+    },
+    "files": {
+      "root": "Wurzel",
+      "title": "Datei-Explorer",
+      "loading": "Dateien werden geladen...",
+      "downloading": "Datei wird heruntergeladen...",
+      "uploading": "Datei wird hochgeladen...",
+      "empty": "Keine Dateien in diesem Ordner",
+      "openFile": "Aus Cloud öffnen",
+      "saveFile": "In Cloud speichern",
+      "deleteFile": "Datei löschen",
+      "deleteConfirm": "Sind Sie sicher, dass Sie \"{name}\" löschen möchten?",
+      "fileName": "Dateiname",
+      "selectFile": "Datei auswählen",
+      "upload": "Datei hochladen",
+      "download": "Herunterladen",
+      "back": "Zurück"
+    }
   },
   "dropbox": {
     "connection": {

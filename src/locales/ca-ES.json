@@ -103,7 +103,10 @@
     "importError": "Error en importar la configuració",
     "subtitle": "Teleprompter professional",
     "version": "Versió",
-    "copyright": "Drets d'autor"
+    "copyright": "Drets d'autor",
+    "cloud": "Núvol",
+    "cloudProviders": "Proveïdors d'emmagatzematge al núvol",
+    "cloudProvidersDescription": "Connecta els teus comptes d'emmagatzematge al núvol per sincronitzar i accedir als teus scripts des de qualsevol dispositiu."
   },
   "editor": {
     "title": "Editor de Markdown",
@@ -131,7 +134,12 @@
     "confirmRefreshLocalChanges": "El contingut local ha estat modificat. Voleu descartar l'edició i carregar les dades de l'origen?",
     "confirmRefreshSourceChanged": "L'arxiu origen ha estat modificat. Voleu carregar les noves dades de l'origen?",
     "refreshFromSourceError": "Error en actualitzar des de l'arxiu origen",
-    "saveError": "Error en desar l'arxiu"
+    "saveError": "Error en desar l'arxiu",
+    "defaultContent": "# El meu Script\n\nEscriu el teu contingut aquí...",
+    "fileNameHint": "Inclou l'extensió (.md, .txt)"
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Prem el botó enrere una altra vegada per sortir de l'aplicació"
   },
   "fileLoader": {
     "title": "Importar arxiu",
@@ -155,6 +163,21 @@
     "fileName": "Nom de l'arxiu",
     "saveAs": "Desar com",
     "import": "Importar"
+  },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Núvol",
+    "localOpenTitle": "Obrir arxiu local",
+    "localOpenDescription": "Selecciona un arxiu markdown (.md) o text (.txt) des del teu ordinador.",
+    "localSaveTitle": "Desar arxiu local",
+    "localSaveDescription": "Desa el contingut en un arxiu al teu ordinador.",
+    "browseFiles": "Explorar arxius",
+    "saveToComputer": "Desar a l'ordinador",
+    "cloudNotConnected": "No connectat al núvol",
+    "cloudNotConnectedDescription": "No hi ha connexió activa amb serveis d'emmagatzematge al núvol. Si us plau, configura la teva connexió a les opcions d'Apuntador.",
+    "goToSettings": "Anar a opcions",
+    "fileName": "Nom de l'arxiu",
+    "fileNameHint": "L'extensió .md s'afegirà automàticament si no està present"
   },
   "hotkeys": {
     "title": "Tecles d'accés ràpid",
@@ -236,6 +259,44 @@
     "close": "Tancar finestra",
     "alwaysOnTop": "Sempre a dalt",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "cloud": {
+    "activeProvider": "Proveïdor actiu",
+    "availableProviders": "Proveïdors disponibles",
+    "connect": "Connectar",
+    "connected": "Connectat",
+    "notConnected": "No connectat",
+    "disconnect": "Desconnectar",
+    "disconnectConfirm": "Estàs segur que vols desconnectar aquest proveïdor?",
+    "setAsActive": "Establir com actiu",
+    "oauth": {
+      "processing": "Estem processant la teva autorització, això només trigarà uns segons.",
+      "connecting": "Connectant amb el teu compte...",
+      "successTitle": "Connectat amb èxit!",
+      "successMessage": "El teu compte ha estat connectat correctament.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de connexió",
+      "retryButton": "Tornar a intentar",
+      "backButton": "Tornar a Apuntador",
+      "noAuthCode": "No s'ha rebut codi d'autorització"
+    },
+    "files": {
+      "root": "Arrel",
+      "title": "Explorador d'arxius",
+      "loading": "Carregant arxius...",
+      "downloading": "Descarregant arxiu...",
+      "uploading": "Pujant arxiu...",
+      "empty": "No hi ha arxius en aquesta carpeta",
+      "openFile": "Obrir des del núvol",
+      "saveFile": "Desar al núvol",
+      "deleteFile": "Eliminar arxiu",
+      "deleteConfirm": "Estàs segur que vols eliminar \"{name}\"?",
+      "fileName": "Nom de l'arxiu",
+      "selectFile": "Selecciona un arxiu",
+      "upload": "Pujar arxiu",
+      "download": "Descarregar",
+      "back": "Tornar"
+    }
   },
   "dropbox": {
     "connection": {

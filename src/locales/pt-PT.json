@@ -103,7 +103,10 @@
     "importError": "Erro ao importar configurações",
     "subtitle": "Teleprompter profissional",
     "version": "Versão",
-    "copyright": "Direitos de autor"
+    "copyright": "Direitos de autor",
+    "cloud": "Nuvem",
+    "cloudProviders": "Fornecedores de armazenamento na nuvem",
+    "cloudProvidersDescription": "Ligue as suas contas de armazenamento na nuvem para sincronizar e aceder aos seus scripts a partir de qualquer dispositivo."
   },
   "editor": {
     "title": "Editor de Markdown",
@@ -131,7 +134,12 @@
     "confirmRefreshLocalChanges": "O conteúdo local foi modificado. Deseja descartar a edição e carregar os dados da origem?",
     "confirmRefreshSourceChanged": "O ficheiro de origem foi modificado. Deseja carregar os novos dados da origem?",
     "refreshFromSourceError": "Erro ao actualizar do ficheiro de origem",
-    "saveError": "Erro ao guardar ficheiro"
+    "saveError": "Erro ao guardar ficheiro",
+    "defaultContent": "# O meu Script\n\nEscreva o seu conteúdo aqui...",
+    "fileNameHint": "Incluir a extensão (.md, .txt)"
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Prima novamente o botão voltar para sair da aplicação"
   },
   "fileLoader": {
     "title": "Importar ficheiro",
@@ -155,6 +163,21 @@
     "fileName": "Nome do ficheiro",
     "saveAs": "Guardar como",
     "import": "Importar"
+  },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Nuvem",
+    "localOpenTitle": "Abrir ficheiro local",
+    "localOpenDescription": "Seleccione um ficheiro markdown (.md) ou texto (.txt) do seu computador.",
+    "localSaveTitle": "Guardar ficheiro local",
+    "localSaveDescription": "Guarde o conteúdo num ficheiro no seu computador.",
+    "browseFiles": "Procurar ficheiros",
+    "saveToComputer": "Guardar no computador",
+    "cloudNotConnected": "Não ligado à nuvem",
+    "cloudNotConnectedDescription": "Não existe ligação activa aos serviços de armazenamento na nuvem. Por favor, configure a sua ligação nas definições do Apuntador.",
+    "goToSettings": "Ir para definições",
+    "fileName": "Nome do ficheiro",
+    "fileNameHint": "A extensão .md será adicionada automaticamente se não estiver presente"
   },
   "hotkeys": {
     "title": "Teclas de atalho",
@@ -236,6 +259,44 @@
     "close": "Fechar janela",
     "alwaysOnTop": "Sempre no topo",
     "fullscreen": "Alternar ecrã inteiro"
+  },
+  "cloud": {
+    "activeProvider": "Fornecedor activo",
+    "availableProviders": "Fornecedores disponíveis",
+    "connect": "Ligar",
+    "connected": "Ligado",
+    "notConnected": "Não ligado",
+    "disconnect": "Desligar",
+    "disconnectConfirm": "Tem a certeza de que deseja desligar este fornecedor?",
+    "setAsActive": "Definir como activo",
+    "oauth": {
+      "processing": "Estamos a processar a sua autorização, isto só demorará alguns segundos.",
+      "connecting": "A ligar à sua conta...",
+      "successTitle": "Ligado com sucesso!",
+      "successMessage": "A sua conta foi ligada com sucesso.",
+      "continueButton": "Continuar para Apuntador",
+      "errorTitle": "Erro de ligação",
+      "retryButton": "Tentar novamente",
+      "backButton": "Voltar a Apuntador",
+      "noAuthCode": "Nenhum código de autorização recebido"
+    },
+    "files": {
+      "root": "Raiz",
+      "title": "Explorador de ficheiros",
+      "loading": "A carregar ficheiros...",
+      "downloading": "A transferir ficheiro...",
+      "uploading": "A enviar ficheiro...",
+      "empty": "Nenhum ficheiro nesta pasta",
+      "openFile": "Abrir da nuvem",
+      "saveFile": "Guardar na nuvem",
+      "deleteFile": "Eliminar ficheiro",
+      "deleteConfirm": "Tem a certeza de que deseja eliminar \"{name}\"?",
+      "fileName": "Nome do ficheiro",
+      "selectFile": "Seleccionar um ficheiro",
+      "upload": "Enviar ficheiro",
+      "download": "Transferir",
+      "back": "Voltar"
+    }
   },
   "dropbox": {
     "connection": {

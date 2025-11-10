@@ -103,7 +103,10 @@
     "importError": "Erreur lors de l'importation des paramètres",
     "subtitle": "Télésouffleur professionnel",
     "version": "Version",
-    "copyright": "Droits d'auteur"
+    "copyright": "Droits d'auteur",
+    "cloud": "Nuage",
+    "cloudProviders": "Fournisseurs de stockage dans le cloud",
+    "cloudProvidersDescription": "Connectez vos comptes de stockage dans le cloud pour synchroniser et accéder à vos scripts depuis n'importe quel appareil."
   },
   "editor": {
     "title": "Éditeur Markdown",
@@ -131,7 +134,12 @@
     "confirmRefreshLocalChanges": "Le contenu local a été modifié. Voulez-vous abandonner l'édition et charger les données de la source ?",
     "confirmRefreshSourceChanged": "Le fichier source a été modifié. Voulez-vous charger les nouvelles données de la source ?",
     "refreshFromSourceError": "Erreur lors de l'actualisation du fichier source",
-    "saveError": "Erreur lors de l'enregistrement du fichier"
+    "saveError": "Erreur lors de l'enregistrement du fichier",
+    "defaultContent": "# Mon Script\n\nÉcrivez votre contenu ici...",
+    "fileNameHint": "Inclure l'extension (.md, .txt)"
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Appuyez à nouveau sur le bouton retour pour quitter l'application"
   },
   "fileLoader": {
     "title": "Importer un fichier",
@@ -155,6 +163,21 @@
     "fileName": "Nom du fichier",
     "saveAs": "Enregistrer sous",
     "import": "Importer"
+  },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Nuage",
+    "localOpenTitle": "Ouvrir un fichier local",
+    "localOpenDescription": "Sélectionnez un fichier markdown (.md) ou texte (.txt) depuis votre ordinateur.",
+    "localSaveTitle": "Enregistrer un fichier local",
+    "localSaveDescription": "Enregistrez le contenu dans un fichier sur votre ordinateur.",
+    "browseFiles": "Parcourir les fichiers",
+    "saveToComputer": "Enregistrer sur l'ordinateur",
+    "cloudNotConnected": "Non connecté au nuage",
+    "cloudNotConnectedDescription": "Il n'y a pas de connexion active aux services de stockage dans le cloud. Veuillez configurer votre connexion dans les paramètres d'Apuntador.",
+    "goToSettings": "Aller aux paramètres",
+    "fileName": "Nom du fichier",
+    "fileNameHint": "L'extension .md sera ajoutée automatiquement si elle n'est pas présente"
   },
   "hotkeys": {
     "title": "Raccourcis clavier",
@@ -236,6 +259,44 @@
     "close": "Fermer la fenêtre",
     "alwaysOnTop": "Toujours au premier plan",
     "fullscreen": "Basculer en plein écran"
+  },
+  "cloud": {
+    "activeProvider": "Fournisseur actif",
+    "availableProviders": "Fournisseurs disponibles",
+    "connect": "Connecter",
+    "connected": "Connecté",
+    "notConnected": "Non connecté",
+    "disconnect": "Déconnecter",
+    "disconnectConfirm": "Êtes-vous sûr de vouloir déconnecter ce fournisseur ?",
+    "setAsActive": "Définir comme actif",
+    "oauth": {
+      "processing": "Nous traitons votre autorisation, cela ne prendra que quelques secondes.",
+      "connecting": "Connexion à votre compte...",
+      "successTitle": "Connecté avec succès!",
+      "successMessage": "Votre compte a été connecté avec succès.",
+      "continueButton": "Continuer vers Apuntador",
+      "errorTitle": "Erreur de connexion",
+      "retryButton": "Réessayer",
+      "backButton": "Retour à Apuntador",
+      "noAuthCode": "Aucun code d'autorisation reçu"
+    },
+    "files": {
+      "root": "Racine",
+      "title": "Explorateur de fichiers",
+      "loading": "Chargement des fichiers...",
+      "downloading": "Téléchargement du fichier...",
+      "uploading": "Envoi du fichier...",
+      "empty": "Aucun fichier dans ce dossier",
+      "openFile": "Ouvrir depuis le nuage",
+      "saveFile": "Enregistrer dans le nuage",
+      "deleteFile": "Supprimer le fichier",
+      "deleteConfirm": "Êtes-vous sûr de vouloir supprimer \"{name}\"?",
+      "fileName": "Nom du fichier",
+      "selectFile": "Sélectionner un fichier",
+      "upload": "Télécharger le fichier",
+      "download": "Télécharger",
+      "back": "Retour"
+    }
   },
   "dropbox": {
     "connection": {
