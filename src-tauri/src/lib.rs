@@ -905,6 +905,32 @@ fn is_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
   Ok(is_fullscreen || !has_decorations)
 }
 
+// Window control commands
+#[tauri::command]
+fn close_window(window: tauri::WebviewWindow) -> Result<(), String> {
+  println!("🔴 Closing window via command: {}", window.label());
+  window.close().map_err(|e| format!("Failed to close window: {}", e))
+}
+
+#[tauri::command]
+fn minimize_window(window: tauri::WebviewWindow) -> Result<(), String> {
+  println!("🔽 Minimizing window: {}", window.label());
+  window.minimize().map_err(|e| format!("Failed to minimize window: {}", e))
+}
+
+#[tauri::command]
+fn maximize_window(window: tauri::WebviewWindow) -> Result<(), String> {
+  println!("🔼 Toggling maximize window: {}", window.label());
+  
+  let is_maximized = window.is_maximized().map_err(|e| e.to_string())?;
+  
+  if is_maximized {
+    window.unmaximize().map_err(|e| format!("Failed to unmaximize window: {}", e))
+  } else {
+    window.maximize().map_err(|e| format!("Failed to maximize window: {}", e))
+  }
+}
+
 #[tauri::command]
 fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
   println!("🧪 Test: Emitting test event...");
@@ -988,6 +1014,9 @@ pub fn run() {
     .invoke_handler(tauri::generate_handler![
       toggle_theater_mode,
       is_theater_mode,
+      close_window,
+      minimize_window,
+      maximize_window,
       open_url,
       start_oauth_callback_server,
       backend_oauth_authorize,
@@ -1025,6 +1054,32 @@ pub fn run() {
       }
       
       Ok(())
+    })
+    .on_window_event(|window, event| {
+      #[cfg(debug_assertions)]
+      if let tauri::WindowEvent::CloseRequested { .. } = event {
+        println!("🔴 Close requested for window: {}", window.label());
+        println!("🔧 Debug mode: Destroying window");
+        // En debug, destruir la ventana inmediatamente
+        let _ = window.destroy();
+        return;
+      }
+      
+      #[cfg(not(debug_assertions))]
+      if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+        println!("🔴 Close requested for window: {}", window.label());
+        println!("🏁 Production mode: Exiting application");
+        // En producción, prevenir cierre y salir de toda la aplicación
+        api.prevent_close();
+        std::process::exit(0);
+      }
+      
+      match event {
+        tauri::WindowEvent::Destroyed => {
+          println!("🗑️  Window destroyed: {}", window.label());
+        }
+        _ => {}
+      }
     })
     .run(tauri::generate_context!())
     .expect("error while running tauri application");

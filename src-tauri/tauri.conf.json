@@ -21,6 +21,7 @@
         "fullscreen": false,
         "maximizable": true,
         "minimizable": true,
+        "closable": true,
         "center": true,
         "decorations": true,
         "alwaysOnTop": false,
