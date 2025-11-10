@@ -9,7 +9,19 @@ import { ref, computed } from 'vue'
  */
 export function isTauri(): boolean {
   try {
-    return '__TAURI__' in window
+    // In dev mode, Tauri serves from http://localhost
+    // We need to check if Tauri APIs are available by trying to import them
+    // The most reliable way is to check if window.__TAURI_INTERNALS__ exists
+    const hasTauriInternals = '__TAURI_INTERNALS__' in window
+    const hasTauriMetadata = '__TAURI_METADATA__' in window
+    
+    console.log('🔍 Tauri detection:', { 
+      hasTauriInternals,
+      hasTauriMetadata,
+      windowKeys: Object.keys(window).filter(k => k.includes('TAURI'))
+    })
+    
+    return hasTauriInternals || hasTauriMetadata
   } catch {
     return false
   }

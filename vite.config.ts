@@ -25,6 +25,12 @@ export default defineConfig({
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
   },
+  // Prevent pre-bundling of Tauri packages in development
+  optimizeDeps: {
+    exclude: [
+      '@tauri-apps/api',
+    ],
+  },
   css: {
     preprocessorOptions: {
       scss: {
@@ -88,6 +94,10 @@ export default defineConfig({
     sourcemap: true,
     chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
     rollupOptions: {
+      external: [
+        // Externalize Tauri modules (only for desktop, not web)
+        '@tauri-apps/api',
+      ],
       output: {
         // Manual chunks to improve bundle splitting
         manualChunks: {

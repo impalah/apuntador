@@ -5,6 +5,7 @@ import { GoogleDriveService } from '@/services/googledrive/googleDriveService'
 import { DROPBOX_CONFIG } from '@/services/dropbox/config'
 import { GOOGLE_DRIVE_CONFIG } from '@/services/googledrive/config'
 import { tauriService } from '@/services/tauriService'
+import { CertificateValidator } from '@/services/certificate/certificateValidator'
 import type { CloudFile, CloudProvider, CloudProviderId, CloudService } from '@/types/cloud'
 
 /**
@@ -116,25 +117,60 @@ export const useCloudStore = defineStore('cloud', () => {
     error.value = null
 
     try {
+      // STEP 1: Ensure valid certificate (auto-enroll if needed)
+      console.log('🔐 Ensuring device has valid certificate...')
+      const certStatus = await CertificateValidator.ensureValidCertificate()
+      
+      if (!certStatus.isValid) {
+        const message = CertificateValidator.getStatusMessage(certStatus)
+        console.error('❌ Certificate validation/enrollment failed:', message)
+        error.value = message
+        
+        // Throw error to prevent OAuth flow
+        throw new Error(`Certificate required: ${message}`)
+      }
+      
+      console.log('✅ Certificate ready for OAuth')
+      if (certStatus.daysUntilExpiry) {
+        console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
+      }
+
+      // STEP 2: Proceed with OAuth flow
       const service = services[providerId]
+      if (!service) {
+        throw new Error(`Service not found for provider: ${providerId}`)
+      }
       
       // Detectar si estamos en Tauri
       const isTauri = await tauriService.isAvailable()
       
-      if (isTauri && providerId === 'dropbox') {
-        // Flujo especial para Dropbox en Tauri
-        console.log('🖥️ Using Tauri OAuth flow for Dropbox')
+      if (isTauri && (providerId === 'dropbox' || providerId === 'googledrive')) {
+        // Flujo para Dropbox/Google Drive en Tauri usando backend proxy
+        console.log(`🖥️ Using Tauri OAuth flow for ${providerId} (via backend proxy)`)
         
+        // STEP 1: Start OAuth callback server
+        console.log('🚀 Starting OAuth callback server...')
+        await tauriService.startOAuthCallbackServer()
+        
+        // STEP 2: Set up listener for oauth-callback event
+        console.log('👂 Setting up OAuth callback listener...')
         const callbackPromise = tauriService.listenForOAuthCallback()
-        const authUrl = await tauriService.startDropboxOAuth()
         
+        // STEP 3: Start OAuth flow (opens browser with backend URL)
+        console.log('🌐 Opening browser for OAuth (backend proxy)...')
+        await service.connect() // This opens browser to backend URL
+        
+        // STEP 4: Wait for callback from localhost:8080
+        console.log('⏳ Waiting for OAuth callback from browser...')
         const callbackData = await callbackPromise
-        const tokenResponse = await tauriService.exchangeOAuthCode(
-          callbackData.code, 
-          callbackData.state
-        )
+        console.log('📞 OAuth callback received:', callbackData)
         
-        dropboxService.setAccessToken!(tokenResponse.access_token)
+        // STEP 5: Exchange code for token via backend
+        if ('handleOAuthCallback' in service && typeof service.handleOAuthCallback === 'function') {
+          await service.handleOAuthCallback(callbackData.code, callbackData.state)
+        } else {
+          throw new Error(`Service ${providerId} does not support OAuth callback`)
+        }
         
       } else {
         // Flujo web estándar
@@ -161,7 +197,7 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Maneja el callback de OAuth
    */
-  const handleOAuthCallback = async (code: string, providerId?: CloudProviderId): Promise<void> => {
+  const handleOAuthCallback = async (code: string, state: string, providerId?: CloudProviderId): Promise<void> => {
     // Si no se especifica proveedor, intentar detectarlo
     const targetProviderId = providerId || activeProviderId.value
     
@@ -176,7 +212,7 @@ export const useCloudStore = defineStore('cloud', () => {
       const service = services[targetProviderId]
       
       if (service.handleOAuthCallback) {
-        await service.handleOAuthCallback(code)
+        await service.handleOAuthCallback(code, state)
       }
       
       // Establecer como proveedor activo

@@ -18,7 +18,7 @@ const mockWindow = {
 const mockGetCurrentWindow = vi.fn(() => mockWindow)
 
 // Mock dynamic imports
-vi.mock('@tauri-apps/api/window', () => ({
+vi.mock('@tauri-apps/window', () => ({
   getCurrentWindow: mockGetCurrentWindow
 }))
 

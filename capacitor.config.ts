@@ -5,8 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Apuntador',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    // DESARROLLO: Usar HTTP para permitir conexiones al backend local
+    // PRODUCCIÓN: Cambiar a HTTPS
+    androidScheme: 'http',
     iosScheme: 'ionic',
+    // Permitir mixed content (HTTP desde HTTPS) para desarrollo
+    cleartext: true,
   },
   plugins: {
     StatusBar: {

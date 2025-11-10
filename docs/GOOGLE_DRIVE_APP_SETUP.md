@@ -595,7 +595,7 @@ Si estás preocupado por la seguridad del client_secret:
 
 ### Documentación Oficial de Google
 
-- [Google Drive API Documentation](https://developers.google.com/drive/api/v3/about-sdk)
+- [Google Drive API Documentation](https://developers.google.com/drive/v3/about-sdk)
 - [OAuth 2.0 for Mobile & Desktop Apps](https://developers.google.com/identity/protocols/oauth2/native-app) - Documentación oficial sobre PKCE
 - [OAuth 2.0 Scopes for Google APIs](https://developers.google.com/identity/protocols/oauth2/scopes#drive)
 - [Google Sign-In for Web](https://developers.google.com/identity/gsi/web/guides/overview) - Alternativa más segura para SPAs

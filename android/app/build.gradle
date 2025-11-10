@@ -82,6 +82,10 @@ dependencies {
     androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
+    
+    // BouncyCastle para CSR y mTLS
+    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
+    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
 }
 
 apply from: 'capacitor.build.gradle'

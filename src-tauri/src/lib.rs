@@ -4,6 +4,10 @@ use tauri::{State, Emitter};
 use serde::{Deserialize, Serialize};
 use base64::{Engine as _, engine::general_purpose::URL_SAFE_NO_PAD};
 
+// mTLS module
+mod mtls;
+use mtls::{enrollment, CertificateStore};
+
 // Shared state for OAuth
 #[derive(Debug, Clone)]
 struct PendingOAuthRequest {
@@ -114,6 +118,163 @@ fn generate_state() -> String {
       chars[rng.gen_range(0..chars.len())] as char
     })
     .collect()
+}
+
+/// Open URL in system default browser
+#[tauri::command]
+async fn open_url(url: String) -> Result<(), String> {
+  println!("🌐 Opening URL in system browser: {}", url);
+  
+  tauri_plugin_opener::open_url(&url, None::<&str>)
+    .map_err(|e| format!("Failed to open URL: {}", e))?;
+  
+  println!("✅ Browser opened successfully");
+  Ok(())
+}
+
+// Command to ensure OAuth server is running (for backend proxy mode)
+#[tauri::command]
+async fn start_oauth_callback_server(
+  app_handle: tauri::AppHandle,
+  oauth_state: State<'_, OAuthState>,
+) -> Result<(), String> {
+  println!("🚀 Starting OAuth callback server on localhost:8080...");
+  start_oauth_server(app_handle.clone(), oauth_state.clone()).await?;
+  println!("✅ OAuth callback server started successfully");
+  Ok(())
+}
+
+// Command to request OAuth authorization URL from backend (with mTLS)
+#[tauri::command]
+async fn backend_oauth_authorize(
+  provider: String,
+  code_verifier: String,
+  redirect_uri: String,
+) -> Result<serde_json::Value, String> {
+  use crate::mtls::certificate_storage::CertificateStore;
+  
+  println!("🔐 [Backend OAuth] Requesting authorization URL from backend with mTLS");
+  println!("   Provider: {}", provider);
+  println!("   Redirect URI: {}", redirect_uri);
+  
+  // 1. Load certificate from Keychain
+  let stored_cert = CertificateStore::retrieve()
+    .map_err(|e| format!("Failed to retrieve certificate: {}", e))?;
+  
+  println!("✅ Certificate loaded from Keychain");
+  
+  // 2. URL-encode certificate for X-Client-Cert header
+  let cert_for_header = stored_cert.certificate_pem.replace("\n", "%0A");
+  
+  // 3. Create HTTP client (certificate sent in header, not TLS)
+  let client = reqwest::Client::builder()
+    .danger_accept_invalid_certs(true) // For development with self-signed backend cert
+    .build()
+    .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+  
+  println!("✅ HTTP client created");
+  
+  // 4. Make request to backend with certificate in header
+  let backend_url = "https://api.apuntador.io"; // Production API
+  let url = format!("{}/oauth/authorize/{}", backend_url, provider);
+  
+  println!("📡 Making request to: {}", url);
+  
+  let response = client
+    .post(&url)
+    .header("X-Client-Cert", cert_for_header) // Send certificate in header
+    .json(&serde_json::json!({
+      "code_verifier": code_verifier,
+      "redirect_uri": redirect_uri,
+      "state": null
+    }))
+    .send()
+    .await
+    .map_err(|e| format!("Request failed: {}", e))?;
+  
+  let status = response.status();
+  println!("📥 Response status: {}", status);
+  
+  if !status.is_success() {
+    let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
+    return Err(format!("Backend returned error {}: {}", status, error_text));
+  }
+  
+  let data: serde_json::Value = response.json().await
+    .map_err(|e| format!("Failed to parse response: {}", e))?;
+  
+  println!("✅ Authorization URL received from backend");
+  Ok(data)
+}
+
+/// Backend OAuth Token Exchange (mTLS)
+/// Exchanges authorization code for access token via backend using mTLS
+#[tauri::command]
+async fn backend_oauth_token_exchange(
+  provider: String,
+  code: String,
+  code_verifier: String,
+  state: String,
+) -> Result<serde_json::Value, String> {
+  println!("🔄 Backend OAuth token exchange for provider: {}", provider);
+
+  // Get backend URL from environment
+  let backend_url = match std::env::var("BACKEND_URL") {
+    Ok(url) => url,
+    Err(_) => "https://api.apuntador.io".to_string()
+  };
+
+  // Load certificate from Keychain
+  println!("📜 Loading client certificate from Keychain...");
+  let stored_cert = CertificateStore::retrieve()
+    .map_err(|e| format!("Failed to load certificate: {}", e))?;
+
+  // URL-encode certificate for X-Client-Cert header (replace newlines with %0A)
+  let cert_for_header = stored_cert.certificate_pem.replace("\n", "%0A");
+  println!("📋 Certificate prepared for header (length: {})", cert_for_header.len());
+
+  // Create simple HTTP client (no mTLS in transport, we send cert in header)
+  let client = reqwest::Client::builder()
+    .danger_accept_invalid_certs(true) // For development with self-signed backend cert
+    .build()
+    .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
+
+  // Call backend token exchange endpoint
+  let exchange_url = format!("{}/oauth/token/{}", backend_url, provider);
+  println!("📡 Calling backend token exchange: {}", exchange_url);
+
+  // Create JSON request body
+  let mut body = serde_json::Map::new();
+  body.insert("code".to_string(), serde_json::Value::String(code));
+  body.insert("code_verifier".to_string(), serde_json::Value::String(code_verifier));
+  body.insert("state".to_string(), serde_json::Value::String(state));
+
+  let response = client
+    .post(&exchange_url)
+    .header("X-Client-Cert", cert_for_header) // Send certificate in header
+    .json(&body)
+    .send()
+    .await
+    .map_err(|e| format!("HTTP request failed: {}", e))?;
+
+  let status = response.status();
+  println!("📥 Response status: {}", status);
+  
+  let body = response.text().await
+    .map_err(|e| format!("Failed to read response body: {}", e))?;
+
+  println!("📄 Response body (first 500 chars): {}", &body.chars().take(500).collect::<String>());
+
+  if !status.is_success() {
+    return Err(format!("Backend returned error: {} - {}", status, body));
+  }
+
+  // Parse JSON response
+  let data: serde_json::Value = serde_json::from_str(&body)
+    .map_err(|e| format!("Failed to parse JSON response: {} - Body was: {}", e, body))?;
+
+  println!("✅ Token exchange successful");
+  Ok(data)
 }
 
 // Command to start OAuth flow
@@ -762,6 +923,55 @@ fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
   }
 }
 
+// ==================== mTLS Commands ====================
+
+/// Check device enrollment status
+#[tauri::command]
+async fn check_enrollment_status() -> Result<enrollment::EnrollmentResult, String> {
+  println!("🔍 [Tauri Command] check_enrollment_status called");
+  enrollment::check_enrollment_status().await
+}
+
+/// Enroll device with backend
+#[tauri::command]
+async fn enroll_desktop_device(
+  backend_url: String,
+  certificate_pins: Vec<String>,
+) -> Result<enrollment::EnrollmentResult, String> {
+  println!("🚀 [Tauri Command] enroll_desktop_device called");
+  println!("   Backend URL: {}", backend_url);
+  println!("   Certificate Pins: {:?}", certificate_pins);
+  
+  enrollment::enroll_device(&backend_url, certificate_pins).await
+}
+
+/// Unenroll device (delete certificate)
+#[tauri::command]
+async fn unenroll_desktop_device() -> Result<(), String> {
+  println!("🗑️  [Tauri Command] unenroll_desktop_device called");
+  enrollment::unenroll_device().await
+}
+
+/// Get device information
+#[tauri::command]
+fn get_desktop_device_info() -> Result<serde_json::Value, String> {
+  println!("📱 [Tauri Command] get_desktop_device_info called");
+  
+  let device_id = mtls::csr_generator::get_device_id()?;
+  let platform = mtls::csr_generator::get_platform();
+  let device_model = mtls::csr_generator::get_device_model();
+  let os_version = mtls::csr_generator::get_os_version();
+  let has_certificate = CertificateStore::exists();
+  
+  Ok(serde_json::json!({
+    "device_id": device_id,
+    "platform": platform,
+    "device_model": device_model,
+    "os_version": os_version,
+    "has_certificate": has_certificate,
+  }))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
   tauri::Builder::default()
@@ -775,12 +985,21 @@ pub fn run() {
     .invoke_handler(tauri::generate_handler![
       toggle_theater_mode,
       is_theater_mode,
+      open_url,
+      start_oauth_callback_server,
+      backend_oauth_authorize,
+      backend_oauth_token_exchange,
       start_dropbox_oauth,
       exchange_oauth_code,
       list_dropbox_files,
       download_dropbox_file,
       upload_dropbox_file,
-      test_event_emit
+      test_event_emit,
+      // mTLS commands
+      check_enrollment_status,
+      enroll_desktop_device,
+      unenroll_desktop_device,
+      get_desktop_device_info
     ])
     .setup(|app| {
       if cfg!(debug_assertions) {

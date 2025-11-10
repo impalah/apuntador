@@ -50,6 +50,16 @@
       @open-file="onOpenFile"
     />
 
+    <!-- iOS Back Button (floating) -->
+    <v-btn
+      v-if="showIOSBackButton"
+      icon="mdi-arrow-left"
+      color="primary"
+      size="small"
+      class="ios-back-button"
+      @click="router.push('/')"
+    />
+
     <!-- Settings Dialog -->
     <SettingsDialog 
       v-model="settingsOpen" 
@@ -63,6 +73,16 @@
       auto-import 
       @file-imported="onFileImported" 
     />
+
+    <!-- Android Exit Confirmation Snackbar -->
+    <v-snackbar
+      v-model="showExitSnackbar"
+      :timeout="2000"
+      color="info"
+      location="bottom"
+    >
+      {{ t('teleprompter.pressBackAgainToExit') }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -71,6 +91,8 @@ import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDisplay } from 'vuetify'
 import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
+import { App } from '@capacitor/app'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
@@ -102,6 +124,9 @@ const router = useRouter()
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
+
+// Show iOS back button (iOS doesn't have system back button)
+const showIOSBackButton = computed(() => Capacitor.getPlatform() === 'ios')
 
 // Modular component props
 const teleprompterFrameProps = useTeleprompterFrameProps()
@@ -208,6 +233,46 @@ const handleOrientationChange = async () => {
   }
 }
 
+// Android back button handler with double-tap to exit
+let lastBackPress = 0
+let backButtonHandler: any = null
+const showExitSnackbar = ref(false)
+
+function setupBackButtonHandler() {
+  backButtonHandler = App.addListener('backButton', () => {
+    const currentRoute = router.currentRoute.value.path
+    const now = Date.now()
+    
+    // If we're NOT on the main route (/), go to main route
+    if (currentRoute !== '/') {
+      router.push('/')
+      return
+    }
+    
+    // We're on main route - check for double tap to exit
+    if (now - lastBackPress < 2000) {
+      // Double tap detected - exit app
+      showExitSnackbar.value = false
+      App.exitApp()
+    } else {
+      // Single tap - show toast message
+      lastBackPress = now
+      showExitToast()
+    }
+  })
+}
+
+// Toast message for exit confirmation
+function showExitToast() {
+  showExitSnackbar.value = true
+  
+  // Hide snackbar after 2 seconds
+  setTimeout(() => {
+    showExitSnackbar.value = false
+    lastBackPress = 0
+  }, 2000)
+}
+
 // Lifecycle
 onMounted(async () => {
   // Initialize stores
@@ -226,6 +291,11 @@ onMounted(async () => {
     // Listen for orientation changes
     window.addEventListener('orientationchange', handleOrientationChange)
     window.addEventListener('resize', handleOrientationChange)
+  }
+
+  // Setup Android back button handler
+  if (Capacitor.getPlatform() === 'android') {
+    setupBackButtonHandler()
   }
 
   // Setup hotkeys (always enabled for Bluetooth keyboard support)
@@ -248,6 +318,11 @@ onMounted(async () => {
 onUnmounted(() => {
   hotkeyManager.stopListening()
   gamepadManager.stopListening()
+
+  // Clean up back button handler
+  if (backButtonHandler) {
+    backButtonHandler.remove()
+  }
 
   // Clean up orientation listeners on mobile
   if (isMobile()) {
@@ -572,11 +647,31 @@ function setupGamepad() {
   /* Don't add bottom padding here - let FloatingToolbar handle it */
 }
 
+/* iOS Back Button - Floating in top-left corner */
+.ios-back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.ios-back-button:hover {
+  opacity: 1;
+}
+
 /* Ensure content area respects safe areas on Android - no top padding for immersive teleprompter */
 @supports (padding: max(0px)) {
   .teleprompter-page {
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
+  }
+  
+  /* iOS Back Button respects safe area */
+  .ios-back-button {
+    top: max(20px, env(safe-area-inset-top, 20px));
+    left: max(20px, env(safe-area-inset-left, 20px));
   }
 }
 </style>

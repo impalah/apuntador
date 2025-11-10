@@ -77,6 +77,8 @@
 import { ref, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Capacitor } from '@capacitor/core'
+import { Browser } from '@capacitor/browser'
 import { useCloudStore } from '@/stores/useCloudStore'
 import type { CloudProviderId } from '@/types/cloud'
 
@@ -104,18 +106,19 @@ const processOAuthCallback = async (): Promise<void> => {
     const state = route.query.state as string
     let provider = route.query.provider as CloudProviderId | undefined
 
-    // Si no se especificó provider en el query, intentar extraerlo del state
-    if (!provider && state) {
-      if (state.startsWith('dropbox-')) {
-        provider = 'dropbox'
-      } else if (state.startsWith('googledrive-')) {
-        provider = 'googledrive'
+    // Si no se especificó provider en el query, intentar obtenerlo de localStorage
+    // (guardado durante el inicio del flujo OAuth)
+    if (!provider) {
+      const savedProvider = localStorage.getItem('oauth_current_provider')
+      if (savedProvider === 'dropbox' || savedProvider === 'googledrive') {
+        provider = savedProvider as CloudProviderId
+        console.log(`🔍 Provider detected from localStorage: ${provider}`)
       }
     }
 
     console.log('🔑 Code:', code ? 'RECEIVED' : 'MISSING')
     console.log('🏷️ State:', state || 'NONE')
-    console.log('🏢 Provider:', provider || 'NOT SPECIFIED (will detect)')
+    console.log('🏢 Provider:', provider || 'NOT SPECIFIED')
     console.log('❌ Error:', errorParam || 'NONE')
 
     // Verificar si hay error de OAuth
@@ -130,23 +133,40 @@ const processOAuthCallback = async (): Promise<void> => {
 
     console.log('🚀 Calling cloudStore.handleOAuthCallback...')
     // Procesar el callback con el proveedor apropiado
-    // Si no se especifica provider, el store intentará detectarlo
-    await cloudStore.handleOAuthCallback(code, provider)
+    await cloudStore.handleOAuthCallback(code, state || '', provider)
     console.log('✅ OAuth callback completed successfully')
+    
+    // Cerrar el navegador en iOS/Android (solo en plataformas nativas)
+    if (Capacitor.isNativePlatform()) {
+      console.log('📱 Closing browser window...')
+      try {
+        await Browser.close()
+        console.log('✅ Browser closed')
+      } catch (err) {
+        console.warn('⚠️ Failed to close browser:', err)
+        // No es crítico si falla, continuar de todos modos
+      }
+    }
+    
+    // Limpiar provider de localStorage
+    localStorage.removeItem('oauth_current_provider')
 
     // Éxito
     isProcessing.value = false
     isSuccess.value = true
 
-    // Redirigir automáticamente después de 3 segundos
+    // Redirigir automáticamente después de 1 segundo (más rápido)
     setTimeout(() => {
       redirectToApp()
-    }, 3000)
+    }, 1000)
 
   } catch (err) {
     console.error('OAuth callback error:', err)
     error.value = err instanceof Error ? err.message : t('errors.unknownError')
     isProcessing.value = false
+    
+    // Limpiar provider de localStorage en caso de error
+    localStorage.removeItem('oauth_current_provider')
   }
 }
 
@@ -155,13 +175,13 @@ const retryConnection = async (): Promise<void> => {
   isProcessing.value = true
   isSuccess.value = false
   
-  // Redirect to settings to retry connection
-  router.push('/#options/cloud')
+  // Redirect to home page
+  router.push('/')
 }
 
 const redirectToApp = (): void => {
-  // Redirigir a la página principal con hash para abrir opciones en pestaña cloud
-  router.push('/#options/cloud')
+  // Redirigir a la página principal (teleprompter)
+  router.push('/')
 }
 
 // Lifecycle

@@ -124,7 +124,7 @@ Usuario → Apuntador (SPA) → Backend Proxy → Google OAuth
 **Implementación**:
 ```typescript
 // Backend (Node.js/Express)
-app.post('/api/oauth/token', async (req, res) => {
+app.post('/oauth/token', async (req, res) => {
   const { code, code_verifier } = req.body
   
   const response = await fetch('https://oauth2.googleapis.com/token', {

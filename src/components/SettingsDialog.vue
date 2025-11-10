@@ -357,6 +357,33 @@
       <v-divider />
 
       <v-card-actions>
+        <v-btn
+          v-if="isNativePlatform"
+          color="secondary"
+          variant="text"
+          @click="goToEnrollmentTest"
+          prepend-icon="mdi-shield-check"
+        >
+          Device Enrollment Test
+        </v-btn>
+        <v-btn
+          v-if="isNativePlatform"
+          color="info"
+          variant="text"
+          @click="goToMTLSTest"
+          prepend-icon="mdi-lock-check"
+        >
+          mTLS Client Test
+        </v-btn>
+        <v-btn
+          v-if="isTauriPlatform"
+          color="success"
+          variant="text"
+          @click="goToDesktopMTLSTest"
+          prepend-icon="mdi-desktop-mac"
+        >
+          Desktop mTLS Test
+        </v-btn>
         <v-spacer />
         <v-btn
           color="primary"
@@ -373,6 +400,8 @@
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'
@@ -383,9 +412,13 @@ import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import DropboxConnection from './cloud/DropboxConnection.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
+import { isTauri } from '@/utils/tauri'
 
 // I18n
 const { t } = useI18n()
+
+// Router
+const router = useRouter()
 
 // Props
 interface Props {
@@ -485,6 +518,34 @@ async function onClearAllData() {
     // Reload the page to reset everything
     window.location.reload()
   }
+}
+
+// Platform detection
+const isNativePlatform = computed(() => Capacitor.isNativePlatform())
+
+// Check if running in Tauri (Desktop) - use the utility function
+const isTauriPlatform = computed(() => {
+  const result = isTauri()
+  console.log('🔍 isTauriPlatform check:', result)
+  return result
+})
+
+// Navigate to device enrollment test
+function goToEnrollmentTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'device-enrollment-test' })
+}
+
+// Navigate to mTLS client test
+function goToMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'mtls-client-test' })
+}
+
+// Navigate to Desktop mTLS test
+function goToDesktopMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'desktop-mtls-test' })
 }
 </script>
 

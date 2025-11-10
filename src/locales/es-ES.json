@@ -108,6 +108,9 @@
     "cloudProviders": "Proveedores de almacenamiento en la nube",
     "cloudProvidersDescription": "Conecta tus cuentas de almacenamiento en la nube para sincronizar y acceder a tus scripts desde cualquier dispositivo."
   },
+  "teleprompter": {
+    "pressBackAgainToExit": "Pulsa el botón atrás otra vez para salir de la aplicación"
+  },
   "editor": {
     "title": "Editor de Markdown",
     "placeholder": "Comienza a escribir tu contenido markdown aquí...",

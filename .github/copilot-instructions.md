@@ -1,6 +1,6 @@
 # Copilot Instructions for **Apuntador**
 
-A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite**, and **Vuetify**. Features web, Android (Capacitor), and desktop (Tauri) deployments with advanced component architecture.
+A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite**, and **Vuetify**. Features web, Android (Capacitor), and desktop (Tauri) deployments with advanced component architecture. **Now includes mTLS authentication for physical devices with hardware-backed keystores**.
 
 ## Architecture Overview
 
@@ -8,6 +8,12 @@ A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite
 - `src/coordinators/` - Business logic orchestration between components
 - `src/adapters/` - Bridge Pinia stores to component interfaces  
 - `src/types/component-interfaces.d.ts` - Type contracts for modular components
+
+**Authentication Architecture**:
+- **Android**: mTLS with Android Keystore (TEE/StrongBox) + 30-day certificates
+- **iOS**: mTLS with Secure Enclave + 30-day certificates
+- **Desktop**: mTLS with encrypted file storage + 7-day certificates
+- **Web**: OAuth 2.0 + PKCE (no mTLS, CORS-protected)
 
 **Multi-Platform Deployment**:
 - **Web**: Vite build → static hosting (Vercel, Netlify, etc.)
@@ -39,13 +45,31 @@ src/
 │   ├── useFileStore.ts
 │   ├── useI18nStore.ts
 │   └── useDropboxStore.ts  # Dropbox OAuth & cloud sync
+├── services/             # NEW: Business logic services
+│   ├── enrollment/       # Device enrollment (mTLS)
+│   │   ├── enrollmentService.ts      # Platform-agnostic interface
+│   │   ├── androidEnrollment.ts      # Android Keystore
+│   │   ├── iosEnrollment.ts          # Secure Enclave
+│   │   ├── desktopEnrollment.ts      # File-based
+│   │   └── webEnrollment.ts          # OAuth (no certs)
+│   ├── certificate/      # Certificate lifecycle
+│   │   ├── certificateManager.ts
+│   │   ├── certificateRenewal.ts
+│   │   └── certificateStorage.ts
+│   └── mtls/            # mTLS HTTP client
+│       ├── mtlsHttpClient.ts
+│       └── certificatePinning.ts
 ├── utils/                # Pure utility functions
 │   ├── scrolling.ts      # AutoScroller class
 │   ├── markdown.ts       # Renderer with plugins
 │   ├── gamepadManager.ts # Gamepad input handling
 │   ├── hotkeys.ts        # Keyboard shortcuts
 │   ├── persistence.ts    # Storage abstraction
-│   └── tauri.ts          # Tauri desktop integration
+│   ├── platform.ts       # Platform detection (NEW)
+│   ├── tauri.ts          # Tauri desktop integration
+│   └── crypto/           # Cryptographic utilities (NEW)
+│       ├── csr.ts        # CSR generation
+│       └── pkce.ts       # PKCE for web OAuth
 ├── types/                # TypeScript definitions
 │   ├── index.d.ts        # Core interfaces
 │   └── component-interfaces.d.ts # Modular component contracts
@@ -527,6 +551,55 @@ app_handle.emit("oauth-callback", json!({ code, state }))
 
 **Token Exchange** (Both platforms use PKCE without client_secret):
 ```typescript
+```
+
+### mTLS Client Authentication (Physical Devices)
+
+**Android - Android Keystore**:
+```kotlin
+// Generate key pair in hardware (StrongBox if available)
+val keyPairGenerator = KeyPairGenerator.getInstance(
+    KeyProperties.KEY_ALGORITHM_RSA, 
+    "AndroidKeyStore"
+)
+val parameterSpec = KeyGenParameterSpec.Builder(
+    "apuntador-mtls-key",
+    KeyProperties.PURPOSE_SIGN or KeyProperties.PURPOSE_VERIFY
+)
+    .setIsStrongBoxBacked(true)  // Hardware-backed
+    .build()
+```
+
+**iOS - Secure Enclave**:
+```swift
+// Generate key in Secure Enclave (hardware-isolated)
+let attributes: [String: Any] = [
+    kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
+    kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,
+    kSecAccessControl as String: SecAccessControlCreateWithFlags(
+        nil,
+        kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
+        [.privateKeyUsage, .biometryCurrentSet],
+        nil
+    )!
+]
+```
+
+**Desktop (Tauri) - File-based with Encryption**:
+```rust
+// Encrypted certificate storage
+use aes_gcm::{Aead, KeyInit, Aes256Gcm};
+
+pub fn store_certificate(cert: &[u8]) -> Result<(), Box<dyn std::error::Error>> {
+    let cipher = Aes256Gcm::new_from_slice(&derived_key)?;
+    let encrypted = cipher.encrypt(nonce, cert)?;
+    fs::write(cert_path, encrypted)?;
+    Ok(())
+}
+```
+
+**Web - OAuth 2.0 + PKCE (No mTLS)**:
+```typescript
 const params = {
   client_id: CLIENT_ID,
   code: authorizationCode,
@@ -535,6 +608,59 @@ const params = {
   redirect_uri: REDIRECT_URI
 }
 // POST to https://api.dropboxapi.com/oauth2/token
+```
+
+### Device Enrollment Flow
+
+1. **Client generates key pair** (in HSM if mobile)
+2. **Client creates CSR** (Certificate Signing Request)
+3. **Client sends CSR to backend** via `/device/enroll`
+4. **Backend validates device** (SafetyNet/DeviceCheck)
+5. **Backend signs CSR** with private CA
+6. **Client receives certificate** (valid 7-30 days)
+7. **Client stores certificate** paired with private key
+8. **Auto-renewal** when < 5 days remaining
+
+### Tauri Commands Reference
+
+All Tauri commands in `src-tauri/src/lib.rs`:
+
+- `start_dropbox_oauth()` - Initialize OAuth flow, start server, open browser
+- `exchange_oauth_code(code, state)` - Exchange code for access token using PKCE
+- `list_dropbox_files(access_token, path)` - List folder contents
+- `download_dropbox_file(access_token, path)` - Download file as string
+- `upload_dropbox_file(access_token, path, content)` - Upload/overwrite file
+- `enroll_device(csr, device_id)` - Device enrollment for mTLS (NEW)
+- `renew_certificate()` - Certificate renewal (NEW)
+- `test_event_emit()` - Debug helper for testing event emission
+
+### Frontend Event Handling
+
+```typescript
+// Listen for OAuth callback events from Tauri backend
+import { listen } from '@tauri-apps/event'
+
+await listen('oauth-callback', async (event) => {
+  const { code, state } = event.payload
+  await handleOAuthCallback(code, state)
+})
+```
+
+---
+
+## 15) Example Prompts for Copilot (inline comments)
+
+- _"Create `TeleprompterFrame.vue` with a scrollable container, accepts `contentHtml`, applies mirror transforms from prefs, exposes methods `play()`, `pause()`, `stepLines(n)`."_
+- _"Implement `scrolling.ts` with `pxPerLine(el: HTMLElement): number` and `offsetForLines(n: number): number` using measured line‑height."_
+- _"In `FloatingToolbar.vue`, implement minimal mode on `xs` screens and expand with a 'More' sheet."_
+- _"Add Vitest unit tests for `useTeleprompterStore` play/pause and line stepping logic."_
+- _"Add Playwright test: load sample.md, hit Play, wait 2s, assert scroll offset increased, change speed, assert rate change."_
+- _"Implement Android enrollment with Keystore CSR generation"_ (NEW)
+- _"Create certificate renewal service with auto-renewal when < 5 days remaining"_ (NEW)
+
+---
+
+## 16) Acceptance Criteria
 ```
 
 ### Tauri Commands Reference
@@ -552,7 +678,7 @@ All Tauri commands in `src-tauri/src/lib.rs`:
 
 ```typescript
 // Listen for OAuth callback events from Tauri backend
-import { listen } from '@tauri-apps/api/event'
+import { listen } from '@tauri-apps/event'
 
 await listen('oauth-callback', async (event) => {
   const { code, state } = event.payload

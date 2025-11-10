@@ -18,6 +18,21 @@ const routes = [
     component: () => import('@/pages/OAuthCallback.vue'),
   },
   {
+    path: '/device-enrollment-test',
+    name: 'device-enrollment-test',
+    component: () => import('@/pages/DeviceEnrollmentTest.vue'),
+  },
+  {
+    path: '/mtls-client-test',
+    name: 'mtls-client-test',
+    component: () => import('@/pages/MTLSClientTest.vue'),
+  },
+  {
+    path: '/desktop-mtls-test',
+    name: 'desktop-mtls-test',
+    component: () => import('@/pages/DesktopMTLSTest.vue'),
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/',
   },

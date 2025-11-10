@@ -108,6 +108,9 @@
     "cloudProviders": "Cloud Storage Providers",
     "cloudProvidersDescription": "Connect your cloud storage accounts to sync and access your scripts from any device."
   },
+  "teleprompter": {
+    "pressBackAgainToExit": "Press back again to exit the app"
+  },
   "editor": {
     "title": "Markdown Editor",
     "placeholder": "Start typing your markdown content here...",

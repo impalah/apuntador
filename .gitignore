@@ -11,7 +11,7 @@ out/
 
 # Documentation builds
 docs/.vitepress/dist/
-docs/api/
+docs/
 
 # Test outputs
 coverage/

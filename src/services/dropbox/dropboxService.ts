@@ -1,199 +1,162 @@
-import { Dropbox, DropboxAuth } from 'dropbox'
+import { Dropbox } from 'dropbox'
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
 import { storage } from '@/utils/persistence'
 import { STORAGE_KEYS } from '@/utils/constants'
 import { Capacitor } from '@capacitor/core'
 import { Browser } from '@capacitor/browser'
+import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
+import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
+import { isTauri } from '@/utils/tauri'
+import { tauriService } from '@/services/tauriService'
 
 export class DropboxService implements CloudService {
   private dropbox: Dropbox | null = null
-  private auth: DropboxAuth | null = null
   private readonly config: OAuthConfig
-  private codeVerifier: string | null = null
+  private readonly backendClient: BackendOAuthClient
 
   constructor(config: OAuthConfig) {
     this.config = config
-    this.initializeAuth()
-  }
-
-  private initializeAuth(): void {
-    this.auth = new DropboxAuth({
-      clientId: this.config.clientId,
-      fetch: fetch.bind(globalThis)
+    
+    // Inicializar cliente del backend OAuth
+    this.backendClient = new BackendOAuthClient({
+      backendUrl: getBackendUrl(),
+      provider: 'dropbox',
+      redirectUri: getOAuthRedirectUri()
+    })
+    
+    console.log('� DropboxService: Initialized with backend OAuth proxy', {
+      backendUrl: getBackendUrl(),
+      redirectUri: getOAuthRedirectUri()
     })
   }
 
   async connect(): Promise<void> {
-    if (!this.auth) {
-      throw new Error('Dropbox auth not initialized')
-    }
-
     try {
-      console.log('🚀 Service: Starting OAuth connection with PKCE...')
-      
-      // Generar PKCE code verifier y challenge
-      this.codeVerifier = this.generateCodeVerifier()
-      const codeChallenge = await this.generateCodeChallenge(this.codeVerifier)
-      
-      console.log('🔐 Service: Generated PKCE parameters')
-      
-      // Generar state para identificar el proveedor en el callback
-      const state = `dropbox-${Date.now()}`
-      
-      // Construir URL manualmente con PKCE
-      const params = new URLSearchParams({
-        client_id: this.config.clientId,
-        response_type: 'code',
-        redirect_uri: this.config.redirectUri,
-        scope: this.config.scope,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-        state: state // Agregar state para identificar el proveedor
+      console.log('🚀 DropboxService: Starting OAuth connection via backend...')
+      console.log('🔧 Platform detection:', {
+        isNative: Capacitor.isNativePlatform(),
+        isTauri: isTauri(),
+        platform: Capacitor.getPlatform()
       })
       
-      const authUrl = `https://www.dropbox.com/oauth2/authorize?${params.toString()}`
+      // Obtener URL de autorización del backend
+      console.log('📡 DropboxService: Requesting authorization URL from backend...')
+      console.log('🌐 Backend URL:', getBackendUrl())
+      const { authorization_url, state } = await this.backendClient.authorize()
       
-      console.log('🔗 Service: Generated auth URL:', authUrl)
-      console.log('📍 Service: Redirect URI:', this.config.redirectUri)
+      console.log('✅ DropboxService: Authorization URL received from backend')
+      console.log('� Authorization URL:', authorization_url)
+      console.log('📍 Redirect URI configured:', getOAuthRedirectUri())
 
-      // Guardar code_verifier para usar en el callback
-      localStorage.setItem('dropbox_code_verifier', this.codeVerifier)
+      // Guardar state para validar en el callback
+      localStorage.setItem('dropbox_oauth_state', state)
+      console.log('💾 State saved to localStorage')
 
       // Redirigir al usuario a Dropbox para autorizar
-      if (Capacitor.isNativePlatform()) {
-        // En plataformas nativas (iOS/Android), usar Browser plugin para abrir en navegador del sistema
-        console.log('📱 Service: Opening OAuth URL in system browser (native platform)')
-        await Browser.open({ url: authUrl })
+      if (isTauri()) {
+        // Desktop (Tauri): abrir navegador del sistema usando tauriService
+        console.log('🖥️ DropboxService: Opening OAuth URL in system browser (Tauri/Desktop)')
+        await tauriService.openUrl(authorization_url)
+        console.log('✅ Browser opened successfully')
+        
+      } else if (Capacitor.isNativePlatform()) {
+        // En plataformas nativas (iOS/Android), usar Browser plugin
+        console.log('📱 DropboxService: Opening OAuth URL in system browser (native platform)')
+        await Browser.open({ url: authorization_url })
       } else {
         // En web, usar redirección normal
-        console.log('🌐 Service: Redirecting to OAuth URL (web platform)')
-        window.location.href = authUrl
+        console.log('🌐 DropboxService: Redirecting to OAuth URL (web platform)')
+        window.location.href = authorization_url
       }
     } catch (error) {
-      console.error('❌ Service: Error connecting to Dropbox:', error)
+      console.error('❌ DropboxService: Error connecting via backend:', error)
       throw new Error(`Failed to initiate Dropbox connection: ${error}`)
     }
   }
 
-  private generateCodeVerifier(): string {
-    const array = new Uint8Array(32)
-    crypto.getRandomValues(array)
-    return btoa(String.fromCharCode.apply(null, Array.from(array)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
-  }
-
-  private async generateCodeChallenge(verifier: string): Promise<string> {
-    const encoder = new TextEncoder()
-    const data = encoder.encode(verifier)
-    const digest = await crypto.subtle.digest('SHA-256', data)
-    return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
-  }
-
-  async handleOAuthCallback(code: string): Promise<void> {
-    console.log('🔧 Service: handleOAuthCallback called with code:', code)
+  async handleOAuthCallback(code: string, state: string): Promise<void> {
+    console.log('🔧 DropboxService: handleOAuthCallback called via backend')
     
     try {
-      console.log('🔐 Service: Exchanging code for token with manual fetch...')
-      
-      // Recuperar code_verifier del localStorage
-      const codeVerifier = localStorage.getItem('dropbox_code_verifier')
-      if (!codeVerifier) {
-        throw new Error('Code verifier not found. Please restart the OAuth flow.')
+      // Verificar state
+      const savedState = localStorage.getItem('dropbox_oauth_state')
+      if (!savedState || savedState !== state) {
+        throw new Error('Invalid OAuth state. Possible CSRF attack.')
       }
       
-      console.log('📞 Service: Making token exchange request...')
+      console.log('� DropboxService: Exchanging code for tokens via backend...')
       
-      // Intercambiar código por token manualmente usando fetch
-      const tokenResponse = await fetch('https://api.dropbox.com/oauth2/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams({
-          client_id: this.config.clientId,
-          code: code,
-          code_verifier: codeVerifier,
-          grant_type: 'authorization_code',
-          redirect_uri: this.config.redirectUri
-        })
-      })
+      // Intercambiar código por tokens a través del backend
+      const tokens = await this.backendClient.handleCallback(code, state)
       
-      if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.text()
-        console.error('❌ Service: Token response error:', errorData)
-        throw new Error(`Token exchange failed: ${tokenResponse.status} - ${errorData}`)
-      }
-      
-      const tokenData = await tokenResponse.json()
-      console.log('🔑 Service: Token data received successfully')
-      console.log('📊 Service: Token data structure:', {
-        hasAccessToken: !!tokenData.access_token,
-        tokenLength: tokenData.access_token?.length || 0,
-        tokenPreview: tokenData.access_token?.substring(0, 20) + '...',
-        allKeys: Object.keys(tokenData)
+      console.log('🔑 DropboxService: Tokens received from backend', {
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiresIn: tokens.expires_in
       })
 
-      // Configurar token en auth Y crear cliente con token directo
-      if (tokenData.access_token) {
-        // Validar formato del token
-        const token = tokenData.access_token
-        console.log('🔐 Service: Token validation:', {
-          length: token.length,
-          startsWithSl: token.startsWith('sl.'),
-          hasValidFormat: /^[A-Za-z0-9._-]+$/.test(token)
-        })
-        
-        // Método 1: Configurar auth
-        if (this.auth) {
-          this.auth.setAccessToken(token)
-        }
-        
-        // Método 2: Crear cliente con token directo (más seguro)
+      // Crear cliente Dropbox con el access token
+      if (tokens.access_token) {
         this.dropbox = new Dropbox({ 
-          accessToken: token,
+          accessToken: tokens.access_token,
           fetch: fetch.bind(globalThis)
         })
         
-        // Guardar token usando el sistema de persistencia unificado
-        console.log('💾 Service: About to save token to storage...')
-        await storage.set(STORAGE_KEYS.DROPBOX_TOKEN, tokenData.access_token)
+        // Guardar tokens usando el sistema de persistencia
+        console.log('💾 DropboxService: Saving tokens to storage...')
+        await storage.set(STORAGE_KEYS.DROPBOX_TOKEN, tokens.access_token)
+        
+        // Guardar refresh token si está disponible
+        if (tokens.refresh_token) {
+          await storage.set(STORAGE_KEYS.DROPBOX_REFRESH_TOKEN, tokens.refresh_token)
+        }
         
         // Verificar que se guardó
         const savedToken = await storage.get<string>(STORAGE_KEYS.DROPBOX_TOKEN)
-        console.log('✅ Service: Token saved and verified:', {
+        console.log('✅ DropboxService: Tokens saved and verified:', {
           saved: !!savedToken,
-          matches: savedToken === tokenData.access_token,
-          savedLength: savedToken?.length || 0
+          matches: savedToken === tokens.access_token
         })
         
-        console.log('✅ Service: Token saved and client initialized with direct token')
+        console.log('✅ DropboxService: OAuth flow completed successfully via backend')
       } else {
-        throw new Error('No access token received from Dropbox')
+        throw new Error('No access token received from backend')
       }
       
-      // Limpiar code verifier
-      localStorage.removeItem('dropbox_code_verifier')
-      console.log('✅ Service: OAuth flow completed successfully')
+      // Limpiar state
+      localStorage.removeItem('dropbox_oauth_state')
       
     } catch (error) {
-      console.error('❌ Service: Error handling OAuth callback:', error)
+      console.error('❌ DropboxService: Error handling OAuth callback:', error)
+      localStorage.removeItem('dropbox_oauth_state')
       throw new Error(`Failed to complete Dropbox authentication: ${error}`)
     }
   }
 
   async disconnect(): Promise<void> {
+    console.log('🔴 [DropboxService] Disconnect called')
+    try {
+      // Intentar revocar token en el backend
+      const token = await storage.get<string>(STORAGE_KEYS.DROPBOX_TOKEN)
+      console.log('🔑 [DropboxService] Token from storage:', token ? 'PRESENT' : 'NOT FOUND')
+      
+      if (token) {
+        console.log('📞 [DropboxService] Revoking token in backend...')
+        await this.backendClient.revokeToken(token)
+        console.log('✅ [DropboxService] Token revoked successfully')
+      }
+    } catch (error) {
+      console.warn('⚠️ [DropboxService] Token revocation failed:', error)
+      // Continuar con logout local
+    }
+    
     // Limpiar token usando el sistema de persistencia
+    console.log('🧹 [DropboxService] Clearing local storage...')
     await storage.set(STORAGE_KEYS.DROPBOX_TOKEN, null)
     
-    // Resetear instancias
+    // Resetear instancia
     this.dropbox = null
-    this.auth = null
-    this.initializeAuth()
+    console.log('✅ [DropboxService] Disconnect complete, client reset')
   }
 
   /**
@@ -201,11 +164,6 @@ export class DropboxService implements CloudService {
    */
   async setAccessToken(token: string): Promise<void> {
     console.log('🔐 Service: Setting access token directly (Tauri mode)')
-    
-    // Configurar auth
-    if (this.auth) {
-      this.auth.setAccessToken(token)
-    }
     
     // Crear cliente con token directo
     this.dropbox = new Dropbox({ 
@@ -231,16 +189,12 @@ export class DropboxService implements CloudService {
   }
 
   isConnected(): boolean {
-    // Usar la misma clave que se usa para guardar el token
-    const token = localStorage.getItem(STORAGE_KEYS.DROPBOX_TOKEN)
-    const hasDropbox = !!this.dropbox
-    const result = !!token && hasDropbox
+    // Verificar si hay instancia de Dropbox (significa que hay token válido)
+    const result = !!this.dropbox
     
     console.log('🔍 Dropbox isConnected():', {
-      tokenKey: STORAGE_KEYS.DROPBOX_TOKEN,
-      hasToken: !!token,
-      hasDropbox: hasDropbox,
-      result: result
+      hasDropbox: !!this.dropbox,
+      result
     })
     
     return result

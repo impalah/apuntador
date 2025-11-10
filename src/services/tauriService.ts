@@ -1,5 +1,5 @@
-import { invoke } from '@tauri-apps/api/core'
-import { listen } from '@tauri-apps/api/event'
+// Dynamic imports to avoid bundling issues in web builds
+// These modules are only available in Tauri desktop environment
 
 export interface TauriDropboxFile {
   name: string
@@ -16,6 +16,7 @@ export class TauriService {
 
   async isAvailable(): Promise<boolean> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       await invoke('is_theater_mode')
       return true
     } catch {
@@ -23,8 +24,89 @@ export class TauriService {
     }
   }
 
+  /**
+   * Open URL in system browser
+   * Uses Tauri command to properly open URLs in external browser
+   */
+  async openUrl(url: string): Promise<void> {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('open_url', { url })
+    } catch (error) {
+      console.error('Failed to open URL:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Start OAuth callback server on localhost:8080
+   * This is needed for backend proxy OAuth flow
+   */
+  async startOAuthCallbackServer(): Promise<void> {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('start_oauth_callback_server')
+      console.log('✅ OAuth callback server started on localhost:8080')
+    } catch (error) {
+      console.error('Error starting OAuth callback server:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Request OAuth authorization URL from backend using mTLS
+   * This is needed for Desktop where the app must authenticate with the backend
+   */
+  async backendOAuthAuthorize(
+    provider: string,
+    codeVerifier: string,
+    redirectUri: string
+  ): Promise<{ authorization_url: string; state: string }> {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      const result = await invoke<{ authorization_url: string; state: string }>(
+        'backend_oauth_authorize',
+        { provider, codeVerifier, redirectUri }
+      )
+      return result
+    } catch (error) {
+      console.error('Error requesting OAuth authorization:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Exchange OAuth authorization code for access token via backend using mTLS
+   */
+  async backendOAuthTokenExchange(
+    provider: string,
+    code: string,
+    codeVerifier: string,
+    state: string
+  ): Promise<{
+    access_token: string
+    refresh_token?: string
+    expires_in: number
+    token_type: string
+  }> {
+    try {
+      const { invoke } = await import('@tauri-apps/api/core')
+      const result = await invoke<{
+        access_token: string
+        refresh_token?: string
+        expires_in: number
+        token_type: string
+      }>('backend_oauth_token_exchange', { provider, code, codeVerifier, state })
+      return result
+    } catch (error) {
+      console.error('Error exchanging OAuth code:', error)
+      throw error
+    }
+  }
+
   async startDropboxOAuth(): Promise<string> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('start_dropbox_oauth')
     } catch (error) {
       console.error('Error starting Dropbox OAuth:', error)
@@ -34,6 +116,7 @@ export class TauriService {
 
   async exchangeOAuthCode(code: string, state: string): Promise<TauriOAuthResponse> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('exchange_oauth_code', { code, state })
     } catch (error) {
       console.error('Error exchanging OAuth code:', error)
@@ -43,6 +126,7 @@ export class TauriService {
 
   async listDropboxFiles(accessToken: string, path?: string): Promise<any[]> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('list_dropbox_files', { 
         accessToken, 
         path: path || '' 
@@ -55,6 +139,7 @@ export class TauriService {
 
   async downloadDropboxFile(accessToken: string, path: string): Promise<TauriDropboxFile> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('download_dropbox_file', { 
         accessToken, 
         path 
@@ -67,6 +152,7 @@ export class TauriService {
 
   async uploadDropboxFile(accessToken: string, path: string, content: string): Promise<any> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('upload_dropbox_file', { 
         accessToken, 
         path, 
@@ -83,27 +169,30 @@ export class TauriService {
     
     this.stopOAuthListener() // Clean up previous listener
     
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       const timeout = setTimeout(() => {
         console.log('⏰ TauriService: OAuth timeout after 5 minutes')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
       }, 300000) // 5 minutes timeout
 
-      // Set up listener and handle Promise
-      listen('oauth-callback', (event: any) => {
-        console.log('📞 TauriService: oauth-callback event received:', event.payload)
-        clearTimeout(timeout)
-        this.stopOAuthListener()
-        resolve(event.payload)
-      }).then((unlistenFn) => {
+      try {
+        const { listen } = await import('@tauri-apps/api/event')
+        // Set up listener and handle Promise
+        const unlistenFn = await listen('oauth-callback', (event: any) => {
+          console.log('📞 TauriService: oauth-callback event received:', event.payload)
+          clearTimeout(timeout)
+          this.stopOAuthListener()
+          resolve(event.payload)
+        })
+        
         this.oauthCallbackListener = unlistenFn
         console.log('✅ TauriService: oauth-callback listener configured')
-      }).catch((error) => {
+      } catch (error) {
         console.error('❌ TauriService: Error setting up listener:', error)
         clearTimeout(timeout)
         reject(error)
-      })
+      }
     })
   }
 
@@ -116,6 +205,7 @@ export class TauriService {
 
   async toggleTheaterMode(): Promise<boolean> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('toggle_theater_mode')
     } catch (error) {
       console.error('Error toggling theater mode:', error)
@@ -125,6 +215,7 @@ export class TauriService {
 
   async isTheaterMode(): Promise<boolean> {
     try {
+      const { invoke } = await import('@tauri-apps/api/core')
       return await invoke('is_theater_mode')
     } catch (error) {
       console.error('Error checking theater mode:', error)
@@ -135,24 +226,31 @@ export class TauriService {
   async testEventEmit(): Promise<void> {
     console.log('🧪 Testing event emission...')
     
-    // Set up test listener
-    const unlisten = await listen('test-event', (event: any) => {
-      console.log('✅ Test event received:', event.payload)
-    })
-    
-    // Emit test event
     try {
-      const result = await invoke('test_event_emit')
-      console.log('🚀 Test emit result:', result)
+      const { listen } = await import('@tauri-apps/api/event')
+      const { invoke } = await import('@tauri-apps/api/core')
+      
+      // Set up test listener
+      const unlisten = await listen('test-event', (event: any) => {
+        console.log('✅ Test event received:', event.payload)
+      })
+      
+      // Emit test event
+      try {
+        const result = await invoke('test_event_emit')
+        console.log('🚀 Test emit result:', result)
+      } catch (error) {
+        console.error('❌ Test emit failed:', error)
+      }
+      
+      // Clean up listener after 2 seconds
+      setTimeout(() => {
+        unlisten()
+        console.log('🧹 Test listener cleaned up')
+      }, 2000)
     } catch (error) {
-      console.error('❌ Test emit failed:', error)
+      console.error('❌ Error in testEventEmit:', error)
     }
-    
-    // Clean up listener after 2 seconds
-    setTimeout(() => {
-      unlisten()
-      console.log('🧹 Test listener cleaned up')
-    }, 2000)
   }
 }
 

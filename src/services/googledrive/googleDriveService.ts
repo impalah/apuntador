@@ -1,6 +1,12 @@
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
 import { Capacitor } from '@capacitor/core'
 import { Browser } from '@capacitor/browser'
+import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
+import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
+import { storage } from '@/utils/persistence'
+import { STORAGE_KEYS } from '@/utils/constants'
+import { isTauri } from '@/utils/tauri'
+import { tauriService } from '@/services/tauriService'
 
 /**
  * Google Drive API Service
@@ -9,59 +15,58 @@ import { Browser } from '@capacitor/browser'
 export class GoogleDriveService implements CloudService {
   private accessToken: string | null = null
   private readonly config: OAuthConfig
-  private codeVerifier: string | null = null
+  private readonly backendClient: BackendOAuthClient
 
   constructor(config: OAuthConfig) {
     this.config = config
+    
+    // Inicializar cliente del backend OAuth
+    this.backendClient = new BackendOAuthClient({
+      backendUrl: getBackendUrl(),
+      provider: 'googledrive',
+      redirectUri: getOAuthRedirectUri()
+    })
+    
+    console.log('🔧 GoogleDriveService: Initialized with backend OAuth proxy', {
+      backendUrl: getBackendUrl(),
+      redirectUri: getOAuthRedirectUri()
+    })
   }
 
   /**
-   * Inicia el flujo de OAuth 2.0 con PKCE
+   * Inicia el flujo de OAuth 2.0 con PKCE a través del backend
    */
   async connect(): Promise<void> {
     try {
-      console.log('🚀 GoogleDrive Service: Starting OAuth connection with PKCE...')
+      console.log('🚀 GoogleDriveService: Starting OAuth connection via backend...')
       
-      // Generar PKCE code verifier y challenge
-      this.codeVerifier = this.generateCodeVerifier()
-      const codeChallenge = await this.generateCodeChallenge(this.codeVerifier)
+      // Obtener URL de autorización del backend
+      const { authorization_url, state } = await this.backendClient.authorize()
       
-      console.log('🔐 GoogleDrive Service: Generated PKCE parameters')
-      
-      // Generar state para identificar el proveedor en el callback
-      const state = `googledrive-${Date.now()}`
-      
-      // Construir URL de autenticación
-      const params = new URLSearchParams({
-        client_id: this.config.clientId,
-        response_type: 'code',
-        redirect_uri: this.config.redirectUri,
-        scope: this.config.scope,
-        code_challenge: codeChallenge,
-        code_challenge_method: 'S256',
-        state: state, // Agregar state para identificar el proveedor
-        access_type: 'offline', // Para obtener refresh token
-        prompt: 'consent' // Forzar pantalla de consentimiento
-      })
-      
-      const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`
-      
-      console.log('🔗 GoogleDrive Service: Generated auth URL')
-      console.log('📍 GoogleDrive Service: Redirect URI:', this.config.redirectUri)
+      console.log('🔗 GoogleDriveService: Authorization URL received from backend')
+      console.log('� GoogleDriveService: Redirect URI:', getOAuthRedirectUri())
 
-      // Guardar code_verifier para usar en el callback
-      localStorage.setItem('googledrive_code_verifier', this.codeVerifier)
+      // Guardar state para validar en el callback
+      localStorage.setItem('googledrive_oauth_state', state)
 
       // Redirigir al usuario a Google para autorizar
-      if (Capacitor.isNativePlatform()) {
-        console.log('📱 GoogleDrive Service: Opening OAuth URL in system browser (native platform)')
-        await Browser.open({ url: authUrl })
+      const isTauriPlatform = isTauri()
+      
+      if (isTauriPlatform) {
+        // En Tauri (Desktop), abrir en navegador del sistema
+        console.log('🖥️ GoogleDriveService: Opening OAuth URL in system browser (Tauri/Desktop)')
+        await tauriService.openUrl(authorization_url)
+      } else if (Capacitor.isNativePlatform()) {
+        // En plataformas nativas (iOS/Android), usar Browser plugin
+        console.log('📱 GoogleDriveService: Opening OAuth URL in system browser (native platform)')
+        await Browser.open({ url: authorization_url })
       } else {
-        console.log('🌐 GoogleDrive Service: Redirecting to OAuth URL (web platform)')
-        window.location.href = authUrl
+        // En web, usar redirección normal
+        console.log('🌐 GoogleDriveService: Redirecting to OAuth URL (web platform)')
+        window.location.href = authorization_url
       }
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error connecting to Google Drive:', error)
+      console.error('❌ GoogleDriveService: Error connecting via backend:', error)
       throw new Error(`Failed to initiate Google Drive connection: ${error}`)
     }
   }
@@ -69,91 +74,61 @@ export class GoogleDriveService implements CloudService {
   /**
    * Maneja el callback de OAuth y obtiene el access token
    */
-  async handleOAuthCallback(code: string): Promise<void> {
-    console.log('🔧 GoogleDrive Service: handleOAuthCallback called')
+  async handleOAuthCallback(code: string, state?: string): Promise<void> {
+    console.log('� GoogleDriveService: handleOAuthCallback called via backend')
     
     try {
-      console.log('🔐 GoogleDrive Service: Exchanging code for token...')
-      
-      // Recuperar code_verifier del localStorage
-      const codeVerifier = localStorage.getItem('googledrive_code_verifier')
-      if (!codeVerifier) {
-        throw new Error('Code verifier not found. Please restart the OAuth flow.')
+      // Verificar state si está disponible
+      if (state) {
+        const savedState = localStorage.getItem('googledrive_oauth_state')
+        if (!savedState || savedState !== state) {
+          throw new Error('Invalid OAuth state. Possible CSRF attack.')
+        }
       }
       
-      // Intercambiar código por token
-      // NOTA DE SEGURIDAD: Google requiere client_secret para tipo "Aplicación de escritorio"
-      // incluso con PKCE. Esto es una limitación conocida - el secret NO se puede proteger
-      // completamente en aplicaciones distribuidas (SPA/móvil/desktop) pero es práctica aceptada.
-      // 
-      // Alternativas más seguras (para considerar en producción):
-      // 1. Backend OAuth proxy que mantiene el secret servidor-side
-      // 2. Google Sign-In SDK en lugar de OAuth directo
-      // 3. Clientes tipo Android/iOS (no requieren secret pero no funcionan en web)
-      //
-      // Ver docs/GOOGLE_DRIVE_APP_SETUP.md sección "Consideraciones de Seguridad"
-      const tokenParams: Record<string, string> = {
-        client_id: this.config.clientId,
-        code: code,
-        code_verifier: codeVerifier,
-        grant_type: 'authorization_code',
-        redirect_uri: this.config.redirectUri
-      }
+      console.log('� GoogleDriveService: Exchanging code for tokens via backend...')
       
-      // Agregar client_secret si está disponible (requerido por Google para tipo "Aplicación de escritorio")
-      if (this.config.clientSecret) {
-        tokenParams.client_secret = this.config.clientSecret
-      }
+      // Intercambiar código por tokens a través del backend
+      const tokens = await this.backendClient.handleCallback(code, state || '')
       
-      console.log('📤 GoogleDrive Service: Token request params:', {
-        client_id: tokenParams.client_id.substring(0, 20) + '...',
-        has_code: !!tokenParams.code,
-        has_code_verifier: !!tokenParams.code_verifier,
-        grant_type: tokenParams.grant_type,
-        redirect_uri: tokenParams.redirect_uri,
-        has_client_secret: 'client_secret' in tokenParams
+      console.log('� GoogleDriveService: Tokens received from backend', {
+        hasAccessToken: !!tokens.access_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        expiresIn: tokens.expires_in
       })
-      
-      const tokenResponse = await fetch('https://oauth2.googleapis.com/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: new URLSearchParams(tokenParams)
-      })
-      
-      if (!tokenResponse.ok) {
-        const errorData = await tokenResponse.text()
-        console.error('❌ GoogleDrive Service: Token response error:', errorData)
-        throw new Error(`Token exchange failed: ${tokenResponse.status}`)
-      }
-      
-      const tokenData = await tokenResponse.json()
-      console.log('🔑 GoogleDrive Service: Token data received successfully')
 
-      if (tokenData.access_token) {
-        this.accessToken = tokenData.access_token
+      // Guardar access token
+      if (tokens.access_token) {
+        this.accessToken = tokens.access_token
         
-        // Guardar token (con refresh token si está disponible)
-        localStorage.setItem('googledrive_access_token', tokenData.access_token)
-        if (tokenData.refresh_token) {
-          localStorage.setItem('googledrive_refresh_token', tokenData.refresh_token)
+        // Guardar tokens usando el sistema de persistencia
+        console.log('� GoogleDriveService: Saving tokens to storage...')
+        await storage.set(STORAGE_KEYS.GOOGLEDRIVE_TOKEN, tokens.access_token)
+        
+        // Guardar refresh token si está disponible
+        if (tokens.refresh_token) {
+          await storage.set(STORAGE_KEYS.GOOGLEDRIVE_REFRESH_TOKEN, tokens.refresh_token)
         }
-        if (tokenData.expires_in) {
-          const expiresAt = Date.now() + (tokenData.expires_in * 1000)
-          localStorage.setItem('googledrive_token_expires_at', expiresAt.toString())
-        }
         
-        // Limpiar code_verifier
-        localStorage.removeItem('googledrive_code_verifier')
+        // Verificar que se guardó
+        const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
+        console.log('✅ GoogleDriveService: Tokens saved and verified:', {
+          saved: !!savedToken,
+          matches: savedToken === tokens.access_token
+        })
         
-        console.log('✅ GoogleDrive Service: Token saved successfully')
+        console.log('✅ GoogleDriveService: OAuth flow completed successfully via backend')
       } else {
-        throw new Error('No access token received from Google')
+        throw new Error('No access token received from backend')
       }
+      
+      // Limpiar state
+      localStorage.removeItem('googledrive_oauth_state')
+      
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error in OAuth callback:', error)
-      throw error
+      console.error('❌ GoogleDriveService: Error handling OAuth callback:', error)
+      localStorage.removeItem('googledrive_oauth_state')
+      throw new Error(`Failed to complete Google Drive authentication: ${error}`)
     }
   }
 
@@ -169,29 +144,47 @@ export class GoogleDriveService implements CloudService {
    * Desconecta y limpia tokens
    */
   async disconnect(): Promise<void> {
+    console.log('🔌 GoogleDriveService: Disconnecting...')
+    
     this.accessToken = null
-    localStorage.removeItem('googledrive_access_token')
-    localStorage.removeItem('googledrive_refresh_token')
-    localStorage.removeItem('googledrive_token_expires_at')
-    localStorage.removeItem('googledrive_code_verifier')
-    console.log('👋 GoogleDrive Service: Disconnected')
+    
+    // Limpiar tokens usando el sistema de persistencia
+    await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
+    await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_REFRESH_TOKEN)
+    
+    // Limpiar state de OAuth
+    localStorage.removeItem('googledrive_oauth_state')
+    
+    console.log('👋 GoogleDriveService: Disconnected successfully')
   }
 
   /**
    * Verifica si hay una conexión activa
    */
   isConnected(): boolean {
-    return !!this.accessToken || !!localStorage.getItem('googledrive_access_token')
+    // Verificar si hay token en memoria
+    const result = !!this.accessToken
+    
+    console.log('🔍 GoogleDriveService isConnected():', {
+      hasAccessToken: !!this.accessToken,
+      result
+    })
+    
+    return result
   }
 
   /**
    * Inicializa el servicio con token guardado
    */
   async initialize(): Promise<void> {
-    const savedToken = localStorage.getItem('googledrive_access_token')
+    console.log('🔄 GoogleDriveService: Initializing...')
+    
+    const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
     if (savedToken) {
       this.accessToken = savedToken
-      console.log('🔄 GoogleDrive Service: Initialized with saved token')
+      console.log('✅ GoogleDriveService: Initialized with saved token')
+    } else {
+      console.log('ℹ️ GoogleDriveService: No saved token found')
     }
   }
 

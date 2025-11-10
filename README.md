@@ -622,7 +622,7 @@ tests/e2e/
 
 ### Available Documentation
 
-- **[API Reference](./docs/api/)** - Complete API documentation
+- **[API Reference](./docs/)** - Complete API documentation
 - **[Architecture Guide](./docs/architecture/)** - System design and patterns
 - **[Deployment Guide](./docs/deployment/)** - Production deployment options
 - **[User Guide](./docs/guide/)** - End-user documentation

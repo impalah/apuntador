@@ -167,16 +167,22 @@ async function onConnect(providerId: CloudProviderId) {
 }
 
 async function onDisconnect() {
-  if (!confirm(t('cloud.disconnectConfirm'))) {
-    return
-  }
+  console.log('🔴 [CloudProviderSelector] Disconnect button clicked')
   
+  // TODO: Fix confirm dialog in Tauri
+  // if (!confirm(t('cloud.disconnectConfirm'))) {
+  //   console.log('🔴 [CloudProviderSelector] Disconnect cancelled by user')
+  //   return
+  // }
+  
+  console.log('🔴 [CloudProviderSelector] Starting disconnect...')
   isDisconnecting.value = true
   
   try {
     await cloudStore.disconnect()
+    console.log('✅ [CloudProviderSelector] Disconnect successful')
   } catch (error) {
-    console.error('Error disconnecting:', error)
+    console.error('❌ [CloudProviderSelector] Error disconnecting:', error)
   } finally {
     isDisconnecting.value = false
   }

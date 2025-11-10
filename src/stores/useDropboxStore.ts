@@ -3,6 +3,7 @@ import { ref, computed } from 'vue'
 import { DropboxService } from '@/services/dropbox/dropboxService'
 import { DROPBOX_CONFIG } from '@/services/dropbox/config'
 import { tauriService } from '@/services/tauriService'
+import { CertificateValidator } from '@/services/certificate/certificateValidator'
 import type { CloudFile, CloudProvider } from '@/types/cloud'
 
 export const useDropboxStore = defineStore('dropbox', () => {
@@ -31,64 +32,88 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
   // Actions
   const connect = async (): Promise<void> => {
-    if (isConnecting.value) return
+    console.log('🚀 [DropboxStore] Connect called')
+    if (isConnecting.value) {
+      console.log('⚠️ [DropboxStore] Already connecting, skipping')
+      return
+    }
     
     isConnecting.value = true
     error.value = null
 
     try {
+      // STEP 1: Ensure valid certificate (auto-enroll if needed)
+      console.log('🔐 [DropboxStore] Ensuring device has valid certificate...')
+      const certStatus = await CertificateValidator.ensureValidCertificate()
+      
+      console.log('📋 [DropboxStore] Certificate status:', certStatus)
+      
+      if (!certStatus.isValid) {
+        const message = CertificateValidator.getStatusMessage(certStatus)
+        console.error('❌ [DropboxStore] Certificate validation/enrollment failed:', message)
+        error.value = message
+        
+        // Throw error to prevent OAuth flow
+        throw new Error(`Certificate required: ${message}`)
+      }
+      
+      console.log('✅ Certificate ready for OAuth')
+      if (certStatus.daysUntilExpiry) {
+        console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
+      }
+
+      // STEP 2: Proceed with OAuth flow
       // Detect if we are in Tauri
       const isTauri = await tauriService.isAvailable()
       
       if (isTauri) {
-        console.log('🖥️ Using Tauri OAuth flow')
+        console.log('🖥️ Using Tauri OAuth flow via Backend Proxy')
         
-        // FIRST: Configure listener BEFORE opening browser
-        console.log('👂 Setting up OAuth listener...')
+        // STEP 1: Start OAuth callback server
+        console.log('🚀 Starting OAuth callback server...')
+        await tauriService.startOAuthCallbackServer()
+        
+        // STEP 2: Set up listener for oauth-callback event
+        console.log('👂 Setting up OAuth callback listener...')
         const callbackPromise = tauriService.listenForOAuthCallback()
-        console.log('✅ OAuth listener configured')
         
-        // SECOND: Start OAuth (this will open browser)
-        console.log('🚀 Starting OAuth flow...')
-        const authUrl = await tauriService.startDropboxOAuth()
-        console.log('🔗 Auth URL generated:', authUrl)
-        console.log('⏳ Waiting for OAuth callback...')
+        // STEP 3: Start OAuth flow (opens browser with backend URL)
+        console.log('🌐 Opening browser for OAuth (backend proxy)...')
+        await dropboxService.connect() // This opens browser to backend URL
         
-        // THIRD: Wait for callback
+        // STEP 4: Wait for callback from localhost:8080
+        console.log('⏳ Waiting for OAuth callback from browser...')
         const callbackData = await callbackPromise
         console.log('📞 OAuth callback received:', callbackData)
         
-        // Exchange code for token
-        const tokenResponse = await tauriService.exchangeOAuthCode(
-          callbackData.code, 
-          callbackData.state
-        )
+        // STEP 5: Exchange code for token via backend
+        await dropboxService.handleOAuthCallback(callbackData.code, callbackData.state)
         
-        // Save token and complete connection
-        dropboxService.setAccessToken(tokenResponse.access_token)
+        // STEP 6: Refresh connection status
         await refreshConnectionStatus()
         
       } else {
-        console.log('🌐 Using web OAuth flow')
+        console.log('🌐 Using web OAuth flow via Backend Proxy')
         await dropboxService.connect()
         // Connection completes in handleOAuthCallback
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error connecting to Dropbox'
       console.error('Dropbox connection error:', err)
+      throw err // Re-throw para que el UI pueda manejarlo
     } finally {
       isConnecting.value = false
     }
   }
 
-  const handleOAuthCallback = async (code: string): Promise<void> => {
+  const handleOAuthCallback = async (code: string, state: string): Promise<void> => {
     console.log('🏪 Store: Starting handleOAuthCallback with code:', code ? 'PRESENT' : 'MISSING')
     isConnecting.value = true
     error.value = null
 
     try {
       console.log('📞 Store: Calling dropboxService.handleOAuthCallback...')
-      await dropboxService.handleOAuthCallback(code)
+      await dropboxService.handleOAuthCallback(code, state)
       console.log('✅ Store: Service callback completed, refreshing status...')
       await refreshConnectionStatus()
       console.log('✅ Store: All done successfully!')
@@ -103,14 +128,19 @@ export const useDropboxStore = defineStore('dropbox', () => {
   }
 
   const disconnect = async (): Promise<void> => {
+    console.log('🔴 [Store] Disconnect called')
     try {
+      console.log('📞 [Store] Calling dropboxService.disconnect()...')
       await dropboxService.disconnect()
+      console.log('✅ [Store] Service disconnect completed')
       isConnected.value = false
       userInfo.value = null
       currentFiles.value = []
       currentPath.value = ''
       error.value = null
+      console.log('✅ [Store] Disconnect successful, state cleared')
     } catch (err) {
+      console.error('❌ [Store] Disconnect error:', err)
       error.value = err instanceof Error ? err.message : 'Error disconnecting from Dropbox'
       console.error('Dropbox disconnect error:', err)
     }

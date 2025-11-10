@@ -15,7 +15,11 @@ export function useDeepLinks() {
       // Vamos a hacer parsing manual para URLs de apuntador
       const urlString = data.url
       
-      if (urlString.startsWith('apuntador://oauth-callback')) {
+      // Detectar tipo de OAuth callback
+      const isDropboxCallback = urlString.startsWith('apuntador://oauth-callback')
+      const isGoogleCallback = urlString.includes('com.googleusercontent.apps') && urlString.includes('/oauth2redirect')
+      
+      if (isDropboxCallback) {
         console.log(`🚀 [${platform.toUpperCase()}] Processing Dropbox OAuth deep link`)
         
         // Extraer parámetros manualmente
@@ -46,6 +50,38 @@ export function useDeepLinks() {
         })
         
         console.log(`✅ [${platform.toUpperCase()}] Navigated to OAuth callback page`)
+      } else if (isGoogleCallback) {
+        console.log(`🚀 [${platform.toUpperCase()}] Processing Google Drive OAuth deep link`)
+        
+        // Extraer parámetros manualmente
+        // Formato: com.googleusercontent.apps.CLIENT_ID:/oauth2redirect?code=...&state=...
+        const queryStart = urlString.indexOf('?')
+        let queryString = ''
+        if (queryStart !== -1) {
+          queryString = urlString.substring(queryStart + 1)
+        }
+        
+        const params = new URLSearchParams(queryString)
+        const code = params.get('code')
+        const error = params.get('error')
+        const state = params.get('state')
+        
+        console.log(`📋 [${platform.toUpperCase()}] Google OAuth params - code:`, code ? 'PRESENT' : 'MISSING', 'error:', error, 'state:', state)
+        
+        // Navegar al callback con los parámetros
+        const query: Record<string, string> = {}
+        if (code) query.code = code
+        if (error) query.error = error
+        if (state) query.state = state
+        
+        console.log(`🧭 [${platform.toUpperCase()}] Navigating to oauth-callback with query:`, query)
+        
+        await router.push({
+          name: 'oauth-callback',
+          query
+        })
+        
+        console.log(`✅ [${platform.toUpperCase()}] Navigated to Google OAuth callback page`)
       } else {
         console.log(`🔍 [${platform.toUpperCase()}] Unknown deep link format, ignoring. URL:`, urlString)
       }
