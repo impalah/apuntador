@@ -149,6 +149,7 @@ import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { useFileStore } from '@/stores/useFileStore'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useNotification } from '@/composables/useNotification'
 import type { CloudFile } from '@/types/cloud'
 
 // Components
@@ -161,6 +162,7 @@ import UnifiedFileDialog from '@/components/dialogs/UnifiedFileDialog.vue'
 // Composables
 const router = useRouter()
 const { t } = useI18n()
+const { showError, showSuccess } = useNotification()
 
 // Stores
 const teleprompterStore = useTeleprompterStore()
@@ -269,7 +271,9 @@ async function onLocalFileSelected(file: File) {
     fileStore.createNew()
     fileStore.setFileHandle(null, file.name)
     showUnifiedOpenDialog.value = false
+    showSuccess(t('messages.services.file.loaded'))
   } catch (error) {
+    showError(t('errors.services.file.readFailed'))
     console.error('Error loading local file:', error)
   }
 }
@@ -285,8 +289,10 @@ async function onCloudFileSelected(file: CloudFile) {
       
       fileStore.setFileHandle(null, file.name)
       showUnifiedOpenDialog.value = false
+      // El éxito ya se muestra en el servicio
     }
   } catch (error) {
+    showError(t('errors.services.cloud.downloadFailed'))
     console.error('Error loading cloud file:', error)
   }
 }
@@ -306,7 +312,9 @@ async function onSaveLocal() {
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
     showUnifiedSaveDialog.value = false
+    showSuccess(t('messages.services.file.saved'))
   } catch (error) {
+    showError(t('errors.services.file.writeFailed'))
     console.error('Error saving file locally:', error)
   } finally {
     saving.value = false
@@ -323,7 +331,9 @@ async function onSaveCloudFile(fileName: string) {
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
     showUnifiedSaveDialog.value = false
+    // El éxito ya se muestra en el servicio
   } catch (error) {
+    showError(t('errors.services.cloud.uploadFailed'))
     console.error('Error saving to cloud:', error)
   } finally {
     saving.value = false

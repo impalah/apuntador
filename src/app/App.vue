@@ -1,6 +1,8 @@
 <template>
   <v-app>
     <router-view />
+    <!-- Global Notification System -->
+    <NotificationContainer />
   </v-app>
 </template>
 
@@ -11,6 +13,7 @@ import { useWindowInsets } from '@/utils/windowInsets'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { useDeepLinks } from '@/composables/useDeepLinks'
+import NotificationContainer from '@/components/NotificationContainer.vue'
 
 // Initialize window insets for Android edge-to-edge support
 const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()

@@ -92,16 +92,19 @@
 <script setup lang="ts">
 import { useDropboxStore } from '@/stores/useDropboxStore'
 import { useI18n } from 'vue-i18n'
+import { useNotification } from '@/composables/useNotification'
 
 // Composables
 const { t } = useI18n()
 const dropboxStore = useDropboxStore()
+const { showError } = useNotification()
 
 // Métodos
 const handleConnect = async (): Promise<void> => {
   try {
     await dropboxStore.connect()
   } catch (error) {
+    showError(t('errors.services.cloud.connectionFailed'))
     console.error('Error connecting to Dropbox:', error)
   }
 }
@@ -110,6 +113,7 @@ const handleDisconnect = async (): Promise<void> => {
   try {
     await dropboxStore.disconnect()
   } catch (error) {
+    showError(t('errors.services.cloud.disconnectionFailed'))
     console.error('Error disconnecting from Dropbox:', error)
   }
 }

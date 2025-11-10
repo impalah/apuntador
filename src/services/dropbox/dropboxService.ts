@@ -8,11 +8,14 @@ import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
 import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
 import { isTauri } from '@/utils/tauri'
 import { tauriService } from '@/services/tauriService'
+import { createServiceErrorHandler, createServiceSuccessHandler } from '@/utils/serviceErrorHandler'
 
 export class DropboxService implements CloudService {
   private dropbox: Dropbox | null = null
   private readonly config: OAuthConfig
   private readonly backendClient: BackendOAuthClient
+  private readonly errorHandler = createServiceErrorHandler()
+  private readonly successHandler = createServiceSuccessHandler()
 
   constructor(config: OAuthConfig) {
     this.config = config
@@ -69,8 +72,8 @@ export class DropboxService implements CloudService {
         window.location.href = authorization_url
       }
     } catch (error) {
-      console.error('❌ DropboxService: Error connecting via backend:', error)
-      throw new Error(`Failed to initiate Dropbox connection: ${error}`)
+      this.errorHandler.handleCloudError(error, 'connect', { provider: 'dropbox' })
+      throw error
     }
   }
 
@@ -126,10 +129,13 @@ export class DropboxService implements CloudService {
       // Limpiar state
       localStorage.removeItem('dropbox_oauth_state')
       
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('connect')
+      
     } catch (error) {
-      console.error('❌ DropboxService: Error handling OAuth callback:', error)
+      this.errorHandler.handleOAuthError(error, { provider: 'dropbox', step: 'callback' })
       localStorage.removeItem('dropbox_oauth_state')
-      throw new Error(`Failed to complete Dropbox authentication: ${error}`)
+      throw error
     }
   }
 
@@ -157,6 +163,9 @@ export class DropboxService implements CloudService {
     // Resetear instancia
     this.dropbox = null
     console.log('✅ [DropboxService] Disconnect complete, client reset')
+    
+    // Mostrar mensaje de éxito
+    this.successHandler.showCloudSuccess('disconnect')
   }
 
   /**
@@ -304,8 +313,8 @@ export class DropboxService implements CloudService {
 
       return files
     } catch (error) {
-      console.error('Error listing files:', error)
-      throw new Error('Failed to list Dropbox files')
+      this.errorHandler.handleCloudError(error, 'list', { provider: 'dropbox', path })
+      throw error
     }
   }
 
@@ -389,10 +398,13 @@ export class DropboxService implements CloudService {
       console.log('✅ Service: File content converted successfully, length:', textContent.length)
       console.log('📝 Service: First 100 chars:', textContent.substring(0, 100))
       
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('download')
+      
       return textContent
     } catch (error) {
-      console.error('❌ Service: Error downloading file:', error)
-      throw new Error('Failed to download file from Dropbox')
+      this.errorHandler.handleCloudError(error, 'download', { provider: 'dropbox', filePath })
+      throw error
     }
   }
 
@@ -409,7 +421,7 @@ export class DropboxService implements CloudService {
         autorename: true
       })
 
-      return {
+      const result: CloudFile = {
         id: response.result.path_lower || response.result.name,
         name: response.result.name,
         path: response.result.path_lower || response.result.name,
@@ -418,9 +430,14 @@ export class DropboxService implements CloudService {
         isFolder: false,
         downloadUrl: response.result.path_lower
       }
+      
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('upload')
+      
+      return result
     } catch (error) {
-      console.error('Error uploading file:', error)
-      throw new Error('Failed to upload file to Dropbox')
+      this.errorHandler.handleCloudError(error, 'upload', { provider: 'dropbox', path })
+      throw error
     }
   }
 
@@ -433,9 +450,12 @@ export class DropboxService implements CloudService {
       await this.dropbox.filesDeleteV2({
         path: filePath
       })
+      
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('delete')
     } catch (error) {
-      console.error('Error deleting file:', error)
-      throw new Error('Failed to delete file from Dropbox')
+      this.errorHandler.handleCloudError(error, 'delete', { provider: 'dropbox', filePath })
+      throw error
     }
   }
 
@@ -512,15 +532,12 @@ export class DropboxService implements CloudService {
       }
       
     } catch (error) {
-      console.error('❌ Service: Error getting user info:', error)
-      
-      // Log detalles del error para debugging
-      if (error && typeof error === 'object' && 'status' in error) {
-        console.error('📊 Service: Error status:', error.status)
-        console.error('📝 Service: Error details:', error)
-      }
-      
-      throw new Error('Failed to get Dropbox user info')
+      // Este error es silencioso - no es crítico para el usuario
+      this.errorHandler.handle(error, {
+        severity: 'silent',
+        context: { provider: 'dropbox', operation: 'getUserInfo' }
+      })
+      throw error
     }
   }
 }

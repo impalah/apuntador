@@ -242,7 +242,45 @@
     "unknownError": "Errore sconosciuto",
     "gamepadNotConnected": "Gamepad non connesso",
     "gamepadError": "Errore gamepad",
-    "reconnectError": "Errore di riconnessione"
+    "reconnectError": "Errore di riconnessione",
+    "services": {
+      "oauth": {
+        "invalidState": "Stato di autenticazione non valido. Per favore, riprova.",
+        "csrfDetected": "Errore di sicurezza rilevato. Connessione interrotta.",
+        "noAccessToken": "Autenticazione fallita. Nessun token di accesso ricevuto.",
+        "codeVerifierMissing": "Sessione scaduta. Per favore, riavvia il processo di autenticazione."
+      },
+      "cloud": {
+        "notConnected": "Non connesso all'archiviazione cloud. Per favore, connettiti prima.",
+        "connectionFailed": "Connessione all'archiviazione cloud fallita.",
+        "disconnectionFailed": "Disconnessione dall'archiviazione cloud fallita.",
+        "listFilesFailed": "Caricamento dell'elenco file fallito.",
+        "downloadFailed": "Download del file fallito.",
+        "uploadFailed": "Caricamento del file fallito.",
+        "deleteFailed": "Eliminazione del file fallita.",
+        "noContent": "Il file è vuoto o non può essere letto.",
+        "unknownFormat": "Formato file sconosciuto ricevuto.",
+        "noProvider": "Nessun provider cloud configurato."
+      },
+      "file": {
+        "readFailed": "Impossibile leggere il file.",
+        "writeFailed": "Impossibile salvare il file.",
+        "invalidType": "Tipo di file non valido. Sono supportati solo file .md e .txt.",
+        "noFileHandle": "Nessun file selezionato.",
+        "accessDenied": "Accesso al file negato."
+      },
+      "fullscreen": {
+        "notSupported": "La modalità a schermo intero non è supportata in questo browser.",
+        "exitFailed": "Impossibile uscire dalla modalità a schermo intero."
+      },
+      "certificate": {
+        "enrollmentFailed": "Registrazione del dispositivo fallita.",
+        "renewalFailed": "Rinnovo del certificato fallito.",
+        "validationFailed": "Validazione del certificato fallita.",
+        "noPinsReceived": "Nessun pin del certificato ricevuto dal server.",
+        "stillInvalid": "Il certificato è ancora non valido dopo la registrazione."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Caricamento file...",
@@ -251,7 +289,24 @@
     "fileSaveComplete": "File salvato completamente",
     "gamepadConnected": "Gamepad connesso",
     "gamepadDisconnected": "Gamepad disconnesso",
-    "welcomeContent": "# Benvenuto in Apuntador\n\nInizia importando il tuo script o usa l'editor per creare nuovi contenuti."
+    "welcomeContent": "# Benvenuto in Apuntador\n\nInizia importando il tuo script o usa l'editor per creare nuovi contenuti.",
+    "services": {
+      "cloud": {
+        "connected": "Connesso all'archiviazione cloud con successo",
+        "disconnected": "Disconnesso dall'archiviazione cloud",
+        "fileUploaded": "File caricato con successo",
+        "fileDeleted": "File eliminato con successo",
+        "fileDownloaded": "File scaricato con successo"
+      },
+      "file": {
+        "loaded": "File caricato con successo",
+        "saved": "File salvato con successo"
+      },
+      "certificate": {
+        "enrolled": "Dispositivo registrato con successo",
+        "renewed": "Certificato rinnovato con successo"
+      }
+    }
   },
   "desktop": {
     "minimize": "Riduci finestra",

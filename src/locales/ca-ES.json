@@ -242,16 +242,71 @@
     "unknownError": "Error desconegut",
     "gamepadNotConnected": "Gamepad no connectat",
     "gamepadError": "Error del gamepad",
-    "reconnectError": "Error al reconnectar"
+    "reconnectError": "Error al reconnectar",
+    "services": {
+      "oauth": {
+        "invalidState": "Estat d'autenticació invàlid. Si us plau, torna-ho a provar.",
+        "csrfDetected": "Error de seguretat detectat. Connexió abortada.",
+        "noAccessToken": "Autenticació fallida. No s'ha rebut token d'accés.",
+        "codeVerifierMissing": "Sessió expirada. Si us plau, reinicia el procés d'autenticació."
+      },
+      "cloud": {
+        "notConnected": "No connectat a l'emmagatzematge al núvol. Si us plau, connecta't primer.",
+        "connectionFailed": "Error al connectar amb l'emmagatzematge al núvol.",
+        "disconnectionFailed": "Error al desconnectar de l'emmagatzematge al núvol.",
+        "listFilesFailed": "Error al carregar la llista d'arxius.",
+        "downloadFailed": "Error al descarregar l'arxiu.",
+        "uploadFailed": "Error al pujar l'arxiu.",
+        "deleteFailed": "Error al eliminar l'arxiu.",
+        "noContent": "L'arxiu està buit o no s'ha pogut llegir.",
+        "unknownFormat": "Format d'arxiu desconegut rebut.",
+        "noProvider": "No hi ha proveïdor de núvol configurat."
+      },
+      "file": {
+        "readFailed": "No s'ha pogut llegir l'arxiu.",
+        "writeFailed": "No s'ha pogut desar l'arxiu.",
+        "invalidType": "Tipus d'arxiu invàlid. Només s'admeten arxius .md i .txt.",
+        "noFileHandle": "No s'ha seleccionat cap arxiu.",
+        "accessDenied": "Accés a l'arxiu denegat."
+      },
+      "fullscreen": {
+        "notSupported": "El mode pantalla completa no està suportat en aquest navegador.",
+        "exitFailed": "No s'ha pogut sortir del mode pantalla completa."
+      },
+      "certificate": {
+        "enrollmentFailed": "Error en el registre del dispositiu.",
+        "renewalFailed": "Error en la renovació del certificat.",
+        "validationFailed": "Error en la validació del certificat.",
+        "noPinsReceived": "No s'han rebut pins de certificat del servidor.",
+        "stillInvalid": "El certificat continua sent invàlid després del registre."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Carregant arxiu...",
     "savingFile": "Desant arxiu...",
     "fileLoadComplete": "Arxiu carregat completament",
-    "fileSaveComplete": "Arxiu desat completament",
+    "fileSaveComplete": "Arxiu desat correctament",
     "gamepadConnected": "Gamepad connectat",
     "gamepadDisconnected": "Gamepad desconnectat",
-    "welcomeContent": "# Benvingut a Apuntador\n\nComença important el teu guió o utilitzant l'editor per crear nou contingut."
+    "welcomeContent": "# Benvingut a Apuntador\n\nComença important el teu guió o utilitza l'editor per crear contingut nou.",
+    "services": {
+      "cloud": {
+        "connected": "Connectat a l'emmagatzematge al núvol amb èxit",
+        "disconnected": "Desconnectat de l'emmagatzematge al núvol",
+        "fileUploaded": "Arxiu pujat amb èxit",
+        "fileDeleted": "Arxiu eliminat amb èxit",
+        "fileDownloaded": "Arxiu descarregat amb èxit"
+      },
+      "file": {
+        "loaded": "Arxiu carregat amb èxit",
+        "saved": "Arxiu desat amb èxit"
+      },
+      "certificate": {
+        "enrolled": "Dispositiu registrat amb èxit",
+        "renewed": "Certificat renovat amb èxit"
+      }
+    }
   },
   "desktop": {
     "minimize": "Minimitzar finestra",

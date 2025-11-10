@@ -216,6 +216,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCloudStore } from '@/stores/useCloudStore'
+import { useNotification } from '@/composables/useNotification'
 import type { CloudFile, CloudProviderId } from '@/types/cloud'
 
 // Props
@@ -234,6 +235,7 @@ const emit = defineEmits<{
 // Composables
 const { t } = useI18n()
 const cloudStore = useCloudStore()
+const { showError } = useNotification()
 
 // State
 const selectedFile = ref<CloudFile | null>(null)
@@ -283,6 +285,7 @@ async function loadFiles(path?: string) {
   try {
     await cloudStore.loadFiles(path)
   } catch (error) {
+    showError(t('errors.services.cloud.listFilesFailed'))
     console.error('Error loading files:', error)
   }
 }
@@ -326,6 +329,7 @@ async function downloadFile(file: CloudFile) {
     a.click()
     URL.revokeObjectURL(url)
   } catch (error) {
+    showError(t('errors.services.cloud.downloadFailed'))
     console.error('Error downloading file:', error)
   }
 }
@@ -343,6 +347,7 @@ async function deleteFile() {
     deleteDialog.value = false
     fileToDelete.value = null
   } catch (error) {
+    showError(t('errors.services.cloud.deleteFailed'))
     console.error('Error deleting file:', error)
   }
 }

@@ -242,7 +242,45 @@
     "unknownError": "Erreur inconnue",
     "gamepadNotConnected": "Manette non connectée",
     "gamepadError": "Erreur de manette",
-    "reconnectError": "Erreur de reconnexion"
+    "reconnectError": "Erreur de reconnexion",
+    "services": {
+      "oauth": {
+        "invalidState": "État d'authentification invalide. Veuillez réessayer.",
+        "csrfDetected": "Erreur de sécurité détectée. Connexion annulée.",
+        "noAccessToken": "Authentification échouée. Aucun jeton d'accès reçu.",
+        "codeVerifierMissing": "Session expirée. Veuillez redémarrer le processus d'authentification."
+      },
+      "cloud": {
+        "notConnected": "Non connecté au stockage cloud. Veuillez vous connecter d'abord.",
+        "connectionFailed": "Échec de connexion au stockage cloud.",
+        "disconnectionFailed": "Échec de déconnexion du stockage cloud.",
+        "listFilesFailed": "Échec du chargement de la liste des fichiers.",
+        "downloadFailed": "Échec du téléchargement du fichier.",
+        "uploadFailed": "Échec de l'envoi du fichier.",
+        "deleteFailed": "Échec de la suppression du fichier.",
+        "noContent": "Le fichier est vide ou n'a pas pu être lu.",
+        "unknownFormat": "Format de fichier inconnu reçu.",
+        "noProvider": "Aucun fournisseur cloud configuré."
+      },
+      "file": {
+        "readFailed": "Impossible de lire le fichier.",
+        "writeFailed": "Impossible d'enregistrer le fichier.",
+        "invalidType": "Type de fichier invalide. Seuls les fichiers .md et .txt sont pris en charge.",
+        "noFileHandle": "Aucun fichier sélectionné.",
+        "accessDenied": "Accès au fichier refusé."
+      },
+      "fullscreen": {
+        "notSupported": "Le mode plein écran n'est pas pris en charge par ce navigateur.",
+        "exitFailed": "Impossible de quitter le mode plein écran."
+      },
+      "certificate": {
+        "enrollmentFailed": "Échec de l'enregistrement de l'appareil.",
+        "renewalFailed": "Échec du renouvellement du certificat.",
+        "validationFailed": "Échec de la validation du certificat.",
+        "noPinsReceived": "Aucune épingle de certificat reçue du serveur.",
+        "stillInvalid": "Le certificat est toujours invalide après l'enregistrement."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Chargement du fichier...",
@@ -251,7 +289,24 @@
     "fileSaveComplete": "Fichier enregistré complètement",
     "gamepadConnected": "Manette connectée",
     "gamepadDisconnected": "Manette déconnectée",
-    "welcomeContent": "# Bienvenue à Apuntador\n\nCommencez par importer votre script ou utilisez l'éditeur pour créer un nouveau contenu."
+    "welcomeContent": "# Bienvenue à Apuntador\n\nCommencez par importer votre script ou utilisez l'éditeur pour créer un nouveau contenu.",
+    "services": {
+      "cloud": {
+        "connected": "Connecté au stockage cloud avec succès",
+        "disconnected": "Déconnecté du stockage cloud",
+        "fileUploaded": "Fichier envoyé avec succès",
+        "fileDeleted": "Fichier supprimé avec succès",
+        "fileDownloaded": "Fichier téléchargé avec succès"
+      },
+      "file": {
+        "loaded": "Fichier chargé avec succès",
+        "saved": "Fichier enregistré avec succès"
+      },
+      "certificate": {
+        "enrolled": "Appareil enregistré avec succès",
+        "renewed": "Certificat renouvelé avec succès"
+      }
+    }
   },
   "desktop": {
     "minimize": "Réduire la fenêtre",

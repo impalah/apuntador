@@ -242,7 +242,45 @@
     "unknownError": "Unbekannter Fehler",
     "gamepadNotConnected": "Gamepad nicht verbunden",
     "gamepadError": "Gamepad-Fehler",
-    "reconnectError": "Fehler beim Wiederverbinden"
+    "reconnectError": "Fehler beim Wiederverbinden",
+    "services": {
+      "oauth": {
+        "invalidState": "Ungültiger Authentifizierungsstatus. Bitte versuchen Sie es erneut.",
+        "csrfDetected": "Sicherheitsfehler erkannt. Verbindung abgebrochen.",
+        "noAccessToken": "Authentifizierung fehlgeschlagen. Kein Zugriffstoken erhalten.",
+        "codeVerifierMissing": "Sitzung abgelaufen. Bitte starten Sie den Authentifizierungsprozess neu."
+      },
+      "cloud": {
+        "notConnected": "Nicht mit Cloud-Speicher verbunden. Bitte verbinden Sie sich zuerst.",
+        "connectionFailed": "Verbindung zum Cloud-Speicher fehlgeschlagen.",
+        "disconnectionFailed": "Trennung vom Cloud-Speicher fehlgeschlagen.",
+        "listFilesFailed": "Laden der Dateiliste fehlgeschlagen.",
+        "downloadFailed": "Herunterladen der Datei fehlgeschlagen.",
+        "uploadFailed": "Hochladen der Datei fehlgeschlagen.",
+        "deleteFailed": "Löschen der Datei fehlgeschlagen.",
+        "noContent": "Die Datei ist leer oder konnte nicht gelesen werden.",
+        "unknownFormat": "Unbekanntes Dateiformat empfangen.",
+        "noProvider": "Kein Cloud-Anbieter konfiguriert."
+      },
+      "file": {
+        "readFailed": "Datei konnte nicht gelesen werden.",
+        "writeFailed": "Datei konnte nicht gespeichert werden.",
+        "invalidType": "Ungültiger Dateityp. Nur .md- und .txt-Dateien werden unterstützt.",
+        "noFileHandle": "Keine Datei ausgewählt.",
+        "accessDenied": "Dateizugriff verweigert."
+      },
+      "fullscreen": {
+        "notSupported": "Vollbildmodus wird in diesem Browser nicht unterstützt.",
+        "exitFailed": "Vollbildmodus konnte nicht beendet werden."
+      },
+      "certificate": {
+        "enrollmentFailed": "Geräteregistrierung fehlgeschlagen.",
+        "renewalFailed": "Zertifikatserneuerung fehlgeschlagen.",
+        "validationFailed": "Zertifikatvalidierung fehlgeschlagen.",
+        "noPinsReceived": "Keine Zertifikat-Pins vom Server erhalten.",
+        "stillInvalid": "Das Zertifikat ist nach der Registrierung immer noch ungültig."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Datei wird geladen...",
@@ -251,7 +289,24 @@
     "fileSaveComplete": "Datei vollständig gespeichert",
     "gamepadConnected": "Gamepad verbunden",
     "gamepadDisconnected": "Gamepad getrennt",
-    "welcomeContent": "# Willkommen bei Apuntador\n\nBeginnen Sie, indem Sie Ihr Skript importieren oder den Editor verwenden, um neue Inhalte zu erstellen."
+    "welcomeContent": "# Willkommen bei Apuntador\n\nBeginnen Sie, indem Sie Ihr Skript importieren oder den Editor verwenden, um neue Inhalte zu erstellen.",
+    "services": {
+      "cloud": {
+        "connected": "Erfolgreich mit Cloud-Speicher verbunden",
+        "disconnected": "Vom Cloud-Speicher getrennt",
+        "fileUploaded": "Datei erfolgreich hochgeladen",
+        "fileDeleted": "Datei erfolgreich gelöscht",
+        "fileDownloaded": "Datei erfolgreich heruntergeladen"
+      },
+      "file": {
+        "loaded": "Datei erfolgreich geladen",
+        "saved": "Datei erfolgreich gespeichert"
+      },
+      "certificate": {
+        "enrolled": "Gerät erfolgreich registriert",
+        "renewed": "Zertifikat erfolgreich erneuert"
+      }
+    }
   },
   "desktop": {
     "minimize": "Fenster minimieren",

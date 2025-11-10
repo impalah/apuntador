@@ -8,6 +8,7 @@ import { storage } from '@/utils/persistence'
 import { STORAGE_KEYS } from '@/utils/constants'
 import { isTauri } from '@/utils/tauri'
 import { tauriService } from '@/services/tauriService'
+import { createServiceErrorHandler, createServiceSuccessHandler } from '@/utils/serviceErrorHandler'
 
 /**
  * Google Drive API Service
@@ -17,6 +18,8 @@ export class GoogleDriveService implements CloudService {
   private accessToken: string | null = null
   private readonly config: OAuthConfig
   private readonly backendClient: BackendOAuthClient
+  private readonly errorHandler = createServiceErrorHandler()
+  private readonly successHandler = createServiceSuccessHandler()
 
   constructor(config: OAuthConfig) {
     this.config = config
@@ -67,8 +70,8 @@ export class GoogleDriveService implements CloudService {
         window.location.href = authorization_url
       }
     } catch (error) {
-      console.error('❌ GoogleDriveService: Error connecting via backend:', error)
-      throw new Error(`Failed to initiate Google Drive connection: ${error}`)
+      this.errorHandler.handleCloudError(error, 'connect', { provider: 'googledrive' })
+      throw error
     }
   }
 
@@ -119,6 +122,9 @@ export class GoogleDriveService implements CloudService {
         })
         
         console.log('✅ GoogleDriveService: OAuth flow completed successfully via backend')
+        
+        // Mostrar mensaje de éxito al usuario
+        this.successHandler.showCloudSuccess('connect')
       } else {
         throw new Error('No access token received from backend')
       }
@@ -127,9 +133,9 @@ export class GoogleDriveService implements CloudService {
       localStorage.removeItem('googledrive_oauth_state')
       
     } catch (error) {
-      console.error('❌ GoogleDriveService: Error handling OAuth callback:', error)
+      this.errorHandler.handleOAuthError(error, { provider: 'googledrive', step: 'callback' })
       localStorage.removeItem('googledrive_oauth_state')
-      throw new Error(`Failed to complete Google Drive authentication: ${error}`)
+      throw error
     }
   }
 
@@ -157,6 +163,9 @@ export class GoogleDriveService implements CloudService {
     localStorage.removeItem('googledrive_oauth_state')
     
     console.log('👋 GoogleDriveService: Disconnected successfully')
+    
+    // Mostrar mensaje de éxito
+    this.successHandler.showCloudSuccess('disconnect')
   }
 
   /**
@@ -232,7 +241,7 @@ export class GoogleDriveService implements CloudService {
         isFolder: file.mimeType === 'application/vnd.google-apps.folder',
       }))
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error listing files:', error)
+      this.errorHandler.handleCloudError(error, 'list', { provider: 'googledrive', path })
       throw error
     }
   }
@@ -257,9 +266,14 @@ export class GoogleDriveService implements CloudService {
         throw new Error(`Failed to download file: ${response.statusText}`)
       }
 
-      return await response.text()
+      const content = await response.text()
+      
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('download')
+      
+      return content
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error downloading file:', error)
+      this.errorHandler.handleCloudError(error, 'download', { provider: 'googledrive', fileId })
       throw error
     }
   }
@@ -312,7 +326,7 @@ export class GoogleDriveService implements CloudService {
 
       const data = await response.json()
       
-      return {
+      const result: CloudFile = {
         id: data.id,
         name: data.name,
         path: data.id,
@@ -320,8 +334,13 @@ export class GoogleDriveService implements CloudService {
         modified: new Date(data.modifiedTime),
         isFolder: false,
       }
+      
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('upload')
+      
+      return result
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error uploading file:', error)
+      this.errorHandler.handleCloudError(error, 'upload', { provider: 'googledrive', path })
       throw error
     }
   }
@@ -348,8 +367,11 @@ export class GoogleDriveService implements CloudService {
       }
 
       console.log('✅ GoogleDrive Service: File deleted successfully')
+      
+      // Mostrar mensaje de éxito
+      this.successHandler.showCloudSuccess('delete')
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error deleting file:', error)
+      this.errorHandler.handleCloudError(error, 'delete', { provider: 'googledrive', fileId })
       throw error
     }
   }
@@ -381,7 +403,11 @@ export class GoogleDriveService implements CloudService {
         email: data.user.emailAddress,
       }
     } catch (error) {
-      console.error('❌ GoogleDrive Service: Error getting user info:', error)
+      // Este error es silencioso - no es crítico para el usuario
+      this.errorHandler.handle(error, {
+        severity: 'silent',
+        context: { provider: 'googledrive', operation: 'getUserInfo' }
+      })
       throw error
     }
   }

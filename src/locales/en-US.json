@@ -240,7 +240,45 @@
     "unknownError": "Unknown error",
     "gamepadNotConnected": "Gamepad not connected",
     "gamepadError": "Gamepad error",
-    "reconnectError": "Error reconnecting"
+    "reconnectError": "Error reconnecting",
+    "services": {
+      "oauth": {
+        "invalidState": "Invalid authentication state. Please try again.",
+        "csrfDetected": "Security error detected. Connection aborted.",
+        "noAccessToken": "Authentication failed. No access token received.",
+        "codeVerifierMissing": "Session expired. Please restart the authentication process."
+      },
+      "cloud": {
+        "notConnected": "Not connected to cloud storage. Please connect first.",
+        "connectionFailed": "Failed to connect to cloud storage.",
+        "disconnectionFailed": "Failed to disconnect from cloud storage.",
+        "listFilesFailed": "Failed to load file list.",
+        "downloadFailed": "Failed to download file.",
+        "uploadFailed": "Failed to upload file.",
+        "deleteFailed": "Failed to delete file.",
+        "noContent": "File is empty or could not be read.",
+        "unknownFormat": "Unknown file format received.",
+        "noProvider": "No cloud provider configured."
+      },
+      "file": {
+        "readFailed": "Could not read the file.",
+        "writeFailed": "Could not save the file.",
+        "invalidType": "Invalid file type. Only .md and .txt files are supported.",
+        "noFileHandle": "No file selected.",
+        "accessDenied": "File access denied."
+      },
+      "fullscreen": {
+        "notSupported": "Fullscreen mode is not supported in this browser.",
+        "exitFailed": "Could not exit fullscreen mode."
+      },
+      "certificate": {
+        "enrollmentFailed": "Device enrollment failed.",
+        "renewalFailed": "Certificate renewal failed.",
+        "validationFailed": "Certificate validation failed.",
+        "noPinsReceived": "No certificate pins received from server.",
+        "stillInvalid": "Certificate is still invalid after enrollment."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Loading file...",
@@ -249,7 +287,24 @@
     "fileSaveComplete": "File saved successfully",
     "gamepadConnected": "Gamepad connected",
     "gamepadDisconnected": "Gamepad disconnected",
-    "welcomeContent": "# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content."
+    "welcomeContent": "# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.",
+    "services": {
+      "cloud": {
+        "connected": "Connected to cloud storage successfully",
+        "disconnected": "Disconnected from cloud storage",
+        "fileUploaded": "File uploaded successfully",
+        "fileDeleted": "File deleted successfully",
+        "fileDownloaded": "File downloaded successfully"
+      },
+      "file": {
+        "loaded": "File loaded successfully",
+        "saved": "File saved successfully"
+      },
+      "certificate": {
+        "enrolled": "Device enrolled successfully",
+        "renewed": "Certificate renewed successfully"
+      }
+    }
   },
   "cloud": {
     "activeProvider": "Active provider",
