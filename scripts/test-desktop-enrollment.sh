@@ -1,5 +1,5 @@
 #!/bin/bash
-# Script para probar el enrollment de Desktop en macOS
+# Script to test Desktop enrollment on macOS
 
 echo "🚀 Testing Desktop mTLS Enrollment"
 echo "=================================="
