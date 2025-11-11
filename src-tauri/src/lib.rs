@@ -942,7 +942,7 @@ fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
   
   match result {
     Ok(_) => {
-      println!("✅ Test: Evento emitido correctamente");
+      println!("✅ Test: Event emitted correctly");
       Ok("Event emitted successfully".to_string())
     },
     Err(e) => {
