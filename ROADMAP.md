@@ -118,10 +118,10 @@ This document outlines the current features and planned development roadmap for 
 
 ## 🌟 Version 1.1 - Multilanguage & Basic Integration (Q4 2025)
 
-**Status**: 🔄 **In Progress** *(v1.0.32 - Multilanguage completed, cloud integration pending)*
+**Status**: 🔄 **In Progress** *(v1.1.23 - Multilanguage completed, cloud integration implemented, one drive pending, file formats pending)*
 
 ### Multilanguage Support
-- [x] **Complete multilanguage implementation** ✅ **COMPLETED**
+- ✅ **Complete multilanguage implementation** ✅ **COMPLETED**
   - ✅ **New languages implemented**: Català (ca-ES), Galego (gl-ES), Português Brasil (pt-BR), Português Portugal (pt-PT), Français (fr-FR), Deutsch (de-DE), Italiano (it-IT)
   - ✅ **Automatic browser detection** for all supported languages
   - ✅ **Fallback system** with Spanish as default
@@ -129,8 +129,11 @@ This document outlines the current features and planned development roadmap for 
   - [ ] **RTL support** for Hebrew, Arabic, and other RTL languages *(moved to v1.2)*
 
 ### Integration Capabilities
-- [ ] **Basic third-party integrations** 🔄 **IN PROGRESS**
-  - Google Drive, Dropbox, OneDrive sync for script files
+- ✅ **Basic third-party integrations** 🔄 **COMPLETED**
+  - Google Drive, Dropbox for script files
+  - **Technical requirements**: File API integration, cloud storage SDKs
+- [ ] **Extended third-party integrations** 🔄 **IN PROGRESS**
+  - OneDrive sync for script files
   - Import/export compatibility with common formats
   - **Technical requirements**: File API integration, cloud storage SDKs
 
