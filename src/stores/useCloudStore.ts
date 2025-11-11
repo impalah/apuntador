@@ -6,6 +6,7 @@ import { DROPBOX_CONFIG } from '@/services/dropbox/config'
 import { GOOGLE_DRIVE_CONFIG } from '@/services/googledrive/config'
 import { tauriService } from '@/services/tauriService'
 import { CertificateValidator } from '@/services/certificate/certificateValidator'
+import { cloudProviderConfig, type CloudProviderConfig } from '@/services/cloudProviderConfig'
 import type { CloudFile, CloudProvider, CloudProviderId, CloudService } from '@/types/cloud'
 
 /**
@@ -24,6 +25,7 @@ export const useCloudStore = defineStore('cloud', () => {
   const currentPath = ref<string>('')
   const currentFolderName = ref<string>('') // Nombre de la carpeta actual
   const error = ref<string | null>(null)
+  const providerConfig = ref<CloudProviderConfig | null>(null) // Backend provider config
   
   // Provider-specific state
   const dropboxUserInfo = ref<{ name: string; email: string } | null>(null)
@@ -70,28 +72,52 @@ export const useCloudStore = defineStore('cloud', () => {
     return connected
   })
 
-  const availableProviders = computed<CloudProvider[]>(() => [
-    {
-      id: 'dropbox',
-      name: 'Dropbox',
-      isConnected: dropboxService.isConnected(),
-      userInfo: dropboxUserInfo.value || undefined
-    },
-    {
-      id: 'googledrive',
-      name: 'Google Drive',
-      isConnected: googleDriveService.isConnected(),
-      userInfo: googleDriveUserInfo.value || undefined
+  const availableProviders = computed<CloudProvider[]>(() => {
+    const allProviders: CloudProvider[] = [
+      {
+        id: 'dropbox',
+        name: 'Dropbox',
+        isConnected: dropboxService.isConnected(),
+        userInfo: dropboxUserInfo.value || undefined
+      },
+      {
+        id: 'googledrive',
+        name: 'Google Drive',
+        isConnected: googleDriveService.isConnected(),
+        userInfo: googleDriveUserInfo.value || undefined
+      }
+    ]
+
+    // Si no hay configuración cargada, mostrar todos (fallback)
+    if (!providerConfig.value) {
+      return allProviders
     }
-  ])
+
+    // Filtrar solo providers habilitados según configuración del backend
+    return allProviders.filter(provider => {
+      const config = providerConfig.value?.providers[provider.id]
+      return config?.enabled ?? true // Default to enabled if config missing
+    })
+  })
 
   // Actions
   
   /**
    * Inicializa el store cargando el proveedor activo guardado
+   * y la configuración de providers del backend
    */
   const initialize = async (): Promise<void> => {
-    // Cargar proveedor activo del localStorage
+    // STEP 1: Cargar configuración de providers del backend
+    try {
+      console.log('🔍 [CloudStore] Loading provider configuration from backend...')
+      providerConfig.value = await cloudProviderConfig.getConfig()
+      console.log('✅ [CloudStore] Provider configuration loaded:', providerConfig.value)
+    } catch (error) {
+      console.error('❌ [CloudStore] Failed to load provider configuration:', error)
+      // Continue without config (all providers will be shown by default)
+    }
+
+    // STEP 2: Cargar proveedor activo del localStorage
     const savedProviderId = localStorage.getItem('cloud_active_provider') as CloudProviderId | null
     
     if (savedProviderId && services[savedProviderId]) {
@@ -118,10 +144,11 @@ export const useCloudStore = defineStore('cloud', () => {
     error.value = null
 
     try {
-      // STEP 1: Ensure valid certificate (auto-enroll if needed)
-      console.log('🔐 Ensuring device has valid certificate...')
-      const certStatus = await CertificateValidator.ensureValidCertificate()
+      // STEP 1: Ensure valid certificate AND fetch provider config
+      console.log('🔐 Ensuring device has valid certificate and fetching provider config...')
+      const { certStatus, providerConfig } = await CertificateValidator.ensureValidCertificateAndConfig()
       
+      // Check if certificate is valid (for mobile/desktop)
       if (!certStatus.isValid) {
         const message = CertificateValidator.getStatusMessage(certStatus)
         console.error('❌ Certificate validation/enrollment failed:', message)
@@ -136,7 +163,18 @@ export const useCloudStore = defineStore('cloud', () => {
         console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
       }
 
-      // STEP 2: Proceed with OAuth flow
+      // STEP 2: Validate provider is enabled
+      const providerInfo = providerConfig.providers[providerId]
+      if (!providerInfo || !providerInfo.enabled) {
+        const message = `Provider ${providerId} is not enabled on the backend`
+        console.error('❌', message)
+        error.value = message
+        throw new Error(message)
+      }
+
+      console.log(`✅ Provider ${providerId} is enabled`)
+
+      // STEP 3: Proceed with OAuth flow
       const service = services[providerId]
       if (!service) {
         throw new Error(`Service not found for provider: ${providerId}`)

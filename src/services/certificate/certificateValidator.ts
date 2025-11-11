@@ -5,11 +5,13 @@
  * allowing OAuth token requests via mTLS.
  * 
  * If no valid certificate exists, automatically enrolls the device.
+ * Also fetches cloud provider configuration from backend.
  */
 
 import { Capacitor } from '@capacitor/core'
 import { UnifiedMTLSService } from '../unifiedMTLSService'
 import { isTauri } from '@/utils/tauri'
+import { cloudProviderConfig, type CloudProviderConfig } from '../cloudProviderConfig'
 
 export interface CertificateStatus {
   isValid: boolean
@@ -24,6 +26,14 @@ export interface CertificateStatus {
     notAfter: string
   }
   error?: string
+}
+
+/**
+ * Combined result of certificate validation and provider config fetch
+ */
+export interface CertificateAndConfig {
+  certStatus: CertificateStatus
+  providerConfig: CloudProviderConfig
 }
 
 export class CertificateValidator {
@@ -189,6 +199,58 @@ export class CertificateValidator {
         isExpired: false,
         error: `Auto-enrollment failed: ${error.message}`,
       }
+    }
+  }
+
+  /**
+   * Ensure device has valid certificate AND fetch provider config
+   * 
+   * This is the recommended method to use before OAuth flows.
+   * It handles both certificate validation/enrollment and fetching
+   * the provider configuration in a single call.
+   * 
+   * @returns Certificate status and provider configuration
+   */
+  static async ensureValidCertificateAndConfig(): Promise<CertificateAndConfig> {
+    const isTauriPlatform = isTauri()
+    const platform = isTauriPlatform ? 'desktop' : Capacitor.getPlatform()
+    
+    console.log(`🔍 [CertificateValidator.ensureValidCertificateAndConfig] Platform: ${platform}`)
+    
+    // Web platform: Skip mTLS but fetch provider config
+    if (platform === 'web') {
+      console.log('🌐 [CertificateValidator] Web platform, skipping mTLS, fetching provider config...')
+      
+      const providerConfig = await cloudProviderConfig.getConfig()
+      
+      return {
+        certStatus: {
+          isValid: true,
+          isEnrolled: true,
+          isExpired: false,
+        },
+        providerConfig,
+      }
+    }
+
+    // Mobile/Desktop: Ensure certificate is valid first
+    console.log('🔐 [CertificateValidator] Ensuring certificate validity...')
+    const certStatus = await this.ensureValidCertificate()
+    
+    if (!certStatus.isValid) {
+      // Certificate enrollment failed, but still try to fetch provider config
+      console.warn('⚠️  Certificate validation/enrollment failed, fetching provider config anyway...')
+    }
+
+    // Fetch provider configuration after certificate is ready
+    console.log('📡 [CertificateValidator] Fetching provider configuration...')
+    const providerConfig = await cloudProviderConfig.getConfig()
+
+    console.log('✅ [CertificateValidator] Certificate and provider config ready')
+    
+    return {
+      certStatus,
+      providerConfig,
     }
   }
 }
