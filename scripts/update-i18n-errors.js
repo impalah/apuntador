@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 /**
- * Script para actualizar los archivos de idioma con las nuevas claves de errors.services
- * Copia la estructura de en-US a todos los demás idiomas
+ * Script to update language files with new errors.services keys.
+ * Copies the structure from en-US to all other languages.
  */
 
 const fs = require('fs')
