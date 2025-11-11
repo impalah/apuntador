@@ -269,6 +269,7 @@ The desktop app maintains full compatibility with all web features while adding 
 
 - **GitHub Actions** - Automated testing and deployment (web + Android)
 
+See [**GITHUB_SECRETS_SETUP.md**](./docs/GITHUB_SECRETS_SETUP.md) for environment variables configuration in CI/CD.  
 See [**GITHUB_SECRETS.md**](./GITHUB_SECRETS.md) for Android APK build secrets configuration.  
 See [**SCRIPTS_REFERENCE.md**](./SCRIPTS_REFERENCE.md) for cross-platform build scripts documentation.  
 See [**SECURITY.md**](./SECURITY.md) for security guidelines and sensitive file handling.

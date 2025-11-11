@@ -74,6 +74,16 @@ jobs:
           git commit -m "Update version" || echo "No changes to commit"
           git push origin HEAD || echo "Push failed, continuing with release creation"
 
+      - name: Create .env file
+        run: |
+          echo "📝 Creating .env file from secrets..."
+          cat > .env << 'EOF'
+          ${{ secrets.ENV_FILE }}
+          EOF
+          echo "✅ .env file created successfully"
+          echo "📋 Variables configured (masked):"
+          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
+
       - name: npm build
         run: |
           npm run build
