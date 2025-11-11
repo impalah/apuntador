@@ -19,6 +19,9 @@ import { i18n } from '@/utils/i18n'
 // Import mobile functionality
 import { initMobileApp } from '@/utils/capacitor'
 
+// Import cloud store for initialization
+import { useCloudStore } from '@/stores/useCloudStore'
+
 // Create Vuetify instance
 const vuetify = createVuetify({
   theme: {
@@ -80,3 +83,9 @@ app.mount('#app')
 
 // Initialize mobile features after app is mounted
 initMobileApp()
+
+// Initialize cloud store to load saved provider
+const cloudStore = useCloudStore()
+cloudStore.initialize().catch(err => {
+  console.error('Error initializing cloud store:', err)
+})

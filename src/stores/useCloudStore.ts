@@ -1,0 +1,440 @@
+import { defineStore } from 'pinia'
+import { ref, computed } from 'vue'
+import { DropboxService } from '@/services/dropbox/dropboxService'
+import { GoogleDriveService } from '@/services/googledrive/googleDriveService'
+import { DROPBOX_CONFIG } from '@/services/dropbox/config'
+import { GOOGLE_DRIVE_CONFIG } from '@/services/googledrive/config'
+import { tauriService } from '@/services/tauriService'
+import { CertificateValidator } from '@/services/certificate/certificateValidator'
+import type { CloudFile, CloudProvider, CloudProviderId, CloudService } from '@/types/cloud'
+
+/**
+ * Store unificado para gestionar múltiples proveedores de almacenamiento en la nube
+ * Solo un proveedor puede estar activo a la vez
+ */
+export const useCloudStore = defineStore('cloud', () => {
+  // State
+  const activeProviderId = ref<CloudProviderId | null>(null)
+  const isConnecting = ref(false)
+  const isLoadingFiles = ref(false)
+  const isDownloading = ref(false)
+  const isUploading = ref(false)
+  const isDeleting = ref(false)
+  const currentFiles = ref<CloudFile[]>([])
+  const currentPath = ref<string>('')
+  const currentFolderName = ref<string>('') // Nombre de la carpeta actual
+  const error = ref<string | null>(null)
+  
+  // Provider-specific state
+  const dropboxUserInfo = ref<{ name: string; email: string } | null>(null)
+  const googleDriveUserInfo = ref<{ name: string; email: string } | null>(null)
+  
+  // State to remember last cloud file
+  const lastCloudPath = ref<string>('')
+  const lastCloudFileName = ref<string>('')
+
+  // Services instances
+  const dropboxService = new DropboxService(DROPBOX_CONFIG)
+  const googleDriveService = new GoogleDriveService(GOOGLE_DRIVE_CONFIG)
+
+  // Map of services
+  const services: Record<CloudProviderId, CloudService> = {
+    dropbox: dropboxService,
+    googledrive: googleDriveService
+  }
+
+  // Computed
+  const activeProvider = computed<CloudProvider | null>(() => {
+    if (!activeProviderId.value) return null
+
+    const providerId = activeProviderId.value
+    const service = services[providerId]
+    const userInfo = providerId === 'dropbox' ? dropboxUserInfo.value : googleDriveUserInfo.value
+
+    return {
+      id: providerId,
+      name: providerId === 'dropbox' ? 'Dropbox' : 'Google Drive',
+      isConnected: service.isConnected(),
+      userInfo: userInfo || undefined
+    }
+  })
+
+  const isConnected = computed(() => {
+    const connected = activeProvider.value?.isConnected || false
+    console.log('🔍 CloudStore isConnected computed:', {
+      hasActiveProvider: !!activeProvider.value,
+      activeProviderId: activeProviderId.value,
+      providerIsConnected: activeProvider.value?.isConnected,
+      result: connected
+    })
+    return connected
+  })
+
+  const availableProviders = computed<CloudProvider[]>(() => [
+    {
+      id: 'dropbox',
+      name: 'Dropbox',
+      isConnected: dropboxService.isConnected(),
+      userInfo: dropboxUserInfo.value || undefined
+    },
+    {
+      id: 'googledrive',
+      name: 'Google Drive',
+      isConnected: googleDriveService.isConnected(),
+      userInfo: googleDriveUserInfo.value || undefined
+    }
+  ])
+
+  // Actions
+  
+  /**
+   * Inicializa el store cargando el proveedor activo guardado
+   */
+  const initialize = async (): Promise<void> => {
+    // Cargar proveedor activo del localStorage
+    const savedProviderId = localStorage.getItem('cloud_active_provider') as CloudProviderId | null
+    
+    if (savedProviderId && services[savedProviderId]) {
+      activeProviderId.value = savedProviderId
+      
+      // Inicializar servicio si tiene método initialize
+      const service = services[savedProviderId]
+      if (service.initialize) {
+        await service.initialize()
+      }
+      
+      // Refrescar estado de conexión
+      await refreshConnectionStatus()
+    }
+  }
+
+  /**
+   * Conecta a un proveedor específico
+   */
+  const connect = async (providerId: CloudProviderId): Promise<void> => {
+    if (isConnecting.value) return
+    
+    isConnecting.value = true
+    error.value = null
+
+    try {
+      // STEP 1: Ensure valid certificate (auto-enroll if needed)
+      console.log('🔐 Ensuring device has valid certificate...')
+      const certStatus = await CertificateValidator.ensureValidCertificate()
+      
+      if (!certStatus.isValid) {
+        const message = CertificateValidator.getStatusMessage(certStatus)
+        console.error('❌ Certificate validation/enrollment failed:', message)
+        error.value = message
+        
+        // Throw error to prevent OAuth flow
+        throw new Error(`Certificate required: ${message}`)
+      }
+      
+      console.log('✅ Certificate ready for OAuth')
+      if (certStatus.daysUntilExpiry) {
+        console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
+      }
+
+      // STEP 2: Proceed with OAuth flow
+      const service = services[providerId]
+      if (!service) {
+        throw new Error(`Service not found for provider: ${providerId}`)
+      }
+      
+      // Detectar si estamos en Tauri
+      const isTauri = await tauriService.isAvailable()
+      
+      if (isTauri && (providerId === 'dropbox' || providerId === 'googledrive')) {
+        // Flujo para Dropbox/Google Drive en Tauri usando backend proxy
+        console.log(`🖥️ Using Tauri OAuth flow for ${providerId} (via backend proxy)`)
+        
+        // STEP 1: Start OAuth callback server
+        console.log('🚀 Starting OAuth callback server...')
+        await tauriService.startOAuthCallbackServer()
+        
+        // STEP 2: Set up listener for oauth-callback event
+        console.log('👂 Setting up OAuth callback listener...')
+        const callbackPromise = tauriService.listenForOAuthCallback()
+        
+        // STEP 3: Start OAuth flow (opens browser with backend URL)
+        console.log('🌐 Opening browser for OAuth (backend proxy)...')
+        await service.connect() // This opens browser to backend URL
+        
+        // STEP 4: Wait for callback from localhost:8080
+        console.log('⏳ Waiting for OAuth callback from browser...')
+        const callbackData = await callbackPromise
+        console.log('📞 OAuth callback received:', callbackData)
+        
+        // STEP 5: Exchange code for token via backend
+        if ('handleOAuthCallback' in service && typeof service.handleOAuthCallback === 'function') {
+          await service.handleOAuthCallback(callbackData.code, callbackData.state)
+        } else {
+          throw new Error(`Service ${providerId} does not support OAuth callback`)
+        }
+        
+      } else {
+        // Flujo web estándar
+        console.log('🌐 Using web OAuth flow')
+        await service.connect()
+        // Connection completes in handleOAuthCallback
+        return // No continuar aquí, el callback completará la conexión
+      }
+      
+      // Establecer como proveedor activo
+      activeProviderId.value = providerId
+      localStorage.setItem('cloud_active_provider', providerId)
+      
+      await refreshConnectionStatus()
+      
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error connecting to cloud provider'
+      console.error('Cloud connection error:', err)
+    } finally {
+      isConnecting.value = false
+    }
+  }
+
+  /**
+   * Maneja el callback de OAuth
+   */
+  const handleOAuthCallback = async (code: string, state: string, providerId?: CloudProviderId): Promise<void> => {
+    // Si no se especifica proveedor, intentar detectarlo
+    const targetProviderId = providerId || activeProviderId.value
+    
+    if (!targetProviderId) {
+      throw new Error('No provider specified for OAuth callback')
+    }
+
+    isConnecting.value = true
+    error.value = null
+
+    try {
+      const service = services[targetProviderId]
+      
+      if (service.handleOAuthCallback) {
+        await service.handleOAuthCallback(code, state)
+      }
+      
+      // Establecer como proveedor activo
+      activeProviderId.value = targetProviderId
+      localStorage.setItem('cloud_active_provider', targetProviderId)
+      
+      await refreshConnectionStatus()
+    } catch (err) {
+      console.error('OAuth callback error:', err)
+      error.value = err instanceof Error ? err.message : 'Error completing authentication'
+      throw err
+    } finally {
+      isConnecting.value = false
+    }
+  }
+
+  /**
+   * Desconecta del proveedor activo
+   */
+  const disconnect = async (): Promise<void> => {
+    if (!activeProviderId.value) return
+
+    try {
+      const service = services[activeProviderId.value]
+      await service.disconnect()
+      
+      // Limpiar estado
+      if (activeProviderId.value === 'dropbox') {
+        dropboxUserInfo.value = null
+      } else {
+        googleDriveUserInfo.value = null
+      }
+      
+      activeProviderId.value = null
+      localStorage.removeItem('cloud_active_provider')
+      currentFiles.value = []
+      currentPath.value = ''
+      
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error disconnecting'
+      console.error('Disconnect error:', err)
+    }
+  }
+
+  /**
+   * Refresca el estado de conexión del proveedor activo
+   */
+  const refreshConnectionStatus = async (): Promise<void> => {
+    if (!activeProviderId.value) return
+
+    try {
+      const service = services[activeProviderId.value]
+      
+      if (service.isConnected()) {
+        const userInfo = await service.getUserInfo()
+        
+        if (activeProviderId.value === 'dropbox') {
+          dropboxUserInfo.value = userInfo
+        } else {
+          googleDriveUserInfo.value = userInfo
+        }
+      }
+    } catch (err) {
+      console.error('Error refreshing connection status:', err)
+    }
+  }
+
+  /**
+   * Carga archivos del proveedor activo
+   */
+  const loadFiles = async (path?: string, folderName?: string): Promise<void> => {
+    if (!activeProviderId.value) {
+      throw new Error('No active cloud provider')
+    }
+
+    isLoadingFiles.value = true
+    error.value = null
+
+    try {
+      const service = services[activeProviderId.value]
+      const targetPath = path !== undefined ? path : currentPath.value
+      
+      currentFiles.value = await service.listFiles(targetPath)
+      currentPath.value = targetPath
+      
+      // Actualizar el nombre de la carpeta
+      if (targetPath === '' || targetPath === 'root') {
+        currentFolderName.value = '' // Root no tiene nombre específico
+      } else if (folderName !== undefined) {
+        currentFolderName.value = folderName
+      }
+      // Si no se proporciona folderName y no es root, mantener el valor actual
+      // (útil cuando se recarga la misma carpeta)
+      
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error loading files'
+      console.error('Error loading files:', err)
+      throw err
+    } finally {
+      isLoadingFiles.value = false
+    }
+  }
+
+  /**
+   * Navega a una carpeta
+   */
+  const navigateToFolder = async (path: string, folderName?: string): Promise<void> => {
+    await loadFiles(path, folderName)
+  }
+
+  /**
+   * Descarga un archivo
+   */
+  const downloadFile = async (path: string, fileName?: string): Promise<string> => {
+    if (!activeProviderId.value) {
+      throw new Error('No active cloud provider')
+    }
+
+    isDownloading.value = true
+    error.value = null
+
+    try {
+      const service = services[activeProviderId.value]
+      lastCloudPath.value = path
+      // Use provided fileName or extract from path (for Dropbox compatibility)
+      lastCloudFileName.value = fileName || path.split('/').pop() || ''
+      
+      return await service.downloadFile(path)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error downloading file'
+      console.error('Error downloading file:', err)
+      throw err
+    } finally {
+      isDownloading.value = false
+    }
+  }
+
+  /**
+   * Sube un archivo
+   */
+  const uploadFile = async (path: string, content: string): Promise<CloudFile> => {
+    if (!activeProviderId.value) {
+      throw new Error('No active cloud provider')
+    }
+
+    isUploading.value = true
+    error.value = null
+
+    try {
+      const service = services[activeProviderId.value]
+      const file = await service.uploadFile(path, content)
+      
+      // Recargar archivos de la carpeta actual
+      await loadFiles()
+      
+      return file
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error uploading file'
+      console.error('Error uploading file:', err)
+      throw err
+    } finally {
+      isUploading.value = false
+    }
+  }
+
+  /**
+   * Elimina un archivo
+   */
+  const deleteFile = async (fileId: string): Promise<void> => {
+    if (!activeProviderId.value) {
+      throw new Error('No active cloud provider')
+    }
+
+    isDeleting.value = true
+    error.value = null
+
+    try {
+      const service = services[activeProviderId.value]
+      await service.deleteFile(fileId)
+      
+      // Recargar archivos de la carpeta actual
+      await loadFiles()
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error deleting file'
+      console.error('Error deleting file:', err)
+      throw err
+    } finally {
+      isDeleting.value = false
+    }
+  }
+
+  return {
+    // State
+    activeProviderId,
+    isConnecting,
+    isLoadingFiles,
+    isDownloading,
+    isUploading,
+    isDeleting,
+    currentFiles,
+    currentPath,
+    currentFolderName,
+    error,
+    lastCloudPath,
+    lastCloudFileName,
+    
+    // Computed
+    activeProvider,
+    isConnected,
+    availableProviders,
+    
+    // Actions
+    initialize,
+    connect,
+    handleOAuthCallback,
+    disconnect,
+    refreshConnectionStatus,
+    loadFiles,
+    navigateToFolder,
+    downloadFile,
+    uploadFile,
+    deleteFile,
+  }
+})

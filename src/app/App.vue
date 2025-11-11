@@ -1,6 +1,8 @@
 <template>
   <v-app>
     <router-view />
+    <!-- Global Notification System -->
+    <NotificationContainer />
   </v-app>
 </template>
 
@@ -9,14 +11,23 @@ import { onMounted } from 'vue'
 import { addSafeAreaInsets, isTouchDevice } from '@/utils/dom'
 import { useWindowInsets } from '@/utils/windowInsets'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useCloudStore } from '@/stores/useCloudStore'
+import { useDeepLinks } from '@/composables/useDeepLinks'
+import NotificationContainer from '@/components/NotificationContainer.vue'
 
 // Initialize window insets for Android edge-to-edge support
 const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
 const prefsStore = usePrefsStore()
+const cloudStore = useCloudStore()
 
-onMounted(() => {
+// Initialize deep links for OAuth callbacks in native apps
+useDeepLinks()
+
+onMounted(async () => {
   // Load preferences (hotkeys, etc) on app mount
   prefsStore.load()
+  // Initialize cloud store (load saved provider)
+  await cloudStore.initialize()
   // Add safe area insets for mobile devices
   addSafeAreaInsets()
 
@@ -35,8 +46,33 @@ onMounted(() => {
   if (isAndroid) {
     document.documentElement.classList.add('android')
     document.documentElement.setAttribute('data-android', 'true')
-    // Debug logging - disabled for production
-    // console.log('Android device detected, applying Android-specific styles')
+    
+    // Detect Android API level for specific fixes
+    const androidMatch = navigator.userAgent.match(/Android\s+([\d.]+)/)
+    if (androidMatch) {
+      const version = androidMatch[1]
+      document.documentElement.setAttribute('data-android-version', version)
+      
+      // Map versions to API levels (approximate)
+      const majorVersion = parseInt(version.split('.')[0])
+      if (majorVersion >= 15) {
+        document.documentElement.setAttribute('data-android-api', '35')
+      } else if (majorVersion >= 14) {
+        document.documentElement.setAttribute('data-android-api', '34')
+      }
+    }
+    
+    // Add Capacitor-specific class if running in Capacitor
+    if ((window as any).Capacitor) {
+      document.documentElement.classList.add('capacitor-android')
+    }
+    
+    // Debug logging - enabled for Android edge-to-edge testing
+    console.log('Android device detected:', {
+      userAgent: navigator.userAgent,
+      isCapacitor: !!(window as any).Capacitor,
+      version: androidMatch?.[1]
+    })
   }
 })
 </script>

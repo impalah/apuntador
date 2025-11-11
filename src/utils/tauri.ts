@@ -9,7 +9,19 @@ import { ref, computed } from 'vue'
  */
 export function isTauri(): boolean {
   try {
-    return '__TAURI__' in window
+    // In dev mode, Tauri serves from http://localhost
+    // We need to check if Tauri APIs are available by trying to import them
+    // The most reliable way is to check if window.__TAURI_INTERNALS__ exists
+    const hasTauriInternals = '__TAURI_INTERNALS__' in window
+    const hasTauriMetadata = '__TAURI_METADATA__' in window
+    
+    console.log('🔍 Tauri detection:', { 
+      hasTauriInternals,
+      hasTauriMetadata,
+      windowKeys: Object.keys(window).filter(k => k.includes('TAURI'))
+    })
+    
+    return hasTauriInternals || hasTauriMetadata
   } catch {
     return false
   }
@@ -197,11 +209,21 @@ export function useTauri() {
     if (!isDesktop.value) return
 
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window')
-      const window = getCurrentWindow()
-      await window.minimize()
+      // Try using our custom Rust command first (more reliable)
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('minimize_window')
+      console.log('✅ Window minimized via Rust command')
     } catch (error) {
-      console.error('Failed to minimize window:', error)
+      console.warn('Rust command failed, trying API fallback:', error)
+      // Fallback to Tauri API
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const window = getCurrentWindow()
+        await window.minimize()
+        console.log('✅ Window minimized via API')
+      } catch (apiError) {
+        console.error('Failed to minimize window:', apiError)
+      }
     }
   }
 
@@ -209,18 +231,29 @@ export function useTauri() {
     if (!isDesktop.value) return
 
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window')
-      const window = getCurrentWindow()
-      const isMaximized = await window.isMaximized()
-      if (isMaximized) {
-        await window.unmaximize()
-      } else {
-        await window.maximize()
-      }
-      return !isMaximized
+      // Try using our custom Rust command first (more reliable)
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('maximize_window')
+      console.log('✅ Window maximize toggled via Rust command')
+      return true
     } catch (error) {
-      console.error('Failed to toggle maximize:', error)
-      return false
+      console.warn('Rust command failed, trying API fallback:', error)
+      // Fallback to Tauri API
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const window = getCurrentWindow()
+        const isMaximized = await window.isMaximized()
+        if (isMaximized) {
+          await window.unmaximize()
+        } else {
+          await window.maximize()
+        }
+        console.log('✅ Window maximize toggled via API')
+        return !isMaximized
+      } catch (apiError) {
+        console.error('Failed to toggle maximize:', apiError)
+        return false
+      }
     }
   }
 
@@ -228,11 +261,21 @@ export function useTauri() {
     if (!isDesktop.value) return
 
     try {
-      const { getCurrentWindow } = await import('@tauri-apps/api/window')
-      const window = getCurrentWindow()
-      await window.close()
+      // Try using our custom Rust command first (more reliable)
+      const { invoke } = await import('@tauri-apps/api/core')
+      await invoke('close_window')
+      console.log('✅ Window closed via Rust command')
     } catch (error) {
-      console.error('Failed to close window:', error)
+      console.warn('Rust command failed, trying API fallback:', error)
+      // Fallback to Tauri API
+      try {
+        const { getCurrentWindow } = await import('@tauri-apps/api/window')
+        const window = getCurrentWindow()
+        await window.close()
+        console.log('✅ Window closed via API')
+      } catch (apiError) {
+        console.error('Failed to close window:', apiError)
+      }
     }
   }
 

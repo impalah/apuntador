@@ -5,8 +5,12 @@ const config: CapacitorConfig = {
   appName: 'Apuntador',
   webDir: 'dist',
   server: {
-    androidScheme: 'https',
+    // DESARROLLO: Usar HTTP para permitir conexiones al backend local
+    // PRODUCCIÓN: Cambiar a HTTPS
+    androidScheme: 'http',
     iosScheme: 'ionic',
+    // Permitir mixed content (HTTP desde HTTPS) para desarrollo
+    cleartext: true,
   },
   plugins: {
     StatusBar: {
@@ -39,6 +43,9 @@ const config: CapacitorConfig = {
     allowMixedContent: true,
     backgroundColor: '#000000',
     webContentsDebuggingEnabled: false,
+    // Configuración para edge-to-edge y safe areas
+    appendUserAgent: 'Apuntador/1.1.5',
+    captureInput: true,
   },
   ios: {
     scheme: 'Apuntador',

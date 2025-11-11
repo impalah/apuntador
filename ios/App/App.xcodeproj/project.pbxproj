@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		15080D752EB2687C003D503F /* SecureEnclaveWebBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15080D742EB2687C003D503F /* SecureEnclaveWebBridge.swift */; };
+		1564C34C2EBB944600382FA7 /* MTLSHTTPPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1564C34B2EBB944600382FA7 /* MTLSHTTPPlugin.swift */; };
+		15AC969D2EB236D3003CF36F /* SecureEnclavePlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC969C2EB236D3003CF36F /* SecureEnclavePlugin.swift */; };
+		15AC969E2EB236D3003CF36F /* AutoEnrollmentPlugin.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC96972EB236D3003CF36F /* AutoEnrollmentPlugin.swift */; };
+		15AC969F2EB236D3003CF36F /* MTLSHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC96992EB236D3003CF36F /* MTLSHTTPClient.swift */; };
+		15AC96A02EB236D3003CF36F /* PluginRegistration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC969A2EB236D3003CF36F /* PluginRegistration.swift */; };
+		15AC96A12EB236D3003CF36F /* CSRGenerator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC96982EB236D3003CF36F /* CSRGenerator.swift */; };
+		15AC96A22EB236D3003CF36F /* SecureEnclaveManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AC969B2EB236D3003CF36F /* SecureEnclaveManager.swift */; };
 		2FAD9763203C412B000D30F8 /* config.xml in Resources */ = {isa = PBXBuildFile; fileRef = 2FAD9762203C412B000D30F8 /* config.xml */; };
 		50379B232058CBB4000EE86E /* capacitor.config.json in Resources */ = {isa = PBXBuildFile; fileRef = 50379B222058CBB4000EE86E /* capacitor.config.json */; };
 		504EC3081FED79650016851F /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 504EC3071FED79650016851F /* AppDelegate.swift */; };
@@ -18,6 +26,14 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		15080D742EB2687C003D503F /* SecureEnclaveWebBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveWebBridge.swift; sourceTree = "<group>"; };
+		1564C34B2EBB944600382FA7 /* MTLSHTTPPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLSHTTPPlugin.swift; sourceTree = "<group>"; };
+		15AC96972EB236D3003CF36F /* AutoEnrollmentPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AutoEnrollmentPlugin.swift; sourceTree = "<group>"; };
+		15AC96982EB236D3003CF36F /* CSRGenerator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CSRGenerator.swift; sourceTree = "<group>"; };
+		15AC96992EB236D3003CF36F /* MTLSHTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MTLSHTTPClient.swift; sourceTree = "<group>"; };
+		15AC969A2EB236D3003CF36F /* PluginRegistration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PluginRegistration.swift; sourceTree = "<group>"; };
+		15AC969B2EB236D3003CF36F /* SecureEnclaveManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclaveManager.swift; sourceTree = "<group>"; };
+		15AC969C2EB236D3003CF36F /* SecureEnclavePlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecureEnclavePlugin.swift; sourceTree = "<group>"; };
 		2FAD9762203C412B000D30F8 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = config.xml; sourceTree = "<group>"; };
 		50379B222058CBB4000EE86E /* capacitor.config.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = capacitor.config.json; sourceTree = "<group>"; };
 		504EC3041FED79650016851F /* App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = App.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -44,6 +60,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		15AC96902EB2333A003CF36F /* Plugins */ = {
+			isa = PBXGroup;
+			children = (
+				1564C34B2EBB944600382FA7 /* MTLSHTTPPlugin.swift */,
+				15AC96972EB236D3003CF36F /* AutoEnrollmentPlugin.swift */,
+				15AC96982EB236D3003CF36F /* CSRGenerator.swift */,
+				15AC96992EB236D3003CF36F /* MTLSHTTPClient.swift */,
+				15AC969A2EB236D3003CF36F /* PluginRegistration.swift */,
+				15AC969B2EB236D3003CF36F /* SecureEnclaveManager.swift */,
+				15AC969C2EB236D3003CF36F /* SecureEnclavePlugin.swift */,
+			);
+			path = Plugins;
+			sourceTree = "<group>";
+		};
 		27E2DDA53C4D2A4D1A88CE4A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -55,6 +85,7 @@
 		504EC2FB1FED79650016851F = {
 			isa = PBXGroup;
 			children = (
+				15AC96902EB2333A003CF36F /* Plugins */,
 				504EC3061FED79650016851F /* App */,
 				504EC3051FED79650016851F /* Products */,
 				7F8756D8B27F46E3366F6CEA /* Pods */,
@@ -73,6 +104,7 @@
 		504EC3061FED79650016851F /* App */ = {
 			isa = PBXGroup;
 			children = (
+				15080D742EB2687C003D503F /* SecureEnclaveWebBridge.swift */,
 				50379B222058CBB4000EE86E /* capacitor.config.json */,
 				504EC3071FED79650016851F /* AppDelegate.swift */,
 				504EC30B1FED79650016851F /* Main.storyboard */,
@@ -127,7 +159,7 @@
 				TargetAttributes = {
 					504EC3031FED79650016851F = {
 						CreatedOnToolsVersion = 9.2;
-						LastSwiftMigration = 1100;
+						LastSwiftMigration = 2600;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -210,6 +242,14 @@
 			buildActionMask = 2147483647;
 			files = (
 				504EC3081FED79650016851F /* AppDelegate.swift in Sources */,
+				15AC969D2EB236D3003CF36F /* SecureEnclavePlugin.swift in Sources */,
+				15AC969E2EB236D3003CF36F /* AutoEnrollmentPlugin.swift in Sources */,
+				15AC969F2EB236D3003CF36F /* MTLSHTTPClient.swift in Sources */,
+				15AC96A02EB236D3003CF36F /* PluginRegistration.swift in Sources */,
+				15AC96A12EB236D3003CF36F /* CSRGenerator.swift in Sources */,
+				1564C34C2EBB944600382FA7 /* MTLSHTTPPlugin.swift in Sources */,
+				15AC96A22EB236D3003CF36F /* SecureEnclaveManager.swift in Sources */,
+				15080D752EB2687C003D503F /* SecureEnclaveWebBridge.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -347,6 +387,7 @@
 			baseConfigurationReference = FC68EB0AF532CFC21C3344DD /* Pods-App.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;
@@ -362,6 +403,7 @@
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -372,6 +414,7 @@
 			baseConfigurationReference = AF51FD2D460BCFE21FA515B2 /* Pods-App.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 2;

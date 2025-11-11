@@ -7,12 +7,31 @@ const routes = [
     name: 'teleprompter',
     component: TeleprompterPage,
   },
-  // Demo route to show modular component switching
-  ...(import.meta.env.DEV ? [{
-    path: '/modular-demo',
-    name: 'modular-demo',
-    component: () => import('@/pages/TeleprompterPageModular.vue'),
-  }] : []),
+  {
+    path: '/edit',
+    name: 'editor',
+    component: () => import('@/pages/EditorPage.vue'),
+  },
+  {
+    path: '/oauth-callback',
+    name: 'oauth-callback',
+    component: () => import('@/pages/OAuthCallback.vue'),
+  },
+  {
+    path: '/device-enrollment-test',
+    name: 'device-enrollment-test',
+    component: () => import('@/pages/DeviceEnrollmentTest.vue'),
+  },
+  {
+    path: '/mtls-client-test',
+    name: 'mtls-client-test',
+    component: () => import('@/pages/MTLSClientTest.vue'),
+  },
+  {
+    path: '/desktop-mtls-test',
+    name: 'desktop-mtls-test',
+    component: () => import('@/pages/DesktopMTLSTest.vue'),
+  },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/',

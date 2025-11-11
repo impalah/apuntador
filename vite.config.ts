@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import vuetify from 'vite-plugin-vuetify'
 import { fileURLToPath, URL } from 'node:url'
+import { versionSync } from './config/vite-plugin-version-sync'
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,11 +14,22 @@ export default defineConfig({
         configFile: 'src/styles/variables.scss',
       },
     }),
+    versionSync({
+      packageJsonPath: './package.json',
+      versionFilePath: './src/utils/version.ts',
+      updateInDev: true
+    }),
   ],
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
     },
+  },
+  // Prevent pre-bundling of Tauri packages in development
+  optimizeDeps: {
+    exclude: [
+      '@tauri-apps/api',
+    ],
   },
   css: {
     preprocessorOptions: {
@@ -82,6 +94,10 @@ export default defineConfig({
     sourcemap: true,
     chunkSizeWarningLimit: 1000, // Increase chunk size warning limit
     rollupOptions: {
+      external: [
+        // Externalize Tauri modules (only for desktop, not web)
+        '@tauri-apps/api',
+      ],
       output: {
         // Manual chunks to improve bundle splitting
         manualChunks: {

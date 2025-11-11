@@ -2,7 +2,7 @@
   <v-dialog
     :model-value="modelValue"
     @update:model-value="$emit('update:modelValue', $event)"
-    max-width="600"
+    max-width="700"
     scrollable
     data-testid="settings-dialog"
   >
@@ -15,13 +15,15 @@
       <v-divider />
 
       <v-card-text style="height: 500px">
-        <v-tabs v-model="activeTab">
+        <v-tabs v-model="activeTab" show-arrows density="compact">
           <v-tab value="appearance" data-testid="appearance-tab">{{
             t('settings.appearance')
           }}</v-tab>
           <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
           <v-tab value="controls" data-testid="controls-tab">{{ t('settings.controls') }}</v-tab>
+          <v-tab value="cloud" data-testid="cloud-tab">{{ t('settings.cloud') }}</v-tab>
           <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
+          <v-tab value="about" data-testid="about-tab">{{ t('settings.about') }}</v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="activeTab">
@@ -283,6 +285,19 @@
             </v-form>
           </v-tabs-window-item>
 
+          <!-- Cloud Tab -->
+          <v-tabs-window-item value="cloud">
+            <div class="mt-4">
+              <!-- Cloud Storage Providers -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">{{ t('settings.cloudProviders') }}</h3>
+
+                <!-- Cloud Provider Selector -->
+                <CloudProviderSelector />
+              </div>
+            </div>
+          </v-tabs-window-item>
+
           <!-- Data Tab -->
           <v-tabs-window-item value="data">
             <div class="mt-4">
@@ -308,12 +323,67 @@
               </div>
             </div>
           </v-tabs-window-item>
+
+          <!-- About Tab -->
+          <v-tabs-window-item value="about">
+            <div class="mt-4 text-center">
+              <!-- App Title and Subtitle -->
+              <div class="mb-6">
+                <h2 class="text-h4 mb-2">{{ versionInfo.name }} - {{ t('settings.subtitle') }}</h2>
+                <p class="text-body-1 text-medium-emphasis">{{ t('settings.version') }}: {{ versionInfo.version }}</p>
+              </div>
+
+              <!-- Copyright -->
+              <div class="mb-4">
+                <p class="text-body-2 text-medium-emphasis">{{ versionInfo.copyright }}</p>
+              </div>
+
+              <!-- Repository Link -->
+              <div>
+                <v-btn 
+                  :href="versionInfo.repositoryUrl" 
+                  target="_blank" 
+                  variant="outlined" 
+                  prepend-icon="mdi-github"
+                >
+                  GitHub Repository
+                </v-btn>
+              </div>
+            </div>
+          </v-tabs-window-item>
         </v-tabs-window>
       </v-card-text>
 
       <v-divider />
 
       <v-card-actions>
+        <v-btn
+          v-if="isNativePlatform"
+          color="secondary"
+          variant="text"
+          @click="goToEnrollmentTest"
+          prepend-icon="mdi-shield-check"
+        >
+          Device Enrollment Test
+        </v-btn>
+        <v-btn
+          v-if="isNativePlatform"
+          color="info"
+          variant="text"
+          @click="goToMTLSTest"
+          prepend-icon="mdi-lock-check"
+        >
+          mTLS Client Test
+        </v-btn>
+        <v-btn
+          v-if="isTauriPlatform"
+          color="success"
+          variant="text"
+          @click="goToDesktopMTLSTest"
+          prepend-icon="mdi-desktop-mac"
+        >
+          Desktop mTLS Test
+        </v-btn>
         <v-spacer />
         <v-btn
           color="primary"
@@ -328,25 +398,51 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'
 import type { HotkeyDefinition } from '@/types'
 import { useGamepad } from '@/utils/gamepad'
+import { getVersionInfo } from '@/utils/version'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
+import DropboxConnection from './cloud/DropboxConnection.vue'
+import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
+import { isTauri } from '@/utils/tauri'
 
 // I18n
 const { t } = useI18n()
 
+// Router
+const router = useRouter()
+
 // Props
 interface Props {
   modelValue: boolean
+  initialTab?: string
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  initialTab: 'appearance'
+})
+
+// Watch for prop changes to update active tab
+watch(() => props.initialTab, (newTab) => {
+  if (newTab && props.modelValue) {
+    activeTab.value = newTab
+  }
+})
+
+// Watch for dialog opening to set initial tab
+watch(() => props.modelValue, (isOpen) => {
+  if (isOpen && props.initialTab) {
+    activeTab.value = props.initialTab
+  }
+})
 
 // Emits
 const emit = defineEmits<{
@@ -360,12 +456,15 @@ const i18nStore = useI18nStore()
 // Gamepad composable
 const gamepadComposable = useGamepad()
 
+// Version info
+const versionInfo = getVersionInfo()
+
 // Computed
 const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
 const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
 // State
-const activeTab = ref('appearance')
+const activeTab = ref(props.initialTab)
 
 // Font families available
 const fontFamilies = [
@@ -419,6 +518,34 @@ async function onClearAllData() {
     // Reload the page to reset everything
     window.location.reload()
   }
+}
+
+// Platform detection
+const isNativePlatform = computed(() => Capacitor.isNativePlatform())
+
+// Check if running in Tauri (Desktop) - use the utility function
+const isTauriPlatform = computed(() => {
+  const result = isTauri()
+  console.log('🔍 isTauriPlatform check:', result)
+  return result
+})
+
+// Navigate to device enrollment test
+function goToEnrollmentTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'device-enrollment-test' })
+}
+
+// Navigate to mTLS client test
+function goToMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'mtls-client-test' })
+}
+
+// Navigate to Desktop mTLS test
+function goToDesktopMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'desktop-mtls-test' })
 }
 </script>
 

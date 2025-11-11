@@ -269,6 +269,7 @@ The desktop app maintains full compatibility with all web features while adding 
 
 - **GitHub Actions** - Automated testing and deployment (web + Android)
 
+See [**GITHUB_SECRETS_SETUP.md**](./docs/GITHUB_SECRETS_SETUP.md) for environment variables configuration in CI/CD.  
 See [**GITHUB_SECRETS.md**](./GITHUB_SECRETS.md) for Android APK build secrets configuration.  
 See [**SCRIPTS_REFERENCE.md**](./SCRIPTS_REFERENCE.md) for cross-platform build scripts documentation.  
 See [**SECURITY.md**](./SECURITY.md) for security guidelines and sensitive file handling.
@@ -622,7 +623,7 @@ tests/e2e/
 
 ### Available Documentation
 
-- **[API Reference](./docs/api/)** - Complete API documentation
+- **[API Reference](./docs/)** - Complete API documentation
 - **[Architecture Guide](./docs/architecture/)** - System design and patterns
 - **[Deployment Guide](./docs/deployment/)** - Production deployment options
 - **[User Guide](./docs/guide/)** - End-user documentation

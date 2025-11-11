@@ -43,20 +43,22 @@ test.describe('Text Alignment Controls', () => {
     const editorButton = page.locator('[data-testid="editor-button"]').first()
     await editorButton.click()
 
-    // Wait for editor dialog
-    const editorDialog = page.locator('[role="dialog"]')
-    await expect(editorDialog).toBeVisible()
+    // Wait for navigation to editor page (route is /edit, not /editor)
+    await page.waitForURL('**/edit')
 
+    // Editor is now a full page, not a dialog
+    const textarea = page.locator('textarea')
+    await expect(textarea).toBeVisible()
+    
     // Add content in the textarea
-    const textarea = editorDialog.locator('textarea')
     await textarea.fill(testContent)
 
-    // Save content
-    const saveButton = editorDialog.locator('button[icon="mdi-check"], button:has(.mdi-check)')
-    await saveButton.click()
+    // Apply changes and return to teleprompter
+    const applyButton = page.locator('[data-testid="apply-button"]')
+    await applyButton.click()
 
-    // Wait for dialog to close
-    await expect(editorDialog).not.toBeVisible()
+    // Wait for navigation back to home
+    await page.waitForURL('**/')
 
     // Now test alignment changes
     const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
@@ -274,32 +276,35 @@ test.describe('Text Alignment Controls', () => {
     const editorButton = page.locator('[data-testid="editor-button"]').first()
     await editorButton.click()
 
-    const editorDialog = page.locator('[role="dialog"]')
-    await expect(editorDialog).toBeVisible()
+    // Wait for navigation to editor page (route is /edit, not /editor)
+    await page.waitForURL('**/edit')
 
+    // Editor is now a full page, not a dialog
+    const textarea = page.locator('textarea')
+    await expect(textarea).toBeVisible()
+    
     // Add content
-    const textarea = editorDialog.locator('textarea')
     await textarea.fill(testContent)
 
-    // Enable preview if not on mobile
-    if (!(await page.locator('button:has-text("👁")').isVisible())) {
-      const previewToggle = editorDialog.locator(
-        'button:has([icon="mdi-eye"], [icon="mdi-view-split-vertical"])'
-      )
-      if (await previewToggle.isVisible()) {
-        await previewToggle.click()
-      }
+    // Toggle to preview mode
+    const previewToggle = page.locator('button[icon="mdi-eye"]')
+    if (await previewToggle.isVisible()) {
+      await previewToggle.click()
+      await page.waitForTimeout(300)
     }
 
     // Check if preview content has correct alignment
-    const previewContent = editorDialog.locator('.preview-content')
+    const previewContent = page.locator('.preview-content')
     if (await previewContent.isVisible()) {
       const textAlign = await previewContent.evaluate((el) => window.getComputedStyle(el).textAlign)
       expect(textAlign).toBe('right')
     }
 
-    // Close editor
-    const closeButton = editorDialog.locator('button[icon="mdi-close"], button:has(.mdi-close)')
+    // Close editor and return to teleprompter
+    const closeButton = page.locator('[data-testid="close-button"]')
     await closeButton.click()
+    
+    // Wait for navigation back to home
+    await page.waitForURL('**/')
   })
 })

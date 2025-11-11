@@ -11,7 +11,7 @@
     />
 
     <!-- Modular FloatingToolbar - Using component interfaces -->
-    <FloatingToolbarModular
+    <FloatingToolbar
       :scroll-state="{
         offset: teleprompterStore.scrollOffset,
         isPlaying: teleprompterStore.isPlaying,
@@ -50,40 +50,39 @@
       @open-file="onOpenFile"
     />
 
-    <!-- Settings Dialog -->
-    <SettingsDialog v-model="settingsOpen" @file-imported="onFileImported" />
+    <!-- iOS Back Button (floating) -->
+    <v-btn
+      v-if="showIOSBackButton"
+      icon="mdi-arrow-left"
+      color="primary"
+      size="small"
+      class="ios-back-button"
+      @click="router.push('/')"
+    />
 
-    <!-- Markdown Editor -->
-    <MarkdownEditor
-      v-model="editorOpen"
-      :content="teleprompterStore.contentRaw"
-      :display-prefs="{
-        textAlignment: prefsStore.textAlignment,
-        bgColor: prefsStore.bgColor,
-        fgColor: prefsStore.fgColor,
-      }"
-      :file-state="{
-        displayName: fileStore.displayName,
-        originalContent: fileStore.originalContent,
-        hasUnsavedChanges: fileStore.hasUnsavedChanges,
-        canSave: fileStore.canSave,
-        canSaveAsNewCopy: fileStore.canSaveAsNewCopy,
-        isNewFile: fileStore.isNewFile,
-        fileName: fileStore.fileName,
-      }"
-      :file-actions="{
-        createNew: fileStore.createNew,
-        markAsModified: fileStore.markAsModified,
-        markAsSaved: fileStore.markAsSaved,
-        setContent: fileStore.setContent,
-        setFileHandle: fileStore.setFileHandle,
-      }"
-      @save="onEditorSave"
-      @open-file="onOpenFile"
+    <!-- Settings Dialog -->
+    <SettingsDialog 
+      v-model="settingsOpen" 
+      :initial-tab="settingsInitialTab"
+      @file-imported="onFileImported" 
     />
 
     <!-- File Loader -->
-    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
+    <FileLoader 
+      v-model="fileLoaderOpen" 
+      auto-import 
+      @file-imported="onFileImported" 
+    />
+
+    <!-- Android Exit Confirmation Snackbar -->
+    <v-snackbar
+      v-model="showExitSnackbar"
+      :timeout="2000"
+      color="info"
+      location="bottom"
+    >
+      {{ t('teleprompter.pressBackAgainToExit') }}
+    </v-snackbar>
   </div>
 </template>
 
@@ -91,6 +90,9 @@
 import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDisplay } from 'vuetify'
+import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
+import { App } from '@capacitor/app'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
@@ -98,19 +100,14 @@ import { useFileStore } from '@/stores/useFileStore'
 import { useTeleprompterFrameProps } from '@/adapters/storeToComponent'
 import {
   hotkeyManager,
-  DEFAULT_HOTKEYS,
   updateDescriptionsInMapping,
   updateDescriptionsInGamepadMapping,
 } from '@/utils/hotkeys'
 import { gamepadManager } from '@/utils/gamepadManager'
-import { isTouchDevice } from '@/utils/dom'
-import { TOOLBAR_HIDE_DELAY } from '@/utils/constants'
-
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
-import FloatingToolbarModular from '@/components/FloatingToolbarModular.vue'
+import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
-import MarkdownEditor from '@/components/MarkdownEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 
@@ -121,11 +118,15 @@ const i18nStore = useI18nStore()
 const fileStore = useFileStore()
 
 // Composables
-const { locale } = useI18n()
+const { locale, t } = useI18n()
 const { xs, sm } = useDisplay()
+const router = useRouter()
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
+
+// Show iOS back button (iOS doesn't have system back button)
+const showIOSBackButton = computed(() => Capacitor.getPlatform() === 'ios')
 
 // Modular component props
 const teleprompterFrameProps = useTeleprompterFrameProps()
@@ -135,7 +136,7 @@ const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()
 
 // UI state
 const settingsOpen = ref(false)
-const editorOpen = ref(false)
+const settingsInitialTab = ref('appearance')
 const fileLoaderOpen = ref(false)
 const currentOrientation = ref<'portrait' | 'landscape'>('landscape')
 
@@ -183,6 +184,12 @@ function handleScreenTap() {
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
+    // Always hide toolbar if settings or file loader is open
+    if (settingsOpen.value || fileLoaderOpen.value) {
+      hideToolbar()
+      return
+    }
+    
     if (isPlaying) {
       // Hide toolbar during playback for clean reading experience on all devices
       hideToolbar()
@@ -194,8 +201,22 @@ watch(
   { immediate: true }
 )
 
-// Touch device detection
-const isTouch = isTouchDevice()
+// Watch for settings/file loader state changes - always hide toolbar when modals are open
+watch(
+  () => [settingsOpen.value, fileLoaderOpen.value],
+  ([settings, fileLoader]) => {
+    if (settings || fileLoader) {
+      // Hide toolbar when any modal is open
+      hideToolbar()
+    } else {
+      // When modals close, restore toolbar based on play state
+      if (!teleprompterStore.isPlaying) {
+        showToolbar()
+      }
+    }
+  },
+  { immediate: true }
+)
 
 // Handle orientation changes
 const handleOrientationChange = async () => {
@@ -212,6 +233,46 @@ const handleOrientationChange = async () => {
   }
 }
 
+// Android back button handler with double-tap to exit
+let lastBackPress = 0
+let backButtonHandler: any = null
+const showExitSnackbar = ref(false)
+
+function setupBackButtonHandler() {
+  backButtonHandler = App.addListener('backButton', () => {
+    const currentRoute = router.currentRoute.value.path
+    const now = Date.now()
+    
+    // If we're NOT on the main route (/), go to main route
+    if (currentRoute !== '/') {
+      router.push('/')
+      return
+    }
+    
+    // We're on main route - check for double tap to exit
+    if (now - lastBackPress < 2000) {
+      // Double tap detected - exit app
+      showExitSnackbar.value = false
+      App.exitApp()
+    } else {
+      // Single tap - show toast message
+      lastBackPress = now
+      showExitToast()
+    }
+  })
+}
+
+// Toast message for exit confirmation
+function showExitToast() {
+  showExitSnackbar.value = true
+  
+  // Hide snackbar after 2 seconds
+  setTimeout(() => {
+    showExitSnackbar.value = false
+    lastBackPress = 0
+  }, 2000)
+}
+
 // Lifecycle
 onMounted(async () => {
   // Initialize stores
@@ -220,6 +281,9 @@ onMounted(async () => {
   // Apply CSS variables
   prefsStore.applyCSSVariables()
 
+  // Check for hash-based navigation (e.g., /#options/cloud)
+  parseHashNavigation()
+
   // Get initial orientation on mobile
   if (isMobile()) {
     currentOrientation.value = await getCurrentOrientation()
@@ -227,6 +291,11 @@ onMounted(async () => {
     // Listen for orientation changes
     window.addEventListener('orientationchange', handleOrientationChange)
     window.addEventListener('resize', handleOrientationChange)
+  }
+
+  // Setup Android back button handler
+  if (Capacitor.getPlatform() === 'android') {
+    setupBackButtonHandler()
   }
 
   // Setup hotkeys (always enabled for Bluetooth keyboard support)
@@ -249,6 +318,11 @@ onMounted(async () => {
 onUnmounted(() => {
   hotkeyManager.stopListening()
   gamepadManager.stopListening()
+
+  // Clean up back button handler
+  if (backButtonHandler) {
+    backButtonHandler.remove()
+  }
 
   // Clean up orientation listeners on mobile
   if (isMobile()) {
@@ -362,7 +436,7 @@ function onMirrorToggle(axis: 'h' | 'v') {
 }
 
 function onOpenEditor() {
-  editorOpen.value = true
+  router.push('/edit')
 }
 
 function onOpenSettings() {
@@ -409,10 +483,37 @@ function onTeleprompterTap() {
   window.dispatchEvent(event)
 }
 
-async function onEditorSave(content: string) {
-  await teleprompterStore.setContent(content)
-  editorOpen.value = false
+// Parse hash navigation for deep linking (e.g., /#options/cloud)
+function parseHashNavigation() {
+  const hash = window.location.hash
+  
+  if (!hash || hash === '#' || hash === '#/') {
+    return
+  }
+
+  // Remove the leading '#' or '#/'
+  const path = hash.replace(/^#\/?/, '')
+  
+  // Parse the path segments
+  const segments = path.split('/')
+  
+  // Handle different navigation patterns
+  if (segments[0] === 'options' && segments.length > 1) {
+    // Open settings dialog with specific tab
+    const tab = segments[1]
+    settingsInitialTab.value = tab
+    
+    // Use nextTick to ensure the dialog opens after the tab is set
+    nextTick(() => {
+      settingsOpen.value = true
+    })
+    
+    // Clear the hash after processing to avoid re-triggering
+    window.history.replaceState(null, '', window.location.pathname)
+  }
 }
+
+
 
 async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
   await teleprompterStore.setContent(content)
@@ -446,11 +547,8 @@ async function loadSampleContent() {
     await teleprompterStore.setContent(content)
   } catch (error) {
     console.warn('Failed to load sample content:', error)
-    // Fallback content based on locale
-    const fallbackContent =
-      locale.value === 'es-ES'
-        ? '# Bienvenido a Apuntador\n\nComienza importando tu guión o usando el editor para crear nuevo contenido.'
-        : '# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.'
+    // Fallback content using i18n
+    const fallbackContent = t('messages.welcomeContent')
     await teleprompterStore.setContent(fallbackContent)
   }
 }
@@ -482,7 +580,6 @@ function setupHotkeys() {
     'align-right': () => prefsStore.setTextAlignment('right'),
     'close-modal': () => {
       settingsOpen.value = false
-      editorOpen.value = false
       fileLoaderOpen.value = false
     },
   }
@@ -520,7 +617,6 @@ function setupGamepad() {
     'align-right': () => prefsStore.setTextAlignment('right'),
     'close-modal': () => {
       settingsOpen.value = false
-      editorOpen.value = false
       fileLoaderOpen.value = false
     },
   }
@@ -545,19 +641,37 @@ function setupGamepad() {
   background: var(--teleprompter-bg, #000000);
   color: var(--teleprompter-fg, #ffffff);
 
-  /* Android edge-to-edge support */
-  padding-top: env(safe-area-inset-top, 0px);
+  /* Android edge-to-edge support - no top padding for full immersion */
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
   /* Don't add bottom padding here - let FloatingToolbar handle it */
 }
 
-/* Ensure content area respects safe areas on Android */
+/* iOS Back Button - Floating in top-left corner */
+.ios-back-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1000;
+  opacity: 0.7;
+  transition: opacity 0.3s;
+}
+
+.ios-back-button:hover {
+  opacity: 1;
+}
+
+/* Ensure content area respects safe areas on Android - no top padding for immersive teleprompter */
 @supports (padding: max(0px)) {
   .teleprompter-page {
-    padding-top: max(0px, env(safe-area-inset-top, 0px));
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
+  }
+  
+  /* iOS Back Button respects safe area */
+  .ios-back-button {
+    top: max(20px, env(safe-area-inset-top, 20px));
+    left: max(20px, env(safe-area-inset-left, 20px));
   }
 }
 </style>

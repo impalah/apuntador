@@ -7,8 +7,9 @@ This document outlines the current features and planned development roadmap for 
 | Version | Status | Release Date | Focus |
 |---------|--------|--------------|-------|
 | **1.0** | ✅ Released | Q3 2025 | Core Features & Multi-Platform |
-| **1.1** | 🔄 In Planning | Q4 2025 | Cloud & Collaboration |
-| **1.2** | 📋 Planned | Q1 2026 | AI & Voice Control |
+| **1.1** | 🔄 In Progress | Q4 2025 | Multilanguage & Basic Integration |
+| **1.2** | 📋 Planned | Q1 2026 | Cloud Sync & Content Management |
+| **1.3** | 📋 Planned | Q2 2026 | Professional Features & Analytics |
 
 ---
 
@@ -115,32 +116,27 @@ This document outlines the current features and planned development roadmap for 
 
 ---
 
-## 🌟 Version 1.1 - Cloud Integration & Professional Features (Q4 2025)
+## 🌟 Version 1.1 - Multilanguage & Basic Integration (Q4 2025)
 
-**Status**: 🔄 **In Development**
+**Status**: 🔄 **In Progress** *(v1.0.32 - Multilanguage completed, cloud integration pending)*
 
-### Multilanguage integration
-- [ ] **Support for multilanguage**
-  - Increase the list of available languages.
-  - RTL, LTR support.
+### Multilanguage Support
+- [x] **Complete multilanguage implementation** ✅ **COMPLETED**
+  - ✅ **New languages implemented**: Català (ca-ES), Galego (gl-ES), Português Brasil (pt-BR), Português Portugal (pt-PT), Français (fr-FR), Deutsch (de-DE), Italiano (it-IT)
+  - ✅ **Automatic browser detection** for all supported languages
+  - ✅ **Fallback system** with Spanish as default
+  - ✅ **Dynamic language switching** with persistence
+  - [ ] **RTL support** for Hebrew, Arabic, and other RTL languages *(moved to v1.2)*
 
 ### Integration Capabilities
-- [ ] **Third-party integrations**
-  - Google Drive, Dropbox, Onedrive sync
-
-### Professional Features
-- [ ] **Reading performance analytics**
-  - Words per minute tracking
-  - Reading session statistics
-  - Performance trends over time
-- [ ] **Advanced scheduling**
-  - Timed script sections
-  - Automatic speed adjustments
-  - Presentation mode with timing cues
+- [ ] **Basic third-party integrations** 🔄 **IN PROGRESS**
+  - Google Drive, Dropbox, OneDrive sync for script files
+  - Import/export compatibility with common formats
+  - **Technical requirements**: File API integration, cloud storage SDKs
 
 ---
 
-## 🤖 Version 1.2 - Collaboration & Enhanced Content Management (Q1 2026)
+## 🤖 Version 1.2 - Cloud Sync & Enhanced Content Management (Q1 2026)
 
 **Status**: 📋 **Planned**
 
@@ -149,22 +145,15 @@ This document outlines the current features and planned development roadmap for 
   - Sync scripts across devices
   - Backup and restore functionality
   - Offline-first with sync when available
-- [ ] **Multi-device continuity**
-  - Resume reading position across devices
-  - Synchronized settings and preferences
-  - Real-time sync indicators
+  - **Technical requirements**: Cloud storage APIs, sync algorithms
 
-### Collaboration Features
-- [ ] **Multi-user script editing**
-  - Real-time collaborative editing
-  - Comment and suggestion system
-  - Version history and rollback
-- [ ] **Team workspace management**
-  - Shared script libraries
-  - User permissions and roles
-  - Activity tracking and notifications
+### Enhanced Multilanguage Features
+- [ ] **RTL language support**
+  - Hebrew, Arabic, Persian, Urdu support
+  - Automatic text direction detection
+  - **Technical requirements**: RTL CSS implementation, text direction management
 
-### Enhanced Content Management
+### Content Management & Organization
 - [ ] **Script templates library**
   - Pre-built templates for different use cases
   - Custom template creation and sharing
@@ -173,10 +162,88 @@ This document outlines the current features and planned development roadmap for 
   - Folder structure for scripts
   - Tagging and search functionality
   - Favorites and recent scripts
+  - **Technical requirements**: Metadata management, search indexing
+
+### Multi-device Continuity
+- [ ] **Basic device synchronization**
+  - Resume reading position across devices
+  - Synchronized settings and preferences
+  - Real-time sync indicators
+  - **Technical requirements**: Simple cloud sync, no real-time collaboration
 
 ---
 
-## 🔮 Future Considerations (v1.3+)
+## 🎬 Version 1.3 - Professional Features & Analytics (Q2 2026)
+
+**Status**: 📋 **Planned**  
+*Introduces professional-grade features while maintaining client-only architecture*
+
+### Professional Analytics (Local Storage)
+- [ ] **Reading performance analytics** *(Single device, local storage)*
+  - Words per minute tracking and trends
+  - Reading session statistics and history
+  - Performance coaching insights
+  - **Technical requirements**: Local analytics engine, session management
+
+### Enhanced Script Features
+- [ ] **Advanced script formatting** *(Preparation for timing features)*
+  - Paragraph markers and section breaks
+  - Reading time estimates per section
+  - Enhanced markdown extensions
+  - **Technical requirements**: Extended markdown parser, content analysis
+
+### Basic Professional Tools
+- [ ] **Presentation enhancements**
+  - Multiple cue modes (practice, live, recording)
+  - Basic timing indicators
+  - Session type management
+  - **Technical requirements**: Session state management, timing utilities
+
+### Collaboration Features (Basic)
+- [ ] **Multi-user script editing** *(Simple sharing)*
+  - Real-time collaborative editing
+  - Comment and suggestion system
+  - Version history and rollback
+  - **Technical requirements**: Operational transforms, conflict resolution
+
+---
+
+## 🏭 Version 1.4 - Advanced Professional Studio Features (Q3 2026)
+
+**Status**: 🔮 **Future Planning**  
+*Requires major architectural changes and backend infrastructure*
+
+### Session Management & Coordination
+- [ ] **Professional session system** 
+  - Session types: rehearsal, live broadcast, recording
+  - Multi-user session coordination
+  - **Technical requirements**: Backend services, user authentication, real-time sync
+  
+- [ ] **Advanced script formats**
+  - LYR-format compatibility for timed scripts
+  - Industry-standard teleprompter formats
+  - **Technical requirements**: New parser engines, format conversion tools
+
+### Multi-Device Synchronization
+- [ ] **Producer/Presenter mode**
+  - Dual-screen professional setup
+  - Real-time timing cues and control
+  - **Technical requirements**: WebRTC infrastructure, device pairing protocols
+  
+- [ ] **Advanced scheduling with timing**
+  - Automatic speed adjustments based on schedule
+  - Live broadcast timing integration
+  - **Technical requirements**: Timing engine, external system APIs
+
+### Studio Integration
+- [ ] **Broadcasting system compatibility**
+  - OBS Studio integration
+  - Professional teleprompter hardware support
+  - **Technical requirements**: Native plugins, hardware SDKs
+
+---
+
+## 🔮 Future Considerations (v1.5+)
 
 ### Advanced Analytics
 - [ ] **AI-powered reading insights**
@@ -247,6 +314,57 @@ This document outlines the current features and planned development roadmap for 
   - Multi-tenant architecture
   - Usage analytics and reporting
   - Custom branding options
+
+### Multilanguage integration
+- [ ] **Support for multilanguage**
+  - Increase the list of available languages.
+  - RTL, LTR support.
+
+---
+
+## 🏗️ Architectural Evolution & Technical Requirements
+
+### Current Architecture (v1.0-1.3)
+- **Client-only application**: No backend services required
+- **Local storage**: Browser-based persistence only  
+- **Single device**: Independent operation per device
+- **Static deployment**: Can be hosted as static files
+
+### Required Changes for Advanced Features (v1.4+)
+
+#### Backend Infrastructure Requirements
+- [ ] **Real-time synchronization services**
+  - WebSocket/WebRTC infrastructure for multi-device sync
+  - User authentication and session management
+  - **Impact**: Requires backend services, hosting costs, complexity increase
+
+- [ ] **Data persistence layer**
+  - Cloud database for cross-device session data
+  - Analytics storage and processing
+  - **Impact**: Database design, data privacy considerations, GDPR compliance
+
+#### Format & Protocol Extensions
+- [ ] **Enhanced script formats**
+  - LYR format parser for timed scripts
+  - Industry teleprompter format compatibility
+  - **Impact**: New parsing engines, backward compatibility challenges
+
+- [ ] **Device communication protocols**
+  - Producer-presenter device pairing
+  - Real-time control message passing
+  - **Impact**: Network protocols, security considerations, connection management
+
+#### UI/UX Architectural Changes
+- [ ] **Multi-mode interfaces**
+  - Producer control panel vs presenter view
+  - Session management interfaces
+  - **Impact**: Complete UI restructuring, user experience complexity
+
+### Migration Strategy
+1. **v1.1-1.2**: Keep current simple, client-only architecture
+2. **v1.3**: Professional features with local storage (no backend required)  
+3. **v1.4**: Introduce optional backend services for advanced features
+4. **v1.5+**: Full professional studio integration with real-time sync
 
 ---
 

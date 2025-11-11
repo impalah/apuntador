@@ -1,14 +1,76 @@
 import UIKit
 import Capacitor
+import WebKit
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    private var secureEnclaveBridge: SecureEnclaveWebBridge?
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
+        
+        // Registrar plugins personalizados de mTLS
+        self.registerCustomPlugins()
+        
+        // Configurar el native bridge después de un pequeño delay
+        // para asegurar que el WebView esté cargado
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.setupWebViewBridge()
+        }
+        
         return true
+    }
+    
+    /**
+     * Configura el puente WKWebView nativo
+     */
+    private func setupWebViewBridge() {
+        // Buscar el CAPBridgeViewController en la jerarquía de vistas
+        guard let rootVC = window?.rootViewController else {
+            print("❌ [AppDelegate] No root view controller")
+            return
+        }
+        
+        // Capacitor usa un CAPBridgeViewController
+        if let bridgeVC = rootVC as? CAPBridgeViewController {
+            setupBridgeForViewController(bridgeVC)
+        } else if let navVC = rootVC as? UINavigationController,
+                  let bridgeVC = navVC.viewControllers.first as? CAPBridgeViewController {
+            setupBridgeForViewController(bridgeVC)
+        } else {
+            print("⚠️  [AppDelegate] Could not find CAPBridgeViewController")
+        }
+    }
+    
+    private func setupBridgeForViewController(_ bridgeVC: CAPBridgeViewController) {
+        guard let webView = bridgeVC.webView else {
+            print("❌ [AppDelegate] WebView not found in bridge view controller")
+            return
+        }
+        
+        print("✅ [AppDelegate] WebView found, registering message handler")
+        
+        // Crear y registrar el bridge
+        secureEnclaveBridge = SecureEnclaveWebBridge()
+        webView.configuration.userContentController.add(secureEnclaveBridge!, name: "secureEnclave")
+        
+        print("✅ [AppDelegate] SecureEnclave message handler registered")
+    }
+    
+    /**
+     * Registra los plugins personalizados de mTLS con Capacitor
+     */
+    private func registerCustomPlugins() {
+        // Forzar la carga de las clases de plugins para que Capacitor las encuentre
+        // Usando CAPBridgedPlugin protocol (Capacitor 6+)
+        _ = ApuntadorSecureEnclavePlugin.self
+        _ = ApuntadorAutoEnrollmentPlugin.self
+        _ = MTLSHttp.self
+        
+        print("✅ [AppDelegate] Custom plugins registration initialized")
+        print("ℹ️  Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

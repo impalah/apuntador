@@ -129,13 +129,13 @@ describe('FileLoader Component', () => {
       expect(wrapper.emitted('fileImported')[0]).toEqual(['# Test Content', { name: 'test.md' }])
     })
 
-    it('should emit update:modelValue when dialog is closed', () => {
+    it('should emit fileImported when onImport is called with content', () => {
       wrapper.vm.fileContent = 'test'
       wrapper.vm.fileInfo = { name: 'test.md', size: 100, type: 'text/markdown' }
       wrapper.vm.onImport()
 
-      expect(wrapper.emitted('update:modelValue')).toBeTruthy()
-      expect(wrapper.emitted('update:modelValue')[0]).toEqual([false])
+      expect(wrapper.emitted('fileImported')).toBeTruthy()
+      expect(wrapper.emitted('fileImported')[0]).toEqual(['test', { name: 'test.md' }])
     })
 
     it('should not emit fileImported when no file content', () => {
@@ -284,7 +284,7 @@ describe('FileLoader Component', () => {
       const emittedEvents = wrapper.emitted('fileImported')
       expect(emittedEvents).toBeTruthy()
       if (emittedEvents) {
-        expect(emittedEvents[0]).toEqual(['# Auto Import Test', { name: 'test.md' }])
+        expect(emittedEvents[0]).toEqual(['# Auto Import Test', { name: 'test.md', handle: null }])
       }
     })
   })

@@ -2,6 +2,13 @@
 
 🚀 Get Apuntador running on iOS in 5 simple steps.
 
+## ✅ Safe Area Issues Fixed
+
+**Editor toolbar spacing has been fixed for iOS and Android:**
+- Added `padding-top: max(44px, env(safe-area-inset-top, 0px))` to prevent toolbar overlap
+- Toolbar now properly respects status bar and notch areas
+- Applied to both mobile and web versions for consistency
+
 ## Prerequisites
 
 - ✅ Apple Developer Program membership ($99/year)

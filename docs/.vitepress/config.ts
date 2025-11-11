@@ -8,7 +8,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/getting-started' },
-      { text: 'API', link: '/api/' },
+      { text: 'API', link: '/' },
       { text: 'Architecture', link: '/architecture/' },
       { text: 'Deployment', link: '/deployment/' },
     ],
@@ -42,15 +42,15 @@ export default defineConfig({
           ],
         },
       ],
-      '/api/': [
+      '/': [
         {
           text: 'API Reference',
           items: [
-            { text: 'Overview', link: '/api/' },
-            { text: 'Stores', link: '/api/stores' },
-            { text: 'Components', link: '/api/components' },
-            { text: 'Utils', link: '/api/utils' },
-            { text: 'Types', link: '/api/types' },
+            { text: 'Overview', link: '/' },
+            { text: 'Stores', link: '/stores' },
+            { text: 'Components', link: '/components' },
+            { text: 'Utils', link: '/utils' },
+            { text: 'Types', link: '/types' },
           ],
         },
       ],

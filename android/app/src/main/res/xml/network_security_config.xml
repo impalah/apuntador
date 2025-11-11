@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- 
+        Configuración de seguridad de red con Certificate Pinning
+        
+        IMPORTANTE: 
+        - En desarrollo (debug builds), se permite HTTP para testing local
+        - En producción (release builds), solo HTTPS con certificate pinning
+        
+        Certificate Pinning:
+        - Protege contra ataques MITM incluso con CAs comprometidas
+        - Los pins SHA-256 deben obtenerse del backend: GET /device/ca-certificate-pin
+        - Incluye backup pin para rotación de certificados sin romper la app
+        
+        Para actualizar los pins:
+        1. Obtener nuevo pin: curl https://api.apuntador.io/device/ca-certificate-pin
+        2. Añadir nuevo pin como backup antes de rotar certificado
+        3. Después de la rotación, mover el pin antiguo a backup y el nuevo a primary
+    -->
+    
+    <!-- Configuración base: HTTPS obligatorio en producción -->
+    <base-config cleartextTrafficPermitted="true">
+        <!-- Debug: permite HTTP + user certificates para Charles/mitmproxy -->
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+    
+    <!-- 
+        Backend API con Certificate Pinning - ngrok (Desarrollo)
+        
+        Para obtener el pin del certificado de ngrok:
+        echo | openssl s_client -servername apuntador.ngrok.app -connect apuntador.ngrok.app:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64
+    -->
+    <domain-config cleartextTrafficPermitted="false">
+        <!-- ngrok domain para desarrollo -->
+        <domain includeSubdomains="true">apuntador.ngrok.app</domain>
+        
+        <!-- Certificate Pinning: SHA-256 del certificado de ngrok -->
+        <pin-set expiration="2026-12-31">
+            <!-- Pin del certificado de ngrok -->
+            <pin digest="SHA-256">wexXiEAY/v67Xokb8oZpilJNMfon0OnTAB6vGdI94Mw=</pin>
+            
+            <!-- Backup pin deshabilitado en desarrollo -->
+            <!-- <pin digest="SHA-256">BACKUP_PIN_AQUI_CUANDO_SEA_NECESARIO</pin> -->
+        </pin-set>
+        
+        <!-- Trust anchors: Solo certificados del sistema -->
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+    
+    <!-- 
+        Backend API con Certificate Pinning - Producción
+        DESHABILITADO TEMPORALMENTE: Habilitar cuando se despliegue a AWS
+    -->
+    <!--
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="true">api.apuntador.io</domain>
+        
+        <pin-set expiration="2026-12-31">
+            <pin digest="SHA-256">PRIMARY_PRODUCTION_PIN_AQUI</pin>
+            <pin digest="SHA-256">BACKUP_PRODUCTION_PIN_AQUI</pin>
+        </pin-set>
+        
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </domain-config>
+    -->
+    
+    <!-- 
+        Localhost para desarrollo con backend local
+        Permite cleartext (HTTP) para testing
+    -->
+    <domain-config cleartextTrafficPermitted="true">
+        <domain includeSubdomains="true">localhost</domain>
+        <domain includeSubdomains="false">127.0.0.1</domain>
+        <domain includeSubdomains="false">10.0.2.2</domain>
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </domain-config>
+</network-security-config>

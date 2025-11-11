@@ -7,7 +7,7 @@
       <div class="gamepad-input">
         <v-text-field
           :model-value="displayButton"
-          :placeholder="isListening ? 'Press any gamepad button...' : 'Click to assign button'"
+          :placeholder="isListening ? $t('gamepad.pressAnyButton') : $t('gamepad.clickToAssign')"
           :error="hasError"
           :error-messages="errorMessage"
           readonly

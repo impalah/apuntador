@@ -6,8 +6,10 @@
     "save": "Save",
     "cancel": "Cancel",
     "close": "Close",
+    "open": "Open",
     "reset": "Reset",
     "apply": "Apply",
+    "delete": "Delete",
     "auto": "Auto",
     "yes": "Yes",
     "no": "No",
@@ -58,6 +60,7 @@
     "behavior": "Behavior",
     "controls": "Controls",
     "data": "Data",
+    "about": "About",
     "language": "Language",
     "languageAuto": "Automatic",
     "languageSpanish": "Español",
@@ -97,13 +100,24 @@
     "settingsReset": "Settings reset successfully",
     "dataCleared": "All data has been cleared",
     "exportError": "Error exporting settings",
-    "importError": "Error importing settings"
+    "importError": "Error importing settings",
+    "subtitle": "Professional Teleprompter",
+    "version": "Version",
+    "copyright": "Copyright",
+    "cloud": "Cloud",
+    "cloudProviders": "Cloud Storage Providers",
+    "cloudProvidersDescription": "Connect your cloud storage accounts to sync and access your scripts from any device."
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Press back again to exit the app"
   },
   "editor": {
     "title": "Markdown Editor",
     "placeholder": "Start typing your markdown content here...",
     "preview": "Preview",
     "edit": "Edit",
+    "editMode": "Edit mode",
+    "previewMode": "Preview mode",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
     "wordWrap": "Word wrap",
@@ -148,6 +162,21 @@
     "saveAs": "Save as",
     "import": "Import"
   },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Cloud",
+    "localOpenTitle": "Open local file",
+    "localOpenDescription": "Select a markdown (.md) or text (.txt) file from your computer.",
+    "localSaveTitle": "Save local file",
+    "localSaveDescription": "Save the content to a file on your computer.",
+    "browseFiles": "Browse files",
+    "saveToComputer": "Save to computer",
+    "cloudNotConnected": "Not connected to cloud",
+    "cloudNotConnectedDescription": "There is no active connection to cloud storage services. Please configure your connection in Apuntador settings.",
+    "goToSettings": "Go to settings",
+    "fileName": "File name",
+    "fileNameHint": ".md extension will be added automatically if not present"
+  },
   "hotkeys": {
     "title": "Hotkeys",
     "playPause": "Play/Pause",
@@ -171,7 +200,9 @@
     "saveCopy": "Save copy",
     "fullscreen": "Fullscreen",
     "showHelp": "Show help",
-    "resetToDefaults": "Reset to Defaults"
+    "resetToDefaults": "Reset to Defaults",
+    "pressAnyKey": "Press any key...",
+    "clickToSet": "Click to set hotkey"
   },
   "gamepad": {
     "status": "Gamepad Status",
@@ -182,6 +213,8 @@
     "assignmentInstructions": "Assign gamepad buttons to teleprompter actions. Click on an input field and press any gamepad button to assign it.",
     "resetToDefaults": "Reset to Defaults (All None)",
     "leftStick": "Left stick",
+    "pressAnyButton": "Press any gamepad button...",
+    "clickToAssign": "Click to assign button",
     "rightStick": "Right stick",
     "dpad": "D-pad",
     "buttonA": "Button A",
@@ -206,7 +239,46 @@
     "networkError": "Network error",
     "unknownError": "Unknown error",
     "gamepadNotConnected": "Gamepad not connected",
-    "gamepadError": "Gamepad error"
+    "gamepadError": "Gamepad error",
+    "reconnectError": "Error reconnecting",
+    "services": {
+      "oauth": {
+        "invalidState": "Invalid authentication state. Please try again.",
+        "csrfDetected": "Security error detected. Connection aborted.",
+        "noAccessToken": "Authentication failed. No access token received.",
+        "codeVerifierMissing": "Session expired. Please restart the authentication process."
+      },
+      "cloud": {
+        "notConnected": "Not connected to cloud storage. Please connect first.",
+        "connectionFailed": "Failed to connect to cloud storage.",
+        "disconnectionFailed": "Failed to disconnect from cloud storage.",
+        "listFilesFailed": "Failed to load file list.",
+        "downloadFailed": "Failed to download file.",
+        "uploadFailed": "Failed to upload file.",
+        "deleteFailed": "Failed to delete file.",
+        "noContent": "File is empty or could not be read.",
+        "unknownFormat": "Unknown file format received.",
+        "noProvider": "No cloud provider configured."
+      },
+      "file": {
+        "readFailed": "Could not read the file.",
+        "writeFailed": "Could not save the file.",
+        "invalidType": "Invalid file type. Only .md and .txt files are supported.",
+        "noFileHandle": "No file selected.",
+        "accessDenied": "File access denied."
+      },
+      "fullscreen": {
+        "notSupported": "Fullscreen mode is not supported in this browser.",
+        "exitFailed": "Could not exit fullscreen mode."
+      },
+      "certificate": {
+        "enrollmentFailed": "Device enrollment failed.",
+        "renewalFailed": "Certificate renewal failed.",
+        "validationFailed": "Certificate validation failed.",
+        "noPinsReceived": "No certificate pins received from server.",
+        "stillInvalid": "Certificate is still invalid after enrollment."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Loading file...",
@@ -214,7 +286,62 @@
     "fileLoadComplete": "File loaded successfully",
     "fileSaveComplete": "File saved successfully",
     "gamepadConnected": "Gamepad connected",
-    "gamepadDisconnected": "Gamepad disconnected"
+    "gamepadDisconnected": "Gamepad disconnected",
+    "welcomeContent": "# Welcome to Apuntador\n\nStart by importing your script or using the editor to create new content.",
+    "services": {
+      "cloud": {
+        "connected": "Connected to cloud storage successfully",
+        "disconnected": "Disconnected from cloud storage",
+        "fileUploaded": "File uploaded successfully",
+        "fileDeleted": "File deleted successfully",
+        "fileDownloaded": "File downloaded successfully"
+      },
+      "file": {
+        "loaded": "File loaded successfully",
+        "saved": "File saved successfully"
+      },
+      "certificate": {
+        "enrolled": "Device enrolled successfully",
+        "renewed": "Certificate renewed successfully"
+      }
+    }
+  },
+  "cloud": {
+    "activeProvider": "Active provider",
+    "availableProviders": "Available providers",
+    "connect": "Connect",
+    "connected": "Connected",
+    "notConnected": "Not connected",
+    "disconnect": "Disconnect",
+    "disconnectConfirm": "Are you sure you want to disconnect this provider?",
+    "setAsActive": "Set as active",
+    "files": {
+      "title": "File Explorer",
+      "loading": "Loading files...",
+      "downloading": "Downloading file...",
+      "uploading": "Uploading file...",
+      "empty": "No files in this folder",
+      "openFile": "Open from cloud",
+      "saveFile": "Save to cloud",
+      "deleteFile": "Delete file",
+      "deleteConfirm": "Are you sure you want to delete '{name}'?",
+      "fileName": "File name",
+      "selectFile": "Select a file",
+      "upload": "Upload file",
+      "download": "Download",
+      "back": "Back"
+    },
+    "oauth": {
+      "processing": "We are processing your authorization, this will only take a few seconds.",
+      "connecting": "Connecting to your account...",
+      "successTitle": "Successfully connected!",
+      "successMessage": "Your account has been successfully connected.",
+      "continueButton": "Continue to Apuntador",
+      "errorTitle": "Connection error",
+      "retryButton": "Try again",
+      "backButton": "Back to Apuntador",
+      "noAuthCode": "No authorization code received"
+    }
   },
   "desktop": {
     "minimize": "Minimize window",
@@ -222,5 +349,37 @@
     "close": "Close window",
     "alwaysOnTop": "Always on top",
     "fullscreen": "Toggle fullscreen"
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Connect your Dropbox account to open and save scripts directly from the cloud.",
+      "connect": "Connect to Dropbox",
+      "connecting": "Connecting to Dropbox...",
+      "connected": "Connected",
+      "disconnect": "Disconnect"
+    },
+    "files": {
+      "title": "File Explorer",
+      "loading": "Loading files...",
+      "empty": "No files in this folder",
+      "openFile": "Open file",
+      "saveFile": "Save file",
+      "deleteFile": "Delete file",
+      "deleteConfirm": "Are you sure you want to delete \"{name}\"?",
+      "fileName": "File name",
+      "upload": "Upload file",
+      "download": "Download",
+      "back": "Back"
+    },
+    "oauth": {
+      "processing": "We are processing your authorization, this will only take a few seconds.",
+      "successTitle": "Successfully connected!",
+      "successMessage": "Your Dropbox account has been connected successfully.",
+      "continueButton": "Continue to Apuntador",
+      "errorTitle": "Connection error",
+      "retryButton": "Try again",
+      "backButton": "Back to Apuntador",
+      "noAuthCode": "No authorization code received"
+    }
   }
 }

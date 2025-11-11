@@ -6,8 +6,10 @@
     "save": "Guardar",
     "cancel": "Cancelar",
     "close": "Cerrar",
+    "open": "Abrir",
     "reset": "Restablecer",
     "apply": "Aplicar",
+    "delete": "Eliminar",
     "auto": "Auto",
     "yes": "Sí",
     "no": "No",
@@ -58,6 +60,7 @@
     "behavior": "Comportamiento",
     "controls": "Controles",
     "data": "Datos",
+    "about": "Acerca de",
     "language": "Idioma",
     "languageAuto": "Automático",
     "languageSpanish": "Español",
@@ -97,13 +100,24 @@
     "settingsReset": "Configuración restablecida",
     "dataCleared": "Todos los datos han sido limpiados",
     "exportError": "Error al exportar la configuración",
-    "importError": "Error al importar la configuración"
+    "importError": "Error al importar la configuración",
+    "subtitle": "Teleprompter profesional",
+    "version": "Versión",
+    "copyright": "Derechos de autor",
+    "cloud": "Nube",
+    "cloudProviders": "Proveedores de almacenamiento en la nube",
+    "cloudProvidersDescription": "Conecta tus cuentas de almacenamiento en la nube para sincronizar y acceder a tus scripts desde cualquier dispositivo."
+  },
+  "teleprompter": {
+    "pressBackAgainToExit": "Pulsa el botón atrás otra vez para salir de la aplicación"
   },
   "editor": {
     "title": "Editor de Markdown",
     "placeholder": "Comienza a escribir tu contenido markdown aquí...",
     "preview": "Vista previa",
     "edit": "Editar",
+    "editMode": "Modo edición",
+    "previewMode": "Modo previsualización",
     "fullscreen": "Pantalla completa",
     "exitFullscreen": "Salir de pantalla completa",
     "wordWrap": "Ajuste de línea",
@@ -123,7 +137,9 @@
     "confirmRefreshLocalChanges": "El contenido local ha sido modificado. ¿Desea descartar la edición y cargar los datos del origen?",
     "confirmRefreshSourceChanged": "El archivo origen ha sido modificado. ¿Desea cargar los nuevos datos del origen?",
     "refreshFromSourceError": "Error al actualizar desde el archivo origen",
-    "saveError": "Error al guardar el archivo"
+    "saveError": "Error al guardar el archivo",
+    "defaultContent": "# Mi Script\n\nEscribe tu contenido aquí...",
+    "fileNameHint": "Incluye la extensión (.md, .txt)"
   },
   "fileLoader": {
     "title": "Importar archivo",
@@ -148,6 +164,21 @@
     "saveAs": "Guardar como",
     "import": "Importar"
   },
+  "fileDialog": {
+    "local": "Local",
+    "cloud": "Nube",
+    "localOpenTitle": "Abrir archivo local",
+    "localOpenDescription": "Selecciona un archivo markdown (.md) o texto (.txt) desde tu ordenador.",
+    "localSaveTitle": "Guardar archivo local",
+    "localSaveDescription": "Guarda el contenido en un archivo en tu ordenador.",
+    "browseFiles": "Examinar archivos",
+    "saveToComputer": "Guardar en ordenador",
+    "cloudNotConnected": "No conectado a la nube",
+    "cloudNotConnectedDescription": "No hay conexión activa con servicios de almacenamiento en la nube. Por favor, configure su conexión en las opciones de Apuntador.",
+    "goToSettings": "Ir a opciones",
+    "fileName": "Nombre del archivo",
+    "fileNameHint": "La extensión .md se agregará automáticamente si no está presente"
+  },
   "hotkeys": {
     "title": "Teclas de acceso rápido",
     "playPause": "Reproducir/Pausar",
@@ -171,7 +202,9 @@
     "saveCopy": "Guardar copia",
     "fullscreen": "Pantalla completa",
     "showHelp": "Mostrar ayuda",
-    "resetToDefaults": "Restablecer por defecto"
+    "resetToDefaults": "Restablecer por defecto",
+    "pressAnyKey": "Presiona cualquier tecla...",
+    "clickToSet": "Click para configurar atajo"
   },
   "gamepad": {
     "status": "Estado del gamepad",
@@ -182,6 +215,8 @@
     "assignmentInstructions": "Asigna botones del gamepad a acciones del teleprompter. Haz clic en un campo de entrada y presiona cualquier botón del gamepad para asignarlo.",
     "resetToDefaults": "Restablecer por defecto (Todo a Ninguno)",
     "leftStick": "Stick izquierdo",
+    "pressAnyButton": "Presiona cualquier botón...",
+    "clickToAssign": "Click para asignar botón",
     "rightStick": "Stick derecho",
     "dpad": "Cruceta",
     "buttonA": "Botón A",
@@ -206,15 +241,72 @@
     "networkError": "Error de red",
     "unknownError": "Error desconocido",
     "gamepadNotConnected": "Gamepad no conectado",
-    "gamepadError": "Error del gamepad"
+    "gamepadError": "Error del gamepad",
+    "reconnectError": "Error al reconectar",
+    "services": {
+      "oauth": {
+        "invalidState": "Estado de autenticación inválido. Por favor, inténtalo de nuevo.",
+        "csrfDetected": "Error de seguridad detectado. Conexión abortada.",
+        "noAccessToken": "Autenticación fallida. No se recibió token de acceso.",
+        "codeVerifierMissing": "Sesión expirada. Por favor, reinicia el proceso de autenticación."
+      },
+      "cloud": {
+        "notConnected": "No conectado al almacenamiento en la nube. Por favor, conéctate primero.",
+        "connectionFailed": "Fallo al conectar con el almacenamiento en la nube.",
+        "disconnectionFailed": "Fallo al desconectar del almacenamiento en la nube.",
+        "listFilesFailed": "Fallo al cargar la lista de archivos.",
+        "downloadFailed": "Fallo al descargar el archivo.",
+        "uploadFailed": "Fallo al subir el archivo.",
+        "deleteFailed": "Fallo al eliminar el archivo.",
+        "noContent": "El archivo está vacío o no se pudo leer.",
+        "unknownFormat": "Formato de archivo desconocido recibido.",
+        "noProvider": "No hay proveedor de nube configurado."
+      },
+      "file": {
+        "readFailed": "No se pudo leer el archivo.",
+        "writeFailed": "No se pudo guardar el archivo.",
+        "invalidType": "Tipo de archivo inválido. Solo se admiten archivos .md y .txt.",
+        "noFileHandle": "No se ha seleccionado ningún archivo.",
+        "accessDenied": "Acceso al archivo denegado."
+      },
+      "fullscreen": {
+        "notSupported": "El modo pantalla completa no está soportado en este navegador.",
+        "exitFailed": "No se pudo salir del modo pantalla completa."
+      },
+      "certificate": {
+        "enrollmentFailed": "Fallo en el registro del dispositivo.",
+        "renewalFailed": "Fallo en la renovación del certificado.",
+        "validationFailed": "Fallo en la validación del certificado.",
+        "noPinsReceived": "No se recibieron pins de certificado del servidor.",
+        "stillInvalid": "El certificado sigue siendo inválido después del registro."
+      }
+    }
   },
   "messages": {
     "loadingFile": "Cargando archivo...",
     "savingFile": "Guardando archivo...",
     "fileLoadComplete": "Archivo cargado completamente",
-    "fileSaveComplete": "Archivo guardado completamente",
+    "fileSaveComplete": "Archivo guardado correctamente",
     "gamepadConnected": "Gamepad conectado",
-    "gamepadDisconnected": "Gamepad desconectado"
+    "gamepadDisconnected": "Gamepad desconectado",
+    "welcomeContent": "# Bienvenido a Apuntador\n\nComienza importando tu guión o usa el editor para crear contenido nuevo.",
+    "services": {
+      "cloud": {
+        "connected": "Conectado al almacenamiento en la nube",
+        "disconnected": "Desconectado del almacenamiento en la nube",
+        "fileUploaded": "Archivo subido correctamente",
+        "fileDeleted": "Archivo eliminado correctamente",
+        "fileDownloaded": "Archivo descargado correctamente"
+      },
+      "file": {
+        "loaded": "Archivo cargado correctamente",
+        "saved": "Archivo guardado correctamente"
+      },
+      "certificate": {
+        "enrolled": "Dispositivo registrado correctamente",
+        "renewed": "Certificado renovado correctamente"
+      }
+    }
   },
   "desktop": {
     "minimize": "Minimizar ventana",
@@ -222,5 +314,74 @@
     "close": "Cerrar ventana",
     "alwaysOnTop": "Siempre arriba",
     "fullscreen": "Alternar pantalla completa"
+  },
+  "cloud": {
+    "activeProvider": "Proveedor activo",
+    "availableProviders": "Proveedores disponibles",
+    "connect": "Conectar",
+    "connected": "Conectado",
+    "notConnected": "No conectado",
+    "disconnect": "Desconectar",
+    "disconnectConfirm": "¿Estás seguro de que quieres desconectar este proveedor?",
+    "setAsActive": "Establecer como activo",
+    "files": {
+      "title": "Explorador de archivos",
+      "loading": "Cargando archivos...",
+      "downloading": "Descargando archivo...",
+      "uploading": "Subiendo archivo...",
+      "empty": "No hay archivos en esta carpeta",
+      "openFile": "Abrir desde la nube",
+      "saveFile": "Guardar en la nube", 
+      "deleteFile": "Eliminar archivo",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar '{name}'?",
+      "fileName": "Nombre del archivo",
+      "selectFile": "Selecciona un archivo",
+      "upload": "Subir archivo",
+      "download": "Descargar",
+      "back": "Volver"
+    },
+    "oauth": {
+      "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",
+      "connecting": "Conectando con tu cuenta...",
+      "successTitle": "¡Conectado con éxito!",
+      "successMessage": "Tu cuenta ha sido conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de conexión",
+      "retryButton": "Intentar de nuevo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "No se recibió código de autorización"
+    }
+  },
+  "dropbox": {
+    "connection": {
+      "description": "Conecta tu cuenta de Dropbox para abrir y guardar scripts directamente en la nube.",
+      "connect": "Conectar con Dropbox",
+      "connecting": "Conectando con Dropbox...",
+      "connected": "Conectado",
+      "disconnect": "Desconectar"
+    },
+    "files": {
+      "title": "Explorador de archivos",
+      "loading": "Cargando archivos...",
+      "empty": "No hay archivos en esta carpeta",
+      "openFile": "Abrir archivo",
+      "saveFile": "Guardar archivo",
+      "deleteFile": "Eliminar archivo",
+      "deleteConfirm": "¿Estás seguro de que quieres eliminar \"{name}\"?",
+      "fileName": "Nombre del archivo",
+      "upload": "Subir archivo",
+      "download": "Descargar",
+      "back": "Volver"
+    },
+    "oauth": {
+      "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",
+      "successTitle": "¡Conectado con éxito!",
+      "successMessage": "Tu cuenta de Dropbox ha sido conectada correctamente.",
+      "continueButton": "Continuar a Apuntador",
+      "errorTitle": "Error de conexión",
+      "retryButton": "Intentar de nuevo",
+      "backButton": "Volver a Apuntador",
+      "noAuthCode": "No se recibió código de autorización"
+    }
   }
 }
