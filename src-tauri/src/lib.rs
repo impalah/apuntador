@@ -887,7 +887,7 @@ async fn start_oauth_server(
     }
   });
   
-  // Guardar el handle del servidor
+  // Save the server handle
   {
     let mut server_handle = oauth_state.server_handle.lock().unwrap();
     *server_handle = Some(server_task);
