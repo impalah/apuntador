@@ -1060,7 +1060,7 @@ pub fn run() {
       if let tauri::WindowEvent::CloseRequested { .. } = event {
         println!("🔴 Close requested for window: {}", window.label());
         println!("🔧 Debug mode: Destroying window");
-        // En debug, destruir la ventana inmediatamente
+        // In debug mode, destroy the window immediately
         let _ = window.destroy();
         return;
       }
