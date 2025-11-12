@@ -52,9 +52,9 @@ export function sanitizeMarkdown(content: string): string {
   // Basic sanitization - remove potentially dangerous content
   // Preserve intentional spacing by NOT trimming
   return content
-    .replace(/<script[^>]*>.*?<\/script>/gi, '')
-    .replace(/<iframe[^>]*>.*?<\/iframe>/gi, '')
-    .replace(/javascript:/gi, '')
+    .replaceAll(/<script[^>]*>.*?<\/script>/gi, '')
+    .replaceAll(/<iframe[^>]*>.*?<\/iframe>/gi, '')
+    .replaceAll(/javascript:/gi, '')
 }
 
 /**

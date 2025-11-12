@@ -13,22 +13,22 @@ export function pxPerLine(el: HTMLElement): number {
 
   if (lineHeight === 'normal') {
     // Approximate normal line height
-    const fontSize = parseFloat(computedStyle.fontSize)
+    const fontSize = Number.parseFloat(computedStyle.fontSize)
     return fontSize * NORMAL_LINE_HEIGHT_MULTIPLIER
   }
 
   if (lineHeight.endsWith('px')) {
-    return parseFloat(lineHeight)
+    return Number.parseFloat(lineHeight)
   }
 
   if (lineHeight.endsWith('em') || lineHeight.endsWith('rem')) {
-    const fontSize = parseFloat(computedStyle.fontSize)
-    return parseFloat(lineHeight) * fontSize
+    const fontSize = Number.parseFloat(computedStyle.fontSize)
+    return Number.parseFloat(lineHeight) * fontSize
   }
 
   // If it's a number (unitless), multiply by font size
-  const fontSize = parseFloat(computedStyle.fontSize)
-  return parseFloat(lineHeight) * fontSize
+  const fontSize = Number.parseFloat(computedStyle.fontSize)
+  return Number.parseFloat(lineHeight) * fontSize
 }
 
 /**

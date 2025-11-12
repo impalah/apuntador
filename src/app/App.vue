@@ -54,7 +54,7 @@ onMounted(async () => {
       document.documentElement.setAttribute('data-android-version', version)
       
       // Map versions to API levels (approximate)
-      const majorVersion = parseInt(version.split('.')[0])
+      const majorVersion = Number.parseInt(version.split('.')[0])
       if (majorVersion >= 15) {
         document.documentElement.setAttribute('data-android-api', '35')
       } else if (majorVersion >= 14) {

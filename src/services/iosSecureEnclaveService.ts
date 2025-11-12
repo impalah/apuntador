@@ -204,7 +204,7 @@ export class IOSSecureEnclaveService {
     }
 
     // Si ya hay un enrollment en progreso, esperar a que termine
-    if (this.enrollmentPromise) {
+    if (this.enrollmentPromise !== null) {
       logger.info('⏳ [iOS Enrollment] Waiting for existing enrollment process...')
       return this.enrollmentPromise
     }

@@ -162,13 +162,13 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     const lineHeight = computedStyle.lineHeight
 
     if (lineHeight === 'normal') {
-      const fontSize = parseFloat(computedStyle.fontSize)
+      const fontSize = Number.parseFloat(computedStyle.fontSize)
       lineHeightPx.value = fontSize * 1.2
     } else if (lineHeight.includes('px')) {
-      lineHeightPx.value = parseFloat(lineHeight)
+      lineHeightPx.value = Number.parseFloat(lineHeight)
     } else {
-      const fontSize = parseFloat(computedStyle.fontSize)
-      lineHeightPx.value = parseFloat(lineHeight) * fontSize
+      const fontSize = Number.parseFloat(computedStyle.fontSize)
+      lineHeightPx.value = Number.parseFloat(lineHeight) * fontSize
     }
   }
 

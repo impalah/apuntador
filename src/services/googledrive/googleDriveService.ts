@@ -142,7 +142,7 @@ export class GoogleDriveService implements CloudService {
   /**
    * Establece el access token manualmente (útil para Tauri)
    */
-  setAccessToken(token: string): void {
+  async setAccessToken(token: string): Promise<void> {
     this.accessToken = token
     localStorage.setItem('googledrive_access_token', token)
   }
@@ -236,7 +236,7 @@ export class GoogleDriveService implements CloudService {
         id: file.id,
         name: file.name,
         path: file.id, // En Google Drive usamos el ID como path
-        size: parseInt(file.size || '0'),
+        size: Number.parseInt(file.size || '0'),
         modified: new Date(file.modifiedTime),
         isFolder: file.mimeType === 'application/vnd.google-apps.folder',
       }))
@@ -341,7 +341,7 @@ export class GoogleDriveService implements CloudService {
         id: data.id,
         name: data.name,
         path: data.id,
-        size: parseInt(data.size || '0'),
+        size: Number.parseInt(data.size || '0'),
         modified: new Date(data.modifiedTime),
         isFolder: false,
       }
@@ -432,9 +432,9 @@ export class GoogleDriveService implements CloudService {
     const array = new Uint8Array(32)
     crypto.getRandomValues(array)
     return btoa(String.fromCharCode.apply(null, Array.from(array)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '')
   }
 
   /**
@@ -445,9 +445,9 @@ export class GoogleDriveService implements CloudService {
     const data = encoder.encode(verifier)
     const digest = await crypto.subtle.digest('SHA-256', data)
     return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '')
   }
 
   /**

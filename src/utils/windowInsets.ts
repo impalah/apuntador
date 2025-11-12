@@ -36,14 +36,14 @@ export function useWindowInsets() {
       const leftEnv = computedStyle.getPropertyValue('env(safe-area-inset-left)')
       const rightEnv = computedStyle.getPropertyValue('env(safe-area-inset-right)')
 
-      if (topEnv) detectedTopInset = Math.max(detectedTopInset, parseInt(topEnv) || 0)
-      if (bottomEnv) detectedBottomInset = Math.max(detectedBottomInset, parseInt(bottomEnv) || 0)
+      if (topEnv) detectedTopInset = Math.max(detectedTopInset, Number.parseInt(topEnv) || 0)
+      if (bottomEnv) detectedBottomInset = Math.max(detectedBottomInset, Number.parseInt(bottomEnv) || 0)
 
       safeAreaInsets.value = {
         top: detectedTopInset,
         bottom: detectedBottomInset,
-        left: parseInt(leftEnv) || 0,
-        right: parseInt(rightEnv) || 0,
+        left: Number.parseInt(leftEnv) || 0,
+        right: Number.parseInt(rightEnv) || 0,
       }
     }
 

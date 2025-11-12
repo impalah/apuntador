@@ -58,9 +58,9 @@ export class BackendOAuthClient {
     const array = new Uint8Array(32)
     crypto.getRandomValues(array)
     return btoa(String.fromCharCode.apply(null, Array.from(array)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '')
+      .replaceAll('+', '-')
+      .replaceAll('/', '_')
+      .replaceAll('=', '')
   }
 
   /**

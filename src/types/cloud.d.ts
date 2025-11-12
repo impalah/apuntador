@@ -32,7 +32,7 @@ export interface CloudService {
   uploadFile(path: string, content: string): Promise<CloudFile>
   deleteFile(fileId: string): Promise<void>
   getUserInfo(): Promise<{ name: string; email: string }>
-  setAccessToken?(token: string): void
+  setAccessToken?(token: string): Promise<void>
   handleOAuthCallback?(code: string, state?: string): Promise<void>
 }
 

@@ -169,30 +169,33 @@ export class TauriService {
     
     this.stopOAuthListener() // Clean up previous listener
     
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         console.log('⏰ TauriService: OAuth timeout after 5 minutes')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
       }, 300000) // 5 minutes timeout
 
-      try {
-        const { listen } = await import('@tauri-apps/api/event')
-        // Set up listener and handle Promise
-        const unlistenFn = await listen('oauth-callback', (event: any) => {
-          console.log('📞 TauriService: oauth-callback event received:', event.payload)
-          clearTimeout(timeout)
-          this.stopOAuthListener()
-          resolve(event.payload)
+      // Import and set up listener asynchronously
+      import('@tauri-apps/api/event')
+        .then(({ listen }) => {
+          // listen() returns a Promise that resolves to the unlisten function
+          return listen('oauth-callback', (event: any) => {
+            console.log('📞 TauriService: oauth-callback event received:', event.payload)
+            clearTimeout(timeout)
+            this.stopOAuthListener()
+            resolve(event.payload)
+          })
         })
-        
-        this.oauthCallbackListener = unlistenFn
-        console.log('✅ TauriService: oauth-callback listener configured')
-      } catch (error) {
-        console.error('❌ TauriService: Error setting up listener:', error)
-        clearTimeout(timeout)
-        reject(error)
-      }
+        .then(unlistenFn => {
+          this.oauthCallbackListener = unlistenFn
+          console.log('✅ TauriService: oauth-callback listener configured')
+        })
+        .catch(error => {
+          console.error('❌ TauriService: Error setting up listener:', error)
+          clearTimeout(timeout)
+          reject(error)
+        })
     })
   }
 
