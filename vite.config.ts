@@ -60,16 +60,38 @@ export default defineConfig({
         'src/app/main.ts',
         'tests/**',
         'node_modules/**',
-        // Exclude Vue components from unit test coverage thresholds
-        // (they are tested via e2e tests)
+        // Exclude Vue components and pages (tested via e2e)
         '**/*.vue',
         'src/pages/**',
         'src/components/**',
+        // Exclude platform-specific and hard-to-test services
+        'src/services/oauth/**',
+        'src/services/dropbox/**',
+        'src/services/googledrive/**',
+        'src/services/tauriService.ts',
+        'src/services/desktopEnrollmentService.ts',
+        'src/services/iosSecureEnclaveService.ts',
+        'src/services/secureEnclaveNativeBridge.ts',
+        'src/services/unifiedMTLSService.ts',
+        'src/services/http/**',
+        'src/services/certificate/**',
+        // Exclude platform-specific config
+        'src/config/api.ts',
+        'src/config/app-configuration.ts',
+        // Exclude plugins (native bridges)
+        'src/plugins/**',
+        // Exclude composables (UI-coupled, tested via e2e)
         'src/composables/**',
-        'src/config/**',
-        'src/services/**',
       ],
-      include: ['src/stores/**/*.ts', 'src/utils/**/*.ts'],
+      include: [
+        'src/stores/**/*.ts',
+        'src/utils/**/*.ts',
+        'src/adapters/**/*.ts',
+        'src/coordinators/**/*.ts',
+        'src/services/cloudProviderConfig.ts',
+        'src/services/component-services.ts',
+        'src/config/component-configurations.ts',
+      ],
       thresholds: {
         statements: 50,
         branches: 75,
