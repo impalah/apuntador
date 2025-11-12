@@ -41,7 +41,10 @@ export function measureText(
   const width = maxWidth ? Math.min(metrics.width, maxWidth) : metrics.width
 
   // Approximate height based on font size
-  const fontSize = Number.parseFloat(font.match(/(\d+)px/)?.[1] || '16')
+  // Extract font size from CSS font string (e.g., "16px", "1.5em")
+  // Use a specific, non-backtracking regex with atomic group equivalent
+  const fontSizeMatch = font.match(/\b(\d+(?:\.\d+)?)px\b/)
+  const fontSize = fontSizeMatch ? Number.parseFloat(fontSizeMatch[1]) : 16
   const height = fontSize * 1.2 // Approximate line height
 
   return { width, height }
