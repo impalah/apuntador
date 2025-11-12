@@ -15,11 +15,11 @@ export function isTauri(): boolean {
     const hasTauriInternals = '__TAURI_INTERNALS__' in window
     const hasTauriMetadata = '__TAURI_METADATA__' in window
     
-    console.log('🔍 Tauri detection:', { 
-      hasTauriInternals,
-      hasTauriMetadata,
-      windowKeys: Object.keys(window).filter(k => k.includes('TAURI'))
-    })
+    // console.log('🔍 Tauri detection:', { 
+    //   hasTauriInternals,
+    //   hasTauriMetadata,
+    //   windowKeys: Object.keys(window).filter(k => k.includes('TAURI'))
+    // })
     
     return hasTauriInternals || hasTauriMetadata
   } catch {
