@@ -242,7 +242,7 @@ npm run tauri:build:mac   # macOS
 - **Native window controls** (minimize, maximize, close)
 - **Fullscreen toggle** with native APIs
 - **Always on top** mode for professional setups
-- **🔒 Security**: DevTools disabled in production builds ([docs](./docs/SECURITY-DEVTOOLS.md))
+- **🔒 Security**: DevTools disabled in production builds
 
 #### Code Signing (Windows)
 
