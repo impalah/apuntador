@@ -11,9 +11,9 @@
  * Current application version - Automatically updated from package.json
  * @see package.json version field
  * @see config/vite-plugin-version-sync.ts for sync implementation
- * CURRENT PACKAGE.JSON VERSION: 1.1.34
+ * CURRENT PACKAGE.JSON VERSION: 1.1.35
  */
-export const APP_VERSION = '1.1.34'
+export const APP_VERSION = '1.1.35'
 
 /**
  * Application name
