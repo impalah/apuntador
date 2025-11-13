@@ -280,7 +280,7 @@ export class BackendOAuthClient {
       console.log(`🔒 BackendOAuthClient: Using mTLS for token revocation`)
 
       const response = await this.httpClient.post(
-        `/oauth/token/revoke/${this.config.provider}`,
+        `/oauth/revoke/${this.config.provider}`,
         {
           token: token
         }

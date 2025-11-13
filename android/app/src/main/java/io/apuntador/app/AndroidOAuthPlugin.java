@@ -249,7 +249,7 @@ public class AndroidOAuthPlugin extends Plugin {
         Log.d(TAG, "🚫 Revoking token for provider: " + provider);
 
         try {
-            String revokeUrl = backendUrl + "/oauth/token/revoke/" + provider;
+            String revokeUrl = backendUrl + "/oauth/revoke/" + provider;
             JSONObject requestBody = new JSONObject();
             requestBody.put("token", token);
 
