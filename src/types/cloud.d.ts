@@ -27,6 +27,7 @@ export interface CloudService {
   disconnect(): Promise<void>
   isConnected(): boolean
   initialize?(): Promise<void>
+  restoreSession?(): Promise<boolean>
   listFiles(path?: string): Promise<CloudFile[]>
   downloadFile(fileId: string): Promise<string>
   uploadFile(path: string, content: string): Promise<CloudFile>

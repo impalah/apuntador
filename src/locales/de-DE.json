@@ -324,6 +324,7 @@
     "disconnect": "Trennen",
     "disconnectConfirm": "Sind Sie sicher, dass Sie diesen Anbieter trennen möchten?",
     "setAsActive": "Als aktiv festlegen",
+    "revokeAccess": "Zugriff widerrufen",
     "oauth": {
       "processing": "Wir verarbeiten Ihre Autorisierung, dies dauert nur wenige Sekunden.",
       "connecting": "Verbindung mit Ihrem Konto...",

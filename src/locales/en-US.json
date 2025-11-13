@@ -137,7 +137,9 @@
     "confirmRefreshLocalChanges": "Local content has been modified. Do you want to discard the edit and load the source data?",
     "confirmRefreshSourceChanged": "Source file has been modified. Do you want to load the new source data?",
     "refreshFromSourceError": "Error refreshing from source file",
-    "saveError": "Error saving file"
+    "saveError": "Error saving file",
+    "defaultContent": "# My Script\n\nWrite your content here...",
+    "fileNameHint": "Include the extension (.md, .txt)"
   },
   "fileLoader": {
     "title": "Import File",
@@ -315,6 +317,7 @@
     "disconnect": "Disconnect",
     "disconnectConfirm": "Are you sure you want to disconnect this provider?",
     "setAsActive": "Set as active",
+    "revokeAccess": "Revoke access",
     "files": {
       "title": "File Explorer",
       "loading": "Loading files...",
@@ -329,7 +332,8 @@
       "selectFile": "Select a file",
       "upload": "Upload file",
       "download": "Download",
-      "back": "Back"
+      "back": "Back",
+      "root": "Root"
     },
     "oauth": {
       "processing": "We are processing your authorization, this will only take a few seconds.",

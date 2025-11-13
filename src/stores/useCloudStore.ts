@@ -135,6 +135,61 @@ export const useCloudStore = defineStore('cloud', () => {
   }
 
   /**
+   * Cambia el proveedor activo sin re-autenticar si ya hay credenciales
+   */
+  const setActiveProvider = async (providerId: CloudProviderId): Promise<void> => {
+    console.log('🔄 Store: Changing active provider to:', providerId)
+    
+    // Si ya es el proveedor activo, no hacer nada
+    if (activeProviderId.value === providerId) {
+      console.log('ℹ️ Store: Provider already active, skipping')
+      return
+    }
+    
+    isConnecting.value = true
+    error.value = null
+
+    try {
+      const service = services[providerId]
+      
+      // Intentar restaurar sesión existente
+      console.log('🔍 Store: Checking for existing credentials...')
+      
+      // Verificar si el servicio soporta restoreSession
+      if (!service.restoreSession) {
+        console.log('⚠️ Store: Service does not support session restoration, starting OAuth')
+        await connect(providerId)
+        return
+      }
+      
+      const sessionRestored = await service.restoreSession()
+      
+      if (sessionRestored) {
+        // Ya hay credenciales válidas, solo cambiar el proveedor activo
+        console.log('✅ Store: Session restored successfully, switching provider')
+        activeProviderId.value = providerId
+        localStorage.setItem('cloud_active_provider', providerId)
+        
+        // Cargar información del usuario
+        await refreshConnectionStatus()
+        
+        console.log('🎉 Store: Provider switched successfully without re-authentication')
+      } else {
+        // No hay credenciales o están expiradas, iniciar OAuth
+        console.log('⚠️ Store: No valid credentials found, starting OAuth flow')
+        await connect(providerId)
+      }
+      
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error switching cloud provider'
+      console.error('❌ Store: Error switching provider:', err)
+      throw err
+    } finally {
+      isConnecting.value = false
+    }
+  }
+
+  /**
    * Conecta a un proveedor específico
    */
   const connect = async (providerId: CloudProviderId): Promise<void> => {
@@ -271,15 +326,30 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Desconecta del proveedor activo
    */
-  const disconnect = async (): Promise<void> => {
+  /**
+   * Desconecta del proveedor activo
+   * @param clearCredentials - Si es true, borra las credenciales del proveedor (requiere re-autenticación)
+   *                          Si es false, solo lo desactiva pero mantiene las credenciales
+   */
+  const disconnect = async (clearCredentials: boolean = false): Promise<void> => {
     if (!activeProviderId.value) return
 
     try {
-      const service = services[activeProviderId.value]
-      await service.disconnect()
+      const providerId = activeProviderId.value
+      const service = services[providerId]
       
-      // Limpiar estado
-      if (activeProviderId.value === 'dropbox') {
+      if (clearCredentials) {
+        // Borrar credenciales completamente (requiere re-autenticación)
+        console.log(`🔴 Disconnecting and clearing credentials for ${providerId}`)
+        await service.disconnect()
+      } else {
+        // Solo desactivar pero mantener credenciales guardadas
+        console.log(`⏸️ Deactivating ${providerId} but keeping credentials`)
+        // No llamar a service.disconnect() para mantener tokens en localStorage
+      }
+      
+      // Limpiar estado en memoria
+      if (providerId === 'dropbox') {
         dropboxUserInfo.value = null
       } else {
         googleDriveUserInfo.value = null
@@ -293,6 +363,38 @@ export const useCloudStore = defineStore('cloud', () => {
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error disconnecting'
       console.error('Disconnect error:', err)
+    }
+  }
+
+  /**
+   * Revoca el acceso de un proveedor específico (borra credenciales)
+   */
+  const revokeProvider = async (providerId: CloudProviderId): Promise<void> => {
+    try {
+      console.log(`🔴 Revoking access for provider: ${providerId}`)
+      
+      const service = services[providerId]
+      await service.disconnect()
+      
+      // Si era el proveedor activo, limpiarlo
+      if (activeProviderId.value === providerId) {
+        if (providerId === 'dropbox') {
+          dropboxUserInfo.value = null
+        } else {
+          googleDriveUserInfo.value = null
+        }
+        
+        activeProviderId.value = null
+        localStorage.removeItem('cloud_active_provider')
+        currentFiles.value = []
+        currentPath.value = ''
+      }
+      
+      console.log(`✅ Provider ${providerId} access revoked successfully`)
+    } catch (err) {
+      error.value = err instanceof Error ? err.message : 'Error revoking provider access'
+      console.error('Revoke provider error:', err)
+      throw err
     }
   }
 
@@ -465,9 +567,11 @@ export const useCloudStore = defineStore('cloud', () => {
     
     // Actions
     initialize,
+    setActiveProvider,
     connect,
     handleOAuthCallback,
     disconnect,
+    revokeProvider,
     refreshConnectionStatus,
     loadFiles,
     navigateToFolder,

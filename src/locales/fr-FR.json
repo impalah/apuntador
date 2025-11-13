@@ -324,6 +324,7 @@
     "disconnect": "Déconnecter",
     "disconnectConfirm": "Êtes-vous sûr de vouloir déconnecter ce fournisseur ?",
     "setAsActive": "Définir comme actif",
+    "revokeAccess": "Révoquer l'accès",
     "oauth": {
       "processing": "Nous traitons votre autorisation, cela ne prendra que quelques secondes.",
       "connecting": "Connexion à votre compte...",

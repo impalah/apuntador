@@ -324,6 +324,7 @@
     "disconnect": "Desconectar",
     "disconnectConfirm": "¿Estás seguro de que quieres desconectar este proveedor?",
     "setAsActive": "Establecer como activo",
+    "revokeAccess": "Revocar acceso",
     "files": {
       "title": "Explorador de archivos",
       "loading": "Cargando archivos...",
@@ -338,7 +339,8 @@
       "selectFile": "Selecciona un archivo",
       "upload": "Subir archivo",
       "download": "Descargar",
-      "back": "Volver"
+      "back": "Volver",
+      "root": "Raíz"
     },
     "oauth": {
       "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",

@@ -110,6 +110,21 @@
                   : t('cloud.connect')
               }}
             </v-btn>
+            
+            <!-- Botón para revocar acceso (solo si está conectado pero no es el activo) -->
+            <v-btn
+              v-if="provider.isConnected && cloudStore.activeProviderId !== provider.id"
+              variant="text"
+              color="error"
+              size="small"
+              block
+              class="mt-2"
+              :loading="isRevokingProvider === provider.id"
+              :disabled="isConnecting || isDisconnecting"
+              @click="onRevokeProvider(provider.id)"
+            >
+              {{ t('cloud.revokeAccess') }}
+            </v-btn>
           </v-card-text>
         </v-card>
       </v-col>
@@ -142,6 +157,7 @@ const cloudStore = useCloudStore()
 const isConnecting = ref(false)
 const isDisconnecting = ref(false)
 const connectingProviderId = ref<CloudProviderId | null>(null)
+const isRevokingProvider = ref<CloudProviderId | null>(null)
 
 // Methods
 function getProviderIcon(providerId: CloudProviderId): string {
@@ -157,7 +173,18 @@ async function onConnect(providerId: CloudProviderId) {
   connectingProviderId.value = providerId
   
   try {
-    await cloudStore.connect(providerId)
+    // Obtener información del proveedor
+    const provider = cloudStore.availableProviders.find(p => p.id === providerId)
+    
+    // Si el proveedor ya está conectado, solo cambiar el activo
+    // Si no está conectado, iniciar flujo OAuth
+    if (provider?.isConnected && cloudStore.activeProviderId !== providerId) {
+      console.log(`🔄 Provider ${providerId} already connected, switching active provider...`)
+      await cloudStore.setActiveProvider(providerId)
+    } else {
+      console.log(`🔗 Provider ${providerId} not connected, starting OAuth flow...`)
+      await cloudStore.connect(providerId)
+    }
   } catch (error) {
     console.error('Error connecting to provider:', error)
   } finally {
@@ -175,16 +202,32 @@ async function onDisconnect() {
   //   return
   // }
   
-  console.log('🔴 [CloudProviderSelector] Starting disconnect...')
+  console.log('🔴 [CloudProviderSelector] Starting disconnect (keeping credentials)...')
   isDisconnecting.value = true
   
   try {
+    // Desconectar sin borrar credenciales (por defecto clearCredentials=false)
     await cloudStore.disconnect()
-    console.log('✅ [CloudProviderSelector] Disconnect successful')
+    console.log('✅ [CloudProviderSelector] Disconnect successful, credentials preserved')
   } catch (error) {
     console.error('❌ [CloudProviderSelector] Error disconnecting:', error)
   } finally {
     isDisconnecting.value = false
+  }
+}
+
+async function onRevokeProvider(providerId: CloudProviderId) {
+  console.log('🔴 [CloudProviderSelector] Revoke access button clicked for:', providerId)
+  
+  isRevokingProvider.value = providerId
+  
+  try {
+    await cloudStore.revokeProvider(providerId)
+    console.log('✅ [CloudProviderSelector] Provider access revoked successfully')
+  } catch (error) {
+    console.error('❌ [CloudProviderSelector] Error revoking provider:', error)
+  } finally {
+    isRevokingProvider.value = null
   }
 }
 </script>
