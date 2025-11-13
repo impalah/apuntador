@@ -63,15 +63,13 @@ export class CloudProviderConfigService {
     console.log('🔍 [CloudProviderConfig] Fetching provider configuration from backend...')
 
     try {
-      const response = await fetch(`${BACKEND_URL}/config/providers`, {
-        method: 'GET',
-        headers: {
-          'X-API-Key': API_KEY,
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
+    const response = await fetch(`${BACKEND_URL}/config/providers`, {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    })      if (!response.ok) {
         if (response.status === 401) {
           throw new Error('Invalid API key for configuration endpoint')
         }
