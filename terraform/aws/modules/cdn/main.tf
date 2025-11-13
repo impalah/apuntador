@@ -58,6 +58,21 @@ resource "aws_cloudfront_distribution" "cdn" {
     }
   }
 
+  # SPA support - redirect 404/403 errors to index.html
+  custom_error_response {
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 300
+  }
+
+  custom_error_response {
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 300
+  }
+
   dynamic "viewer_certificate" {
     for_each = var.certificate_arn == null ? [1] : []
     content {
