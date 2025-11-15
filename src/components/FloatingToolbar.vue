@@ -1,480 +1,84 @@
 <template>
-  <v-bottom-navigation
-    v-model="activeTab"
+  <!-- Simplified Bottom Toolbar - Always 3 buttons -->
+  <div
+    v-if="props.isVisible"
     class="floating-toolbar"
-    :class="{ hidden: !isVisible }"
-    color="primary"
-    bg-color="rgba(0, 0, 0, 0.8)"
-    height="80"
-    grow
     data-testid="floating-toolbar"
   >
-    <!-- Minimal mode for mobile and small tablets -->
-    <template v-if="$vuetify.display.xs || $vuetify.display.sm">
-      <!-- Play/Pause -->
-      <v-btn
-        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
-        size="large"
-        data-testid="play-pause-button"
-        @click="togglePlay"
-      />
-
-      <!-- Speed Control -->
-      <SpeedControl
-        :speed="prefsStore.speedPxPerSec"
-        :min="prefsStore.speedMin"
-        :max="prefsStore.speedMax"
-        @change="onSpeedChange"
-      />
-
-      <!-- More Menu -->
-      <v-menu v-model="moreMenuOpen" :close-on-content-click="false" location="top" offset="16">
-        <template #activator="{ props }">
-          <v-btn
-            icon="mdi-dots-vertical"
-            size="large"
-            data-testid="more-menu-button"
-            v-bind="props"
-          />
-        </template>
-
-        <v-card min-width="320" max-width="360" class="more-menu-card">
-          <v-card-text class="pa-3">
-            <div class="more-menu-content">
-              <!-- Navigation Controls Row -->
-              <div class="menu-section navigation-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    icon="mdi-skip-previous"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', -5)"
-                  />
-                  <v-btn
-                    icon="mdi-chevron-up"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', -1)"
-                  />
-                  <v-btn
-                    icon="mdi-chevron-down"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', 1)"
-                  />
-                  <v-btn
-                    icon="mdi-skip-next"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', 5)"
-                  />
-                </div>
-              </div>
-
-              <!-- Home/End Controls -->
-              <div class="menu-section home-end-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    variant="outlined"
-                    prepend-icon="mdi-home"
-                    size="small"
-                    class="flex-btn"
-                    @click="$emit('goHome')"
-                  >
-                    {{ t('toolbar.home') }}
-                  </v-btn>
-                  <v-btn
-                    variant="outlined"
-                    prepend-icon="mdi-arrow-down-bold"
-                    size="small"
-                    class="flex-btn"
-                    @click="$emit('goEnd')"
-                  >
-                    {{ t('toolbar.end') }}
-                  </v-btn>
-                </div>
-              </div>
-
-              <!-- Font Size Control -->
-              <div class="menu-section font-control">
-                <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
-              </div>
-
-              <!-- Text Alignment Controls -->
-              <div class="menu-section alignment-controls">
-                <TextAlignmentControls :is-menu-layout="true" />
-              </div>
-
-              <!-- Mirror Controls -->
-              <div class="menu-section mirror-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-                    prepend-icon="mdi-flip-horizontal"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="mirror-h-button"
-                    @click="$emit('mirrorToggle', 'h')"
-                  >
-                    {{ t('toolbar.mirrorHorizontal') }}
-                  </v-btn>
-                  <v-btn
-                    :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-                    prepend-icon="mdi-flip-vertical"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="mirror-v-button"
-                    @click="$emit('mirrorToggle', 'v')"
-                  >
-                    {{ t('toolbar.mirrorVertical') }}
-                  </v-btn>
-                </div>
-
-                <!-- Immersive Mode for Android -->
-                <div v-if="isImmersiveSupported" class="control-group-horizontal">
-                  <v-btn
-                    :variant="isImmersive ? 'flat' : 'outlined'"
-                    :prepend-icon="isImmersive ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="immersive-mode-button"
-                    @click="toggleImmersiveMode"
-                  >
-                    {{ isImmersive ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen') }}
-                  </v-btn>
-                </div>
-              </div>
-
-              <!-- Desktop Window Controls -->
-              <div v-if="isDesktop" class="menu-section desktop-controls">
-                <v-divider class="mb-2" />
-                
-                <!-- Theater Mode (True Fullscreen) -->
-                <div class="control-group-horizontal mb-2">
-                  <v-btn
-                    :variant="isTheaterMode ? 'flat' : 'outlined'"
-                    :icon="isTheaterMode ? 'mdi-theater' : 'mdi-theater'"
-                    :loading="isTheaterLoading"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="theater-mode-button"
-                    @click="toggleTheaterMode"
-                  >
-                    {{ isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theater') }}
-                  </v-btn>
-                </div>
-                
-                <!-- Standard Window Controls -->
-                <div class="control-group-horizontal">
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-fullscreen"
-                    size="small"
-                    class="action-btn"
-                    data-testid="desktop-fullscreen-button"
-                    @click="toggleFullscreen"
-                  />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-window-minimize"
-                    size="small"
-                    class="action-btn"
-                    data-testid="desktop-minimize-button"
-                    @click="minimizeWindow"
-                  />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-window-maximize"
-                    size="small"
-                    class="action-btn"
-                    data-testid="desktop-maximize-button"
-                    @click="maximizeWindow"
-                  />
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="menu-section action-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-pencil"
-                    size="small"
-                    class="action-btn"
-                    data-testid="editor-button"
-                    @click="$emit('openEditor')"
-                  />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-cog"
-                    size="small"
-                    class="action-btn"
-                    data-testid="settings-button"
-                    @click="$emit('openSettings')"
-                  />
-                </div>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-menu>
-    </template>
-
-    <!-- Compact mode for medium tablets and small/medium desktops -->
-    <template
-      v-else-if="
-        $vuetify.display.md ||
-        ($vuetify.display.lg && $vuetify.display.width < 1500) ||
-        ($vuetify.display.xl && $vuetify.display.width < 1500)
-      "
+    <!-- Play/Pause Button -->
+    <button
+      class="toolbar-btn"
+      :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
+      data-testid="play-pause-button"
+      @click="togglePlay"
     >
-      <!-- Play/Pause -->
-      <v-btn
-        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
-        size="large"
-        data-testid="play-pause-button"
-        @click="togglePlay"
+      <v-icon 
+        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'" 
+        size="32"
       />
+    </button>
 
-      <!-- Speed Control -->
-      <SpeedControl
-        :speed="prefsStore.speedPxPerSec"
-        :min="prefsStore.speedMin"
-        :max="prefsStore.speedMax"
-        @change="onSpeedChange"
+    <!-- Speed Control -->
+    <SpeedControl
+      :speed="prefsStore.speedPxPerSec"
+      :min="prefsStore.speedMin"
+      :max="prefsStore.speedMax"
+      @change="onSpeedChange"
+    />
+
+    <!-- More Button (opens ActionsMenu) -->
+    <button
+      class="toolbar-btn"
+      :aria-label="t('toolbar.more')"
+      data-testid="more-menu-button"
+      @click="actionsMenuOpen = true"
+    >
+      <v-icon 
+        icon="mdi-dots-vertical" 
+        size="32"
       />
+    </button>
+  </div>
 
-      <!-- Navigation (condensed) -->
-      <v-btn icon="mdi-chevron-up" @click="$emit('stepLines', -1)" />
-      <v-btn icon="mdi-chevron-down" @click="$emit('stepLines', 1)" />
-
-      <!-- Font Size Control -->
-      <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
-
-      <!-- More Menu -->
-      <v-menu v-model="moreMenuOpen" :close-on-content-click="false" location="top" offset="16">
-        <template #activator="{ props }">
-          <v-btn
-            icon="mdi-dots-vertical"
-            size="large"
-            data-testid="more-menu-button"
-            v-bind="props"
-          />
-        </template>
-
-        <v-card min-width="320" max-width="360" class="more-menu-card">
-          <v-card-text class="pa-3">
-            <div class="more-menu-content">
-              <!-- Navigation Controls Row -->
-              <div class="menu-section navigation-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    icon="mdi-skip-previous"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', -5)"
-                  />
-                  <v-btn
-                    icon="mdi-home"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('goHome')"
-                  />
-                  <v-btn
-                    icon="mdi-arrow-down-bold"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('goEnd')"
-                  />
-                  <v-btn
-                    icon="mdi-skip-next"
-                    variant="text"
-                    size="small"
-                    class="nav-btn"
-                    @click="$emit('stepLines', 5)"
-                  />
-                </div>
-              </div>
-
-              <!-- Text Alignment Controls -->
-              <div class="menu-section alignment-controls">
-                <TextAlignmentControls :is-menu-layout="true" />
-              </div>
-
-              <!-- Mirror Controls -->
-              <div class="menu-section mirror-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-                    prepend-icon="mdi-flip-horizontal"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="mirror-h-button"
-                    @click="$emit('mirrorToggle', 'h')"
-                  >
-                    {{ t('toolbar.mirrorHorizontal') }}
-                  </v-btn>
-                  <v-btn
-                    :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-                    prepend-icon="mdi-flip-vertical"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="mirror-v-button"
-                    @click="$emit('mirrorToggle', 'v')"
-                  >
-                    {{ t('toolbar.mirrorVertical') }}
-                  </v-btn>
-                </div>
-
-                <!-- Fullscreen for Compact Mode -->
-                <div v-if="isFullscreenSupported" class="control-group-horizontal">
-                  <v-btn
-                    :variant="isFullscreen ? 'flat' : 'outlined'"
-                    :prepend-icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-                    size="small"
-                    class="flex-btn"
-                    data-testid="fullscreen-button"
-                    @click="toggleFullscreen"
-                  >
-                    {{ isFullscreen ? t('toolbar.exitFullscreen') : t('toolbar.fullscreen') }}
-                  </v-btn>
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <div class="menu-section action-controls">
-                <div class="control-group-horizontal">
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-pencil"
-                    size="small"
-                    class="action-btn"
-                    data-testid="editor-button"
-                    @click="$emit('openEditor')"
-                  />
-                  <v-btn
-                    variant="outlined"
-                    icon="mdi-cog"
-                    size="small"
-                    class="action-btn"
-                    data-testid="settings-button"
-                    @click="$emit('openSettings')"
-                  />
-                </div>
-              </div>
-            </div>
-          </v-card-text>
-        </v-card>
-      </v-menu>
-    </template>
-
-    <!-- Full mode for large screens with enough width -->
-    <template v-else>
-      <!-- Play/Pause -->
-      <v-btn
-        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        :aria-label="teleprompterStore.isPlaying ? t('toolbar.pause') : t('toolbar.play')"
-        size="large"
-        data-testid="play-pause-button"
-        @click="togglePlay"
-      />
-
-      <!-- Navigation -->
-      <v-btn icon="mdi-skip-previous" @click="$emit('stepLines', -5)" />
-      <v-btn icon="mdi-chevron-up" @click="$emit('stepLines', -1)" />
-      <v-btn icon="mdi-chevron-down" @click="$emit('stepLines', 1)" />
-      <v-btn icon="mdi-skip-next" @click="$emit('stepLines', 5)" />
-
-      <!-- Home/End -->
-      <v-btn icon="mdi-home" @click="$emit('goHome')" />
-      <v-btn icon="mdi-arrow-down-bold" @click="$emit('goEnd')" />
-
-      <!-- Speed Control -->
-      <SpeedControl
-        :speed="prefsStore.speedPxPerSec"
-        :min="prefsStore.speedMin"
-        :max="prefsStore.speedMax"
-        @change="onSpeedChange"
-      />
-
-      <!-- Font Size Control -->
-      <FontSizeControl :size="prefsStore.fontSizePx" @change="onFontSizeChange" />
-
-      <!-- Text Alignment Controls -->
-      <TextAlignmentControls />
-
-      <!-- Mirror Controls -->
-      <v-btn
-        :variant="prefsStore.mirrorH ? 'flat' : 'outlined'"
-        icon="mdi-flip-horizontal"
-        data-testid="mirror-h-button"
-        @click="$emit('mirrorToggle', 'h')"
-      />
-      <v-btn
-        :variant="prefsStore.mirrorV ? 'flat' : 'outlined'"
-        icon="mdi-flip-vertical"
-        data-testid="mirror-v-button"
-        @click="$emit('mirrorToggle', 'v')"
-      />
-
-      <!-- Fullscreen (Universal - Web/Android/Desktop) -->
-      <v-btn
-        v-if="isFullscreenSupported"
-        :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
-        :variant="isFullscreen ? 'flat' : 'outlined'"
-        data-testid="fullscreen-button"
-        @click="toggleFullscreen"
-      />
-
-      <!-- Theater Mode (Desktop only) -->
-      <v-btn
-        v-if="isDesktop"
-        :icon="isTheaterMode ? 'mdi-theater' : 'mdi-theater'"
-        :variant="isTheaterMode ? 'flat' : 'outlined'"
-        :loading="isTheaterLoading"
-        :title="isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theater')"
-        data-testid="theater-mode-button"
-        @click="toggleTheaterMode"
-      />
-
-      <!-- Desktop Window Controls (Non-fullscreen) -->
-      <v-btn
-        v-if="isDesktop"
-        icon="mdi-window-minimize"
-        variant="outlined"
-        data-testid="desktop-minimize-button"
-        @click="minimizeWindow"
-      />
-
-      <!-- Actions -->
-      <v-btn icon="mdi-pencil" data-testid="editor-button" @click="$emit('openEditor')" />
-      <v-btn icon="mdi-cog" data-testid="settings-button" @click="$emit('openSettings')" />
-    </template>
-  </v-bottom-navigation>
+  <!-- Instagram-style Actions Menu -->
+  <ActionsMenu
+    v-model="actionsMenuOpen"
+    :font-size="prefsStore.fontSizePx"
+    :mirror-h="prefsStore.mirrorH"
+    :mirror-v="prefsStore.mirrorV"
+    :is-immersive="isImmersive"
+    :is-immersive-supported="isImmersiveSupported"
+    :is-theater-mode="isTheaterMode"
+    :is-theater-loading="isTheaterLoading"
+    :is-desktop="isDesktop"
+    @step-lines="$emit('stepLines', $event)"
+    @go-home="$emit('goHome')"
+    @go-end="$emit('goEnd')"
+    @font-size-change="onFontSizeChange"
+    @mirror-toggle="$emit('mirrorToggle', $event)"
+    @toggle-immersive="toggleImmersiveMode"
+    @toggle-theater="toggleTheaterMode"
+    @open-file="$emit('openFile')"
+    @open-editor="$emit('openEditor')"
+    @open-settings="$emit('openSettings')"
+    @minimize-window="minimizeWindow"
+    @maximize-window="maximizeWindow"
+    @toggle-fullscreen="toggleFullscreen"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDisplay } from 'vuetify'
+import { Capacitor } from '@capacitor/core'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
-import { useWindowInsets } from '@/utils/windowInsets'
 import { useFullscreen } from '@/utils/fullscreen'
 import { useTauri } from '@/utils/tauri'
 import { useTheaterMode } from '@/composables/useTheaterMode'
 import SpeedControl from './SpeedControl.vue'
-import FontSizeControl from './FontSizeControl.vue'
-import TextAlignmentControls from './TextAlignmentControls.vue'
+import ActionsMenu from './ActionsMenu.vue'
 
 // I18n
 const { t } = useI18n()
@@ -482,10 +86,46 @@ const { t } = useI18n()
 // Display (for responsive logic)
 const { xs, sm } = useDisplay()
 
+// Props
+interface Props {
+  scrollState: {
+    offset: number
+    isPlaying: boolean
+    canScrollUp: boolean
+    canScrollDown: boolean
+    progress: number
+  }
+  speedConfig: {
+    current: number
+    min: number
+    max: number
+  }
+  displayPrefs: {
+    fontFamily: string
+    fontSizePx: number
+    lineHeight: number
+    fgColor: string
+    bgColor: string
+    mirrorH: boolean
+    mirrorV: boolean
+    textAlignment: string
+  }
+  isVisible: boolean
+  isMinimal?: boolean
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  isMinimal: false,
+})
+
+console.log('[FloatingToolbar] Component mounted, isVisible:', props.isVisible)
+console.log('[FloatingToolbar] Props:', JSON.stringify(props, null, 2))
+
 // Emits
 const emit = defineEmits<{
   play: []
   pause: []
+  togglePlay: []
   stepLines: [lines: number]
   goHome: []
   goEnd: []
@@ -501,55 +141,47 @@ const emit = defineEmits<{
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
 
-// Window insets for Android edge-to-edge (available for future use)
-// const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+// Platform detection
+const isAndroid = Capacitor.getPlatform() === 'android'
+const isNative = Capacitor.isNativePlatform()
+const isDesktop = !isNative
 
-// Unified fullscreen functionality
-const { isFullscreen, isSupported: isFullscreenSupported, toggleFullscreen, platform } = useFullscreen()
+// Immersive mode state (Android)
+const isImmersive = ref(false)
+const isImmersiveSupported = isAndroid
 
-// Theater mode functionality (true fullscreen without menu bar)
-const { 
-  isTheaterMode, 
-  isLoading: isTheaterLoading, 
-  isTauri, 
-  toggleTheaterMode 
-} = useTheaterMode()
+// Fullscreen composables
+const fullscreenComposable = useFullscreen()
+const toggleFullscreen = fullscreenComposable.toggleFullscreen || (() => Promise.resolve(false))
 
-// Desktop/Tauri functionality (for window controls only)
-const { isDesktop, minimizeWindow, maximizeWindow } = useTauri()
+// Theater mode (Desktop)
+const { isTheaterMode, isLoading: isTheaterLoading, toggleTheaterMode } = useTheaterMode()
 
-// Legacy support - keep for backward compatibility
-const isImmersive = isFullscreen
-const isImmersiveSupported = isFullscreenSupported
-const toggleImmersiveMode = toggleFullscreen
-
-// Toolbar visibility logic
-const isVisible = ref(true)
+// Toolbar visibility state (independent from props.isVisible)
+const toolbarVisible = ref(true)
 let hideTimeout: ReturnType<typeof setTimeout> | null = null
 
-// Show toolbar (optionally temporary)
-function showToolbar(temporary = false) {
-  isVisible.value = true
+// Show toolbar with optional auto-hide
+function showToolbar(autoHide = false) {
+  toolbarVisible.value = true
 
-  // Clear existing timeout
+  // Clear any existing timeout
   if (hideTimeout) {
     clearTimeout(hideTimeout)
     hideTimeout = null
   }
 
-  // If temporary and playing, hide after 10 seconds
-  if (temporary && teleprompterStore.isPlaying) {
+  // Auto-hide after 3 seconds if requested
+  if (autoHide) {
     hideTimeout = setTimeout(() => {
-      if (teleprompterStore.isPlaying) {
-        isVisible.value = false
-      }
-    }, 10000)
+      hideToolbar()
+    }, 3000)
   }
 }
 
 // Hide toolbar
 function hideToolbar() {
-  isVisible.value = false
+  toolbarVisible.value = false
   if (hideTimeout) {
     clearTimeout(hideTimeout)
     hideTimeout = null
@@ -563,14 +195,22 @@ function handleScreenTap() {
   }
 }
 
+// Watch for isVisible prop changes
+watch(
+  () => props.isVisible,
+  (newVal, oldVal) => {
+    console.log('[FloatingToolbar] isVisible changed from', oldVal, 'to', newVal)
+  }
+)
+
 // Watch for play/pause state changes
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
+    console.log('[FloatingToolbar] isPlaying changed to:', isPlaying)
     if (isPlaying) {
-      // On mobile devices (xs/sm), keep toolbar visible during playback for easier control
+      // On mobile devices, keep toolbar visible during playback for easier control
       if (xs.value || sm.value) {
-        // Keep toolbar visible on mobile
         showToolbar()
       } else {
         // Hide toolbar on desktop/larger screens for clean reading experience
@@ -583,9 +223,57 @@ watch(
   { immediate: true }
 )
 
+// State
+const actionsMenuOpen = ref(false)
+
+// Actions
+function togglePlay() {
+  console.log('[FloatingToolbar] togglePlay() called, isPlaying:', teleprompterStore.isPlaying)
+  if (teleprompterStore.isPlaying) {
+    emit('pause')
+  } else {
+    emit('play')
+  }
+}
+
+function onSpeedChange(delta: number) {
+  emit('speedChange', delta)
+}
+
+function onFontSizeChange(delta: number) {
+  emit('fontSizeChange', delta)
+}
+
+// Immersive mode toggle (Android) - Using Capacitor StatusBar
+async function toggleImmersiveMode() {
+  if (!isImmersiveSupported) return
+
+  try {
+    const { StatusBar } = await import('@capacitor/status-bar')
+    
+    if (!isImmersive.value) {
+      await StatusBar.hide()
+      isImmersive.value = true
+    } else {
+      await StatusBar.show()
+      isImmersive.value = false
+    }
+  } catch (error) {
+    console.error('Error toggling immersive mode:', error)
+  }
+}
+
+// Desktop window controls - Stubs for now
+async function minimizeWindow() {
+  console.log('minimizeWindow called - feature not yet implemented')
+}
+
+async function maximizeWindow() {
+  console.log('maximizeWindow called - feature not yet implemented')
+}
+
 // Initialize Tauri when component mounts
 onMounted(async () => {
-  // Initialize Tauri if running in desktop mode
   const { init } = useTauri()
   await init()
 
@@ -599,375 +287,83 @@ onUnmounted(() => {
     clearTimeout(hideTimeout)
   }
 })
-
-// State
-const activeTab = ref(0)
-const moreMenuOpen = ref(false)
-
-// Actions
-function togglePlay() {
-  console.log('[ANDROID DEBUG] FloatingToolbar togglePlay() called, isPlaying:', teleprompterStore.isPlaying)
-  if (teleprompterStore.isPlaying) {
-    console.log('[ANDROID DEBUG] FloatingToolbar emitting pause event')
-    emit('pause')
-  } else {
-    console.log('[ANDROID DEBUG] FloatingToolbar emitting play event')
-    emit('play')
-  }
-}
-
-function onSpeedChange(delta: number) {
-  emit('speedChange', delta)
-}
-
-function onFontSizeChange(delta: number) {
-  emit('fontSizeChange', delta)
-}
 </script>
 
 <style scoped>
 .floating-toolbar {
   position: fixed !important;
-  bottom: 0 !important;
+  bottom: 16px !important;
   left: 50% !important;
-  right: auto !important;
-  transform: translateX(-50%) translateZ(0) !important;
-  width: auto !important;
-  min-width: 320px !important; /* Reduced min-width for better mobile compatibility */
-  max-width: calc(100vw - 40px) !important;
-  border-radius: 28px 28px 0 0 !important;
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
-  z-index: 100;
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
-  overflow: visible !important; /* Key fix: allow content to overflow */
-  /* Create isolated stacking context for child elements */
-  isolation: isolate;
-
-  /* Android edge-to-edge support - Multiple fallback approaches */
-  margin-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px), 48px);
-
-  /* Additional padding for Android devices */
-  padding-bottom: max(var(--safe-area-inset-bottom, 0px), env(safe-area-inset-bottom, 0px), 12px);
-
-  &.hidden {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px) translateZ(0) !important;
-    pointer-events: none;
-  }
-}
-
-/* Override Vuetify's default width behavior */
-:deep(.v-bottom-navigation) {
-  width: auto !important;
-  left: 50% !important;
-  right: auto !important;
   transform: translateX(-50%) !important;
-  overflow: visible !important;
-  position: static !important;
+  z-index: 9999 !important;
+  min-width: 320px !important;
+  max-width: calc(100vw - 40px) !important;
+  border-radius: 28px !important;
+  background: rgba(0, 0, 0, 0.9) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  padding: 8px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  gap: 16px;
 }
 
-:deep(.v-bottom-navigation__content) {
-  gap: 8px !important; /* More space between controls */
-  padding: 12px 16px; /* More padding */
-  /* Ensure content area allows child elements to stack properly */
-  position: relative;
-  z-index: 1;
-  min-height: 60px; /* Ensure minimum height for controls */
-  align-items: center; /* Center items vertically */
-  overflow: visible !important; /* Allow controls to be fully visible */
-  flex-wrap: nowrap !important; /* Never wrap controls */
-  justify-content: center !important; /* Center all controls */
-  display: flex !important; /* Ensure flex display */
-  margin: 0 auto; /* Additional centering insurance */
-}
-
-/* Override Vuetify's overflow hidden on the navigation wrapper */
-:deep(.v-bottom-navigation) {
-  overflow: visible !important;
-}
-
-:deep(.v-bottom-navigation__wrapper) {
-  overflow: visible !important;
-}
-
-/* Mobile responsive improvements */
-@media (max-width: 599px) {
-  .floating-toolbar {
-    max-width: calc(100vw - 20px);
-    min-width: 280px !important; /* Reduce further for very small screens */
-    border-radius: 16px !important;
-    min-height: 64px; /* Ensure adequate height on mobile */
-
-    /* More aggressive Android support for mobile */
-    margin-bottom: max(
-      var(--safe-area-inset-bottom, 0px),
-      env(safe-area-inset-bottom, 0px),
-      60px
-    ) !important;
-  }
-
-  :deep(.v-bottom-navigation__content) {
-    padding: 10px 8px; /* Adequate padding for mobile */
-    min-height: 56px;
-    gap: 6px !important; /* Slightly reduce gap on mobile */
-  }
-
-  .floating-toolbar.hidden {
-    transform: translateX(-50%) translateY(20px) translateZ(0);
-  }
-}
-
-/* Extra small screens (very small phones) */
-@media (max-width: 360px) {
-  .floating-toolbar {
-    max-width: calc(100vw - 16px);
-    min-width: 260px !important;
-    border-radius: 12px !important;
-  }
-
-  :deep(.v-bottom-navigation__content) {
-    padding: 8px 6px;
-    gap: 4px !important;
-  }
-}
-
-/* Small tablet adjustments */
-@media (min-width: 600px) and (max-width: 959px) {
-  .floating-toolbar {
-    max-width: calc(100vw - 60px);
-    border-radius: 20px !important;
-  }
-}
-
-/* Medium tablet adjustments */
-@media (min-width: 960px) and (max-width: 1263px) {
-  .floating-toolbar {
-    max-width: calc(100vw - 80px);
-    border-radius: 24px !important;
-  }
-}
-
-/* Large screen adjustments */
-@media (min-width: 1264px) {
-  .floating-toolbar {
-    max-width: 90vw;
-  }
-}
-
-/* Ensure buttons have minimum touch target size */
-:deep(.v-btn) {
-  min-width: 44px;
-  min-height: 44px;
-}
-
-/* Transparent background for the navigation */
-:deep(.v-bottom-navigation__content) {
-  background: transparent !important;
-  overflow: hidden;
+.toolbar-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-wrap: nowrap;
-  gap: 4px;
-  padding: 0 8px;
+  background: transparent;
+  border: none;
+  color: white;
+  cursor: pointer;
+  padding: 12px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
 }
 
-/* Toolbar content adjustments */
-:deep(.v-bottom-navigation .v-btn) {
-  flex-shrink: 1;
-  min-width: 40px;
+.toolbar-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
 }
 
-/* Control components responsiveness */
-:deep(.speed-control),
-:deep(.font-size-control) {
-  /* FIXED WIDTH APPROACH - these cannot be overridden */
-  width: 140px !important;
-  min-width: 140px !important;
-  max-width: 140px !important;
-  flex-shrink: 0 !important; /* Never allow shrinking */
-  flex-grow: 0 !important; /* Never allow growing */
-  flex-basis: 140px !important; /* Fixed basis */
-  z-index: 9999 !important;
-  position: relative !important;
-  overflow: visible !important;
-  display: flex !important;
+.toolbar-btn:active {
+  transform: scale(0.95);
+  background: rgba(255, 255, 255, 0.2);
 }
 
-:deep(.speed-control .v-btn),
-:deep(.font-size-control .v-btn) {
-  z-index: 10000 !important; /* Extremely high priority for control buttons */
-  position: static !important; /* Keep buttons in normal flow */
-  /* Ensure buttons are visible and clickable */
-  pointer-events: auto !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  transform: translateZ(1px) !important; /* Lift buttons even higher */
-  overflow: visible !important;
-}
-
-/* Button group spacing on tablets */
-@media (min-width: 600px) and (max-width: 1263px) {
-  :deep(.v-bottom-navigation__content) {
-    gap: 2px;
-    padding: 16px 4px; /* Increased padding for tablets */
-    min-height: 68px; /* Ensure adequate height for controls */
-  }
-
-  :deep(.v-btn) {
-    min-width: 36px !important;
-    min-height: 36px !important;
-  }
-
-  :deep(.speed-control),
-  :deep(.font-size-control) {
-    max-width: 100px;
-    z-index: 9999 !important;
-    transform: translateZ(0) !important;
-    min-height: 40px; /* Ensure controls aren't too short */
-  }
-
-  :deep(.speed-control .v-btn),
-  :deep(.font-size-control .v-btn) {
-    z-index: 10000 !important;
-    transform: translateZ(1px) !important;
-    pointer-events: auto !important;
-    opacity: 1 !important;
-    visibility: visible !important;
-  }
-}
-
-/* Narrow large screens (1264px - 1399px) - edge case handling */
-@media (min-width: 1264px) and (max-width: 1399px) {
-  :deep(.v-bottom-navigation__content) {
-    gap: 4px !important;
-    padding: 16px 8px !important;
-    justify-content: space-between !important;
-    overflow: visible !important;
-  }
-
-  :deep(.v-btn) {
-    min-width: 40px !important;
-    flex-shrink: 1 !important;
-  }
-
-  :deep(.speed-control),
-  :deep(.font-size-control) {
-    max-width: 120px !important;
-    min-width: 100px !important;
-    flex-shrink: 0 !important;
-  }
-
-  /* Ensure buttons at edges don't get cut off */
-  .floating-toolbar {
-    max-width: calc(100vw - 40px) !important;
-    left: 50% !important;
-    transform: translateX(-50%) !important;
-  }
-}
-
-/* More Menu Improvements */
-.more-menu-card {
-  border-radius: 16px !important;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3) !important;
-}
-
-.more-menu-content {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.menu-section {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.control-group-horizontal {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 8px;
-  width: 100%;
-}
-
-/* Navigation Controls */
-.navigation-controls .nav-btn {
-  flex: 1;
-  min-width: 40px;
-  max-width: 48px;
-  height: 40px;
-}
-
-/* Home/End Controls */
-.home-end-controls .flex-btn {
-  flex: 1;
-  min-height: 36px;
-  max-height: 40px;
-  text-transform: none;
-  font-weight: 500;
-}
-
-/* Font Control Section */
-.font-control {
-  padding: 4px 0;
-  align-items: center;
-}
-
-/* Mirror Controls */
-.mirror-controls .flex-btn {
-  flex: 1;
-  min-height: 36px;
-  max-height: 40px;
-  text-transform: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-/* Action Controls */
-.action-controls .control-group-horizontal {
-  justify-content: space-evenly;
-}
-
-.action-controls .action-btn {
-  flex: 0 0 auto;
-  width: 48px;
-  height: 48px;
-  min-width: 48px;
-}
-
-/* Ensure consistent spacing and alignment */
-:deep(.more-menu-card .v-btn) {
-  letter-spacing: normal;
-  border-radius: 8px;
-}
-
-:deep(.more-menu-card .v-btn--variant-outlined) {
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-:deep(.more-menu-card .v-btn--variant-flat) {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Responsive adjustments for the more menu */
+/* Responsive adjustments */
 @media (max-width: 360px) {
-  .more-menu-card {
-    min-width: 300px !important;
-    max-width: 340px !important;
+  .floating-toolbar {
+    min-width: 280px !important;
+    bottom: 12px !important;
+    gap: 12px;
+    padding: 8px 16px;
   }
-
-  .mirror-controls .flex-btn {
-    font-size: 0.8rem;
+  
+  .toolbar-btn {
+    width: 52px;
+    height: 52px;
+    padding: 10px;
   }
+}
 
-  .home-end-controls .flex-btn {
-    font-size: 0.85rem;
+@media (min-width: 600px) {
+  .floating-toolbar {
+    max-width: 500px;
+    bottom: 24px !important;
+    gap: 20px;
+    padding: 10px 24px;
+  }
+  
+  .toolbar-btn {
+    width: 60px;
+    height: 60px;
+    padding: 14px;
   }
 }
 </style>
+
