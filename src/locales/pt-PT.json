@@ -62,8 +62,11 @@
   },
   "settings": {
     "title": "Definições",
+    "options": "Opções",
     "appearance": "Aparência",
     "behavior": "Comportamento",
+    "behaviorMovedToToolbar": "As opções de comportamento estão agora na barra de ferramentas",
+    "dataMovedToAbout": "As opções de dados foram movidas para o separador 'Sobre'",
     "controls": "Controlos",
     "data": "Dados",
     "about": "Sobre",

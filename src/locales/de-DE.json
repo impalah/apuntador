@@ -65,6 +65,8 @@
     "options": "Optionen",
     "appearance": "Erscheinungsbild",
     "behavior": "Verhalten",
+    "behaviorMovedToToolbar": "Verhaltensoptionen sind jetzt in der Symbolleiste",
+    "dataMovedToAbout": "Datenoptionen wurden in die Registerkarte 'Über' verschoben",
     "controls": "Steuerung",
     "data": "Daten",
     "about": "Über",

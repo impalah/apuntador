@@ -65,6 +65,8 @@
     "options": "Opcions",
     "appearance": "Aparència",
     "behavior": "Comportament",
+    "behaviorMovedToToolbar": "Les opcions de comportament ara estan a la barra d'eines",
+    "dataMovedToAbout": "Les opcions de dades s'han mogut a la pestanya 'Quant a'",
     "controls": "Controls",
     "data": "Dades",
     "about": "Quant a",

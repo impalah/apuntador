@@ -38,17 +38,11 @@
               <v-tab value="appearance">
                 {{ t('settings.appearance') }}
               </v-tab>
-              <v-tab value="behavior">
-                {{ t('settings.behavior') }}
-              </v-tab>
               <v-tab value="controls">
                 {{ t('settings.controls') }}
               </v-tab>
               <v-tab value="cloud">
                 {{ t('settings.cloud') }}
-              </v-tab>
-              <v-tab value="data">
-                {{ t('settings.data') }}
               </v-tab>
               <v-tab value="about">
                 {{ t('settings.about') }}
@@ -179,72 +173,6 @@
                       @end="savePrefs"
                     />
                   </div>
-
-                  <!-- Mirror Settings -->
-                  <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
-                      {{ t('settings.mirrorHorizontal') }}
-                    </h3>
-                    <v-row>
-                      <v-col cols="6">
-                        <v-switch
-                          v-model="prefsStore.mirrorH"
-                          :label="t('settings.mirrorHorizontal')"
-                          @change="savePrefs"
-                        />
-                      </v-col>
-                      <v-col cols="6">
-                        <v-switch
-                          v-model="prefsStore.mirrorV"
-                          :label="t('settings.mirrorVertical')"
-                          @change="savePrefs"
-                        />
-                      </v-col>
-                    </v-row>
-                  </div>
-                </v-form>
-              </v-tabs-window-item>
-
-              <!-- Behavior Tab -->
-              <v-tabs-window-item value="behavior">
-                <v-form>
-                  <!-- Speed Settings -->
-                  <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
-                      {{ t('settings.scrollSpeed') }}
-                    </h3>
-                    <v-slider
-                      v-model="prefsStore.speedPxPerSec"
-                      :label="t('settings.scrollSpeed')"
-                      :min="prefsStore.speedMin"
-                      :max="prefsStore.speedMax"
-                      :step="5"
-                      thumb-label
-                      suffix=" px/s"
-                      @end="savePrefs"
-                    />
-
-                    <v-row>
-                      <v-col cols="6">
-                        <v-text-field
-                          v-model.number="prefsStore.speedMin"
-                          :label="t('settings.speedMin')"
-                          type="number"
-                          suffix="px/s"
-                          @change="savePrefs"
-                        />
-                      </v-col>
-                      <v-col cols="6">
-                        <v-text-field
-                          v-model.number="prefsStore.speedMax"
-                          :label="t('settings.speedMax')"
-                          type="number"
-                          suffix="px/s"
-                          @change="savePrefs"
-                        />
-                      </v-col>
-                    </v-row>
-                  </div>
                 </v-form>
               </v-tabs-window-item>
 
@@ -355,44 +283,6 @@
                 </div>
               </v-tabs-window-item>
 
-              <!-- Data Tab -->
-              <v-tabs-window-item value="data">
-                <div>
-                  <!-- Data Management -->
-                  <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
-                      {{ t('settings.dataManagement') }}
-                    </h3>
-                    <v-btn
-                      color="warning"
-                      prepend-icon="mdi-refresh"
-                      @click="onResetSettings"
-                    >
-                      {{ t('settings.resetSettings') }}
-                    </v-btn>
-
-                    <v-btn
-                      color="error"
-                      prepend-icon="mdi-delete"
-                      class="ml-2"
-                      @click="onClearAllData"
-                    >
-                      {{ t('settings.clearAllData') }}
-                    </v-btn>
-                  </div>
-
-                  <!-- Storage Info -->
-                  <div>
-                    <h3 class="text-subtitle-1 mb-3">
-                      {{ t('settings.storageInfo') }}
-                    </h3>
-                    <v-alert type="info" variant="outlined">
-                      {{ t('settings.localStorageNote') }}
-                    </v-alert>
-                  </div>
-                </div>
-              </v-tabs-window-item>
-
               <!-- About Tab -->
               <v-tabs-window-item value="about">
                 <div class="text-center">
@@ -414,7 +304,7 @@
                   </div>
 
                   <!-- Repository Link -->
-                  <div>
+                  <div class="mb-6">
                     <v-btn
                       :href="versionInfo.repositoryUrl"
                       target="_blank"
@@ -423,6 +313,35 @@
                     >
                       GitHub Repository
                     </v-btn>
+                  </div>
+
+                  <!-- Divider -->
+                  <v-divider class="my-6" />
+
+                  <!-- Data Management -->
+                  <div>
+                    <h3 class="text-subtitle-1 mb-4">
+                      {{ t('settings.dataManagement') }}
+                    </h3>
+                    <div class="d-flex flex-column gap-2">
+                      <v-btn
+                        color="warning"
+                        prepend-icon="mdi-refresh"
+                        block
+                        @click="onResetSettings"
+                      >
+                        {{ t('settings.resetSettings') }}
+                      </v-btn>
+
+                      <v-btn
+                        color="error"
+                        prepend-icon="mdi-delete"
+                        block
+                        @click="onClearAllData"
+                      >
+                        {{ t('settings.clearAllData') }}
+                      </v-btn>
+                    </div>
                   </div>
                 </div>
               </v-tabs-window-item>

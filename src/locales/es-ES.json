@@ -68,6 +68,8 @@
     "options": "Opciones",
     "appearance": "Apariencia",
     "behavior": "Comportamiento",
+    "behaviorMovedToToolbar": "Las opciones de comportamiento ahora están en la barra de herramientas",
+    "dataMovedToAbout": "Las opciones de datos se han movido a la pestaña 'Acerca de'",
     "controls": "Controles",
     "data": "Datos",
     "about": "Acerca de",
