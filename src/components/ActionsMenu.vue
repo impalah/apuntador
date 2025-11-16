@@ -8,10 +8,11 @@
   >
     <v-card
       class="actions-menu"
+      :class="{ 'maximized': isMaximized }"
       rounded="t-xl"
     >
       <!-- Handle bar para indicar que es arrastrable -->
-      <div class="handle-bar">
+      <div class="handle-bar" @click="toggleMaximize">
         <div class="handle" />
       </div>
 
@@ -24,6 +25,7 @@
               icon="mdi-arrow-left"
               variant="text"
               size="small"
+              data-testid="close-settings-btn"
               @click="showSettings = false"
             />
             <h2 class="settings-title">
@@ -357,7 +359,11 @@
           
           <!-- Primera fila: Retroceder 5, Home, Avanzar 5 -->
           <div class="button-grid">
-            <button class="action-btn-frequent" @click="handleAction('stepLines', -5)">
+            <button 
+              class="action-btn-frequent" 
+              data-testid="rewind-button"
+              @click="handleAction('stepLines', -5)"
+            >
               <v-icon icon="mdi-skip-backward" size="32" />
               <span class="btn-text">{{ t('toolbar.rewind') }} 5</span>
             </button>
@@ -365,7 +371,11 @@
               <v-icon icon="mdi-home" size="32" />
               <span class="btn-text">{{ t('toolbar.home') }}</span>
             </button>
-            <button class="action-btn-frequent" @click="handleAction('stepLines', 5)">
+            <button 
+              class="action-btn-frequent" 
+              data-testid="forward-button"
+              @click="handleAction('stepLines', 5)"
+            >
               <v-icon icon="mdi-skip-forward" size="32" />
               <span class="btn-text">{{ t('toolbar.forward') }} 5</span>
             </button>
@@ -399,6 +409,7 @@
             <button 
               class="action-btn-frequent" 
               :class="{ active: mirrorH }"
+              data-testid="mirror-h-button"
               @click="handleAction('mirrorToggle', 'horizontal')"
             >
               <v-icon icon="mdi-flip-horizontal" size="32" />
@@ -415,6 +426,7 @@
             <button 
               class="action-btn-frequent"
               :class="{ active: mirrorV }"
+              data-testid="mirror-v-button"
               @click="handleAction('mirrorToggle', 'vertical')"
             >
               <v-icon icon="mdi-flip-vertical" size="32" />
@@ -424,15 +436,30 @@
 
           <!-- Segunda fila: Alinear izquierda, centro, derecha -->
           <div class="button-grid">
-            <button class="action-btn-frequent" @click="handleTextAlign('left')">
+            <button 
+              class="action-btn-frequent" 
+              :class="{ active: prefsStore.textAlignment === 'left' }"
+              data-testid="align-left-button"
+              @click="handleTextAlign('left')"
+            >
               <v-icon icon="mdi-format-align-left" size="32" />
               <span class="btn-text">{{ t('toolbar.alignLeft') }}</span>
             </button>
-            <button class="action-btn-frequent" @click="handleTextAlign('center')">
+            <button 
+              class="action-btn-frequent" 
+              :class="{ active: prefsStore.textAlignment === 'center' }"
+              data-testid="align-center-button"
+              @click="handleTextAlign('center')"
+            >
               <v-icon icon="mdi-format-align-center" size="32" />
               <span class="btn-text">{{ t('toolbar.alignCenter') }}</span>
             </button>
-            <button class="action-btn-frequent" @click="handleTextAlign('right')">
+            <button 
+              class="action-btn-frequent" 
+              :class="{ active: prefsStore.textAlignment === 'right' }"
+              data-testid="align-right-button"
+              @click="handleTextAlign('right')"
+            >
               <v-icon icon="mdi-format-align-right" size="32" />
               <span class="btn-text">{{ t('toolbar.alignRight') }}</span>
             </button>
@@ -447,7 +474,11 @@
           
           <!-- Botones opciones (grid 3 columnas con espacio en medio) -->
           <div class="options-grid">
-            <button class="action-btn-frequent" @click="handleAction('openEditor')">
+            <button 
+              class="action-btn-frequent" 
+              data-testid="editor-button"
+              @click="handleAction('openEditor')"
+            >
               <v-icon icon="mdi-pencil" size="32" />
               <span class="btn-text">{{ t('toolbar.openEditor') }}</span>
             </button>
@@ -455,7 +486,11 @@
             <!-- Espacio vacío en el centro -->
             <div></div>
             
-            <button class="action-btn-frequent" @click="handleAction('openSettings')">
+            <button 
+              class="action-btn-frequent" 
+              data-testid="settings-button"
+              @click="handleAction('openSettings')"
+            >
               <v-icon icon="mdi-cog" size="32" />
               <span class="btn-text">{{ t('settings.title') }}</span>
             </button>
@@ -498,6 +533,7 @@ const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.val
 // Estado local para controlar vista de settings
 const showSettings = ref(false)
 const activeTab = ref('appearance')
+const isMaximized = ref(false)
 
 // Font families available
 const fontFamilies = [
@@ -510,6 +546,11 @@ const fontFamilies = [
   'Monaco, monospace',
   'system-ui, sans-serif',
 ]
+
+// Toggle maximize/minimize
+function toggleMaximize() {
+  isMaximized.value = !isMaximized.value
+}
 
 // Settings actions
 async function savePrefs() {
@@ -633,8 +674,9 @@ const handleAction = (action: string, ...args: any[]) => {
 }
 
 // Handle text alignment
-const handleTextAlign = (alignment: 'left' | 'center' | 'right') => {
+const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   prefsStore.textAlignment = alignment
+  await prefsStore.save()
   // Don't close menu for text alignment changes
 }
 </script>
@@ -647,12 +689,26 @@ const handleTextAlign = (alignment: 'left' | 'center' | 'right') => {
   overflow-y: auto;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
+  transition: max-height 0.3s ease;
+  
+  &.maximized {
+    max-height: calc(100vh - 100px);
+  }
 }
 
 .handle-bar {
   display: flex;
   justify-content: center;
   padding: 12px 0 8px 0;
+  cursor: pointer;
+  
+  &:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+  
+  &:active {
+    background: rgba(255, 255, 255, 0.08);
+  }
 }
 
 .handle {
@@ -880,6 +936,11 @@ const handleTextAlign = (alignment: 'left' | 'center' | 'right') => {
   padding: 0;
   max-height: calc(33vh - 100px);
   overflow-y: auto;
+  transition: max-height 0.3s ease;
+}
+
+.actions-menu.maximized .settings-content {
+  max-height: calc(100vh - 200px);
 }
 
 .hotkeys-container {

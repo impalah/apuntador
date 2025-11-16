@@ -32,7 +32,7 @@ describe('component-configurations', () => {
 
     it('should export decoupled floating toolbar configuration', () => {
       expect(decoupledFloatingToolbar).toBeDefined()
-      expect(decoupledFloatingToolbar.name).toBe('FloatingToolbarV2')
+      expect(decoupledFloatingToolbar.name).toBe('FloatingToolbar')
       expect(decoupledFloatingToolbar.version).toBe('2.0.0')
       expect(decoupledFloatingToolbar.component).toBeDefined()
     })

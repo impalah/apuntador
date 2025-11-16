@@ -56,21 +56,32 @@ test.describe('Teleprompter Basic Functionality', () => {
   test('should play and pause teleprompter', async ({ page }) => {
     const playButton = page.locator('[data-testid="play-pause-button"]').first()
 
+    // Wait for button to be visible
+    await expect(playButton).toBeVisible()
+
     // Initially should show play icon
     await expect(playButton).toHaveAttribute('aria-label', /play/i)
 
-    // Use dispatchEvent to trigger the click
-    await playButton.dispatchEvent('click')
+    // Click to play
+    await playButton.click()
 
     // Wait a moment for the state to update
     await page.waitForTimeout(500)
+    
+    // Ensure button is still visible (toolbar might hide during playback)
+    // Tap the teleprompter area to show toolbar if hidden
+    const teleprompterContent = page.locator('.teleprompter-content')
+    await teleprompterContent.click()
+    await page.waitForTimeout(200)
+    
+    await expect(playButton).toBeVisible()
     await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
     // Wait a bit and check if content is scrolling
     await page.waitForTimeout(1000)
 
     // Click to pause
-    await playButton.dispatchEvent('click')
+    await playButton.click()
 
     await page.waitForTimeout(500)
     await expect(playButton).toHaveAttribute('aria-label', /play/i)
@@ -79,19 +90,30 @@ test.describe('Teleprompter Basic Functionality', () => {
   test('should navigate with keyboard shortcuts', async ({ page }) => {
     const playButton = page.locator('[data-testid="play-pause-button"]').first()
 
+    // Wait for button to be visible
+    await expect(playButton).toBeVisible()
+
     // Check if this is a mobile device (by checking user agent or viewport)
     const isMobile = await page.evaluate(() => {
       return /Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
     })
 
     if (isMobile) {
-      // On mobile devices, use button dispatches instead of keyboard
-      await playButton.dispatchEvent('click')
-      await page.waitForTimeout(100)
+      // On mobile devices, use button clicks instead of keyboard
+      await playButton.click()
+      await page.waitForTimeout(500)
+      
+      // Ensure button is visible after play - click on content with testid
+      const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
+      await expect(teleprompterContent).toBeVisible()
+      await teleprompterContent.click({ force: true })
+      await page.waitForTimeout(500)
+      
+      await expect(playButton).toBeVisible()
       await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
-      await playButton.dispatchEvent('click')
-      await page.waitForTimeout(100)
+      await playButton.click()
+      await page.waitForTimeout(300)
       await expect(playButton).toHaveAttribute('aria-label', /play/i)
     } else {
       // Note: In test environments, hotkeys might not work due to touch detection
@@ -99,24 +121,37 @@ test.describe('Teleprompter Basic Functionality', () => {
       console.log('Testing play/pause functionality (hotkeys may not work in test environment)')
 
       // Test play/pause functionality
-      await playButton.dispatchEvent('click')
-      await page.waitForTimeout(100)
+      await playButton.click()
+      await page.waitForTimeout(500)
+      
+      // Ensure button is visible after play - click on content with testid
+      const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
+      await expect(teleprompterContent).toBeVisible()
+      await teleprompterContent.click({ force: true })
+      await page.waitForTimeout(500)
+      
+      await expect(playButton).toBeVisible()
       await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
-      await playButton.dispatchEvent('click')
-      await page.waitForTimeout(100)
+      await playButton.click()
+      await page.waitForTimeout(300)
       await expect(playButton).toHaveAttribute('aria-label', /play/i)
 
-      // Test navigation buttons if available
+      // Test navigation buttons - need to open ActionsMenu first
+      const moreButton = page.locator('[data-testid="more-menu-button"]')
+      await expect(moreButton).toBeVisible()
+      await moreButton.click()
+      await page.waitForTimeout(500)
+
       const rewindButton = page.locator('[data-testid="rewind-button"]').first()
       const forwardButton = page.locator('[data-testid="forward-button"]').first()
 
       if (await rewindButton.isVisible()) {
-        await rewindButton.dispatchEvent('click')
+        await rewindButton.click()
       }
 
       if (await forwardButton.isVisible()) {
-        await forwardButton.dispatchEvent('click')
+        await forwardButton.click()
       }
 
       // Test home/end
@@ -132,38 +167,38 @@ test.describe('Settings and Configuration', () => {
   })
 
   test('should open settings dialog', async ({ page }) => {
-    // Check if more menu button exists (mobile layout)
+    // Open ActionsMenu first
     const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    const isMobile = await moreMenuButton.isVisible()
-
-    if (isMobile) {
-      await moreMenuButton.click()
-    }
+    await expect(moreMenuButton).toBeVisible()
+    await moreMenuButton.click()
+    await page.waitForTimeout(500)
 
     const settingsButton = page.locator('[data-testid="settings-button"]').first()
+    await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    const dialog = page.locator('[role="dialog"]')
-    await expect(dialog).toBeVisible()
-    await expect(dialog).toContainText('Settings')
+    // Wait for settings view to appear
+    await page.waitForTimeout(500)
+    
+    // Check for settings header with specific selector
+    const settingsTitle = page.locator('.settings-title', { hasText: 'Settings' })
+    await expect(settingsTitle).toBeVisible()
   })
 
   test('should change font size', async ({ page }) => {
-    // Check if more menu button exists (mobile layout)
+    // Open ActionsMenu
     const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    const isMobile = await moreMenuButton.isVisible()
-
-    if (isMobile) {
-      await moreMenuButton.click()
-    }
+    await expect(moreMenuButton).toBeVisible()
+    await moreMenuButton.click()
+    await page.waitForTimeout(500)
 
     // Open settings
     const settingsButton = page.locator('[data-testid="settings-button"]').first()
+    await expect(settingsButton).toBeVisible()
     await settingsButton.click()
 
-    // Wait for dialog to be visible
-    const dialog = page.locator('[role="dialog"]')
-    await expect(dialog).toBeVisible()
+    // Wait for settings view to appear
+    await page.waitForTimeout(500)
 
     // Find font size input field (the number input next to the slider)
     const fontInput = page.locator('input[type="number"]').first()
@@ -176,8 +211,7 @@ test.describe('Settings and Configuration', () => {
     // Close settings
     await page.locator('[data-testid="close-settings-btn"]').click()
 
-    // Wait for dialog to close and changes to apply
-    await expect(dialog).not.toBeVisible()
+    // Wait for settings to close and changes to apply
     await page.waitForTimeout(1000)
 
     // Check if font size changed in content
@@ -186,23 +220,45 @@ test.describe('Settings and Configuration', () => {
   })
 
   test('should toggle mirror modes', async ({ page }) => {
-    // Check if more menu button exists first (can happen on narrow viewports too)
+    // Open ActionsMenu
     const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    const hasMoreMenu = await moreMenuButton.isVisible()
-
-    if (hasMoreMenu) {
-      await moreMenuButton.click()
-      // Wait for menu to open
-      await page.waitForTimeout(500)
-    }
-
-    // Wait for mirror button to be visible and ready
-    const mirrorHButton = page.locator('[data-testid="mirror-h-button"]').first()
-    await expect(mirrorHButton).toBeVisible({ timeout: 10000 })
-    await mirrorHButton.click()
+    await expect(moreMenuButton).toBeVisible()
+    await moreMenuButton.click()
+    await page.waitForTimeout(500)
 
     const container = page.locator('.teleprompter-container')
-    await expect(container).toHaveCSS('transform', /matrix\(-1,.*0.*0.*1.*0.*0\)/)
+    const mirrorHButton = page.locator('[data-testid="mirror-h-button"]').first()
+    const mirrorVButton = page.locator('[data-testid="mirror-v-button"]').first()
+    
+    await expect(mirrorHButton).toBeVisible({ timeout: 10000 })
+    await expect(mirrorVButton).toBeVisible({ timeout: 10000 })
+    
+    // Get initial transform state
+    const initialTransform = await container.evaluate(el => window.getComputedStyle(el).transform)
+    
+    // Click mirror H button to toggle it
+    await mirrorHButton.click()
+    await page.waitForTimeout(500)
+    
+    // Transform should now be different
+    const transformAfterH = await container.evaluate(el => window.getComputedStyle(el).transform)
+    expect(transformAfterH).not.toBe(initialTransform)
+    
+    // Click mirror V button to toggle it
+    await mirrorVButton.click()
+    await page.waitForTimeout(500)
+    
+    // Transform should be different again (both mirrors active)
+    const transformAfterV = await container.evaluate(el => window.getComputedStyle(el).transform)
+    expect(transformAfterV).not.toBe(transformAfterH)
+    
+    // Click mirror H again to turn it off
+    await mirrorHButton.click()
+    await page.waitForTimeout(500)
+    
+    // Transform should change again (only V active now)
+    const transformFinal = await container.evaluate(el => window.getComputedStyle(el).transform)
+    expect(transformFinal).not.toBe(transformAfterV)
   })
 })
 

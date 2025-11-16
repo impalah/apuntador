@@ -15,7 +15,6 @@ import type {
 // Import component implementations
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
-import FloatingToolbarV2 from '@/components/FloatingToolbarV2.vue'
 import HighlightBandHandle from '@/components/HighlightBandHandle.vue'
 
 // ========================================
@@ -41,12 +40,12 @@ export const originalFloatingToolbar: IFloatingToolbarComponent = {
 }
 
 export const decoupledFloatingToolbar: IFloatingToolbarComponent = {
-  name: 'FloatingToolbarV2',
+  name: 'FloatingToolbar',
   version: '2.0.0',
   description: 'Decoupled floating toolbar using service abstractions',
   props: {} as any,
   events: {} as any,
-  component: FloatingToolbarV2,
+  component: FloatingToolbar,
 }
 
 export const standardHighlightBand: IHighlightBandComponent = {
