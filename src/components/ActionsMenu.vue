@@ -683,13 +683,14 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 
 <style scoped lang="scss">
 .actions-menu {
-  background-color: rgb(var(--v-theme-surface));
-  border: 1px solid rgba(255, 255, 255, 0.12);
+  background-color: #1a1a1a; /* Gris oscuro como Instagram */
+  border: none;
   max-height: 33vh;
   overflow-y: auto;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   transition: max-height 0.3s ease;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
   
   &.maximized {
     max-height: calc(100vh - 100px);
@@ -714,7 +715,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 .handle {
   width: 40px;
   height: 4px;
-  background-color: rgba(255, 255, 255, 0.3);
+  background-color: rgba(255, 255, 255, 0.4); /* Más visible en gris oscuro */
   border-radius: 2px;
 }
 
@@ -732,7 +733,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6); /* Más visible en gris oscuro */
   letter-spacing: 1px;
   margin-bottom: 16px;
   text-align: center;
@@ -764,7 +765,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  background: transparent;
+  background: #000; /* Fondo negro para contraste */
   border: none;
   color: white;
   cursor: pointer;
@@ -774,19 +775,19 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   min-height: 90px;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #111; /* Negro más claro al hover */
   }
   
   &:active {
     transform: scale(0.95);
-    background: rgba(255, 255, 255, 0.12);
+    background: #222;
   }
   
   &.active {
-    background: rgba(var(--v-theme-primary), 0.2);
+    background: rgba(var(--v-theme-primary), 0.3);
     
     &:hover {
-      background: rgba(var(--v-theme-primary), 0.25);
+      background: rgba(var(--v-theme-primary), 0.4);
     }
   }
   
@@ -804,7 +805,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: transparent;
+  background: #000; /* Fondo negro para contraste */
   border: none;
   color: white;
   cursor: pointer;
@@ -816,12 +817,12 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   margin-bottom: 8px;
   
   &:hover {
-    background: rgba(255, 255, 255, 0.08);
+    background: #111; /* Negro más claro al hover */
   }
   
   &:active {
     transform: scale(0.98);
-    background: rgba(255, 255, 255, 0.12);
+    background: #222;
   }
   
   .extra-icon {
