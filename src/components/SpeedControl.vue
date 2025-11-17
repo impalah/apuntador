@@ -62,9 +62,9 @@ function decreaseSpeed() {
   gap: 4px;
   padding: 4px 6px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.15);
+  background: #000; /* Fondo negro igual que botones del toolbar */
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: none;
   width: 140px;
   min-width: 140px;
   max-width: 140px;

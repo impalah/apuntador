@@ -299,7 +299,7 @@ onUnmounted(() => {
   min-width: 320px !important;
   max-width: calc(100vw - 40px) !important;
   border-radius: 28px !important;
-  background: rgba(0, 0, 0, 0.9) !important;
+  background: #1a1a1a !important; /* Gris oscuro como ActionsMenu */
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
@@ -314,7 +314,7 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: transparent;
+  background: #000; /* Fondo negro para contraste */
   border: none;
   color: white;
   cursor: pointer;
@@ -327,12 +327,12 @@ onUnmounted(() => {
 }
 
 .toolbar-btn:hover {
-  background: rgba(255, 255, 255, 0.15);
+  background: #111; /* Negro más claro al hover */
 }
 
 .toolbar-btn:active {
   transform: scale(0.95);
-  background: rgba(255, 255, 255, 0.2);
+  background: #222;
 }
 
 /* Responsive adjustments */
