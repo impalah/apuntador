@@ -20,6 +20,19 @@ struct OAuthState {
     server_handle: Mutex<Option<tokio::task::JoinHandle<()>>>,
 }
 
+// Window state for theater mode
+#[derive(Debug, Clone, Serialize, Deserialize)]
+struct WindowState {
+    width: f64,
+    height: f64,
+    x: f64,
+    y: f64,
+}
+
+struct TheaterModeState {
+    saved_states: Mutex<HashMap<String, WindowState>>, // window_label -> saved state
+}
+
 #[derive(Serialize, Deserialize)]
 struct OAuthResponse {
     access_token: String,
@@ -34,31 +47,68 @@ struct DropboxFile {
 
 // Commands to control theater mode
 #[tauri::command]
-fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
+fn toggle_theater_mode(window: tauri::WebviewWindow, theater_state: State<TheaterModeState>) -> Result<bool, String> {
   #[cfg(target_os = "macos")]
   {
-    use tauri::{LogicalPosition, LogicalSize};
+    use tauri::{LogicalPosition, LogicalSize, PhysicalPosition, PhysicalSize};
     
+    let window_label = window.label().to_string();
+    
+    // Check current state
+    let has_decorations = window.is_decorated().map_err(|e| e.to_string())?;
     let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
+    let is_in_theater = !has_decorations || is_fullscreen;
     
-    if is_fullscreen {
+    if is_in_theater {
       // Exit theater mode
-      window.set_fullscreen(false).map_err(|e| e.to_string())?;
+      
+      // If in macOS native fullscreen, exit it first
+      if is_fullscreen {
+        window.set_fullscreen(false).map_err(|e| e.to_string())?;
+      }
+      
+      // Restore decorations and always-on-top
+      window.set_always_on_top(false).map_err(|e| e.to_string())?;
       window.set_decorations(true).map_err(|e| e.to_string())?;
       
-      // Restore normal size
-      if let Ok(monitor) = window.current_monitor() {
-        if let Some(monitor) = monitor {
-          let scale_factor = monitor.scale_factor();
-          let size = LogicalSize::new(1200.0 / scale_factor, 800.0 / scale_factor);
-          window.set_size(size).map_err(|e| e.to_string())?;
-          window.center().map_err(|e| e.to_string())?;
+      // Restore saved size and position
+      let saved_states = theater_state.saved_states.lock().unwrap();
+      if let Some(saved_state) = saved_states.get(&window_label) {
+        let size = PhysicalSize::new(saved_state.width as u32, saved_state.height as u32);
+        let position = PhysicalPosition::new(saved_state.x as i32, saved_state.y as i32);
+        
+        window.set_size(size).map_err(|e| e.to_string())?;
+        window.set_position(position).map_err(|e| e.to_string())?;
+      } else {
+        // Fallback: center with default size
+        if let Ok(monitor) = window.current_monitor() {
+          if let Some(monitor) = monitor {
+            let scale_factor = monitor.scale_factor();
+            let size = LogicalSize::new(1200.0 / scale_factor, 800.0 / scale_factor);
+            window.set_size(size).map_err(|e| e.to_string())?;
+            window.center().map_err(|e| e.to_string())?;
+          }
         }
       }
       
       return Ok(false);
     } else {
-      // Enter theater mode (fullscreen without decorations or menubar)
+      // Save current window state before entering theater mode
+      let current_size = window.outer_size().map_err(|e| e.to_string())?;
+      let current_position = window.outer_position().map_err(|e| e.to_string())?;
+      
+      let window_state = WindowState {
+        width: current_size.width as f64,
+        height: current_size.height as f64,
+        x: current_position.x as f64,
+        y: current_position.y as f64,
+      };
+      
+      let mut saved_states = theater_state.saved_states.lock().unwrap();
+      saved_states.insert(window_label.clone(), window_state);
+      drop(saved_states);
+      
+      // Enter theater mode: remove decorations, maximize, and always-on-top
       window.set_decorations(false).map_err(|e| e.to_string())?;
       
       if let Ok(monitor) = window.current_monitor() {
@@ -82,6 +132,7 @@ fn toggle_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
   
   #[cfg(not(target_os = "macos"))]
   {
+    println!("🎭 [toggle_theater_mode] Non-macOS platform");
     let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
     window.set_fullscreen(!is_fullscreen).map_err(|e| e.to_string())?;
     Ok(!is_fullscreen)
@@ -898,11 +949,24 @@ async fn start_oauth_server(
 
 #[tauri::command]
 fn is_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
-  let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
-  let has_decorations = window.is_decorated().map_err(|e| e.to_string())?;
+  // Theater mode is indicated by no decorations OR fullscreen on macOS
+  #[cfg(target_os = "macos")]
+  {
+    let has_decorations = window.is_decorated().map_err(|e| e.to_string())?;
+    let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
+    
+    // Theater mode is active if EITHER:
+    // 1. We explicitly removed decorations (our theater mode)
+    // 2. macOS native fullscreen is active
+    let result = !has_decorations || is_fullscreen;
+    Ok(result)
+  }
   
-  // In theater mode: fullscreen or without decorations
-  Ok(is_fullscreen || !has_decorations)
+  #[cfg(not(target_os = "macos"))]
+  {
+    let is_fullscreen = window.is_fullscreen().map_err(|e| e.to_string())?;
+    Ok(is_fullscreen)
+  }
 }
 
 // Window control commands
@@ -1011,6 +1075,9 @@ pub fn run() {
       pending_requests: Mutex::new(HashMap::new()),
       server_handle: Mutex::new(None),
     })
+    .manage(TheaterModeState {
+      saved_states: Mutex::new(HashMap::new()),
+    })
     .invoke_handler(tauri::generate_handler![
       toggle_theater_mode,
       is_theater_mode,
@@ -1077,6 +1144,16 @@ pub fn run() {
       match event {
         tauri::WindowEvent::Destroyed => {
           println!("🗑️  Window destroyed: {}", window.label());
+        }
+        tauri::WindowEvent::ThemeChanged(_) => {
+          // Detectar cambios de fullscreen a través de cambios en decoraciones
+          #[cfg(target_os = "macos")]
+          {
+            if let Ok(has_decorations) = window.is_decorated() {
+              // Emitir evento cuando cambia el estado de decoraciones (theater mode)
+              let _ = window.emit("theater-mode-changed", !has_decorations);
+            }
+          }
         }
         _ => {}
       }

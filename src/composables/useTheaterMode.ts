@@ -1,4 +1,4 @@
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { invoke } from '@tauri-apps/api/core'
 import { getCurrentWebviewWindow } from '@tauri-apps/api/webviewWindow'
 
@@ -7,38 +7,61 @@ export function useTheaterMode() {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
   
-  // Detectar si estamos en Tauri
-  const isTauri = ref(false)
+  // Detectar si estamos en Tauri usando una verificación más robusta
+  let isTauri = false
+  try {
+    // @ts-ignore - window.__TAURI__ está disponible en Tauri
+    isTauri = typeof window !== 'undefined' && window.__TAURI__ !== undefined
+  } catch (e) {
+    isTauri = false
+  }
+  
+  
+  // Polling interval para detectar cambios externos
+  let pollInterval: ReturnType<typeof setInterval> | null = null
   
   onMounted(async () => {
-    // Verificar si estamos en Tauri
-    try {
-      const window = getCurrentWebviewWindow()
-      if (window) {
-        isTauri.value = true
+    if (isTauri) {
+      try {
         await updateTheaterStatus()
+        
+        // Poll cada 500ms para detectar cambios externos (ej: menú de macOS)
+        pollInterval = setInterval(() => {
+          updateTheaterStatus()
+        }, 500)
+      } catch (e) {
+        console.error('[useTheaterMode] Error in onMounted:', e)
       }
-    } catch (e) {
-      // No estamos en Tauri (modo web)
-      isTauri.value = false
+    } else {
+      // Listener para cambios de fullscreen en web
+      document.addEventListener('fullscreenchange', handleFullscreenChange)
+    }
+  })
+  
+  onUnmounted(() => {
+    if (pollInterval !== null) {
+      clearInterval(pollInterval)
+      pollInterval = null
+    }
+    if (!isTauri) {
+      document.removeEventListener('fullscreenchange', handleFullscreenChange)
     }
   })
   
   const updateTheaterStatus = async () => {
-    if (!isTauri.value) return
+    if (!isTauri) return
     
     try {
-      const window = getCurrentWebviewWindow()
-      const result = await invoke<boolean>('is_theater_mode', { window })
+      const result = await invoke<boolean>('is_theater_mode')
       isTheaterMode.value = result
     } catch (e) {
-      console.error('Error checking theater mode:', e)
+      console.error('[useTheaterMode] Error checking theater mode:', e)
       error.value = e as string
     }
   }
   
   const toggleTheaterMode = async () => {
-    if (!isTauri.value) {
+    if (!isTauri) {
       // Fallback para modo web - usar fullscreen API del navegador
       toggleWebFullscreen()
       return
@@ -48,11 +71,10 @@ export function useTheaterMode() {
     error.value = null
     
     try {
-      const window = getCurrentWebviewWindow()
-      const result = await invoke<boolean>('toggle_theater_mode', { window })
+      const result = await invoke<boolean>('toggle_theater_mode')
       isTheaterMode.value = result
     } catch (e) {
-      console.error('Error toggling theater mode:', e)
+      console.error('[useTheaterMode] Error toggling theater mode:', e)
       error.value = e as string
     } finally {
       isLoading.value = false
@@ -81,22 +103,16 @@ export function useTheaterMode() {
   
   // Escuchar cambios en el fullscreen del navegador (solo en web)
   const handleFullscreenChange = () => {
-    if (!isTauri.value) {
+    if (!isTauri) {
       isTheaterMode.value = !!document.fullscreenElement
     }
   }
-  
-  onMounted(() => {
-    if (!isTauri.value) {
-      document.addEventListener('fullscreenchange', handleFullscreenChange)
-    }
-  })
   
   return {
     isTheaterMode,
     isLoading,
     error,
-    isTauri,
+    isTauri: ref(isTauri),
     toggleTheaterMode,
     updateTheaterStatus
   }
