@@ -61,21 +61,43 @@ export class CloudProviderConfigService {
    */
   async fetchConfig(): Promise<CloudProviderConfig> {
     console.log('🔍 [CloudProviderConfig] Fetching provider configuration from backend...')
+    console.log('   Backend URL:', BACKEND_URL)
+    console.log('   API Key configured:', API_KEY ? 'Yes' : 'No')
+
+    const url = `${BACKEND_URL}/config/providers`
+    const headers = {
+      'Authorization': `Bearer ${API_KEY}`,
+      'Content-Type': 'application/json',
+    }
+    
+    console.log('🌐 [CloudProviderConfig] Using direct fetch (bypassing adapter)')
+    console.log('   URL:', url)
+    console.log('   Headers:', { ...headers, Authorization: `Bearer ${API_KEY.substring(0, 10)}...` })
 
     try {
-    const response = await fetch(`${BACKEND_URL}/config/providers`, {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-    })
+      const response = await fetch(url, {
+        method: 'GET',
+        headers,
+      })
     
-    if (!response.ok) {
+      console.log('📡 [CloudProviderConfig] Response received:', {
+        status: response.status,
+        statusText: response.statusText,
+        ok: response.ok
+      })
+    
+      if (!response.ok) {
+        const errorBody = await response.text()
+        console.error('❌ [CloudProviderConfig] HTTP Error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorBody
+        })
+        
         if (response.status === 401) {
-          throw new Error('Invalid API key for configuration endpoint')
+          throw new Error(`Unauthorized: Invalid or missing API key (${response.status})`)
         }
-        throw new Error(`Failed to fetch config: ${response.status} ${response.statusText}`)
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`)
       }
 
       const config: CloudProviderConfig = await response.json()
@@ -90,7 +112,16 @@ export class CloudProviderConfigService {
 
       return config
     } catch (error: any) {
-      console.error('❌ [CloudProviderConfig] Failed to fetch configuration:', error)
+      console.error('❌ [CloudProviderConfig] Failed to fetch configuration')
+      console.error('   Backend URL:', BACKEND_URL)
+      console.error('   API Key:', API_KEY ? `${API_KEY.substring(0, 10)}...` : 'NOT SET')
+      console.error('   Error type:', typeof error)
+      console.error('   Error name:', error?.name)
+      console.error('   Error message:', error?.message)
+      console.error('   Error toString:', String(error))
+      console.error('   Error instanceof Error:', error instanceof Error)
+      console.error('   Error instanceof TypeError:', error instanceof TypeError)
+      console.error('   Full error object:', error)
       
       // Try to return cached config even if expired (better than nothing)
       const cached = this.loadFromCache(true)

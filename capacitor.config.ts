@@ -8,9 +8,18 @@ const config: CapacitorConfig = {
     // DESARROLLO: Usar HTTP para permitir conexiones al backend local
     // PRODUCCIÓN: Cambiar a HTTPS
     androidScheme: 'http',
-    iosScheme: 'ionic',
+    iosScheme: 'https', // Usar https para permitir peticiones HTTP/HTTPS desde el WebView
     // Permitir mixed content (HTTP desde HTTPS) para desarrollo
     cleartext: true,
+    // Permitir conexiones a estos dominios externos desde iOS
+    allowNavigation: [
+      'https://api.apuntador.io',
+      'https://accounts.google.com',
+      'https://www.googleapis.com',
+      'https://oauth2.googleapis.com',
+      'https://www.dropbox.com',
+      'https://api.dropboxapi.com',
+    ],
   },
   plugins: {
     StatusBar: {

@@ -118,8 +118,8 @@ const props = withDefaults(defineProps<Props>(), {
   isMinimal: false,
 })
 
-console.log('[FloatingToolbar] Component mounted, isVisible:', props.isVisible)
-console.log('[FloatingToolbar] Props:', JSON.stringify(props, null, 2))
+// console.log('[FloatingToolbar] Component mounted, isVisible:', props.isVisible)
+// console.log('[FloatingToolbar] Props:', JSON.stringify(props, null, 2))
 
 // Emits
 const emit = defineEmits<{
@@ -207,7 +207,7 @@ watch(
 watch(
   () => teleprompterStore.isPlaying,
   (isPlaying) => {
-    console.log('[FloatingToolbar] isPlaying changed to:', isPlaying)
+    // console.log('[FloatingToolbar] isPlaying changed to:', isPlaying)
     if (isPlaying) {
       // On mobile devices, keep toolbar visible during playback for easier control
       if (xs.value || sm.value) {

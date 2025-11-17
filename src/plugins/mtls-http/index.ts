@@ -91,6 +91,8 @@ export interface MTLSHttpPlugin {
   request(options: MTLSHttpRequestOptions): Promise<MTLSHttpResponse>
 }
 
-const MTLSHttp = registerPlugin<MTLSHttpPlugin>('MTLSHttp')
+const MTLSHttp = registerPlugin<MTLSHttpPlugin>('MTLSHttp', {
+  web: () => import('./web').then((m) => new m.MTLSHttpWeb()),
+})
 
 export { MTLSHttp }
