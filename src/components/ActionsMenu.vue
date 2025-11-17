@@ -686,7 +686,8 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   background-color: #1a1a1a; /* Gris oscuro como Instagram */
   border: none;
   max-height: 33vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   transition: max-height 0.3s ease;
@@ -698,10 +699,15 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 }
 
 .handle-bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #1a1a1a; /* Mismo color que el fondo del menú */
   display: flex;
   justify-content: center;
   padding: 12px 0 8px 0;
   cursor: pointer;
+  flex-shrink: 0;
   
   &:hover {
     background: rgba(255, 255, 255, 0.05);
@@ -723,6 +729,9 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   padding: 16px 24px calc(80px + env(safe-area-inset-bottom)) 24px;
   max-width: 500px;
   margin: 0 auto;
+  overflow-y: auto;
+  flex: 1;
+  -webkit-overflow-scrolling: touch;
 }
 
 .menu-section {
