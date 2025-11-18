@@ -4,7 +4,7 @@
     v-model="currentNotification.visible"
     :color="getColor(currentNotification.type)"
     :timeout="-1"
-    location="bottom"
+    location="top"
     :multi-line="false"
     :vertical="false"
     class="notification-snackbar"
@@ -54,6 +54,11 @@ function getIcon(type: NotificationType): string {
 .notification-snackbar {
   /* Ensure snackbar is clickable */
   cursor: pointer;
+}
+
+.notification-snackbar :deep(.v-snackbar__wrapper) {
+  /* Add top margin to avoid system status bar on Android/iOS */
+  margin-top: calc(env(safe-area-inset-top) + 60px);
 }
 
 .notification-content {

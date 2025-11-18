@@ -79,7 +79,7 @@
       v-model="showExitSnackbar"
       :timeout="2000"
       color="info"
-      location="bottom"
+      location="top"
     >
       {{ t('teleprompter.pressBackAgainToExit') }}
     </v-snackbar>

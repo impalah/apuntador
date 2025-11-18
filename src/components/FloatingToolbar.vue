@@ -292,7 +292,7 @@ onUnmounted(() => {
 <style scoped>
 .floating-toolbar {
   position: fixed !important;
-  bottom: 16px !important;
+  bottom: calc(16px + env(safe-area-inset-bottom)) !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
@@ -339,7 +339,7 @@ onUnmounted(() => {
 @media (max-width: 360px) {
   .floating-toolbar {
     min-width: 280px !important;
-    bottom: 12px !important;
+    bottom: calc(12px + env(safe-area-inset-bottom)) !important;
     gap: 12px;
     padding: 8px 16px;
   }
@@ -354,7 +354,7 @@ onUnmounted(() => {
 @media (min-width: 600px) {
   .floating-toolbar {
     max-width: 500px;
-    bottom: 24px !important;
+    bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     gap: 20px;
     padding: 10px 24px;
   }

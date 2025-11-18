@@ -726,7 +726,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 }
 
 .menu-content {
-  padding: 16px 24px calc(80px + env(safe-area-inset-bottom)) 24px;
+  padding: 16px 24px calc(180px + env(safe-area-inset-bottom)) 24px;
   max-width: 500px;
   margin: 0 auto;
   overflow-y: auto;
@@ -848,7 +848,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 /* Responsive: móviles pequeños */
 @media (max-width: 360px) {
   .menu-content {
-    padding: 12px 16px 24px 16px;
+    padding: 12px 16px calc(160px + env(safe-area-inset-bottom)) 16px;
   }
   
   .button-grid {
@@ -876,7 +876,7 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 /* Tablets y desktop */
 @media (min-width: 600px) {
   .menu-content {
-    padding: 20px 32px 40px 32px;
+    padding: 20px 32px calc(180px + env(safe-area-inset-bottom)) 32px;
     max-width: 600px;
   }
   
