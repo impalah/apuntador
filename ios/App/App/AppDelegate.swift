@@ -50,13 +50,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             return
         }
         
-        print("✅ [AppDelegate] WebView found, registering message handler")
+        // print("✅ [AppDelegate] WebView found, registering message handler")
         
         // Crear y registrar el bridge
         secureEnclaveBridge = SecureEnclaveWebBridge()
         webView.configuration.userContentController.add(secureEnclaveBridge!, name: "secureEnclave")
         
-        print("✅ [AppDelegate] SecureEnclave message handler registered")
+        // print("✅ [AppDelegate] SecureEnclave message handler registered")
     }
     
     /**
@@ -69,8 +69,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = ApuntadorAutoEnrollmentPlugin.self
         _ = MTLSHttp.self
         
-        print("✅ [AppDelegate] Custom plugins registration initialized")
-        print("ℹ️  Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
+        // print("✅ [AppDelegate] Custom plugins registration initialized")
+        // print("ℹ️  Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

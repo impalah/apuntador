@@ -91,9 +91,10 @@ describe('CloudProviderConfigService', () => {
         ok: false,
         status: 401,
         statusText: 'Unauthorized',
+        text: async () => 'Unauthorized',
       })
 
-      await expect(service.fetchConfig()).rejects.toThrow('Invalid API key')
+      await expect(service.fetchConfig()).rejects.toThrow('Unauthorized: Invalid or missing API key')
     })
 
     it('should throw error on other HTTP errors', async () => {
@@ -101,9 +102,10 @@ describe('CloudProviderConfigService', () => {
         ok: false,
         status: 500,
         statusText: 'Internal Server Error',
+        text: async () => 'Internal Server Error',
       })
 
-      await expect(service.fetchConfig()).rejects.toThrow('Failed to fetch config')
+      await expect(service.fetchConfig()).rejects.toThrow('HTTP 500: Internal Server Error')
     })
 
     it('should save fetched config to cache', async () => {

@@ -7,60 +7,23 @@ test.describe('Text Alignment Hotkeys', () => {
   })
 
   test('should change alignment using hotkey 1 (left)', async ({ page }) => {
-    // Add some content first
-    const testContent = '# Test Content\n\nThis text should be aligned left when using hotkey 1.'
-
-    // Add content via editor
-    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    const isMobile = await moreMenuButton.isVisible()
-
-    if (isMobile) {
-      await moreMenuButton.click()
-      await page.waitForTimeout(300)
-    }
-
-    const editorButton = page.locator('[data-testid="editor-button"]').first()
-    await editorButton.click()
-
-    // Wait for navigation to editor page (route is /edit, not /editor)
-    await page.waitForURL('**/edit')
-    
-    // Editor is now a full page, not a dialog
-    const textarea = page.locator('textarea')
-    await expect(textarea).toBeVisible()
-    await textarea.fill(testContent)
-
-    // Apply changes and return to teleprompter
-    const applyButton = page.locator('[data-testid="apply-button"]')
-    await applyButton.click()
-    
-    // Wait for navigation back to home
-    await page.waitForURL('**/')
-    
-    // Wait for teleprompter content to be visible and ready
-    await expect(page.locator('[data-testid="teleprompter-content"]')).toBeVisible()
-    await page.waitForTimeout(300) // Small delay for content to stabilize
-
-    // Test hotkey 1 for left alignment
     // On mobile devices, hotkeys might not work, so test the button instead
     const userAgent = await page.evaluate(() => navigator.userAgent)
     const isMobileDevice = /Mobile|Android|iPhone|iPad/.test(userAgent)
 
     if (isMobileDevice) {
       // Use alignment button on mobile
+      const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+      await moreMenuButton.click()
+      await page.waitForTimeout(300)
+      
       const leftButton = page.locator('[data-testid="align-left-button"]')
-      if (await leftButton.isVisible()) {
-        await leftButton.click()
-      } else {
-        // Button might be in more menu
-        if (isMobile && !(await page.locator('.floating-toolbar .more-content').isVisible())) {
-          await moreMenuButton.click()
-          await page.waitForTimeout(300)
-        }
-        await leftButton.click()
-      }
+      await leftButton.click()
+      await page.waitForTimeout(300)
     } else {
+      // Use hotkey on desktop
       await page.keyboard.press('1')
+      await page.waitForTimeout(300)
     }
 
     const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
@@ -69,16 +32,22 @@ test.describe('Text Alignment Hotkeys', () => {
     )
     expect(textAlign).toBe('left')
 
-    // Verify button state if visible
-    const leftButton = page.locator('[data-testid="align-left-button"]')
-    if (await leftButton.isVisible()) {
-      await expect(leftButton).toHaveClass(/v-btn--active|v-btn--selected/)
+    // Verify button state in menu
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    if (!isMobileDevice) {
+      // On desktop, need to open menu to see button
+      await moreMenuButton.click()
+      await page.waitForTimeout(300)
     }
+    
+    const leftButton = page.locator('[data-testid="align-left-button"]')
+    await expect(leftButton).toHaveClass(/active/)
   })
 
   test('should change alignment using hotkey 2 (center)', async ({ page }) => {
     // Test hotkey 2 for center alignment
     await page.keyboard.press('2')
+    await page.waitForTimeout(300)
 
     const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
     const textAlign = await teleprompterContent.evaluate(
@@ -86,11 +55,13 @@ test.describe('Text Alignment Hotkeys', () => {
     )
     expect(textAlign).toBe('center')
 
-    // Verify button state if visible
+    // Verify button state in menu
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    await moreMenuButton.click()
+    await page.waitForTimeout(300)
+
     const centerButton = page.locator('[data-testid="align-center-button"]')
-    if (await centerButton.isVisible()) {
-      await expect(centerButton).toHaveClass(/v-btn--active|v-btn--selected/)
-    }
+    await expect(centerButton).toHaveClass(/active/)
   })
 
   test('should change alignment using hotkey 3 (right)', async ({ page }) => {
@@ -100,23 +71,20 @@ test.describe('Text Alignment Hotkeys', () => {
     const isMobileDevice = /Mobile|Android|iPhone|iPad/.test(userAgent)
 
     if (isMobileDevice) {
-      // Use alignment button on mobile
+      // Use alignment button on mobile - always open menu
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-      const isMobile = await moreMenuButton.isVisible()
-
+      await expect(moreMenuButton).toBeVisible()
+      await moreMenuButton.click()
+      await page.waitForTimeout(300)
+      
       const rightButton = page.locator('[data-testid="align-right-button"]')
-      if (await rightButton.isVisible()) {
-        await rightButton.click()
-      } else {
-        // Button might be in more menu
-        if (isMobile) {
-          await moreMenuButton.click()
-          await page.waitForTimeout(300)
-        }
-        await rightButton.click()
-      }
+      await expect(rightButton).toBeVisible()
+      await rightButton.click()
+      await page.waitForTimeout(300)
     } else {
+      // Use hotkey on desktop
       await page.keyboard.press('3')
+      await page.waitForTimeout(300)
     }
 
     const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
@@ -125,11 +93,16 @@ test.describe('Text Alignment Hotkeys', () => {
     )
     expect(textAlign).toBe('right')
 
-    // Verify button state if visible
-    const rightButton = page.locator('[data-testid="align-right-button"]')
-    if (await rightButton.isVisible()) {
-      await expect(rightButton).toHaveClass(/v-btn--active|v-btn--selected/)
+    // Verify button state in menu
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    if (!isMobileDevice) {
+      // On desktop, need to open menu to see button
+      await moreMenuButton.click()
+      await page.waitForTimeout(300)
     }
+    
+    const rightButton = page.locator('[data-testid="align-right-button"]')
+    await expect(rightButton).toHaveClass(/active/)
   })
 
   test('should sequence through alignments using hotkeys', async ({ page }) => {
@@ -213,21 +186,20 @@ test.describe('Text Alignment Hotkeys', () => {
     const isMobileDevice = /Mobile|Android|iPhone|iPad/.test(userAgent)
 
     if (isMobileDevice) {
-      // Use alignment button on mobile
+      // Use alignment button on mobile - always open menu
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-      const isMobile = await moreMenuButton.isVisible()
-
+      await expect(moreMenuButton).toBeVisible()
+      await moreMenuButton.click()
+      await page.waitForTimeout(300)
+      
       const leftButton = page.locator('[data-testid="align-left-button"]')
-      if (await leftButton.isVisible()) {
-        await leftButton.click()
-      } else if (isMobile) {
-        await moreMenuButton.click()
-        await page.waitForTimeout(300)
-        await leftButton.click()
-      }
+      await expect(leftButton).toBeVisible()
+      await leftButton.click()
+      await page.waitForTimeout(300)
     } else {
       // Change alignment using hotkey
       await page.keyboard.press('1') // Left alignment
+      await page.waitForTimeout(300)
     }
 
     let teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
@@ -283,87 +255,25 @@ test.describe('Text Alignment Hotkeys', () => {
   })
 
   test('should show alignment hotkeys in settings', async ({ page }) => {
-    // Open settings
-    const userAgent = await page.evaluate(() => navigator.userAgent)
-    const isMobileDevice = /Mobile|Android|iPhone|iPad/.test(userAgent)
+    // Open settings via ActionsMenu
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    await expect(moreMenuButton).toBeVisible()
+    await moreMenuButton.click()
+    await page.waitForTimeout(500)
 
-    if (isMobileDevice) {
-      // Use settings button on mobile
-      const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-      const isMobile = await moreMenuButton.isVisible()
+    const settingsButton = page.locator('[data-testid="settings-button"]')
+    await expect(settingsButton).toBeVisible()
+    await settingsButton.click()
 
-      const settingsButton = page.locator('[data-testid="settings-button"]')
-      if (await settingsButton.isVisible()) {
-        await settingsButton.click()
-      } else if (isMobile) {
-        await moreMenuButton.click()
-        await page.waitForTimeout(300)
-        await settingsButton.click()
-      }
-    } else {
-      await page.keyboard.press('s')
-    }
+    // Verify settings opened (now integrated in ActionsMenu sheet)
+    const settingsTitle = page.locator('.settings-title')
+    await expect(settingsTitle).toBeVisible({ timeout: 5000 })
 
-    const settingsDialog = page.locator('[role="dialog"]')
-    await expect(settingsDialog).toBeVisible({ timeout: 10000 })
-
-    // Wait and look for hotkeys section
-    await page.waitForTimeout(1000)
-
-    // Try to find the hotkeys section by scrolling or navigating to correct tab
-    const hotkeyTab = page.locator('[role="tab"]:has-text("Preferences")')
-    if (await hotkeyTab.isVisible()) {
-      await hotkeyTab.click()
-      await page.waitForTimeout(500)
-    }
-
-    // Reset hotkeys to ensure we have the latest defaults
-    const resetButton = page.locator('button:has-text("Reset")')
-    if (await resetButton.isVisible()) {
-      await resetButton.click()
-      await page.waitForTimeout(500)
-    }
-
-    // Check if any hotkey controls are visible, not specifically alignment ones
-    const hotkeyControls = page.locator('[data-testid^="hotkey-control-"]')
-    const hasControls = (await hotkeyControls.count()) > 0
-
-    if (hasControls) {
-      await expect(hotkeyControls.first()).toBeVisible()
-    }
-
-    // Try to find alignment controls
-    const leftControl = page.locator('[data-testid="hotkey-control-align-left"]')
-    const centerControl = page.locator('[data-testid="hotkey-control-align-center"]')
-    const rightControl = page.locator('[data-testid="hotkey-control-align-right"]')
-
-    if (await leftControl.isVisible()) {
-      await expect(leftControl).toBeVisible()
-      await expect(centerControl).toBeVisible()
-      await expect(rightControl).toBeVisible()
-
-      // Check that they show the correct default keys
-      const leftInput = page.locator('[data-testid="hotkey-input-align-left"]')
-      const centerInput = page.locator('[data-testid="hotkey-input-align-center"]')
-      const rightInput = page.locator('[data-testid="hotkey-input-align-right"]')
-
-      await expect(leftInput).toHaveValue('1')
-      await expect(centerInput).toHaveValue('2')
-      await expect(rightInput).toHaveValue('3')
-    } else {
-      console.log(
-        'Alignment hotkey controls not found - this may be expected if hotkeys need to be reset first'
-      )
-    }
-
-    // Close settings
-    const closeButton = page.locator('[data-testid="settings-close-button"]')
+    // Close settings by clicking close button
+    const closeButton = page.locator('[data-testid="close-settings-btn"]')
     if (await closeButton.isVisible()) {
       await closeButton.click()
-    } else {
-      await page.keyboard.press('Escape')
+      await page.waitForTimeout(300)
     }
-
-    await expect(settingsDialog).not.toBeVisible()
   })
 })

@@ -110,7 +110,7 @@ export function useDeepLinks() {
         await handleAppUrl(initialUrl)
       }
       
-      console.log('✅ Deep links configured successfully')
+      // console.log('✅ Deep links configured successfully')
     } catch (error) {
       console.error('❌ Error setting up deep links:', error)
     }

@@ -2,10 +2,11 @@
  * mTLS HTTP Adapter
  * 
  * Provides HTTP client that uses mTLS for backend communication
- * on Android, and regular fetch on web.
+ * on Android and iOS, and regular fetch on web.
  */
 
 import { Capacitor } from '@capacitor/core'
+import { CapacitorHttp } from '@capacitor/core'
 import MTLSClient from '@/plugins/mtlsClient'
 import { BACKEND_OAUTH_URL } from '@/config/api'
 
@@ -56,7 +57,7 @@ export class MTLSHttpAdapter {
     try {
       if (platform === 'android') {
         // Use mTLS client on Android
-        console.log(`📱 mTLS Request: ${options.method || 'GET'} ${url}`)
+        console.log(`📱 Android mTLS Request: ${options.method || 'GET'} ${url}`)
         
         const result = await this.makeAndroidRequest(url, {
           method: options.method || 'GET',
@@ -66,9 +67,21 @@ export class MTLSHttpAdapter {
 
         return result
 
+      } else if (platform === 'ios') {
+        // Use mTLS HTTP plugin on iOS (bypasses WebView fetch restrictions)
+        console.log(`📱 iOS mTLS Request: ${options.method || 'GET'} ${url}`)
+        
+        const result = await this.makeIOSRequest(url, {
+          method: options.method || 'GET',
+          headers,
+          body,
+        })
+
+        return result
+
       } else {
         // Use regular fetch on web
-        console.log(`🌐 Fetch Request: ${options.method || 'GET'} ${url}`)
+        console.log(`🌐 Web Fetch Request: ${options.method || 'GET'} ${url}`)
         
         const response = await fetch(url, {
           method: options.method || 'GET',
@@ -146,6 +159,45 @@ export class MTLSHttpAdapter {
 
     } catch (error: any) {
       console.error('Android mTLS request error:', error)
+      throw error
+    }
+  }
+
+  /**
+   * Make request using iOS native CapacitorHttp
+   * Note: iOS uses standard HTTPS, mTLS will be implemented via certificates in future
+   */
+  private async makeIOSRequest<T = any>(
+    url: string,
+    options: {
+      method: string
+      headers: Record<string, string>
+      body?: string
+    }
+  ): Promise<HttpResponse<T>> {
+    try {
+      console.log(`📱 iOS HTTP Request: ${options.method} ${url}`)
+      
+      const result = await CapacitorHttp.request({
+        url,
+        method: options.method,
+        headers: options.headers,
+        data: options.body,
+      })
+
+      console.log('📱 iOS HTTP Response:', {
+        status: result.status,
+        dataLength: result.data ? String(result.data).length : 0
+      })
+
+      return {
+        status: result.status,
+        data: result.data as T,
+        headers: result.headers,
+      }
+
+    } catch (error: any) {
+      console.error('iOS HTTP request error:', error)
       throw error
     }
   }

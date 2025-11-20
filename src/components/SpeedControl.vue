@@ -60,23 +60,17 @@ function decreaseSpeed() {
   display: flex;
   align-items: center;
   gap: 4px;
-  padding: 6px 8px;
+  padding: 4px 6px;
   border-radius: 12px;
-  background: rgba(255, 255, 255, 0.15);
+  background: #000; /* Fondo negro igual que botones del toolbar */
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  /* FIXED WIDTH - cannot be overridden */
-  width: 140px !important;
-  min-width: 140px !important;
-  max-width: 140px !important;
-  flex-shrink: 0 !important; /* Never allow shrinking */
-  flex-grow: 0 !important; /* Never allow growing */
-  /* Force visibility */
-  position: relative !important;
-  z-index: 9999 !important;
-  overflow: visible !important;
-  height: 48px !important;
-  min-height: 48px !important;
+  border: none;
+  width: 140px;
+  min-width: 140px;
+  max-width: 140px;
+  flex-shrink: 0;
+  flex-grow: 0;
+  height: 44px;
 }
 
 .speed-display {
@@ -100,20 +94,14 @@ function decreaseSpeed() {
 
 /* Ensure buttons are visible and have fixed size */
 :deep(.v-btn) {
-  width: 36px !important;
-  min-width: 36px !important;
-  max-width: 36px !important;
-  height: 36px !important;
-  min-height: 36px !important;
-  max-height: 36px !important;
+  width: 32px !important;
+  min-width: 32px !important;
+  max-width: 32px !important;
+  height: 32px !important;
+  min-height: 32px !important;
+  max-height: 32px !important;
   flex-shrink: 0 !important;
   flex-grow: 0 !important;
-  opacity: 1 !important;
-  z-index: 10000 !important;
-  position: relative !important;
-  pointer-events: auto !important;
-  visibility: visible !important;
-  overflow: visible !important;
 }
 
 /* Tablet optimizations */
