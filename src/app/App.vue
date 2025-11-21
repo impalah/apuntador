@@ -45,32 +45,32 @@ onMounted(async () => {
   const isAndroid = /Android/i.test(navigator.userAgent)
   if (isAndroid) {
     document.documentElement.classList.add('android')
-    document.documentElement.setAttribute('data-android', 'true')
+    document.documentElement.dataset.android = 'true'
     
     // Detect Android API level for specific fixes
     const androidMatch = navigator.userAgent.match(/Android\s+([\d.]+)/)
     if (androidMatch) {
       const version = androidMatch[1]
-      document.documentElement.setAttribute('data-android-version', version)
+      document.documentElement.dataset.androidVersion = version
       
       // Map versions to API levels (approximate)
       const majorVersion = Number.parseInt(version.split('.')[0])
       if (majorVersion >= 15) {
-        document.documentElement.setAttribute('data-android-api', '35')
+        document.documentElement.dataset.androidApi = '35'
       } else if (majorVersion >= 14) {
-        document.documentElement.setAttribute('data-android-api', '34')
+        document.documentElement.dataset.androidApi = '34'
       }
     }
     
     // Add Capacitor-specific class if running in Capacitor
-    if ((window as any).Capacitor) {
+    if ((globalThis as any).Capacitor) {
       document.documentElement.classList.add('capacitor-android')
     }
     
     // Debug logging - enabled for Android edge-to-edge testing
     console.log('Android device detected:', {
       userAgent: navigator.userAgent,
-      isCapacitor: !!(window as any).Capacitor,
+      isCapacitor: !!(globalThis as any).Capacitor,
       version: androidMatch?.[1]
     })
   }
@@ -82,6 +82,8 @@ onMounted(async () => {
 .v-application {
   background: var(--teleprompter-bg, #000000) !important;
   color: var(--teleprompter-fg, #ffffff) !important;
+  height: 100vh;
+  height: 100dvh; /* Use dynamic viewport height when available */
 }
 
 /* Support for devices with safe area insets */
@@ -139,11 +141,5 @@ body {
   height: 100%;
   width: 100%;
   overflow: hidden;
-}
-
-/* Fix for Android Chrome address bar changes */
-.v-application {
-  height: 100vh;
-  height: 100dvh; /* Use dynamic viewport height when available */
 }
 </style>

@@ -48,5 +48,5 @@ export function getPlatformRedirectUri(): string {
   }
   
   // Web: URL de la app
-  return window.location.origin + '/oauth-callback'
+  return globalThis.location.origin + '/oauth-callback'
 }

@@ -4,7 +4,7 @@
 
 import { Capacitor } from '@capacitor/core'
 import { StatusBar, Style } from '@capacitor/status-bar'
-import { ScreenOrientation, type OrientationLockType } from '@capacitor/screen-orientation'
+import { ScreenOrientation } from '@capacitor/screen-orientation'
 import { Haptics, ImpactStyle } from '@capacitor/haptics'
 import { Keyboard } from '@capacitor/keyboard'
 

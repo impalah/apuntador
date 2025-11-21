@@ -40,9 +40,9 @@ export interface IOSEnrollmentResult {
 
 export class IOSSecureEnclaveService {
   private static instance: IOSSecureEnclaveService
-  private backendUrl: string
+  private readonly backendUrl: string
   private enrollmentPromise: Promise<IOSEnrollmentResult> | null = null
-  private useNativeBridge = false
+  private readonly useNativeBridge = false
 
   private constructor() {
     // Obtener URL del backend desde variables de entorno

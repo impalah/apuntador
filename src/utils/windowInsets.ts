@@ -23,72 +23,117 @@ export function useWindowInsets() {
 
   const isEdgeToEdge = ref(false)
 
-  function updateInsets() {
-    let detectedBottomInset = 0
-    let detectedTopInset = 0
-
-    // Method 1: Try CSS environment variables first
-    if (typeof window !== 'undefined') {
-      const computedStyle = getComputedStyle(document.documentElement)
-
-      const topEnv = computedStyle.getPropertyValue('env(safe-area-inset-top)')
-      const bottomEnv = computedStyle.getPropertyValue('env(safe-area-inset-bottom)')
-      const leftEnv = computedStyle.getPropertyValue('env(safe-area-inset-left)')
-      const rightEnv = computedStyle.getPropertyValue('env(safe-area-inset-right)')
-
-      if (topEnv) detectedTopInset = Math.max(detectedTopInset, Number.parseInt(topEnv) || 0)
-      if (bottomEnv) detectedBottomInset = Math.max(detectedBottomInset, Number.parseInt(bottomEnv) || 0)
-
-      safeAreaInsets.value = {
-        top: detectedTopInset,
-        bottom: detectedBottomInset,
-        left: Number.parseInt(leftEnv) || 0,
-        right: Number.parseInt(rightEnv) || 0,
-      }
+  /**
+   * Try to get safe area insets from CSS environment variables
+   */
+  function getInsetsFromCssEnv(): { top: number; bottom: number; left: number; right: number } {
+    if (typeof window === 'undefined') {
+      return { top: 0, bottom: 0, left: 0, right: 0 }
     }
+
+    const computedStyle = getComputedStyle(document.documentElement)
+
+    const topEnv = computedStyle.getPropertyValue('env(safe-area-inset-top)')
+    const bottomEnv = computedStyle.getPropertyValue('env(safe-area-inset-bottom)')
+    const leftEnv = computedStyle.getPropertyValue('env(safe-area-inset-left)')
+    const rightEnv = computedStyle.getPropertyValue('env(safe-area-inset-right)')
+
+    return {
+      top: Number.parseInt(topEnv) || 0,
+      bottom: Number.parseInt(bottomEnv) || 0,
+      left: Number.parseInt(leftEnv) || 0,
+      right: Number.parseInt(rightEnv) || 0,
+    }
+  }
+
+  /**
+   * Calculate Android navigation bar height
+   */
+  function calculateNavBarHeight(
+    screenHeight: number,
+    viewportHeight: number,
+    availableHeight: number,
+    estimatedStatusBarHeight: number
+  ): number {
+    let navBarHeight = 0
+
+    // If viewport is smaller than screen, there's likely a navigation bar
+    if (screenHeight > viewportHeight) {
+      navBarHeight = Math.max(
+        ANDROID_NAV_BAR_MIN_HEIGHT,
+        Math.round(screenHeight * ANDROID_NAV_BAR_SCREEN_RATIO)
+      )
+    }
+
+    // Also check available height difference
+    if (screenHeight > availableHeight) {
+      const systemBarsHeight = screenHeight - availableHeight
+      navBarHeight = Math.max(navBarHeight, systemBarsHeight - estimatedStatusBarHeight)
+    }
+
+    return navBarHeight
+  }
+
+  /**
+   * Detect Android-specific insets
+   */
+  function detectAndroidInsets(): { top: number; bottom: number } {
+    const screenHeight = window.screen.height
+    const viewportHeight = window.innerHeight
+    const availableHeight = window.screen.availHeight
+
+    // Estimate status bar height (usually 24-48px)
+    const statusBarHeight = Math.max(
+      ANDROID_STATUS_BAR_MIN_HEIGHT,
+      Math.round(screenHeight * ANDROID_STATUS_BAR_SCREEN_RATIO)
+    )
+
+    // Calculate navigation bar height
+    const navBarHeight = calculateNavBarHeight(
+      screenHeight,
+      viewportHeight,
+      availableHeight,
+      statusBarHeight
+    )
+
+    return {
+      top: statusBarHeight,
+      bottom: navBarHeight,
+    }
+  }
+
+  /**
+   * Apply insets as CSS custom properties
+   */
+  function applyCssCustomProperties() {
+    if (typeof document === 'undefined') return
+
+    document.documentElement.style.setProperty('--safe-area-inset-top', `${safeAreaInsets.value.top}px`)
+    document.documentElement.style.setProperty('--safe-area-inset-bottom', `${safeAreaInsets.value.bottom}px`)
+    document.documentElement.style.setProperty('--safe-area-inset-left', `${safeAreaInsets.value.left}px`)
+    document.documentElement.style.setProperty('--safe-area-inset-right', `${safeAreaInsets.value.right}px`)
+  }
+
+  function updateInsets() {
+    // Method 1: Try CSS environment variables first
+    const cssInsets = getInsetsFromCssEnv()
+    let detectedTopInset = cssInsets.top
+    let detectedBottomInset = cssInsets.bottom
+
+    safeAreaInsets.value = cssInsets
 
     // Method 2: Android-specific detection
     if (typeof window !== 'undefined' && typeof navigator !== 'undefined') {
       const isAndroid = /Android/i.test(navigator.userAgent)
 
       if (isAndroid) {
-        // Force edge-to-edge mode for Android
         isEdgeToEdge.value = true
 
-        // Calculate navigation bar height based on screen properties
-        const screenHeight = window.screen.height
-        const viewportHeight = window.innerHeight
-        const availableHeight = window.screen.availHeight
-
-        // Estimate status bar height (usually 24-48px)
-        const estimatedStatusBarHeight = Math.max(
-          ANDROID_STATUS_BAR_MIN_HEIGHT,
-          Math.round(screenHeight * ANDROID_STATUS_BAR_SCREEN_RATIO)
-        )
-
-        // Estimate navigation bar height
-        let estimatedNavBarHeight = 0
-
-        // If viewport is smaller than screen, there's likely a navigation bar
-        if (screenHeight > viewportHeight) {
-          estimatedNavBarHeight = Math.max(
-            ANDROID_NAV_BAR_MIN_HEIGHT,
-            Math.round(screenHeight * ANDROID_NAV_BAR_SCREEN_RATIO)
-          )
-        }
-
-        // Also check available height difference
-        if (screenHeight > availableHeight) {
-          const systemBarsHeight = screenHeight - availableHeight
-          estimatedNavBarHeight = Math.max(
-            estimatedNavBarHeight,
-            systemBarsHeight - estimatedStatusBarHeight
-          )
-        }
+        const androidInsets = detectAndroidInsets()
 
         // Apply detected insets, but prefer CSS env() values if available
-        detectedTopInset = Math.max(detectedTopInset, estimatedStatusBarHeight)
-        detectedBottomInset = Math.max(detectedBottomInset, estimatedNavBarHeight)
+        detectedTopInset = Math.max(detectedTopInset, androidInsets.top)
+        detectedBottomInset = Math.max(detectedBottomInset, androidInsets.bottom)
 
         safeAreaInsets.value = {
           top: detectedTopInset,
@@ -96,15 +141,6 @@ export function useWindowInsets() {
           left: safeAreaInsets.value.left,
           right: safeAreaInsets.value.right,
         }
-
-        // Debug logging - disabled for production
-        // console.log('Android edge-to-edge detected:', {
-        //   screenHeight,
-        //   viewportHeight,
-        //   availableHeight,
-        //   estimatedNavBarHeight,
-        //   detectedBottomInset,
-        // })
       }
     }
 
@@ -114,24 +150,7 @@ export function useWindowInsets() {
     }
 
     // Apply CSS custom properties for use in components
-    if (typeof document !== 'undefined') {
-      document.documentElement.style.setProperty(
-        '--safe-area-inset-top',
-        `${safeAreaInsets.value.top}px`
-      )
-      document.documentElement.style.setProperty(
-        '--safe-area-inset-bottom',
-        `${safeAreaInsets.value.bottom}px`
-      )
-      document.documentElement.style.setProperty(
-        '--safe-area-inset-left',
-        `${safeAreaInsets.value.left}px`
-      )
-      document.documentElement.style.setProperty(
-        '--safe-area-inset-right',
-        `${safeAreaInsets.value.right}px`
-      )
-    }
+    applyCssCustomProperties()
   }
 
   function handleResize() {

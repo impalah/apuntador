@@ -336,62 +336,37 @@ describe('Tauri Utils', () => {
       it('should save file native (placeholder)', async () => {
         (window as any).__TAURI_INTERNALS__ = {}
         
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-        
         const { saveFileNative } = useTauri()
         
-        const result = await saveFileNative('content', 'test.txt')
-        
-        expect(result).toBeNull()
-        expect(consoleSpy).toHaveBeenCalledWith('Save file native (placeholder):', 'test.txt')
-        
-        consoleSpy.mockRestore()
+        await expect(saveFileNative()).rejects.toThrow('saveFileNative not yet implemented')
       })
 
       it('should save file native without filename', async () => {
         (window as any).__TAURI_INTERNALS__ = {}
         
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-        
         const { saveFileNative } = useTauri()
         
-        const result = await saveFileNative('content')
-        
-        expect(result).toBeNull()
-        expect(consoleSpy).toHaveBeenCalledWith('Save file native (placeholder):', undefined)
-        
-        consoleSpy.mockRestore()
+        await expect(saveFileNative()).rejects.toThrow('saveFileNative not yet implemented')
       })
 
       it('should not save file when not in Tauri', async () => {
         const { saveFileNative } = useTauri()
         
-        const result = await saveFileNative('content', 'test.txt')
-        
-        expect(result).toBeNull()
+        await expect(saveFileNative()).rejects.toThrow('saveFileNative is only available in desktop mode')
       })
 
       it('should open file native (placeholder)', async () => {
         (window as any).__TAURI_INTERNALS__ = {}
         
-        const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {})
-        
         const { openFileNative } = useTauri()
         
-        const result = await openFileNative()
-        
-        expect(result).toBeNull()
-        expect(consoleSpy).toHaveBeenCalledWith('Open file native (placeholder)')
-        
-        consoleSpy.mockRestore()
+        await expect(openFileNative()).rejects.toThrow('openFileNative not yet implemented')
       })
 
       it('should not open file when not in Tauri', async () => {
         const { openFileNative } = useTauri()
         
-        const result = await openFileNative()
-        
-        expect(result).toBeNull()
+        await expect(openFileNative()).rejects.toThrow('openFileNative is only available in desktop mode')
       })
     })
 

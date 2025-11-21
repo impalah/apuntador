@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed, watch } from 'vue'
+import { ref, computed } from 'vue'
 import { compileMarkdown } from '@/utils/markdown'
 import { AutoScroller, clampScrollOffset } from '@/utils/scrolling'
 import { contentStorage, scrollPositionStorage } from '@/utils/persistence'

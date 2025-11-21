@@ -20,7 +20,7 @@ export class MTLSHttpWeb extends WebPlugin implements MTLSHttpPlugin {
       const response = await fetch(url, {
         method,
         headers,
-        body: body ? body : undefined,
+        body,
       })
 
       const data = await response.text()

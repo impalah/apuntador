@@ -32,6 +32,15 @@ describe('File System Utils', () => {
     // Mock console methods
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
+    
+    // Mock HTMLAnchorElement.remove() for test environment
+    if (!HTMLAnchorElement.prototype.remove) {
+      HTMLAnchorElement.prototype.remove = function() {
+        if (this.parentNode) {
+          this.parentNode.removeChild(this)
+        }
+      }
+    }
 
     // Mock writable stream
     mockWritable = {
@@ -72,7 +81,8 @@ describe('File System Utils', () => {
       href: '',
       download: '',
       style: { display: '' },
-      click: vi.fn()
+      click: vi.fn(),
+      remove: vi.fn()
     }
 
     mockCreateElement = vi.fn(() => mockLink)
@@ -263,7 +273,7 @@ describe('File System Utils', () => {
       expect(mockLink.style.display).toBe('none')
       expect(document.body.appendChild).toHaveBeenCalledWith(mockLink)
       expect(mockLink.click).toHaveBeenCalled()
-      expect(document.body.removeChild).toHaveBeenCalledWith(mockLink)
+      expect(mockLink.remove).toHaveBeenCalled()
       
       // Restore
       Object.defineProperty(window, 'showSaveFilePicker', {

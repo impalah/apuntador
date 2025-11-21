@@ -131,7 +131,7 @@ function downloadFile(content: string, fileName: string): void {
 
   document.body.appendChild(link)
   link.click()
-  document.body.removeChild(link)
+  link.remove()
 
   // Clean up the URL object
   setTimeout(() => URL.revokeObjectURL(url), 100)

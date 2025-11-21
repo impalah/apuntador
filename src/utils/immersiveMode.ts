@@ -13,8 +13,6 @@ async function getAndroidScreenInfo(): Promise<{
   try {
     // For Android, we typically work with the primary display
     // Multi-screen support in Android is complex and device-dependent
-    const screenWidth = window.screen.width
-    const screenHeight = window.screen.height
     
     // Basic detection - assume single screen for most mobile devices
     // Advanced multi-screen detection would require native Android APIs
@@ -137,7 +135,7 @@ export function useImmersiveMode() {
   }
 
   /**
-   * Fallback immersive mode using CSS and viewport
+   * Fallback implementation for immersive mode
    */
   function setImmersiveFallback(enable: boolean) {
     const metaViewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement

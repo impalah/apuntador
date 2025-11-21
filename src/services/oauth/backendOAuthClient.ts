@@ -57,7 +57,7 @@ export class BackendOAuthClient {
   private generateCodeVerifier(): string {
     const array = new Uint8Array(32)
     crypto.getRandomValues(array)
-    return btoa(String.fromCharCode.apply(null, Array.from(array)))
+    return btoa(String.fromCodePoint(...Array.from(array)))
       .replaceAll('+', '-')
       .replaceAll('/', '_')
       .replaceAll('=', '')

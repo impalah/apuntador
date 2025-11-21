@@ -69,7 +69,7 @@ export class DropboxService implements CloudService {
       } else {
         // En web, usar redirección normal
         console.log('🌐 DropboxService: Redirecting to OAuth URL (web platform)')
-        window.location.href = authorization_url
+        globalThis.location.href = authorization_url
       }
     } catch (error) {
       this.errorHandler.handleCloudError(error, 'connect', { provider: 'dropbox' })
@@ -318,6 +318,86 @@ export class DropboxService implements CloudService {
     }
   }
 
+  /**
+   * Extract file content from Dropbox download response
+   */
+  private extractFileContent(response: any): Blob | ArrayBuffer | string | null {
+    const result = response.result as any
+    
+    // Direct properties check
+    if (result.fileBinary) {
+      console.log('💾 Service: Found fileBinary')
+      return result.fileBinary
+    }
+    
+    if (result.content) {
+      console.log('💾 Service: Found content')
+      return result.content
+    }
+    
+    if (result.fileBlob) {
+      console.log('💾 Service: Found fileBlob')
+      return result.fileBlob
+    }
+    
+    if (response.fileBinary) {
+      console.log('💾 Service: Found response.fileBinary')
+      return response.fileBinary
+    }
+    
+    // Search in result keys
+    return this.searchContentInKeys(result)
+  }
+
+  /**
+   * Search for content in result object keys
+   */
+  private searchContentInKeys(result: any): any {
+    const resultKeys = Object.keys(result)
+    console.log('🔍 Service: Searching in result keys:', resultKeys)
+    
+    const contentKeywords = ['content', 'data', 'blob', 'binary']
+    
+    for (const key of resultKeys) {
+      const lowerKey = key.toLowerCase()
+      const hasContentKeyword = contentKeywords.some(keyword => lowerKey.includes(keyword))
+      
+      if (hasContentKeyword) {
+        console.log(`💾 Service: Found potential content in key: ${key}`)
+        return result[key]
+      }
+    }
+    
+    return null
+  }
+
+  /**
+   * Convert file content to text string
+   */
+  private async convertToText(fileContent: any): Promise<string> {
+    console.log('📄 Service: File content type:', typeof fileContent)
+    console.log('📄 Service: File content constructor:', fileContent.constructor.name)
+    
+    if (typeof fileContent === 'string') {
+      return fileContent
+    }
+    
+    if (fileContent instanceof Blob) {
+      return await fileContent.text()
+    }
+    
+    if (fileContent instanceof ArrayBuffer) {
+      return new TextDecoder().decode(fileContent)
+    }
+    
+    if (fileContent && typeof fileContent === 'object' && 'text' in fileContent) {
+      return await (fileContent as Blob).text()
+    }
+    
+    console.error('❌ Service: Unknown file content type:', typeof fileContent)
+    throw new Error('Unknown file content format received from Dropbox')
+  }
+
   async downloadFile(filePath: string): Promise<string> {
     if (!this.dropbox) {
       throw new Error('Not connected to Dropbox')
@@ -326,49 +406,14 @@ export class DropboxService implements CloudService {
     try {
       console.log('🔽 Service: Downloading file:', filePath)
       
-      const response = await this.dropbox.filesDownload({
-        path: filePath
-      })
+      const response = await this.dropbox.filesDownload({ path: filePath })
 
       console.log('📦 Service: Download response received:', response)
       console.log('📄 Service: Response keys:', Object.keys(response))
       console.log('📄 Service: Result keys:', Object.keys(response.result))
 
-      // En el SDK de Dropbox JavaScript, el contenido viene en diferentes propiedades
-      // dependiendo del entorno (node vs browser)
-      const result = response.result as any
-      
-      // Buscar el contenido en diferentes ubicaciones posibles
-      let fileContent: Blob | ArrayBuffer | string | null = null
-      
-      if (result.fileBinary) {
-        console.log('💾 Service: Found fileBinary')
-        fileContent = result.fileBinary
-      } else if (result.content) {
-        console.log('💾 Service: Found content')
-        fileContent = result.content
-      } else if (response.result && (response.result as any).fileBlob) {
-        console.log('💾 Service: Found fileBlob')
-        fileContent = (response.result as any).fileBlob
-      } else if ((response as any).fileBinary) {
-        console.log('💾 Service: Found response.fileBinary')
-        fileContent = (response as any).fileBinary
-      } else if (response.result) {
-        // Buscar propiedades que contengan 'content', 'data', 'blob', etc.
-        const resultKeys = Object.keys(result)
-        console.log('🔍 Service: Searching in result keys:', resultKeys)
-        
-        for (const key of resultKeys) {
-          if (key.toLowerCase().includes('content') || 
-              key.toLowerCase().includes('data') || 
-              key.toLowerCase().includes('blob') ||
-              key.toLowerCase().includes('binary')) {
-            console.log(`💾 Service: Found potential content in key: ${key}`)
-            fileContent = result[key]
-            break
-          }
-        }
-      }
+      // Extract file content from response
+      const fileContent = this.extractFileContent(response)
       
       if (!fileContent) {
         console.error('❌ Service: No file content found in response')
@@ -376,29 +421,13 @@ export class DropboxService implements CloudService {
         throw new Error('No file content received from Dropbox - check API response structure')
       }
       
-      console.log('📄 Service: File content type:', typeof fileContent)
-      console.log('📄 Service: File content constructor:', fileContent.constructor.name)
-      
-      // Convertir a texto según el tipo
-      let textContent: string
-      
-      if (typeof fileContent === 'string') {
-        textContent = fileContent
-      } else if (fileContent instanceof Blob) {
-        textContent = await fileContent.text()
-      } else if (fileContent instanceof ArrayBuffer) {
-        textContent = new TextDecoder().decode(fileContent)
-      } else if (fileContent && typeof fileContent === 'object' && 'text' in fileContent) {
-        textContent = await (fileContent as Blob).text()
-      } else {
-        console.error('❌ Service: Unknown file content type:', typeof fileContent)
-        throw new Error('Unknown file content format received from Dropbox')
-      }
+      // Convert to text
+      const textContent = await this.convertToText(fileContent)
       
       console.log('✅ Service: File content converted successfully, length:', textContent.length)
       console.log('📝 Service: First 100 chars:', textContent.substring(0, 100))
       
-      // Mostrar mensaje de éxito
+      // Show success message
       this.successHandler.showCloudSuccess('download')
       
       return textContent

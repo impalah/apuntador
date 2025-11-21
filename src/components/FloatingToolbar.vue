@@ -282,7 +282,7 @@ onMounted(async () => {
 })
 
 onUnmounted(() => {
-  window.removeEventListener('teleprompter-tap', handleScreenTap)
+  globalThis.removeEventListener('teleprompter-tap', handleScreenTap)
   if (hideTimeout) {
     clearTimeout(hideTimeout)
   }

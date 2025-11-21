@@ -5,8 +5,7 @@
  * on Android and iOS, and regular fetch on web.
  */
 
-import { Capacitor } from '@capacitor/core'
-import { CapacitorHttp } from '@capacitor/core'
+import { Capacitor, CapacitorHttp } from '@capacitor/core'
 import MTLSClient from '@/plugins/mtlsClient'
 import { BACKEND_OAUTH_URL } from '@/config/api'
 
@@ -24,7 +23,7 @@ export interface HttpResponse<T = any> {
 }
 
 export class MTLSHttpAdapter {
-  private baseUrl: string
+  private readonly baseUrl: string
 
   constructor(baseUrl: string) {
     this.baseUrl = baseUrl.replace(/\/$/, '') // Remove trailing slash

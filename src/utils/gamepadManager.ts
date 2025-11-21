@@ -5,7 +5,7 @@ import { useGamepad, type GamepadButton } from '@/utils/gamepad'
  * Gamepad manager that bridges gamepad inputs to teleprompter actions
  */
 export class GamepadManager {
-  private actionHandlers = new Map<HotkeyAction, () => void>()
+  private readonly actionHandlers = new Map<HotkeyAction, () => void>()
   private customMapping: CustomGamepadMapping = {}
   private isListening = false
   private gamepadComposable: ReturnType<typeof useGamepad> | null = null
@@ -141,17 +141,12 @@ export class GamepadManager {
           )
         }
         handler()
-      } else {
-        if (import.meta.env.DEV) {
-          console.warn(`No handler registered for action: ${action}`)
-          console.warn('Available handlers:', Array.from(this.actionHandlers.keys()))
-        }
+      } else if (import.meta.env.DEV) {
+        console.warn(`No handler registered for action: ${action}`)
+        console.warn('Available handlers:', Array.from(this.actionHandlers.keys()))
       }
-    } else {
-      // Only log in development mode, and not for every unmapped button press
-      if (import.meta.env.DEV) {
-        console.debug(`No mapping found for button ${button.buttonIndex}`)
-      }
+    } else if (import.meta.env.DEV) {
+      console.debug(`No mapping found for button ${button.buttonIndex}`)
     }
   }
 

@@ -6,7 +6,6 @@ import type {
   CustomHotkeyMapping,
   HotkeyDefinition,
   CustomGamepadMapping,
-  GamepadMapping,
 } from '@/types'
 import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/hotkeys'
 import {

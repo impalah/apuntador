@@ -231,11 +231,9 @@ function onFileSelected(event: Event) {
 function onCloudFileSelected(file: CloudFile) {
   if (props.mode === 'open') {
     selectedCloudFile.value = file
-  } else {
+  } else if (!file.isFolder) {
     // In save mode, if user clicks a file, use its name
-    if (!file.isFolder) {
-      fileName.value = file.name
-    }
+    fileName.value = file.name
   }
 }
 

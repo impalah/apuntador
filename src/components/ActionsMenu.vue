@@ -505,7 +505,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Capacitor } from '@capacitor/core'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'

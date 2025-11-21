@@ -249,12 +249,10 @@ const handleFileClick = async (file: CloudFile): Promise<void> => {
     } finally {
       isLoading.value = false
     }
-  } else {
+  } else if (props.compactMode) {
     // In compact mode, select the file instead of opening it
-    if (props.compactMode) {
-      selectedFile.value = file
-      emit('file-selected', file)
-    }
+    selectedFile.value = file
+    emit('file-selected', file)
   }
 }
 
@@ -295,7 +293,7 @@ const downloadFile = async (file: CloudFile): Promise<void> => {
     a.download = file.name
     document.body.appendChild(a)
     a.click()
-    document.body.removeChild(a)
+    a.remove()
     
     URL.revokeObjectURL(url)
   } catch (error) {

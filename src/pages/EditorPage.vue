@@ -399,6 +399,17 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   color: #000000; /* Dark text for editor */
   /* Safe area padding to avoid system UI overlap */
   padding-top: max(44px, env(safe-area-inset-top, 0px));
+  padding-left: env(safe-area-inset-left, 0px);
+  padding-right: env(safe-area-inset-right, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+@supports (padding: max(0px)) {
+  .editor-page {
+    padding-left: max(0px, env(safe-area-inset-left, 0px));
+    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
+  }
 }
 
 .editor-container {
@@ -450,20 +461,5 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   max-height: 100%;
   width: 100%;
   max-width: 100%;
-}
-
-/* Additional safe area support for left, right and bottom */
-.editor-page {
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-}
-
-@supports (padding: max(0px)) {
-  .editor-page {
-    padding-left: max(0px, env(safe-area-inset-left, 0px));
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
-    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
-  }
 }
 </style>

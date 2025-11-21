@@ -12,18 +12,16 @@ interface SecureEnclaveCall {
 }
 
 class SecureEnclaveNativeBridge {
-  private pendingCalls: Map<string, SecureEnclaveCall> = new Map()
+  private readonly pendingCalls: Map<string, SecureEnclaveCall> = new Map()
   private nextCallId = 1
-  private isReady = false
+  private readonly isReady = false
 
   constructor() {
     // Registrar callback global
     ;(window as any)._secureEnclaveCallback = this.handleCallback.bind(this)
     
     // Verificar si el bridge está disponible
-    if (typeof (window as any).webkit !== 'undefined' && 
-        (window as any).webkit.messageHandlers && 
-        (window as any).webkit.messageHandlers.secureEnclave) {
+    if ((window as any).webkit?.messageHandlers?.secureEnclave) {
       this.isReady = true
       console.log('✅ [Native Bridge] Secure Enclave WebKit bridge available')
     } else {
@@ -134,8 +132,6 @@ class SecureEnclaveNativeBridge {
 let nativeBridge: SecureEnclaveNativeBridge | null = null
 
 export function getSecureEnclaveNativeBridge(): SecureEnclaveNativeBridge {
-  if (!nativeBridge) {
-    nativeBridge = new SecureEnclaveNativeBridge()
-  }
+  nativeBridge ??= new SecureEnclaveNativeBridge()
   return nativeBridge
 }

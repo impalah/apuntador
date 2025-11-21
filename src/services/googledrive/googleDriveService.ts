@@ -67,7 +67,7 @@ export class GoogleDriveService implements CloudService {
       } else {
         // En web, usar redirección normal
         console.log('🌐 GoogleDriveService: Redirecting to OAuth URL (web platform)')
-        window.location.href = authorization_url
+        globalThis.location.href = authorization_url
       }
     } catch (error) {
       this.errorHandler.handleCloudError(error, 'connect', { provider: 'googledrive' })
@@ -356,8 +356,8 @@ export class GoogleDriveService implements CloudService {
       // - Solo ID de carpeta: "folderId" → error, necesita nombre
       
       const parts = path.split('/')
-      const fileName = parts[parts.length - 1] || 'untitled.md'
-      const parentFolderId = parts.length > 1 ? parts[parts.length - 2] : null
+      const fileName = parts.at(-1) || 'untitled.md'
+      const parentFolderId = parts.length > 1 ? parts.at(-2) : null
       
       // Metadata del archivo
       const metadata: any = {
@@ -496,7 +496,7 @@ export class GoogleDriveService implements CloudService {
   private generateCodeVerifier(): string {
     const array = new Uint8Array(32)
     crypto.getRandomValues(array)
-    return btoa(String.fromCharCode.apply(null, Array.from(array)))
+    return btoa(String.fromCodePoint(...Array.from(array)))
       .replaceAll('+', '-')
       .replaceAll('/', '_')
       .replaceAll('=', '')
@@ -509,7 +509,7 @@ export class GoogleDriveService implements CloudService {
     const encoder = new TextEncoder()
     const data = encoder.encode(verifier)
     const digest = await crypto.subtle.digest('SHA-256', data)
-    return btoa(String.fromCharCode.apply(null, Array.from(new Uint8Array(digest))))
+    return btoa(String.fromCodePoint(...Array.from(new Uint8Array(digest))))
       .replaceAll('+', '-')
       .replaceAll('/', '_')
       .replaceAll('=', '')

@@ -410,7 +410,6 @@ import { useGamepad } from '@/utils/gamepad'
 import { getVersionInfo } from '@/utils/version'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
-import DropboxConnection from './cloud/DropboxConnection.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import { isTauri } from '@/utils/tauri'
 

@@ -180,7 +180,7 @@
         }
       }
 
-      for (const target of [window, focusable, document]) {
+      for (const target of [globalThis, focusable, document]) {
         target.addEventListener("keydown", onKey, true);
         target.addEventListener("keyup", onKey, true);
       }
@@ -287,13 +287,13 @@
         }
       }
 
-      window.addEventListener("gamepadconnected", (e) => {
+      globalThis.addEventListener("gamepadconnected", (e) => {
         const msg = `Gamepad connected: ${e.gamepad.id} (#${e.gamepad.index})`;
         gpStatus.textContent = `Connected: ${e.gamepad.id} (#${e.gamepad.index})`;
         logGamepadEvent(msg);
       });
       
-      window.addEventListener("gamepaddisconnected", (e) => {
+      globalThis.addEventListener("gamepaddisconnected", (e) => {
         const msg = `Gamepad disconnected: ${e.gamepad.id} (#${e.gamepad.index})`;
         gpStatus.textContent = `Disconnected: ${e.gamepad.id} (#${e.gamepad.index})`;
         logGamepadEvent(msg);

@@ -111,9 +111,10 @@ export function useFullscreen(options: {
         case 'android':
           await androidImmersive.toggleImmersiveMode()
           return androidImmersive.isImmersive.value
-        case 'desktop':
+        case 'desktop': {
           const result = await tauriDesktop.toggleFullscreen()
           return result ?? false
+        }
         default:
           return false
       }
@@ -135,10 +136,11 @@ export function useFullscreen(options: {
         case 'android':
           await androidImmersive.enableImmersiveMode()
           return androidImmersive.isImmersive.value
-        case 'desktop':
+        case 'desktop': {
           // For desktop, we need to check current state and toggle if not fullscreen
           const result = await tauriDesktop.toggleFullscreen()
           return result ?? false
+        }
         default:
           return false
       }
@@ -160,10 +162,11 @@ export function useFullscreen(options: {
         case 'android':
           await androidImmersive.disableImmersiveMode()
           return androidImmersive.isImmersive.value
-        case 'desktop':
+        case 'desktop': {
           // For desktop, we need to check current state and toggle if fullscreen
           const result = await tauriDesktop.toggleFullscreen()
           return !(result ?? true)
+        }
         default:
           return false
       }

@@ -99,6 +99,149 @@ export function useGamepad() {
     connectedGamepads.value = Array.from(gamepads).filter(Boolean) as Gamepad[]
   }
 
+  /**
+   * Notify all button press listeners
+   */
+  const notifyButtonPress = (button: GamepadButton) => {
+    console.log(
+      `🎮 Gamepad button detected: ${button.buttonName} (${button.buttonIndex}) on gamepad ${button.gamepadIndex}`
+    )
+
+    buttonPressCallbacks.forEach((callback) => {
+      try {
+        callback(button)
+      } catch (error) {
+        console.error('Error in gamepad button callback:', error)
+      }
+    })
+  }
+
+  /**
+   * Map Activity Sensor value to virtual button
+   */
+  const mapActivitySensorValue = (value: number): { buttonIndex: number; buttonName: string } => {
+    const roundedValue = Math.round(value * 100) / 100
+
+    const sensorMappings = [
+      { value: 0.71, index: 2001, name: 'Activity Sensor Button 1' },
+      { value: -1.0, index: 2002, name: 'Activity Sensor Button 2' },
+      { value: -0.43, index: 2003, name: 'Activity Sensor Button 3' },
+      { value: 0.14, index: 2004, name: 'Activity Sensor Button 4' },
+    ]
+
+    for (const mapping of sensorMappings) {
+      if (Math.abs(roundedValue - mapping.value) < 0.05) {
+        return { buttonIndex: mapping.index, buttonName: mapping.name }
+      }
+    }
+
+    // Unknown value - create dynamic button
+    return {
+      buttonIndex: 2000 + Math.floor(Math.abs(roundedValue * 100)),
+      buttonName: `Activity Sensor (${roundedValue.toFixed(2)})`,
+    }
+  }
+
+  /**
+   * Process Activity Sensor (Axis 9) special handling
+   */
+  const processActivitySensor = (
+    gamepadIndex: number,
+    currentValue: number,
+    previousValue: number
+  ) => {
+    const isRestValue = Math.abs(currentValue - 3.29) < 0.1
+    const wasRestValue = Math.abs(previousValue - 3.29) < 0.1
+
+    // Only trigger when transitioning FROM rest TO a specific value
+    if (wasRestValue && !isRestValue) {
+      const { buttonIndex, buttonName } = mapActivitySensorValue(currentValue)
+
+      notifyButtonPress({
+        gamepadIndex,
+        buttonIndex,
+        buttonName,
+      })
+    }
+  }
+
+  /**
+   * Process standard axis activation
+   */
+  const processStandardAxis = (
+    gamepadIndex: number,
+    axisIndex: number,
+    currentValue: number,
+    previousValue: number
+  ) => {
+    const threshold = 0.5
+    const wasActivated = Math.abs(previousValue) > threshold
+    const isActivated = Math.abs(currentValue) > threshold
+
+    // Only trigger on activation, not deactivation
+    if (!wasActivated && isActivated) {
+      const axisNames: Record<number, string> = {
+        0: 'Left Stick X',
+        1: 'Left Stick Y',
+        2: 'Right Stick X',
+        3: 'Right Stick Y',
+        4: 'Activity Sensor',
+        5: 'Axis 5',
+        6: 'Axis 6',
+        7: 'Axis 7',
+        8: 'Axis 8',
+      }
+
+      const axisName = axisNames[axisIndex] || `Axis ${axisIndex}`
+      const direction = currentValue > 0 ? 'Positive' : 'Negative'
+      const virtualButtonIndex = 1000 + axisIndex
+
+      notifyButtonPress({
+        gamepadIndex,
+        buttonIndex: virtualButtonIndex,
+        buttonName: `${axisName} ${direction}`,
+      })
+    }
+  }
+
+  /**
+   * Check button presses for a gamepad
+   */
+  const checkButtons = (gamepad: Gamepad, prevState: { buttons: boolean[]; axes: number[] }) => {
+    for (let buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
+      const button = gamepad.buttons[buttonIndex]
+      const wasPressed = prevState.buttons[buttonIndex] || false
+      const isPressed = button.pressed
+
+      // Detect button press (not release, to avoid double triggers)
+      if (!wasPressed && isPressed) {
+        notifyButtonPress({
+          gamepadIndex: gamepad.index,
+          buttonIndex,
+          buttonName: GAMEPAD_BUTTON_NAMES[buttonIndex] || `Button ${buttonIndex}`,
+        })
+      }
+    }
+  }
+
+  /**
+   * Check axis movements for a gamepad
+   */
+  const checkAxes = (gamepad: Gamepad, prevState: { buttons: boolean[]; axes: number[] }) => {
+    for (let axisIndex = 0; axisIndex < gamepad.axes.length; axisIndex++) {
+      const currentValue = gamepad.axes[axisIndex]
+      const previousValue = prevState.axes[axisIndex] || 0
+
+      if (axisIndex === 9) {
+        // Special handling for Activity Sensor
+        processActivitySensor(gamepad.index, currentValue, previousValue)
+      } else {
+        // Standard axis handling
+        processStandardAxis(gamepad.index, axisIndex, currentValue, previousValue)
+      }
+    }
+  }
+
   const pollGamepads = () => {
     if (!isSupported.value) return
 
@@ -106,145 +249,14 @@ export function useGamepad() {
 
     // Check for button state changes
     connectedGamepads.value.forEach((gamepad) => {
-      const gamepadIndex = gamepad.index
-      const prevState = lastGamepadState.get(gamepadIndex) || { buttons: [], axes: [] }
+      const prevState = lastGamepadState.get(gamepad.index) || { buttons: [], axes: [] }
 
-      // Check button presses - check ALL buttons available on the gamepad
-      for (let buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
-        const button = gamepad.buttons[buttonIndex]
-        const wasPressed = prevState.buttons[buttonIndex] || false
-        const isPressed = button.pressed
-
-        // Detect button press (not release, to avoid double triggers)
-        if (!wasPressed && isPressed) {
-          const gamepadButton: GamepadButton = {
-            gamepadIndex,
-            buttonIndex,
-            buttonName: GAMEPAD_BUTTON_NAMES[buttonIndex] || `Button ${buttonIndex}`,
-          }
-
-          console.log(
-            `🎮 Gamepad button detected: ${gamepadButton.buttonName} (${buttonIndex}) on gamepad ${gamepadIndex}`
-          )
-
-          // Notify all listeners
-          buttonPressCallbacks.forEach((callback) => {
-            try {
-              callback(gamepadButton)
-            } catch (error) {
-              console.error('Error in gamepad button callback:', error)
-            }
-          })
-        }
-      }
-
-      // Check axes as potential buttons (for analog triggers, stick clicks, etc.)
-      for (let axisIndex = 0; axisIndex < gamepad.axes.length; axisIndex++) {
-        const axisValue = gamepad.axes[axisIndex]
-        const prevAxisValue = prevState.axes[axisIndex] || 0
-
-        // Special handling for Activity Sensor (Axis 9) - detect specific values
-        if (axisIndex === 9) {
-          // Ignore the "rest" value of 3.29 (button released state)
-          const isRestValue = Math.abs(axisValue - 3.29) < 0.1
-          const wasRestValue = Math.abs(prevAxisValue - 3.29) < 0.1
-
-          // Only trigger when transitioning FROM rest TO a specific value
-          if (wasRestValue && !isRestValue) {
-            // Map specific Activity Sensor values to virtual buttons
-            let virtualButtonIndex: number
-            let buttonName: string
-
-            // Round to nearest 0.01 for value matching
-            const roundedValue = Math.round(axisValue * 100) / 100
-
-            if (Math.abs(roundedValue - 0.71) < 0.05) {
-              virtualButtonIndex = 2001 // Activity Sensor Button 1
-              buttonName = 'Activity Sensor Button 1'
-            } else if (Math.abs(roundedValue - -1.0) < 0.05) {
-              virtualButtonIndex = 2002 // Activity Sensor Button 2
-              buttonName = 'Activity Sensor Button 2'
-            } else if (Math.abs(roundedValue - -0.43) < 0.05) {
-              virtualButtonIndex = 2003 // Activity Sensor Button 3
-              buttonName = 'Activity Sensor Button 3'
-            } else if (Math.abs(roundedValue - 0.14) < 0.05) {
-              virtualButtonIndex = 2004 // Activity Sensor Button 4
-              buttonName = 'Activity Sensor Button 4'
-            } else {
-              // Unknown Activity Sensor value - create dynamic button
-              virtualButtonIndex = 2000 + Math.floor(Math.abs(roundedValue * 100))
-              buttonName = `Activity Sensor (${roundedValue.toFixed(2)})`
-            }
-
-            const gamepadButton: GamepadButton = {
-              gamepadIndex,
-              buttonIndex: virtualButtonIndex,
-              buttonName,
-            }
-
-            console.log(
-              `🎮 Activity Sensor activated: ${gamepadButton.buttonName} (virtual button ${virtualButtonIndex}, value: ${axisValue.toFixed(2)}) on gamepad ${gamepadIndex}`
-            )
-
-            // Notify all listeners
-            buttonPressCallbacks.forEach((callback) => {
-              try {
-                callback(gamepadButton)
-              } catch (error) {
-                console.error('Error in gamepad Activity Sensor callback:', error)
-              }
-            })
-          }
-        } else {
-          // Standard axis handling for other axes (sticks, triggers)
-          const threshold = 0.5
-          const wasActivated = Math.abs(prevAxisValue) > threshold
-          const isActivated = Math.abs(axisValue) > threshold
-
-          // Only trigger on activation, not deactivation
-          if (!wasActivated && isActivated) {
-            // Create virtual button for axis
-            const virtualButtonIndex = 1000 + axisIndex
-
-            const axisNames: Record<number, string> = {
-              0: 'Left Stick X',
-              1: 'Left Stick Y',
-              2: 'Right Stick X',
-              3: 'Right Stick Y',
-              4: 'Activity Sensor',
-              5: 'Axis 5',
-              6: 'Axis 6',
-              7: 'Axis 7',
-              8: 'Axis 8',
-            }
-
-            const axisName = axisNames[axisIndex] || `Axis ${axisIndex}`
-            const direction = axisValue > 0 ? 'Positive' : 'Negative'
-
-            const gamepadButton: GamepadButton = {
-              gamepadIndex,
-              buttonIndex: virtualButtonIndex,
-              buttonName: `${axisName} ${direction}`,
-            }
-
-            console.log(
-              `🎮 Gamepad axis activated: ${gamepadButton.buttonName} (virtual button ${virtualButtonIndex}, value: ${axisValue.toFixed(2)}) on gamepad ${gamepadIndex}`
-            )
-
-            // Notify all listeners
-            buttonPressCallbacks.forEach((callback) => {
-              try {
-                callback(gamepadButton)
-              } catch (error) {
-                console.error('Error in gamepad axis callback:', error)
-              }
-            })
-          }
-        }
-      }
+      // Check buttons and axes
+      checkButtons(gamepad, prevState)
+      checkAxes(gamepad, prevState)
 
       // Update state
-      lastGamepadState.set(gamepadIndex, {
+      lastGamepadState.set(gamepad.index, {
         buttons: gamepad.buttons.map((btn) => btn.pressed),
         axes: [...gamepad.axes],
       })
@@ -300,12 +312,10 @@ export function useGamepad() {
     // We're in a component context, use lifecycle hooks
     onMounted(init)
     onUnmounted(cleanup)
-  } else {
+  } else if (typeof window !== 'undefined') {
     // We're not in a component context (e.g., called from gamepadManager)
     // Initialize directly
-    if (typeof window !== 'undefined') {
-      init()
-    }
+    init()
   }
 
   return {
