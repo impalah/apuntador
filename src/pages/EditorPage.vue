@@ -2,7 +2,6 @@
   <div class="editor-page">
     <!-- Editor Toolbar -->
     <EditorToolbar
-      :file-display-name="fileStore.displayName"
       :saving="saving"
       :refreshing="refreshing"
       :show-preview="showPreview"
@@ -12,7 +11,6 @@
       @open-file="onOpenFileDialog"
       @toggle-preview="onTogglePreview"
       @markdown-help="onMarkdownHelp"
-      @apply="onApply"
     />
 
     <!-- Loading Overlay for Cloud Operations -->
@@ -366,14 +364,14 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   padding-top: max(44px, env(safe-area-inset-top, 0px));
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Add bottom padding for the floating toolbar */
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @supports (padding: max(0px)) {
   .editor-page {
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
-    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
   }
 }
 
