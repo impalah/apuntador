@@ -135,6 +135,7 @@
     "discardChanges": "Discard unsaved changes?",
     "noChangesToSave": "No changes to save",
     "markdownHelp": "Markdown Help",
+    "errorOpeningHelp": "Error opening Markdown help",
     "basicSyntax": "Basic Syntax",
     "specialFeatures": "Special Features",
     "superscript": "Superscript",

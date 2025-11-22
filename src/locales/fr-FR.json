@@ -132,6 +132,7 @@
     "discardChanges": "Abandonner les modifications non enregistrées ?",
     "noChangesToSave": "Aucune modification à enregistrer",
     "markdownHelp": "Aide Markdown",
+    "errorOpeningHelp": "Erreur lors de l'ouverture de l'aide Markdown",
     "basicSyntax": "Syntaxe de base",
     "specialFeatures": "Fonctionnalités spéciales",
     "superscript": "Exposant",

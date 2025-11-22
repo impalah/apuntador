@@ -64,55 +64,6 @@
       </div>
     </v-container>
 
-
-    <!-- Help Dialog -->
-    <v-dialog 
-      v-model="showHelp" 
-      max-width="500"
-    >
-      <v-card>
-        <v-card-title>{{ t('editor.markdownHelp') }}</v-card-title>
-        <v-card-text>
-          <div class="help-content">
-            <h4>{{ t('editor.basicSyntax') }}</h4>
-            <pre><code># Heading 1
-## Heading 2
-### Heading 3
-
-**Bold text**
-*Italic text*
-==Highlighted text==
-
-- Bullet point
-1. Numbered list
-
-> Blockquote
-
-`inline code`
-
-```
-Code block
-```
-
-[Link](https://example.com)</code></pre>
-
-            <h4>{{ t('editor.specialFeatures') }}</h4>
-            <ul>
-              <li>{{ t('editor.superscript') }}: H^2^O</li>
-              <li>{{ t('editor.subscript') }}: H~2~O</li>
-              <li>{{ t('editor.footnotes') }}: Text[^1]</li>
-            </ul>
-          </div>
-        </v-card-text>
-        <v-card-actions>
-          <v-spacer />
-          <v-btn @click="showHelp = false">
-            {{ t('common.close') }}
-          </v-btn>
-        </v-card-actions>
-      </v-card>
-    </v-dialog>
-
     <!-- File Loader (for backward compatibility, can be removed later) -->
     <FileLoader 
       v-model="fileLoaderOpen" 
@@ -150,6 +101,8 @@ import { useFileStore } from '@/stores/useFileStore'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useNotification } from '@/composables/useNotification'
+import { Browser } from '@capacitor/browser'
+import { Capacitor } from '@capacitor/core'
 import type { CloudFile } from '@/types/cloud'
 
 // Components
@@ -174,7 +127,6 @@ const prefsStore = usePrefsStore()
 const textEditorRef = ref()
 const localContent = ref(t('editor.defaultContent'))
 const showPreview = ref(false)
-const showHelp = ref(false)
 const fileLoaderOpen = ref(false)
 const saving = ref(false)
 const refreshing = ref(false)
@@ -362,8 +314,21 @@ function onTogglePreview() {
   showPreview.value = !showPreview.value
 }
 
-function onMarkdownHelp() {
-  showHelp.value = true
+async function onMarkdownHelp() {
+  const url = 'https://www.markdownguide.org/basic-syntax/'
+  
+  try {
+    if (Capacitor.isNativePlatform()) {
+      // En plataformas móviles, usar el plugin Browser de Capacitor
+      await Browser.open({ url })
+    } else {
+      // En web y desktop, abrir en nueva pestaña
+      globalThis.open(url, '_blank')
+    }
+  } catch (error) {
+    console.error('Error opening Markdown help:', error)
+    showError(t('editor.errorOpeningHelp'))
+  }
 }
 
 async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
