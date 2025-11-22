@@ -220,7 +220,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
       // STEP 2: Validate provider is enabled
       const providerInfo = providerConfig.providers[providerId]
-      if (!providerInfo || !providerInfo.enabled) {
+      if (!providerInfo?.enabled) {
         const message = `Provider ${providerId} is not enabled on the backend`
         console.error('❌', message)
         error.value = message

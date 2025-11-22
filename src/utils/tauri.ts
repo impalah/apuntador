@@ -70,8 +70,10 @@ async function getDesktopScreenInfo(): Promise<{
     const screenCount = allMonitors.length || 1
     const isMultiScreen = screenCount > 1
     
-    // Current window's monitor is considered primary for fullscreen purposes
-    const isPrimary = true
+    // Check if current monitor is primary (first monitor in array or has position 0,0)
+    const isPrimary = currentMonitor 
+      ? (currentMonitor.position?.x === 0 && currentMonitor.position?.y === 0)
+      : (allMonitors.length > 0 ? allMonitors[0] === currentMonitor : true)
 
     return {
       isPrimary,
@@ -115,9 +117,6 @@ export function useTauri() {
     }
 
     try {
-      // Dynamic import to avoid loading Tauri APIs in web mode
-      const { getCurrentWindow } = await import('@tauri-apps/api/window')
-
       // Set up window event listeners
       await setupWindowListeners()
 
@@ -233,9 +232,9 @@ export function useTauri() {
     try {
       // Try using our custom Rust command first (more reliable)
       const { invoke } = await import('@tauri-apps/api/core')
-      await invoke('maximize_window')
+      const newState = await invoke<boolean>('maximize_window')
       console.log('✅ Window maximize toggled via Rust command')
-      return true
+      return newState
     } catch (error) {
       console.warn('Rust command failed, trying API fallback:', error)
       // Fallback to Tauri API
@@ -279,23 +278,27 @@ export function useTauri() {
     }
   }
 
-  // Desktop-specific file operations (simplified for now)
-  const saveFileNative = async (content: string, filename?: string) => {
-    if (!isDesktop.value) return null
+  // Desktop-specific file operations (to be implemented)
+  // Expected signature: async (content: string, filename?: string): Promise<string | null>
+  const saveFileNative = async (): Promise<string | null> => {
+    if (!isDesktop.value) {
+      throw new Error('saveFileNative is only available in desktop mode')
+    }
 
+    // TODO: Implement native Tauri file save dialog
     // For now, use the existing web-based file system API
-    // Can be enhanced later with native Tauri file dialogs
-    console.log('Save file native (placeholder):', filename)
-    return null
+    throw new Error('saveFileNative not yet implemented. Use web file system API instead.')
   }
 
-  const openFileNative = async () => {
-    if (!isDesktop.value) return null
+  // Expected signature: async (): Promise<{ content: string; filename: string } | null>
+  const openFileNative = async (): Promise<{ content: string; filename: string } | null> => {
+    if (!isDesktop.value) {
+      throw new Error('openFileNative is only available in desktop mode')
+    }
 
+    // TODO: Implement native Tauri file open dialog
     // For now, use the existing web-based file system API
-    // Can be enhanced later with native Tauri file dialogs
-    console.log('Open file native (placeholder)')
-    return null
+    throw new Error('openFileNative not yet implemented. Use web file system API instead.')
   }
 
   return {

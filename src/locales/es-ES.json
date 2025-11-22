@@ -138,6 +138,7 @@
     "discardChanges": "¿Descartar cambios no guardados?",
     "noChangesToSave": "No hay cambios que guardar",
     "markdownHelp": "Ayuda de Markdown",
+    "errorOpeningHelp": "Error al abrir la ayuda de Markdown",
     "basicSyntax": "Sintaxis básica",
     "specialFeatures": "Características especiales",
     "superscript": "Superíndice",

@@ -8,9 +8,7 @@
 import { ref, computed, watch } from 'vue'
 import { useDisplay } from 'vuetify'
 import type {
-  TeleprompterFrameProps,
   FloatingToolbarProps,
-  HighlightBandConfig,
 } from '@/types/component-interfaces'
 import {
   useTeleprompterFrameProps,

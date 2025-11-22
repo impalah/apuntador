@@ -83,7 +83,7 @@ export function countLinesInHtml(html: string, lineHeight: number, containerWidt
 
   document.body.appendChild(tempDiv)
   const height = tempDiv.offsetHeight
-  document.body.removeChild(tempDiv)
+  tempDiv.remove()
 
   return Math.ceil(height / lineHeight)
 }

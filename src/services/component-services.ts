@@ -3,7 +3,7 @@
  * between components and Pinia stores
  */
 
-import { computed, watch, type Ref } from 'vue'
+import { watch } from 'vue'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import type {
@@ -22,8 +22,8 @@ import type {
 // ========================================
 
 export class ScrollService implements IScrollService {
-  private teleprompterStore = useTeleprompterStore()
-  private callbacks: Set<(state: ScrollState) => void> = new Set()
+  private readonly teleprompterStore = useTeleprompterStore()
+  private readonly callbacks: Set<(state: ScrollState) => void> = new Set()
 
   constructor() {
     // Watch for state changes and notify subscribers
@@ -87,8 +87,8 @@ export class ScrollService implements IScrollService {
 // ========================================
 
 export class ContentService implements IContentService {
-  private teleprompterStore = useTeleprompterStore()
-  private callbacks: Set<(content: TeleprompterContent) => void> = new Set()
+  private readonly teleprompterStore = useTeleprompterStore()
+  private readonly callbacks: Set<(content: TeleprompterContent) => void> = new Set()
 
   constructor() {
     // Watch for content changes and notify subscribers
@@ -132,8 +132,8 @@ export class ContentService implements IContentService {
 // ========================================
 
 export class PreferencesService implements IPreferencesService {
-  private prefsStore = usePrefsStore()
-  private callbacks: Set<(prefs: DisplayPreferences) => void> = new Set()
+  private readonly prefsStore = usePrefsStore()
+  private readonly callbacks: Set<(prefs: DisplayPreferences) => void> = new Set()
 
   constructor() {
     // Watch for preference changes and notify subscribers
@@ -248,23 +248,17 @@ let contentServiceInstance: ContentService | null = null
 let preferencesServiceInstance: PreferencesService | null = null
 
 export function createScrollService(): ScrollService {
-  if (!scrollServiceInstance) {
-    scrollServiceInstance = new ScrollService()
-  }
+  scrollServiceInstance ??= new ScrollService()
   return scrollServiceInstance
 }
 
 export function createContentService(): ContentService {
-  if (!contentServiceInstance) {
-    contentServiceInstance = new ContentService()
-  }
+  contentServiceInstance ??= new ContentService()
   return contentServiceInstance
 }
 
 export function createPreferencesService(): PreferencesService {
-  if (!preferencesServiceInstance) {
-    preferencesServiceInstance = new PreferencesService()
-  }
+  preferencesServiceInstance ??= new PreferencesService()
   return preferencesServiceInstance
 }
 

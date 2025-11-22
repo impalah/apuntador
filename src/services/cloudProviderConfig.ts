@@ -50,9 +50,7 @@ export class CloudProviderConfigService {
    * Get singleton instance
    */
   static getInstance(): CloudProviderConfigService {
-    if (!this.instance) {
-      this.instance = new CloudProviderConfigService()
-    }
+    this.instance ??= new CloudProviderConfigService()
     return this.instance
   }
 

@@ -26,7 +26,7 @@ export interface DesktopEnrollmentResult {
 }
 
 export class DesktopEnrollmentService {
-  private backendUrl: string
+  private readonly backendUrl: string
 
   constructor(backendUrl?: string) {
     this.backendUrl = backendUrl || BACKEND_OAUTH_URL

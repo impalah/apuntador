@@ -109,7 +109,6 @@ export function useFloatingToolbarProps(): ComputedRef<FloatingToolbarProps> {
  */
 export function useTeleprompterFrameEventHandlers() {
   const teleprompterStore = useTeleprompterStore()
-  const prefsStore = usePrefsStore()
 
   return {
     onContentHeightChanged: (height: number) => {

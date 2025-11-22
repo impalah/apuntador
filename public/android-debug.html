@@ -26,7 +26,7 @@
         .success { background: #d4edda; color: #155724; }
         .warning { background: #fff3cd; color: #856404; }
         .error { background: #f8d7da; color: #721c24; }
-        .info { background: #d1ecf1; color: #0c5460; }
+        .info { background: #d1ecf1; color: #004085; } /* Improved contrast */
         
         .test-button {
             background: #007bff;
@@ -129,18 +129,21 @@
             const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
             const isMobile = isAndroid || isIOS;
             
-            platformResult.textContent = isAndroid ? 'Android' : (isIOS ? 'iOS' : 'Desktop');
+            let platformName = 'Desktop';
+            if (isAndroid) platformName = 'Android';
+            else if (isIOS) platformName = 'iOS';
+            platformResult.textContent = platformName;
             document.getElementById('platform-status').className = 
                 isMobile ? 'status success' : 'status warning';
 
             // Touch detection
-            const hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            const hasTouch = 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
             touchResult.textContent = hasTouch ? 'Supported' : 'Not supported';
             document.getElementById('touch-status').className = 
                 hasTouch ? 'status success' : 'status warning';
 
             // Capacitor detection
-            const hasCapacitor = window.Capacitor !== undefined;
+            const hasCapacitor = globalThis.Capacitor !== undefined;
             capacitorResult.textContent = hasCapacitor ? 'Available' : 'Not available';
             document.getElementById('capacitor-status').className = 
                 hasCapacitor ? 'status success' : 'status error';
@@ -156,7 +159,7 @@
                 const event = new CustomEvent('teleprompter-toggle', {
                     detail: { source: 'debug-test' }
                 });
-                window.dispatchEvent(event);
+                globalThis.dispatchEvent(event);
                 log('Direct toggle event dispatched', 'info');
                 
                 // Try to access localStorage to test if stores would work
@@ -214,20 +217,20 @@
         }
 
         // Event listeners for debugging
-        window.addEventListener('keydown', (e) => {
+        globalThis.addEventListener('keydown', (e) => {
             log(`Key pressed: ${e.key} (${e.code})`, 'info');
         });
 
-        window.addEventListener('touchstart', (e) => {
+        globalThis.addEventListener('touchstart', (e) => {
             log(`Touch started: ${e.touches.length} touches`, 'info');
         });
 
-        window.addEventListener('click', (e) => {
+        globalThis.addEventListener('click', (e) => {
             log(`Click detected on: ${e.target.tagName}`, 'info');
         });
 
         // Custom event listeners
-        window.addEventListener('teleprompter-toggle', (e) => {
+        globalThis.addEventListener('teleprompter-toggle', (e) => {
             log(`Teleprompter toggle event received: ${JSON.stringify(e.detail)}`, 'info');
         });
 
@@ -237,11 +240,11 @@
             log('Android Debug Panel initialized', 'info');
             
             // Test if we're in Capacitor
-            if (window.Capacitor) {
+            if (globalThis.Capacitor) {
                 log('Running in Capacitor environment', 'info');
                 // Test Capacitor plugins
-                if (window.Capacitor.Plugins) {
-                    const plugins = Object.keys(window.Capacitor.Plugins);
+                if (globalThis.Capacitor.Plugins) {
+                    const plugins = Object.keys(globalThis.Capacitor.Plugins);
                     log(`Available plugins: ${plugins.join(', ')}`, 'info');
                 }
             } else {
@@ -250,11 +253,11 @@
         });
 
         // Error handling
-        window.addEventListener('error', (e) => {
+        globalThis.addEventListener('error', (e) => {
             log(`Global error: ${e.message} at ${e.filename}:${e.lineno}`, 'error');
         });
 
-        window.addEventListener('unhandledrejection', (e) => {
+        globalThis.addEventListener('unhandledrejection', (e) => {
             log(`Unhandled promise rejection: ${e.reason}`, 'error');
         });
     </script>

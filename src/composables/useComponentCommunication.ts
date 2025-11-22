@@ -5,14 +5,11 @@
  * using services as intermediaries instead of direct store access
  */
 
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onUnmounted } from 'vue'
 import type {
   TeleprompterFrameProps,
   FloatingToolbarProps,
   HighlightBandProps,
-  TeleprompterEvents,
-  ToolbarEvents,
-  HighlightBandEvents,
 } from '@/types/component-interfaces'
 import { useServices } from '@/services/component-services'
 
@@ -77,7 +74,7 @@ export function useTeleprompterFrame() {
 // ========================================
 
 export function useFloatingToolbar() {
-  const { scrollService, contentService, preferencesService } = useServices()
+  const { scrollService, preferencesService } = useServices()
 
   // UI State
   const isVisible = ref(true)
@@ -268,13 +265,10 @@ export function useAppCoordinator() {
     if (floatingToolbar.props.value.scrollState.isPlaying) {
       // During playback, tapping pauses and shows toolbar
       handlePause()
+    } else if (floatingToolbar.isVisible.value) {
+      floatingToolbar.hideToolbar()
     } else {
-      // When paused, tapping toggles toolbar
-      if (floatingToolbar.isVisible.value) {
-        floatingToolbar.hideToolbar()
-      } else {
-        floatingToolbar.showToolbar()
-      }
+      floatingToolbar.showToolbar()
     }
   }
 

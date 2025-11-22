@@ -5,7 +5,7 @@ import { STORAGE_KEYS } from './constants'
  * Storage abstraction layer using localforage with localStorage fallback
  */
 class StorageService {
-  private store: typeof localforage
+  private readonly store: typeof localforage
 
   constructor() {
     this.store = localforage.createInstance({

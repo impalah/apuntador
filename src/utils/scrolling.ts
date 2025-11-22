@@ -47,7 +47,7 @@ export class SmoothScroller {
   private startOffset: number = 0
   private targetOffset: number = 0
   private duration: number = 0
-  private onUpdate: (_offset: number) => void
+  private readonly onUpdate: (_offset: number) => void
   private onComplete?: () => void
 
   constructor(onUpdate: (_offset: number) => void) {
@@ -121,8 +121,8 @@ export class AutoScroller {
   private animationId: number | null = null
   private lastTime: number = 0
   private speedPxPerSec: number = DEFAULT_SCROLL_SPEED
-  private onUpdate: (_offset: number) => void
-  private getCurrentOffset: () => number
+  private readonly onUpdate: (_offset: number) => void
+  private readonly getCurrentOffset: () => number
 
   constructor(
     onUpdate: (_offset: number) => void,
@@ -182,7 +182,7 @@ export class AutoScroller {
   /**
    * Animation loop
    */
-  private animate = (): void => {
+  private readonly animate = (): void => {
     const currentTime = performance.now()
     const deltaTime = (currentTime - this.lastTime) / 1000 // Convert to seconds
     this.lastTime = currentTime

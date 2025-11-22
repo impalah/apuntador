@@ -82,35 +82,24 @@
                       @update:model-value="savePrefs"
                     />
 
-                    <v-slider
+                    <SliderControl
                       v-model="prefsStore.fontSizePx"
                       :label="t('settings.fontSize')"
                       :min="12"
                       :max="200"
                       :step="2"
-                      thumb-label
-                      @end="savePrefs"
-                    >
-                      <template #append>
-                        <v-text-field
-                          v-model.number="prefsStore.fontSizePx"
-                          type="number"
-                          style="width: 80px"
-                          density="compact"
-                          suffix="px"
-                          @change="savePrefs"
-                        />
-                      </template>
-                    </v-slider>
+                      show-input
+                      input-suffix="px"
+                      @change="savePrefs"
+                    />
 
-                    <v-slider
+                    <SliderControl
                       v-model="prefsStore.lineHeight"
                       :label="t('settings.lineHeight')"
                       :min="1"
                       :max="3"
                       :step="0.1"
-                      thumb-label
-                      @end="savePrefs"
+                      @change="savePrefs"
                     />
                   </div>
 
@@ -154,25 +143,23 @@
                       @update:model-value="savePrefs"
                     />
 
-                    <v-slider
+                    <SliderControl
                       v-model="prefsStore.highlightBandPosPct"
                       :label="t('settings.highlightBandPosition')"
                       :min="10"
                       :max="90"
                       :step="5"
-                      thumb-label
                       suffix="%"
-                      @end="savePrefs"
+                      @change="savePrefs"
                     />
 
-                    <v-slider
+                    <SliderControl
                       v-model="prefsStore.dimmingIntensity"
                       :label="t('settings.dimmingIntensity')"
                       :min="0"
                       :max="1"
                       :step="0.1"
-                      thumb-label
-                      @end="savePrefs"
+                      @change="savePrefs"
                     />
                   </div>
                 </v-form>
@@ -505,7 +492,6 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Capacitor } from '@capacitor/core'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { storage } from '@/utils/persistence'
@@ -515,6 +501,7 @@ import type { HotkeyDefinition } from '@/types'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
+import SliderControl from './SliderControl.vue'
 
 const { t } = useI18n()
 const prefsStore = usePrefsStore()

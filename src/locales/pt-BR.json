@@ -132,6 +132,7 @@
     "discardChanges": "Descartar alterações não salvas?",
     "noChangesToSave": "Não há alterações para salvar",
     "markdownHelp": "Ajuda do Markdown",
+    "errorOpeningHelp": "Erro ao abrir a ajuda do Markdown",
     "basicSyntax": "Sintaxe básica",
     "specialFeatures": "Recursos especiais",
     "superscript": "Sobrescrito",

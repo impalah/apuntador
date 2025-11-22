@@ -86,6 +86,6 @@ initMobileApp()
 
 // Initialize cloud store to load saved provider
 const cloudStore = useCloudStore()
-cloudStore.initialize().catch(err => {
+await cloudStore.initialize().catch(err => {
   console.error('Error initializing cloud store:', err)
 })

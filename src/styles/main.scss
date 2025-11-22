@@ -3,6 +3,14 @@
 // Global styles
 * {
   box-sizing: border-box;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+    width: 0;
+    height: 0;
+  }
 }
 
 html {
@@ -10,6 +18,14 @@ html {
   -webkit-text-size-adjust: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+  
+  &::-webkit-scrollbar {
+    display: none; /* Chrome, Safari, and Opera */
+    width: 0;
+    height: 0;
+  }
 }
 
 body {
@@ -19,35 +35,6 @@ body {
   background-color: $teleprompter-bg;
   color: $teleprompter-fg;
   overflow: hidden; // Prevent scrollbars on teleprompter
-}
-
-// Desktop/Tauri specific styles - hide scrollbars completely
-html {
-  // Hide scrollbars in all browsers
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
-  
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, and Opera */
-    width: 0;
-    height: 0;
-  }
-}
-
-body {
-  // Additional scrollbar hiding for body
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
-  
-  &::-webkit-scrollbar {
-    display: none; /* Chrome, Safari, and Opera */
-    width: 0;
-    height: 0;
-  }
-}
-
-// Hide scrollbars on all elements in desktop mode
-* {
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer and Edge */
   

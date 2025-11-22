@@ -189,7 +189,7 @@ function measureLineHeight() {
   span.style.fontFamily = props.displayPrefs.fontFamily
   contentRef.value.appendChild(span)
   measuredLineHeight.value = span.offsetHeight
-  contentRef.value.removeChild(span)
+  span.remove()
 }
 
 // Re-measure when font size or line height changes
@@ -548,8 +548,6 @@ defineExpose({
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
-
-/* Debug Info Window Styles */
 .debug-info {
   position: fixed;
   top: 70px;
@@ -646,11 +644,6 @@ defineExpose({
 }
 
 /* Hide scrollbar for Firefox */
-.teleprompter-container {
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* Internet Explorer and Edge */
-}
-
 /* Also hide scrollbars on the transformed container */
 .transformed-container::-webkit-scrollbar {
   display: none !important;

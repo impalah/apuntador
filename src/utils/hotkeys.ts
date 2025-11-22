@@ -63,8 +63,8 @@ function getLocalizedDescription(action: string): string {
  * Keyboard shortcuts manager
  */
 export class HotkeyManager {
-  private handlers = new Map<string, () => void>()
-  private actionHandlers = new Map<HotkeyAction, () => void>()
+  private readonly handlers = new Map<string, () => void>()
+  private readonly actionHandlers = new Map<HotkeyAction, () => void>()
   private customMapping: CustomHotkeyMapping = {}
   private isListening = false
 
@@ -226,7 +226,7 @@ export class HotkeyManager {
   /**
    * Handle keydown events
    */
-  private handleKeyDown = (event: KeyboardEvent): void => {
+  private readonly handleKeyDown = (event: KeyboardEvent): void => {
     // Skip if user is typing in an input element
     const target = event.target as HTMLElement
     if (

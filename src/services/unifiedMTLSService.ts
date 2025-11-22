@@ -109,6 +109,12 @@ export class UnifiedMTLSService {
     if (platform === 'android') {
       const info = await DeviceEnrollment.getDeviceInfo()
       const status = await DeviceEnrollment.checkEnrollmentStatus()
+      
+      let hsmType: 'Android Keystore' | 'Secure Enclave' | 'macOS Keychain' | 'None' = 'None'
+      if (info.hasStrongBox || info.hasTEE) {
+        hsmType = 'Android Keystore'
+      }
+      
       return {
         platform: 'android',
         enrolled: status.isEnrolled,
@@ -116,11 +122,7 @@ export class UnifiedMTLSService {
         deviceModel: info.model,
         osVersion: info.androidVersion,
         hasHSM: info.hasStrongBox || info.hasTEE,
-        hsmType: info.hasStrongBox
-          ? 'Android Keystore'
-          : info.hasTEE
-            ? 'Android Keystore'
-            : 'None',
+        hsmType,
       }
     } else if (platform === 'ios') {
       const status = await iosSecureEnclaveService.checkEnrollmentStatus()

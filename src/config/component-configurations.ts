@@ -130,7 +130,7 @@ export const compactFloatingToolbar: IFloatingToolbarComponent = {
 // ========================================
 
 export class ComponentFactory {
-  private static configurations = new Map<string, AppComponentConfig>([
+  private static readonly configurations = new Map<string, AppComponentConfig>([
     ['original', originalComponentConfig],
     ['decoupled', decoupledComponentConfig],
     ['mixed', mixedComponentConfig],

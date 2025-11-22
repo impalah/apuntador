@@ -13,7 +13,6 @@ import {
   usageExamples,
   ComponentFactory,
   compactFloatingToolbar,
-  minimalTeleprompterFrame,
   standardHighlightBand,
 } from './component-configurations'
 
@@ -207,7 +206,7 @@ export const developmentConfig = createConfigWithOverrides('mixed', {
  */
 export class RuntimeConfigManager {
   private currentConfig: AppConfigurationName = DEFAULT_APP_CONFIG
-  private listeners: ((config: AppComponentConfig) => void)[] = []
+  private readonly listeners: ((config: AppComponentConfig) => void)[] = []
 
   getCurrentConfig(): AppComponentConfig {
     return getAppConfig(this.currentConfig)

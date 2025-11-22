@@ -97,7 +97,7 @@ const error = ref<string | null>(null)
 const processOAuthCallback = async (): Promise<void> => {
   try {
     console.log('🔄 Processing OAuth callback...')
-    console.log('📍 Current URL:', window.location.href)
+    console.log('📍 Current URL:', globalThis.location.href)
     console.log('📋 Route query:', route.query)
 
     // Obtener parámetros de la URL

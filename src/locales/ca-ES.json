@@ -132,6 +132,7 @@
     "discardChanges": "Descartar canvis no desats?",
     "noChangesToSave": "No hi ha canvis per desar",
     "markdownHelp": "Ajuda de Markdown",
+    "errorOpeningHelp": "Error en obrir l'ajuda de Markdown",
     "basicSyntax": "Sintaxi bàsica",
     "specialFeatures": "Característiques especials",
     "superscript": "Superíndex",

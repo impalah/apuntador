@@ -208,11 +208,9 @@ watch(
     if (settings || fileLoader) {
       // Hide toolbar when any modal is open
       hideToolbar()
-    } else {
+    } else if (!teleprompterStore.isPlaying) {
       // When modals close, restore toolbar based on play state
-      if (!teleprompterStore.isPlaying) {
-        showToolbar()
-      }
+      showToolbar()
     }
   },
   { immediate: true }
@@ -289,8 +287,8 @@ onMounted(async () => {
     currentOrientation.value = await getCurrentOrientation()
 
     // Listen for orientation changes
-    window.addEventListener('orientationchange', handleOrientationChange)
-    window.addEventListener('resize', handleOrientationChange)
+    globalThis.addEventListener('orientationchange', handleOrientationChange)
+    globalThis.addEventListener('resize', handleOrientationChange)
   }
 
   // Setup Android back button handler
@@ -307,7 +305,7 @@ onMounted(async () => {
   gamepadManager.startListening()
 
   // Listen for screen taps
-  window.addEventListener('teleprompter-tap', handleScreenTap)
+  globalThis.addEventListener('teleprompter-tap', handleScreenTap)
 
   // Load sample content if no content exists
   if (!teleprompterStore.contentRaw) {
@@ -326,12 +324,12 @@ onUnmounted(() => {
 
   // Clean up orientation listeners on mobile
   if (isMobile()) {
-    window.removeEventListener('orientationchange', handleOrientationChange)
-    window.removeEventListener('resize', handleOrientationChange)
+    globalThis.removeEventListener('orientationchange', handleOrientationChange)
+    globalThis.removeEventListener('resize', handleOrientationChange)
   }
 
   // Clean up screen tap listener and timeout
-  window.removeEventListener('teleprompter-tap', handleScreenTap)
+  globalThis.removeEventListener('teleprompter-tap', handleScreenTap)
   if (hideTimeout) {
     clearTimeout(hideTimeout)
   }
@@ -469,13 +467,10 @@ function onTeleprompterTap() {
   if (teleprompterStore.isPlaying) {
     // If playing, show toolbar temporarily (it will auto-hide)
     showToolbar(true)
+  } else if (toolbarVisible.value) {
+    hideToolbar()
   } else {
-    // If paused, toggle toolbar visibility
-    if (toolbarVisible.value) {
-      hideToolbar()
-    } else {
-      showToolbar()
-    }
+    showToolbar()
   }
   
   // Emit custom event for backward compatibility
