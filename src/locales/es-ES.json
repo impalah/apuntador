@@ -338,6 +338,8 @@
     "disconnectConfirm": "¿Estás seguro de que quieres desconectar este proveedor?",
     "setAsActive": "Establecer como activo",
     "revokeAccess": "Revocar acceso",
+    "storage": "Almacenamiento en la nube",
+    "manageConnections": "Gestionar conexiones",
     "files": {
       "title": "Explorador de archivos",
       "loading": "Cargando archivos...",
@@ -353,7 +355,13 @@
       "upload": "Subir archivo",
       "download": "Descargar",
       "back": "Volver",
-      "root": "Raíz"
+      "root": "Raíz",
+      "openLocal": "Archivo local",
+      "openLocalDesc": "Abre un archivo desde tu dispositivo",
+      "saveLocal": "Guardar localmente",
+      "saveLocalDesc": "Guarda el archivo en tu dispositivo",
+      "openFrom": "Abrir desde",
+      "saveTo": "Guardar en"
     },
     "oauth": {
       "processing": "Estamos procesando tu autorización, esto solo tomará unos segundos.",

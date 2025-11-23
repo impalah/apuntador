@@ -69,21 +69,21 @@
       @file-imported="onFileImported" 
     />
 
-    <!-- Unified File Dialog for Open -->
-    <UnifiedFileDialog
-      v-model="showUnifiedOpenDialog"
+    <!-- Editor Actions Menu for Open -->
+    <EditorActionsMenu
+      v-model="showActionsMenuOpen"
       mode="open"
-      @file-selected-local="onLocalFileSelected"
-      @file-selected-cloud="onCloudFileSelected"
+      @local-file="onOpenLocalFile"
+      @file-selected="onCloudFileSelected"
       @open-settings="onOpenSettings"
     />
 
-    <!-- Unified File Dialog for Save -->
-    <UnifiedFileDialog
-      v-model="showUnifiedSaveDialog"
+    <!-- Editor Actions Menu for Save -->
+    <EditorActionsMenu
+      v-model="showActionsMenuSave"
       mode="save"
       :suggested-file-name="suggestedFileName"
-      @save-local="onSaveLocal"
+      @local-file="onSaveLocalFile"
       @save-cloud="onSaveCloudFile"
       @open-settings="onOpenSettings"
     />
@@ -108,7 +108,7 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
 import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
-import UnifiedFileDialog from '@/components/dialogs/UnifiedFileDialog.vue'
+import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
 
 // Composables
 const router = useRouter()
@@ -129,9 +129,9 @@ const fileLoaderOpen = ref(false)
 const saving = ref(false)
 const refreshing = ref(false)
 
-// Unified file dialog state
-const showUnifiedOpenDialog = ref(false)
-const showUnifiedSaveDialog = ref(false)
+// Actions menu state
+const showActionsMenuOpen = ref(false)
+const showActionsMenuSave = ref(false)
 const suggestedFileName = ref('')
 
 // Computed
@@ -201,30 +201,47 @@ function onNew() {
   textEditorRef.value?.focus()
 }
 
-// Unified dialog handlers
+// Actions menu handlers
 function onOpenFileDialog() {
-  showUnifiedOpenDialog.value = true
+  showActionsMenuOpen.value = true
 }
 
 function onOpenSaveDialog() {
   // Suggest current file name or default
   suggestedFileName.value = fileStore.fileName || 'script.md'
-  showUnifiedSaveDialog.value = true
+  showActionsMenuSave.value = true
 }
 
-async function onLocalFileSelected(file: File) {
+// Open file handlers
+async function onOpenLocalFile() {
   try {
-    const content = await file.text()
-    localContent.value = content
-    await teleprompterStore.setContent(content)
-    fileStore.setContent(content)
-    fileStore.createNew()
-    fileStore.setFileHandle(null, file.name)
-    showUnifiedOpenDialog.value = false
-    showSuccess(t('messages.services.file.loaded'))
+    // Create hidden file input
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.md,.txt'
+    
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      
+      try {
+        const content = await file.text()
+        localContent.value = content
+        await teleprompterStore.setContent(content)
+        fileStore.setContent(content)
+        fileStore.createNew()
+        fileStore.setFileHandle(null, file.name)
+        showSuccess(t('messages.services.file.loaded'))
+      } catch (error) {
+        showError(t('errors.services.file.readFailed'))
+        console.error('Error loading local file:', error)
+      }
+    }
+    
+    input.click()
   } catch (error) {
     showError(t('errors.services.file.readFailed'))
-    console.error('Error loading local file:', error)
+    console.error('Error opening file picker:', error)
   }
 }
 
@@ -236,10 +253,8 @@ async function onCloudFileSelected(file: CloudFile) {
       await teleprompterStore.setContent(content)
       fileStore.setContent(content)
       fileStore.createNew()
-      
       fileStore.setFileHandle(null, file.name)
-      showUnifiedOpenDialog.value = false
-      // El éxito ya se muestra en el servicio
+      showSuccess(t('messages.services.file.loaded'))
     }
   } catch (error) {
     showError(t('errors.services.cloud.downloadFailed'))
@@ -247,10 +262,10 @@ async function onCloudFileSelected(file: CloudFile) {
   }
 }
 
-async function onSaveLocal() {
+// Save file handlers
+async function onSaveLocalFile() {
   saving.value = true
   try {
-    // For now, trigger browser's native save dialog
     const blob = new Blob([localContent.value], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -261,7 +276,6 @@ async function onSaveLocal() {
     
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
-    showUnifiedSaveDialog.value = false
     showSuccess(t('messages.services.file.saved'))
   } catch (error) {
     showError(t('errors.services.file.writeFailed'))
@@ -294,8 +308,7 @@ async function onSaveCloudFile(fileName: string) {
     await cloudStore.uploadFile(fullPath, localContent.value)
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
-    showUnifiedSaveDialog.value = false
-    // El éxito ya se muestra en el servicio
+    showSuccess(t('messages.services.file.saved'))
   } catch (error) {
     showError(t('errors.services.cloud.uploadFailed'))
     console.error('Error saving to cloud:', error)

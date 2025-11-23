@@ -335,6 +335,8 @@
     "disconnectConfirm": "Estàs segur que vols desconnectar aquest proveïdor?",
     "setAsActive": "Establir com actiu",
     "revokeAccess": "Revocar accés",
+    "storage": "Emmagatzematge al núvol",
+    "manageConnections": "Gestionar connexions",
     "oauth": {
       "processing": "Estem processant la teva autorització, això només trigarà uns segons.",
       "connecting": "Connectant amb el teu compte...",
@@ -361,7 +363,13 @@
       "selectFile": "Selecciona un arxiu",
       "upload": "Pujar arxiu",
       "download": "Descarregar",
-      "back": "Tornar"
+      "back": "Tornar",
+      "openLocal": "Arxiu local",
+      "openLocalDesc": "Obre un arxiu del teu dispositiu",
+      "saveLocal": "Desar localment",
+      "saveLocalDesc": "Desa l'arxiu al teu dispositiu",
+      "openFrom": "Obrir des de",
+      "saveTo": "Desar a"
     }
   },
   "dropbox": {

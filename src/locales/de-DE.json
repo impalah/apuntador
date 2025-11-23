@@ -335,6 +335,8 @@
     "disconnectConfirm": "Sind Sie sicher, dass Sie diesen Anbieter trennen möchten?",
     "setAsActive": "Als aktiv festlegen",
     "revokeAccess": "Zugriff widerrufen",
+    "storage": "Cloud-Speicher",
+    "manageConnections": "Verbindungen verwalten",
     "oauth": {
       "processing": "Wir verarbeiten Ihre Autorisierung, dies dauert nur wenige Sekunden.",
       "connecting": "Verbindung mit Ihrem Konto...",
@@ -361,7 +363,13 @@
       "selectFile": "Datei auswählen",
       "upload": "Datei hochladen",
       "download": "Herunterladen",
-      "back": "Zurück"
+      "back": "Zurück",
+      "openLocal": "Lokale Datei",
+      "openLocalDesc": "Öffnen Sie eine Datei von Ihrem Gerät",
+      "saveLocal": "Lokal speichern",
+      "saveLocalDesc": "Speichern Sie die Datei auf Ihrem Gerät",
+      "openFrom": "Öffnen von",
+      "saveTo": "Speichern in"
     }
   },
   "dropbox": {

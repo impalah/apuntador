@@ -335,6 +335,8 @@
     "disconnectConfirm": "Tem certeza de que deseja desconectar este provedor?",
     "setAsActive": "Definir como ativo",
     "revokeAccess": "Revogar acesso",
+    "storage": "Armazenamento na nuvem",
+    "manageConnections": "Gerenciar conexões",
     "oauth": {
       "processing": "Estamos processando sua autorização, isso levará apenas alguns segundos.",
       "connecting": "Conectando à sua conta...",
@@ -361,7 +363,13 @@
       "selectFile": "Selecionar um arquivo",
       "upload": "Enviar arquivo",
       "download": "Baixar",
-      "back": "Voltar"
+      "back": "Voltar",
+      "openLocal": "Arquivo local",
+      "openLocalDesc": "Abrir um arquivo do seu dispositivo",
+      "saveLocal": "Salvar localmente",
+      "saveLocalDesc": "Salvar o arquivo no seu dispositivo",
+      "openFrom": "Abrir de",
+      "saveTo": "Salvar em"
     }
   },
   "dropbox": {
