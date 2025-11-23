@@ -66,8 +66,8 @@ export function useGamepad() {
     pollGamepads()
 
     // Listen for gamepad connection events
-    window.addEventListener('gamepadconnected', handleGamepadConnected)
-    window.addEventListener('gamepaddisconnected', handleGamepadDisconnected)
+    globalThis.addEventListener('gamepadconnected', handleGamepadConnected)
+    globalThis.addEventListener('gamepaddisconnected', handleGamepadDisconnected)
   }
 
   const cleanup = () => {
@@ -76,8 +76,8 @@ export function useGamepad() {
       animationFrameId = null
     }
 
-    window.removeEventListener('gamepadconnected', handleGamepadConnected)
-    window.removeEventListener('gamepaddisconnected', handleGamepadDisconnected)
+    globalThis.removeEventListener('gamepadconnected', handleGamepadConnected)
+    globalThis.removeEventListener('gamepaddisconnected', handleGamepadDisconnected)
     buttonPressCallbacks.clear()
   }
 
@@ -124,7 +124,7 @@ export function useGamepad() {
 
     const sensorMappings = [
       { value: 0.71, index: 2001, name: 'Activity Sensor Button 1' },
-      { value: -1.0, index: 2002, name: 'Activity Sensor Button 2' },
+      { value: -1, index: 2002, name: 'Activity Sensor Button 2' },
       { value: -0.43, index: 2003, name: 'Activity Sensor Button 3' },
       { value: 0.14, index: 2004, name: 'Activity Sensor Button 4' },
     ]

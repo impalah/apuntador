@@ -93,20 +93,8 @@ export async function allowAllOrientations() {
   }
 }
 
-/**
- * Allow portrait orientation (for settings, editor, etc.)
- */
-export async function allowPortrait() {
-  if (!Capacitor.isNativePlatform()) {
-    return
-  }
-
-  try {
-    await ScreenOrientation.unlock()
-  } catch (error) {
-    console.warn('Screen orientation unlock failed:', error)
-  }
-}
+// Alias for backward compatibility
+export const allowPortrait = allowAllOrientations
 
 /**
  * Get current screen orientation

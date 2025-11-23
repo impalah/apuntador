@@ -94,7 +94,7 @@ export class SmoothScroller {
   /**
    * Animation loop
    */
-  private animate = (): void => {
+  private readonly animate = (): void => {
     const currentTime = performance.now()
     const elapsed = currentTime - this.startTime
     const progress = Math.min(elapsed / this.duration, 1)

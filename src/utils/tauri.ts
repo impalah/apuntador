@@ -51,7 +51,7 @@ async function getDesktopScreenInfo(): Promise<{
       // Note: Some Tauri versions may not have currentMonitor method
       // We'll handle this gracefully
       if ('currentMonitor' in window && typeof window.currentMonitor === 'function') {
-        currentMonitor = await (window as any).currentMonitor()
+        currentMonitor = await (globalThis as any).currentMonitor()
       }
     } catch (error) {
       console.warn('currentMonitor API not available:', error)
@@ -71,9 +71,12 @@ async function getDesktopScreenInfo(): Promise<{
     const isMultiScreen = screenCount > 1
     
     // Check if current monitor is primary (first monitor in array or has position 0,0)
-    const isPrimary = currentMonitor 
-      ? (currentMonitor.position?.x === 0 && currentMonitor.position?.y === 0)
-      : (allMonitors.length > 0 ? allMonitors[0] === currentMonitor : true)
+    let isPrimary = true
+    if (currentMonitor) {
+      isPrimary = currentMonitor.position?.x === 0 && currentMonitor.position?.y === 0
+    } else if (allMonitors.length > 0) {
+      isPrimary = allMonitors[0] === currentMonitor
+    }
 
     return {
       isPrimary,

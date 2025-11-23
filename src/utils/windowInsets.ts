@@ -10,6 +10,57 @@ import {
 // import { debugEdgeToEdge } from './debug' // Debug utility - disabled for production
 
 /**
+ * Try to get safe area insets from CSS environment variables
+ */
+function getInsetsFromCssEnv(): { top: number; bottom: number; left: number; right: number } {
+  if (typeof window === 'undefined') {
+    return { top: 0, bottom: 0, left: 0, right: 0 }
+  }
+
+  const computedStyle = getComputedStyle(document.documentElement)
+
+  const topEnv = computedStyle.getPropertyValue('env(safe-area-inset-top)')
+  const bottomEnv = computedStyle.getPropertyValue('env(safe-area-inset-bottom)')
+  const leftEnv = computedStyle.getPropertyValue('env(safe-area-inset-left)')
+  const rightEnv = computedStyle.getPropertyValue('env(safe-area-inset-right)')
+
+  return {
+    top: Number.parseInt(topEnv) || 0,
+    bottom: Number.parseInt(bottomEnv) || 0,
+    left: Number.parseInt(leftEnv) || 0,
+    right: Number.parseInt(rightEnv) || 0,
+  }
+}
+
+/**
+ * Calculate Android navigation bar height
+ */
+function calculateNavBarHeight(
+  screenHeight: number,
+  viewportHeight: number,
+  availableHeight: number,
+  estimatedStatusBarHeight: number
+): number {
+  let navBarHeight = 0
+
+  // If viewport is smaller than screen, there's likely a navigation bar
+  if (screenHeight > viewportHeight) {
+    navBarHeight = Math.max(
+      ANDROID_NAV_BAR_MIN_HEIGHT,
+      Math.round(screenHeight * ANDROID_NAV_BAR_SCREEN_RATIO)
+    )
+  }
+
+  // Also check available height difference
+  if (screenHeight > availableHeight) {
+    const systemBarsHeight = screenHeight - availableHeight
+    navBarHeight = Math.max(navBarHeight, systemBarsHeight - estimatedStatusBarHeight)
+  }
+
+  return navBarHeight
+}
+
+/**
  * Composable for handling Android edge-to-edge window insets
  * Provides safe area insets to avoid system UI overlap
  */
@@ -22,57 +73,6 @@ export function useWindowInsets() {
   })
 
   const isEdgeToEdge = ref(false)
-
-  /**
-   * Try to get safe area insets from CSS environment variables
-   */
-  function getInsetsFromCssEnv(): { top: number; bottom: number; left: number; right: number } {
-    if (typeof window === 'undefined') {
-      return { top: 0, bottom: 0, left: 0, right: 0 }
-    }
-
-    const computedStyle = getComputedStyle(document.documentElement)
-
-    const topEnv = computedStyle.getPropertyValue('env(safe-area-inset-top)')
-    const bottomEnv = computedStyle.getPropertyValue('env(safe-area-inset-bottom)')
-    const leftEnv = computedStyle.getPropertyValue('env(safe-area-inset-left)')
-    const rightEnv = computedStyle.getPropertyValue('env(safe-area-inset-right)')
-
-    return {
-      top: Number.parseInt(topEnv) || 0,
-      bottom: Number.parseInt(bottomEnv) || 0,
-      left: Number.parseInt(leftEnv) || 0,
-      right: Number.parseInt(rightEnv) || 0,
-    }
-  }
-
-  /**
-   * Calculate Android navigation bar height
-   */
-  function calculateNavBarHeight(
-    screenHeight: number,
-    viewportHeight: number,
-    availableHeight: number,
-    estimatedStatusBarHeight: number
-  ): number {
-    let navBarHeight = 0
-
-    // If viewport is smaller than screen, there's likely a navigation bar
-    if (screenHeight > viewportHeight) {
-      navBarHeight = Math.max(
-        ANDROID_NAV_BAR_MIN_HEIGHT,
-        Math.round(screenHeight * ANDROID_NAV_BAR_SCREEN_RATIO)
-      )
-    }
-
-    // Also check available height difference
-    if (screenHeight > availableHeight) {
-      const systemBarsHeight = screenHeight - availableHeight
-      navBarHeight = Math.max(navBarHeight, systemBarsHeight - estimatedStatusBarHeight)
-    }
-
-    return navBarHeight
-  }
 
   /**
    * Detect Android-specific insets
@@ -164,8 +164,8 @@ export function useWindowInsets() {
   onMounted(() => {
     updateInsets()
 
-    window.addEventListener('resize', handleResize)
-    window.addEventListener('orientationchange', handleResize)
+    globalThis.addEventListener('resize', handleResize)
+    globalThis.addEventListener('orientationchange', handleResize)
 
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleViewportChange)
@@ -182,8 +182,8 @@ export function useWindowInsets() {
   })
 
   onUnmounted(() => {
-    window.removeEventListener('resize', handleResize)
-    window.removeEventListener('orientationchange', handleResize)
+    globalThis.removeEventListener('resize', handleResize)
+    globalThis.removeEventListener('orientationchange', handleResize)
 
     if (window.visualViewport) {
       window.visualViewport.removeEventListener('resize', handleViewportChange)

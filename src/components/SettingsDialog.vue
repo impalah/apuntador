@@ -515,7 +515,7 @@ async function onClearAllData() {
     prefsStore.reset()
     prefsStore.applyCSSVariables()
     // Reload the page to reset everything
-    window.location.reload()
+    globalThis.location.reload()
   }
 }
 

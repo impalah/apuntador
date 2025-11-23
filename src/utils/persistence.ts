@@ -10,7 +10,7 @@ class StorageService {
   constructor() {
     this.store = localforage.createInstance({
       name: 'Apuntador',
-      version: 1.0,
+      version: 1,
       storeName: 'apuntador_data',
       description: 'Apuntador teleprompter data',
     })
@@ -40,7 +40,7 @@ class StorageService {
   async set<T>(key: string, value: T): Promise<void> {
     try {
       // Serialize the value to ensure it can be cloned
-      const serializedValue = JSON.parse(JSON.stringify(value))
+      const serializedValue = structuredClone(value)
       await this.store.setItem(key, serializedValue)
       // Also save to localStorage as backup
       this.fallbackSet(key, value)

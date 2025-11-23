@@ -480,7 +480,7 @@ function onTeleprompterTap() {
 
 // Parse hash navigation for deep linking (e.g., /#options/cloud)
 function parseHashNavigation() {
-  const hash = window.location.hash
+  const hash = globalThis.location.hash
   
   if (!hash || hash === '#' || hash === '#/') {
     return
@@ -504,7 +504,7 @@ function parseHashNavigation() {
     })
     
     // Clear the hash after processing to avoid re-triggering
-    window.history.replaceState(null, '', window.location.pathname)
+    window.history.replaceState(null, '', globalThis.location.pathname)
   }
 }
 

@@ -42,8 +42,9 @@ export function measureText(
 
   // Approximate height based on font size
   // Extract font size from CSS font string (e.g., "16px", "1.5em")
-  // Use a specific, non-backtracking regex with atomic group equivalent
-  const fontSizeMatch = font.match(/\b(\d+(?:\.\d+)?)px\b/)
+  // Use RegExp.exec for better control
+  const fontSizeRegex = /\b(\d+(?:\.\d+)?)px\b/
+  const fontSizeMatch = fontSizeRegex.exec(font)
   const fontSize = fontSizeMatch ? Number.parseFloat(fontSizeMatch[1]) : 16
   const height = fontSize * 1.2 // Approximate line height
 
@@ -123,8 +124,8 @@ export function addSafeAreaInsets(): void {
   updateInsets()
 
   // Update on orientation change
-  window.addEventListener('orientationchange', updateInsets)
-  window.addEventListener('resize', updateInsets)
+  globalThis.addEventListener('orientationchange', updateInsets)
+  globalThis.addEventListener('resize', updateInsets)
 }
 
 /**

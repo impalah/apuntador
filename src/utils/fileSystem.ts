@@ -39,7 +39,7 @@ export async function saveFile(content: string, options: SaveFileOptions = {}): 
   if (isFileSystemAccessSupported()) {
     try {
       // Use File System Access API
-      const fileHandle = await (window as any).showSaveFilePicker({
+      const fileHandle = await (globalThis as any).showSaveFilePicker({
         suggestedName,
         types,
       })
@@ -98,7 +98,7 @@ export async function openFile(
   }
 
   try {
-    const [fileHandle] = await (window as any).showOpenFilePicker({
+    const [fileHandle] = await (globalThis as any).showOpenFilePicker({
       types,
       multiple,
     })

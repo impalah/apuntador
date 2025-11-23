@@ -251,12 +251,12 @@ async function toggleImmersiveMode() {
   try {
     const { StatusBar } = await import('@capacitor/status-bar')
     
-    if (!isImmersive.value) {
-      await StatusBar.hide()
-      isImmersive.value = true
-    } else {
+    if (isImmersive.value) {
       await StatusBar.show()
       isImmersive.value = false
+    } else {
+      await StatusBar.hide()
+      isImmersive.value = true
     }
   } catch (error) {
     console.error('Error toggling immersive mode:', error)
@@ -278,7 +278,7 @@ onMounted(async () => {
   await init()
 
   // Listen for screen taps
-  window.addEventListener('teleprompter-tap', handleScreenTap)
+  globalThis.addEventListener('teleprompter-tap', handleScreenTap)
 })
 
 onUnmounted(() => {

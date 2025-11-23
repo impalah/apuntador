@@ -18,10 +18,10 @@ class SecureEnclaveNativeBridge {
 
   constructor() {
     // Registrar callback global
-    ;(window as any)._secureEnclaveCallback = this.handleCallback.bind(this)
+    ;(globalThis as any)._secureEnclaveCallback = this.handleCallback.bind(this)
     
     // Verificar si el bridge está disponible
-    if ((window as any).webkit?.messageHandlers?.secureEnclave) {
+    if ((globalThis as any).webkit?.messageHandlers?.secureEnclave) {
       this.isReady = true
       console.log('✅ [Native Bridge] Secure Enclave WebKit bridge available')
     } else {
@@ -63,7 +63,7 @@ class SecureEnclaveNativeBridge {
       }
 
       try {
-        ;(window as any).webkit.messageHandlers.secureEnclave.postMessage(message)
+        ;(globalThis as any).webkit.messageHandlers.secureEnclave.postMessage(message)
       } catch (err) {
         this.pendingCalls.delete(callId)
         reject(err)
