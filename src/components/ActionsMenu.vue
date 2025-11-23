@@ -397,7 +397,7 @@
               class="action-btn-frequent" 
               :class="{ active: mirrorH }"
               data-testid="mirror-h-button"
-              @click="handleAction('mirrorToggle', 'horizontal')"
+              @click="handleAction('mirrorToggle', 'h')"
             >
               <v-icon icon="mdi-flip-horizontal" size="32" />
               <span class="btn-text">{{ t('toolbar.mirrorH') }}</span>
@@ -414,7 +414,7 @@
               class="action-btn-frequent"
               :class="{ active: mirrorV }"
               data-testid="mirror-v-button"
-              @click="handleAction('mirrorToggle', 'vertical')"
+              @click="handleAction('mirrorToggle', 'v')"
             >
               <v-icon icon="mdi-flip-vertical" size="32" />
               <span class="btn-text">{{ t('toolbar.mirrorV') }}</span>
@@ -601,7 +601,7 @@ const emit = defineEmits<{
   'goHome': []
   'goEnd': []
   'fontSizeChange': [size: number]
-  'mirrorToggle': [axis: string]
+  'mirrorToggle': [axis: 'h' | 'v']
   'toggleImmersive': []
   'toggleTheater': []
   'openFile': []

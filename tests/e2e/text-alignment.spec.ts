@@ -247,7 +247,7 @@ test.describe('Text Alignment Controls', () => {
     await page.locator('[data-testid="align-right-button"]').click()
     await page.waitForTimeout(500)
 
-    // Open editor
+    // Editor button is in the same menu, just scroll to it or click directly
     const editorButton = page.locator('[data-testid="editor-button"]').first()
     await editorButton.click()
 

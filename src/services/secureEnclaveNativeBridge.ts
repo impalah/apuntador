@@ -14,7 +14,7 @@ interface SecureEnclaveCall {
 class SecureEnclaveNativeBridge {
   private readonly pendingCalls: Map<string, SecureEnclaveCall> = new Map()
   private nextCallId = 1
-  private readonly isReady = false
+  private isReady = false
 
   constructor() {
     // Registrar callback global
