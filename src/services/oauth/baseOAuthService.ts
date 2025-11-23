@@ -90,8 +90,8 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
 
       // Guardar ruta actual para retornar después de OAuth
       // Solo guardar si estamos en la aplicación (no en callback)
-      if (typeof window !== 'undefined' && window.location.pathname !== '/oauth-callback') {
-        const currentPath = window.location.pathname
+      if (typeof window !== 'undefined' && globalThis.location.pathname !== '/oauth-callback') {
+        const currentPath = globalThis.location.pathname
         localStorage.setItem('oauth_return_to', currentPath)
         console.log('💾 Return path saved:', currentPath)
       }

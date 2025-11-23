@@ -10,23 +10,43 @@ async function getAndroidScreenInfo(): Promise<{
   isMultiScreen: boolean
   screenCount: number
 }> {
-  try {
-    // For Android, we typically work with the primary display
-    // Multi-screen support in Android is complex and device-dependent
-    
-    // Basic detection - assume single screen for most mobile devices
-    // Advanced multi-screen detection would require native Android APIs
-    return {
-      isPrimary: true, // Mobile devices typically have one primary screen
-      isMultiScreen: false, // Most Android devices have single screen
-      screenCount: 1,
+  // For Android, we typically work with the primary display
+  // Multi-screen support in Android is complex and device-dependent
+  
+  // Basic detection - assume single screen for most mobile devices
+  // Advanced multi-screen detection would require native Android APIs
+  return {
+    isPrimary: true, // Mobile devices typically have one primary screen
+    isMultiScreen: false, // Most Android devices have single screen
+    screenCount: 1,
+  }
+}
+
+/**
+ * Fallback implementation for immersive mode
+ */
+function setImmersiveFallback(enable: boolean): void {
+  const metaViewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
+  const html = document.documentElement
+
+  if (enable) {
+    // Make app fullscreen using CSS
+    html.style.setProperty('--safe-area-inset-top', '0px')
+    html.style.setProperty('--safe-area-inset-bottom', '0px')
+    html.classList.add('immersive-mode')
+
+    // Update viewport for fullscreen
+    if (metaViewport) {
+      metaViewport.content =
+        'width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no'
     }
-  } catch (error) {
-    console.warn('Failed to get Android screen info:', error)
-    return {
-      isPrimary: true,
-      isMultiScreen: false,
-      screenCount: 1,
+  } else {
+    // Restore normal mode
+    html.classList.remove('immersive-mode')
+
+    // Restore viewport
+    if (metaViewport) {
+      metaViewport.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover'
     }
   }
 }
@@ -135,35 +155,6 @@ export function useImmersiveMode() {
   }
 
   /**
-   * Fallback implementation for immersive mode
-   */
-  function setImmersiveFallback(enable: boolean) {
-    const metaViewport = document.querySelector('meta[name="viewport"]') as HTMLMetaElement
-    const html = document.documentElement
-
-    if (enable) {
-      // Make app fullscreen using CSS
-      html.style.setProperty('--safe-area-inset-top', '0px')
-      html.style.setProperty('--safe-area-inset-bottom', '0px')
-      html.classList.add('immersive-mode')
-
-      // Update viewport for fullscreen
-      if (metaViewport) {
-        metaViewport.content =
-          'width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no'
-      }
-    } else {
-      // Restore normal mode
-      html.classList.remove('immersive-mode')
-
-      // Restore viewport
-      if (metaViewport) {
-        metaViewport.content = 'width=device-width, initial-scale=1.0, viewport-fit=cover'
-      }
-    }
-  }
-
-  /**
    * Handle system UI visibility changes (Android)
    */
   function handleSystemUIVisibilityChange() {
@@ -178,7 +169,7 @@ export function useImmersiveMode() {
   onMounted(() => {
     // Listen for system UI visibility changes on Android
     if (Capacitor.getPlatform() === 'android') {
-      window.addEventListener('resize', handleSystemUIVisibilityChange)
+      globalThis.addEventListener('resize', handleSystemUIVisibilityChange)
     }
   })
 
@@ -188,7 +179,7 @@ export function useImmersiveMode() {
       disableImmersiveMode()
     }
 
-    window.removeEventListener('resize', handleSystemUIVisibilityChange)
+    globalThis.removeEventListener('resize', handleSystemUIVisibilityChange)
   })
 
   return {

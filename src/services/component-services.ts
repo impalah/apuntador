@@ -18,6 +18,23 @@ import type {
 } from '@/types/component-interfaces'
 
 // ========================================
+// Helper: Generic callback manager
+// ========================================
+
+/**
+ * Creates a standard callback subscription method
+ * Eliminates code duplication across services
+ */
+function createCallbackManager<T>(callbacks: Set<(data: T) => void>) {
+  return (callback: (data: T) => void): (() => void) => {
+    callbacks.add(callback)
+    return () => {
+      callbacks.delete(callback)
+    }
+  }
+}
+
+// ========================================
 // Scroll Service Implementation
 // ========================================
 
@@ -74,12 +91,7 @@ export class ScrollService implements IScrollService {
     }
   }
 
-  onStateChange(callback: (state: ScrollState) => void): () => void {
-    this.callbacks.add(callback)
-    return () => {
-      this.callbacks.delete(callback)
-    }
-  }
+  onStateChange = createCallbackManager(this.callbacks)
 }
 
 // ========================================
@@ -119,12 +131,7 @@ export class ContentService implements IContentService {
     return this.teleprompterStore.contentHtml
   }
 
-  onContentChange(callback: (content: TeleprompterContent) => void): () => void {
-    this.callbacks.add(callback)
-    return () => {
-      this.callbacks.delete(callback)
-    }
-  }
+  onContentChange = createCallbackManager(this.callbacks)
 }
 
 // ========================================
@@ -231,12 +238,7 @@ export class PreferencesService implements IPreferencesService {
     await this.prefsStore.save()
   }
 
-  onPrefsChange(callback: (prefs: DisplayPreferences) => void): () => void {
-    this.callbacks.add(callback)
-    return () => {
-      this.callbacks.delete(callback)
-    }
-  }
+  onPrefsChange = createCallbackManager(this.callbacks)
 }
 
 // ========================================

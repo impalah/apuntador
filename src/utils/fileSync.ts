@@ -1,7 +1,7 @@
 // File synchronization utilities
 // Provides functionality for comparing and syncing content with source files
 
-import { openFile, saveToFileHandle } from './fileSystem'
+import { saveToFileHandle } from './fileSystem'
 
 export interface SyncStatus {
   hasLocalChanges: boolean

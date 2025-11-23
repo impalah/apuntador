@@ -54,7 +54,7 @@ export class IOSSecureEnclaveService {
       BACKEND_OAUTH_URL
 
     // Detectar si el native bridge está disponible
-    if (typeof (window as any).webkit !== 'undefined') {
+    if ((globalThis as any).webkit !== undefined) {
       this.useNativeBridge = true
       logger.info('📱 [iOS Secure Enclave] Using native WebKit bridge')
     } else {

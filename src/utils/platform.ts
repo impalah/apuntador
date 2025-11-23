@@ -9,7 +9,7 @@
 export function isTauri(): boolean {
   // Check for Tauri-specific globals
   // @ts-ignore - __TAURI__ is injected by Tauri at runtime
-  return typeof window !== 'undefined' && window.__TAURI__ !== undefined
+  return typeof globalThis !== 'undefined' && window.__TAURI__ !== undefined
 }
 
 /**
@@ -17,7 +17,7 @@ export function isTauri(): boolean {
  * @returns true if running in Capacitor, false otherwise
  */
 export function isCapacitor(): boolean {
-  return typeof window !== 'undefined' && 
+  return typeof globalThis !== 'undefined' && 
          // @ts-ignore - Capacitor is injected at runtime
          window.Capacitor !== undefined
 }

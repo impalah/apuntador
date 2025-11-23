@@ -434,7 +434,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
     try {
       const service = services[activeProviderId.value]
-      const targetPath = path !== undefined ? path : currentPath.value
+      const targetPath = path ?? currentPath.value
       
       currentFiles.value = await service.listFiles(targetPath)
       currentPath.value = targetPath

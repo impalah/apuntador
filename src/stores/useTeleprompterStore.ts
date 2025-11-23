@@ -60,14 +60,17 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     // console.log('[ANDROID DEBUG] play() - current scrollOffset:', scrollOffset.value, 'lineHeight:', lineHeightPx.value)
     isPlaying.value = true
 
-    if (!autoScroller) {
+    if (autoScroller) {
+      // console.log('[ANDROID DEBUG] play() - restarting existing AutoScroller, speed:', preferences.speedPxPerSec)
+      autoScroller.setSpeed(preferences.speedPxPerSec)
+      autoScroller.start()
+    } else {
       // console.log('[ANDROID DEBUG] play() - creating new AutoScroller, speed:', preferences.speedPxPerSec)
       autoScroller = new AutoScroller(
         updateScrollOffset,
         () => scrollOffset.value,
         preferences.speedPxPerSec
       )
-    } else {
       // console.log('[ANDROID DEBUG] play() - updating existing AutoScroller speed:', preferences.speedPxPerSec)
       // Update speed for existing scroller
       autoScroller.setSpeed(preferences.speedPxPerSec)

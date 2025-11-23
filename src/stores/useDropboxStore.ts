@@ -183,7 +183,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
       error.value = null
       
       // Si no se especifica path, usar la última ruta guardada o raíz
-      const targetPath = path !== undefined ? path : (lastCloudPath.value || '')
+      const targetPath = path ?? lastCloudPath.value ?? ''
       
       // Detectar si estamos en Tauri
       const isTauri = await tauriService.isAvailable()
