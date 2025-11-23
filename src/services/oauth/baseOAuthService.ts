@@ -88,6 +88,14 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
       localStorage.setItem(this.getStateKey(), state)
       console.log('💾 State saved to localStorage')
 
+      // Guardar ruta actual para retornar después de OAuth
+      // Solo guardar si estamos en la aplicación (no en callback)
+      if (typeof window !== 'undefined' && window.location.pathname !== '/oauth-callback') {
+        const currentPath = window.location.pathname
+        localStorage.setItem('oauth_return_to', currentPath)
+        console.log('💾 Return path saved:', currentPath)
+      }
+
       // Redirigir al usuario al proveedor OAuth para autorizar
       await this.openAuthorizationUrl(authorization_url)
       

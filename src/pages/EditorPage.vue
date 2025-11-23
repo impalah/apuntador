@@ -87,6 +87,13 @@
       @save-cloud="onSaveCloudFile"
       @open-settings="onOpenSettings"
     />
+
+    <!-- Settings Dialog -->
+    <SettingsDialog
+      v-model="settingsOpen"
+      :initial-tab="settingsInitialTab"
+      @file-imported="onFileImported"
+    />
   </div>
 </template>
 
@@ -109,6 +116,7 @@ import TextEditor from '@/components/editor/TextEditor.vue'
 import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
+import SettingsDialog from '@/components/SettingsDialog.vue'
 
 // Composables
 const router = useRouter()
@@ -133,6 +141,10 @@ const refreshing = ref(false)
 const showActionsMenuOpen = ref(false)
 const showActionsMenuSave = ref(false)
 const suggestedFileName = ref('')
+
+// Settings dialog state
+const settingsOpen = ref(false)
+const settingsInitialTab = ref<string>('cloud')
 
 // Computed
 const displayPrefs = computed(() => ({
@@ -318,7 +330,8 @@ async function onSaveCloudFile(fileName: string) {
 }
 
 function onOpenSettings() {
-  router.push('/#options/cloud')
+  settingsInitialTab.value = 'cloud'
+  settingsOpen.value = true
 }
 
 function onTogglePreview() {

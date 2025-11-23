@@ -180,8 +180,16 @@ const retryConnection = async (): Promise<void> => {
 }
 
 const redirectToApp = (): void => {
-  // Redirigir a la página principal (teleprompter)
-  router.push('/')
+  // Obtener la ruta de retorno guardada antes de iniciar OAuth
+  const returnTo = localStorage.getItem('oauth_return_to')
+  
+  // Limpiar el localStorage
+  localStorage.removeItem('oauth_return_to')
+  
+  // Redirigir a la ruta guardada o al prompter por defecto
+  const targetPath = returnTo || '/'
+  console.log('🔙 Redirecting to:', targetPath)
+  router.push(targetPath)
 }
 
 // Lifecycle
