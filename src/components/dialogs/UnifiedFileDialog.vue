@@ -90,7 +90,7 @@
               <v-btn
                 color="primary"
                 variant="outlined"
-                prepend-icon="mdi-cog"
+                prepend-icon="mdi-tune-variant"
                 @click="onOpenSettings"
               >
                 {{ t('fileDialog.goToSettings') }}

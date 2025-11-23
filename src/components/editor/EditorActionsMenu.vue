@@ -17,8 +17,19 @@
       </div>
 
       <v-card-text class="menu-content">
+        <!-- Settings View (when mode is 'settings') - Use ActionsMenu from prompter -->
+        <ActionsMenu
+          v-if="mode === 'settings'"
+          :model-value="true"
+          :font-size="prefsStore.fontSizePx"
+          :mirror-h="prefsStore.mirrorH"
+          :mirror-v="prefsStore.mirrorV"
+          :initial-settings-view="true"
+          @update:model-value="emit('update:modelValue', $event)"
+        />
+
         <!-- File Operations View (when no provider selected) -->
-        <div v-if="!selectedProvider" class="file-operations-container">
+        <div v-else-if="!selectedProvider" class="file-operations-container">
           <!-- Header -->
           <div class="operations-header">
             <h2 class="operations-title">
@@ -116,7 +127,7 @@
             <v-btn
               variant="text"
               color="primary"
-              prepend-icon="mdi-cog"
+              prepend-icon="mdi-tune-variant"
               block
               @click="onOpenCloudSettings"
             >
@@ -175,19 +186,22 @@
 import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCloudStore } from '@/stores/useCloudStore'
+import { usePrefsStore } from '@/stores/usePrefsStore'
 import type { CloudProviderId, CloudFile } from '@/types/cloud'
 import CloudFileExplorer from '@/components/cloud/CloudFileExplorer.vue'
+import ActionsMenu from '@/components/ActionsMenu.vue'
 
 // I18n
 const { t } = useI18n()
 
-// Store
+// Stores
 const cloudStore = useCloudStore()
+const prefsStore = usePrefsStore()
 
 // Props
 interface Props {
   modelValue: boolean
-  mode: 'open' | 'save'
+  mode: 'open' | 'save' | 'settings'
   suggestedFileName?: string
 }
 

@@ -4,12 +4,11 @@
     <EditorToolbar
       :saving="saving"
       :refreshing="refreshing"
-      :show-preview="showPreview"
       @close="onClose"
       @new="onNew"
       @save="onOpenSaveDialog"
       @open-file="onOpenFileDialog"
-      @toggle-preview="onTogglePreview"
+      @open-settings="onOpenSettings"
       @markdown-help="onMarkdownHelp"
     />
 
@@ -37,26 +36,12 @@
       fluid 
       class="editor-container pa-0"
     >
-      <!-- Single view for all resolutions -->
       <div class="editor-content">
-        <div 
-          v-if="!showPreview" 
-          class="editor-panel"
-        >
+        <div class="editor-panel">
           <TextEditor
             ref="textEditorRef"
             :content="localContent"
             @update:content="onContentChange"
-          />
-        </div>
-
-        <div 
-          v-else 
-          class="preview-panel"
-        >
-          <MarkdownPreviewer
-            :content="localContent"
-            :display-prefs="displayPrefs"
           />
         </div>
       </div>
@@ -75,7 +60,7 @@
       mode="open"
       @local-file="onOpenLocalFile"
       @file-selected="onCloudFileSelected"
-      @open-settings="onOpenSettings"
+      @open-settings="onOpenSettingsDialog"
     />
 
     <!-- Editor Actions Menu for Save -->
@@ -85,7 +70,14 @@
       :suggested-file-name="suggestedFileName"
       @local-file="onSaveLocalFile"
       @save-cloud="onSaveCloudFile"
-      @open-settings="onOpenSettings"
+      @open-settings="onOpenSettingsDialog"
+    />
+
+    <!-- Editor Actions Menu for Settings -->
+    <EditorActionsMenu
+      v-model="showActionsMenuSettings"
+      mode="settings"
+      @open-settings="onOpenSettingsDialog"
     />
 
     <!-- Settings Dialog -->
@@ -113,7 +105,6 @@ import type { CloudFile } from '@/types/cloud'
 // Components
 import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
-import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
@@ -132,7 +123,6 @@ const prefsStore = usePrefsStore()
 // Refs
 const textEditorRef = ref()
 const localContent = ref(t('editor.defaultContent'))
-const showPreview = ref(false)
 const fileLoaderOpen = ref(false)
 const saving = ref(false)
 const refreshing = ref(false)
@@ -140,18 +130,12 @@ const refreshing = ref(false)
 // Actions menu state
 const showActionsMenuOpen = ref(false)
 const showActionsMenuSave = ref(false)
+const showActionsMenuSettings = ref(false)
 const suggestedFileName = ref('')
 
 // Settings dialog state
 const settingsOpen = ref(false)
 const settingsInitialTab = ref<string>('cloud')
-
-// Computed
-const displayPrefs = computed(() => ({
-  textAlignment: prefsStore.textAlignment,
-  bgColor: prefsStore.bgColor,
-  fgColor: prefsStore.fgColor,
-}))
 
 // Initialize content from teleprompter store
 onMounted(() => {
@@ -162,7 +146,6 @@ onMounted(() => {
   
   // Focus editor on mobile
   if (window.innerWidth < 768) {
-    showPreview.value = false
     nextTick(() => {
       textEditorRef.value?.focus()
     })
@@ -330,12 +313,12 @@ async function onSaveCloudFile(fileName: string) {
 }
 
 function onOpenSettings() {
-  settingsInitialTab.value = 'cloud'
-  settingsOpen.value = true
+  showActionsMenuSettings.value = true
 }
 
-function onTogglePreview() {
-  showPreview.value = !showPreview.value
+function onOpenSettingsDialog() {
+  settingsInitialTab.value = 'cloud'
+  settingsOpen.value = true
 }
 
 async function onMarkdownHelp() {
@@ -415,13 +398,7 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   background: #fafafa;
 }
 
-.preview-panel {
-  height: 100%;
-  background: white;
-}
-
-.mobile .editor-panel,
-.mobile .preview-panel {
+.mobile .editor-panel {
   height: calc(100vh - 64px - max(44px, env(safe-area-inset-top, 0px))); /* Account for toolbar and safe area */
 }
 

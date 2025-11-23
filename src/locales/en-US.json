@@ -125,8 +125,6 @@
     "placeholder": "Start typing your markdown content here...",
     "preview": "Preview",
     "edit": "Edit",
-    "editMode": "Edit mode",
-    "previewMode": "Preview mode",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
     "wordWrap": "Word wrap",

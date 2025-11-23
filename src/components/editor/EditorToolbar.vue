@@ -33,14 +33,17 @@
         <v-icon icon="mdi-content-save" size="28" />
       </button>
 
-      <!-- Previsualizar -->
+      <!-- Configuración -->
       <button
         class="toolbar-btn"
-        :aria-label="showPreview ? t('editor.editMode') : t('editor.previewMode')"
-        data-testid="preview-button"
-        @click="onTogglePreview"
+        :aria-label="t('settings.options')"
+        data-testid="settings-button"
+        @click="onOpenSettings"
       >
-        <v-icon :icon="showPreview ? 'mdi-pencil' : 'mdi-eye'" size="28" />
+        <v-icon
+          icon="mdi-tune-variant"
+          size="28"
+        />
       </button>
 
       <!-- Ayuda -->
@@ -50,7 +53,10 @@
         data-testid="markdown-help-button"
         @click="onMarkdownHelp"
       >
-        <v-icon icon="mdi-help-circle-outline" size="28" />
+        <v-icon
+          icon="mdi-help-circle-outline"
+          size="28"
+        />
       </button>
 
       <!-- Cerrar -->
@@ -60,7 +66,10 @@
         data-testid="close-button"
         @click="onClose"
       >
-        <v-icon icon="mdi-close" size="28" />
+        <v-icon
+          icon="mdi-close"
+          size="28"
+        />
       </button>
     </div>
   </div>
@@ -73,7 +82,6 @@ import { useI18n } from 'vue-i18n'
 interface Props {
   saving: boolean
   refreshing: boolean
-  showPreview: boolean
 }
 
 defineProps<Props>()
@@ -84,7 +92,7 @@ const emit = defineEmits<{
   new: []
   save: []
   openFile: []
-  togglePreview: []
+  openSettings: []
   markdownHelp: []
 }>()
 
@@ -108,8 +116,8 @@ function onOpenFile() {
   emit('openFile')
 }
 
-function onTogglePreview() {
-  emit('togglePreview')
+function onOpenSettings() {
+  emit('openSettings')
 }
 
 function onMarkdownHelp() {

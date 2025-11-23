@@ -478,7 +478,7 @@
               data-testid="settings-button"
               @click="handleAction('openSettings')"
             >
-              <v-icon icon="mdi-cog" size="32" />
+              <v-icon icon="mdi-tune-variant" size="32" />
               <span class="btn-text">{{ t('settings.title') }}</span>
             </button>
           </div>
@@ -517,8 +517,7 @@ const versionInfo = getVersionInfo()
 const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
 const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
-// Estado local para controlar vista de settings
-const showSettings = ref(false)
+// Estado local para controlar vista de settings (moved after props declaration)
 const activeTab = ref('appearance')
 const isMaximized = ref(false)
 
@@ -590,9 +589,13 @@ interface Props {
   isTheaterMode?: boolean
   isTheaterLoading?: boolean
   isDesktop?: boolean
+  initialSettingsView?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// Estado local para controlar vista de settings (initialized after props)
+const showSettings = ref(props.initialSettingsView || false)
 
 // Emits
 const emit = defineEmits<{
