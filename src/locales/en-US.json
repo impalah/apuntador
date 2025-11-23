@@ -125,8 +125,6 @@
     "placeholder": "Start typing your markdown content here...",
     "preview": "Preview",
     "edit": "Edit",
-    "editMode": "Edit mode",
-    "previewMode": "Preview mode",
     "fullscreen": "Fullscreen",
     "exitFullscreen": "Exit fullscreen",
     "wordWrap": "Word wrap",
@@ -328,6 +326,8 @@
     "disconnectConfirm": "Are you sure you want to disconnect this provider?",
     "setAsActive": "Set as active",
     "revokeAccess": "Revoke access",
+    "storage": "Cloud storage",
+    "manageConnections": "Manage connections",
     "files": {
       "title": "File Explorer",
       "loading": "Loading files...",
@@ -343,7 +343,13 @@
       "upload": "Upload file",
       "download": "Download",
       "back": "Back",
-      "root": "Root"
+      "root": "Root",
+      "openLocal": "Local file",
+      "openLocalDesc": "Open a file from your device",
+      "saveLocal": "Save locally",
+      "saveLocalDesc": "Save the file to your device",
+      "openFrom": "Open from",
+      "saveTo": "Save to"
     },
     "oauth": {
       "processing": "We are processing your authorization, this will only take a few seconds.",

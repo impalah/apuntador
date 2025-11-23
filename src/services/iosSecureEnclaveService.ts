@@ -42,7 +42,7 @@ export class IOSSecureEnclaveService {
   private static instance: IOSSecureEnclaveService
   private readonly backendUrl: string
   private enrollmentPromise: Promise<IOSEnrollmentResult> | null = null
-  private readonly useNativeBridge = false
+  private useNativeBridge = false
 
   private constructor() {
     // Obtener URL del backend desde variables de entorno

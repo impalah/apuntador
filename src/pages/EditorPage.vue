@@ -2,17 +2,14 @@
   <div class="editor-page">
     <!-- Editor Toolbar -->
     <EditorToolbar
-      :file-display-name="fileStore.displayName"
       :saving="saving"
       :refreshing="refreshing"
-      :show-preview="showPreview"
       @close="onClose"
       @new="onNew"
       @save="onOpenSaveDialog"
       @open-file="onOpenFileDialog"
-      @toggle-preview="onTogglePreview"
+      @open-settings="onOpenSettings"
       @markdown-help="onMarkdownHelp"
-      @apply="onApply"
     />
 
     <!-- Loading Overlay for Cloud Operations -->
@@ -39,26 +36,12 @@
       fluid 
       class="editor-container pa-0"
     >
-      <!-- Single view for all resolutions -->
       <div class="editor-content">
-        <div 
-          v-if="!showPreview" 
-          class="editor-panel"
-        >
+        <div class="editor-panel">
           <TextEditor
             ref="textEditorRef"
             :content="localContent"
             @update:content="onContentChange"
-          />
-        </div>
-
-        <div 
-          v-else 
-          class="preview-panel"
-        >
-          <MarkdownPreviewer
-            :content="localContent"
-            :display-prefs="displayPrefs"
           />
         </div>
       </div>
@@ -71,23 +54,37 @@
       @file-imported="onFileImported" 
     />
 
-    <!-- Unified File Dialog for Open -->
-    <UnifiedFileDialog
-      v-model="showUnifiedOpenDialog"
+    <!-- Editor Actions Menu for Open -->
+    <EditorActionsMenu
+      v-model="showActionsMenuOpen"
       mode="open"
-      @file-selected-local="onLocalFileSelected"
-      @file-selected-cloud="onCloudFileSelected"
-      @open-settings="onOpenSettings"
+      @local-file="onOpenLocalFile"
+      @file-selected="onCloudFileSelected"
+      @open-settings="onOpenSettingsDialog"
     />
 
-    <!-- Unified File Dialog for Save -->
-    <UnifiedFileDialog
-      v-model="showUnifiedSaveDialog"
+    <!-- Editor Actions Menu for Save -->
+    <EditorActionsMenu
+      v-model="showActionsMenuSave"
       mode="save"
       :suggested-file-name="suggestedFileName"
-      @save-local="onSaveLocal"
+      @local-file="onSaveLocalFile"
       @save-cloud="onSaveCloudFile"
-      @open-settings="onOpenSettings"
+      @open-settings="onOpenSettingsDialog"
+    />
+
+    <!-- Editor Actions Menu for Settings -->
+    <EditorActionsMenu
+      v-model="showActionsMenuSettings"
+      mode="settings"
+      @open-settings="onOpenSettingsDialog"
+    />
+
+    <!-- Settings Dialog -->
+    <SettingsDialog
+      v-model="settingsOpen"
+      :initial-tab="settingsInitialTab"
+      @file-imported="onFileImported"
     />
   </div>
 </template>
@@ -108,9 +105,9 @@ import type { CloudFile } from '@/types/cloud'
 // Components
 import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
-import MarkdownPreviewer from '@/components/editor/MarkdownPreviewer.vue'
 import FileLoader from '@/components/FileLoader.vue'
-import UnifiedFileDialog from '@/components/dialogs/UnifiedFileDialog.vue'
+import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
+import SettingsDialog from '@/components/SettingsDialog.vue'
 
 // Composables
 const router = useRouter()
@@ -126,22 +123,19 @@ const prefsStore = usePrefsStore()
 // Refs
 const textEditorRef = ref()
 const localContent = ref(t('editor.defaultContent'))
-const showPreview = ref(false)
 const fileLoaderOpen = ref(false)
 const saving = ref(false)
 const refreshing = ref(false)
 
-// Unified file dialog state
-const showUnifiedOpenDialog = ref(false)
-const showUnifiedSaveDialog = ref(false)
+// Actions menu state
+const showActionsMenuOpen = ref(false)
+const showActionsMenuSave = ref(false)
+const showActionsMenuSettings = ref(false)
 const suggestedFileName = ref('')
 
-// Computed
-const displayPrefs = computed(() => ({
-  textAlignment: prefsStore.textAlignment,
-  bgColor: prefsStore.bgColor,
-  fgColor: prefsStore.fgColor,
-}))
+// Settings dialog state
+const settingsOpen = ref(false)
+const settingsInitialTab = ref<string>('cloud')
 
 // Initialize content from teleprompter store
 onMounted(() => {
@@ -152,7 +146,6 @@ onMounted(() => {
   
   // Focus editor on mobile
   if (window.innerWidth < 768) {
-    showPreview.value = false
     nextTick(() => {
       textEditorRef.value?.focus()
     })
@@ -203,30 +196,47 @@ function onNew() {
   textEditorRef.value?.focus()
 }
 
-// Unified dialog handlers
+// Actions menu handlers
 function onOpenFileDialog() {
-  showUnifiedOpenDialog.value = true
+  showActionsMenuOpen.value = true
 }
 
 function onOpenSaveDialog() {
   // Suggest current file name or default
   suggestedFileName.value = fileStore.fileName || 'script.md'
-  showUnifiedSaveDialog.value = true
+  showActionsMenuSave.value = true
 }
 
-async function onLocalFileSelected(file: File) {
+// Open file handlers
+async function onOpenLocalFile() {
   try {
-    const content = await file.text()
-    localContent.value = content
-    await teleprompterStore.setContent(content)
-    fileStore.setContent(content)
-    fileStore.createNew()
-    fileStore.setFileHandle(null, file.name)
-    showUnifiedOpenDialog.value = false
-    showSuccess(t('messages.services.file.loaded'))
+    // Create hidden file input
+    const input = document.createElement('input')
+    input.type = 'file'
+    input.accept = '.md,.txt'
+    
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0]
+      if (!file) return
+      
+      try {
+        const content = await file.text()
+        localContent.value = content
+        await teleprompterStore.setContent(content)
+        fileStore.setContent(content)
+        fileStore.createNew()
+        fileStore.setFileHandle(null, file.name)
+        showSuccess(t('messages.services.file.loaded'))
+      } catch (error) {
+        showError(t('errors.services.file.readFailed'))
+        console.error('Error loading local file:', error)
+      }
+    }
+    
+    input.click()
   } catch (error) {
     showError(t('errors.services.file.readFailed'))
-    console.error('Error loading local file:', error)
+    console.error('Error opening file picker:', error)
   }
 }
 
@@ -238,10 +248,8 @@ async function onCloudFileSelected(file: CloudFile) {
       await teleprompterStore.setContent(content)
       fileStore.setContent(content)
       fileStore.createNew()
-      
       fileStore.setFileHandle(null, file.name)
-      showUnifiedOpenDialog.value = false
-      // El éxito ya se muestra en el servicio
+      showSuccess(t('messages.services.file.loaded'))
     }
   } catch (error) {
     showError(t('errors.services.cloud.downloadFailed'))
@@ -249,10 +257,10 @@ async function onCloudFileSelected(file: CloudFile) {
   }
 }
 
-async function onSaveLocal() {
+// Save file handlers
+async function onSaveLocalFile() {
   saving.value = true
   try {
-    // For now, trigger browser's native save dialog
     const blob = new Blob([localContent.value], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
@@ -263,7 +271,6 @@ async function onSaveLocal() {
     
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
-    showUnifiedSaveDialog.value = false
     showSuccess(t('messages.services.file.saved'))
   } catch (error) {
     showError(t('errors.services.file.writeFailed'))
@@ -296,8 +303,7 @@ async function onSaveCloudFile(fileName: string) {
     await cloudStore.uploadFile(fullPath, localContent.value)
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
-    showUnifiedSaveDialog.value = false
-    // El éxito ya se muestra en el servicio
+    showSuccess(t('messages.services.file.saved'))
   } catch (error) {
     showError(t('errors.services.cloud.uploadFailed'))
     console.error('Error saving to cloud:', error)
@@ -307,11 +313,12 @@ async function onSaveCloudFile(fileName: string) {
 }
 
 function onOpenSettings() {
-  router.push('/#options/cloud')
+  showActionsMenuSettings.value = true
 }
 
-function onTogglePreview() {
-  showPreview.value = !showPreview.value
+function onOpenSettingsDialog() {
+  settingsInitialTab.value = 'cloud'
+  settingsOpen.value = true
 }
 
 async function onMarkdownHelp() {
@@ -366,14 +373,14 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   padding-top: max(44px, env(safe-area-inset-top, 0px));
   padding-left: env(safe-area-inset-left, 0px);
   padding-right: env(safe-area-inset-right, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  /* Add bottom padding for the floating toolbar */
+  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @supports (padding: max(0px)) {
   .editor-page {
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
-    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
   }
 }
 
@@ -391,13 +398,7 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   background: #fafafa;
 }
 
-.preview-panel {
-  height: 100%;
-  background: white;
-}
-
-.mobile .editor-panel,
-.mobile .preview-panel {
+.mobile .editor-panel {
   height: calc(100vh - 64px - max(44px, env(safe-area-inset-top, 0px))); /* Account for toolbar and safe area */
 }
 

@@ -65,16 +65,18 @@ test.describe('Teleprompter Basic Functionality', () => {
     // Click to play
     await playButton.click()
 
-    // Wait a moment for the state to update
+    // Wait for playback to start and toolbar to auto-hide
+    await page.waitForTimeout(800)
+    
+    // Tap teleprompter to show toolbar again (force click to avoid scrolling instability)
+    const teleprompterContent = page.locator('.teleprompter-content')
+    await teleprompterContent.click({ position: { x: 10, y: 10 }, force: true })
+    
+    // Wait longer for webkit/safari
     await page.waitForTimeout(500)
     
-    // Ensure button is still visible (toolbar might hide during playback)
-    // Tap the teleprompter area to show toolbar if hidden
-    const teleprompterContent = page.locator('.teleprompter-content')
-    await teleprompterContent.click()
-    await page.waitForTimeout(200)
-    
-    await expect(playButton).toBeVisible()
+    // Button should be visible and show pause state
+    await expect(playButton).toBeVisible({ timeout: 8000 })
     await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
     // Wait a bit and check if content is scrolling

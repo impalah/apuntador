@@ -397,7 +397,7 @@
               class="action-btn-frequent" 
               :class="{ active: mirrorH }"
               data-testid="mirror-h-button"
-              @click="handleAction('mirrorToggle', 'horizontal')"
+              @click="handleAction('mirrorToggle', 'h')"
             >
               <v-icon icon="mdi-flip-horizontal" size="32" />
               <span class="btn-text">{{ t('toolbar.mirrorH') }}</span>
@@ -414,7 +414,7 @@
               class="action-btn-frequent"
               :class="{ active: mirrorV }"
               data-testid="mirror-v-button"
-              @click="handleAction('mirrorToggle', 'vertical')"
+              @click="handleAction('mirrorToggle', 'v')"
             >
               <v-icon icon="mdi-flip-vertical" size="32" />
               <span class="btn-text">{{ t('toolbar.mirrorV') }}</span>
@@ -478,7 +478,7 @@
               data-testid="settings-button"
               @click="handleAction('openSettings')"
             >
-              <v-icon icon="mdi-cog" size="32" />
+              <v-icon icon="mdi-tune-variant" size="32" />
               <span class="btn-text">{{ t('settings.title') }}</span>
             </button>
           </div>
@@ -517,8 +517,7 @@ const versionInfo = getVersionInfo()
 const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
 const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
-// Estado local para controlar vista de settings
-const showSettings = ref(false)
+// Estado local para controlar vista de settings (moved after props declaration)
 const activeTab = ref('appearance')
 const isMaximized = ref(false)
 
@@ -590,9 +589,13 @@ interface Props {
   isTheaterMode?: boolean
   isTheaterLoading?: boolean
   isDesktop?: boolean
+  initialSettingsView?: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
+
+// Estado local para controlar vista de settings (initialized after props)
+const showSettings = ref(props.initialSettingsView || false)
 
 // Emits
 const emit = defineEmits<{
@@ -601,7 +604,7 @@ const emit = defineEmits<{
   'goHome': []
   'goEnd': []
   'fontSizeChange': [size: number]
-  'mirrorToggle': [axis: string]
+  'mirrorToggle': [axis: 'h' | 'v']
   'toggleImmersive': []
   'toggleTheater': []
   'openFile': []

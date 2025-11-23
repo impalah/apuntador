@@ -122,8 +122,6 @@
     "placeholder": "Commencez à taper votre contenu markdown ici...",
     "preview": "Aperçu",
     "edit": "Modifier",
-    "editMode": "Mode édition",
-    "previewMode": "Mode aperçu",
     "fullscreen": "Plein écran",
     "exitFullscreen": "Quitter le plein écran",
     "wordWrap": "Retour à la ligne",
@@ -335,6 +333,8 @@
     "disconnectConfirm": "Êtes-vous sûr de vouloir déconnecter ce fournisseur ?",
     "setAsActive": "Définir comme actif",
     "revokeAccess": "Révoquer l'accès",
+    "storage": "Stockage cloud",
+    "manageConnections": "Gérer les connexions",
     "oauth": {
       "processing": "Nous traitons votre autorisation, cela ne prendra que quelques secondes.",
       "connecting": "Connexion à votre compte...",
@@ -361,7 +361,13 @@
       "selectFile": "Sélectionner un fichier",
       "upload": "Télécharger le fichier",
       "download": "Télécharger",
-      "back": "Retour"
+      "back": "Retour",
+      "openLocal": "Fichier local",
+      "openLocalDesc": "Ouvrir un fichier de votre appareil",
+      "saveLocal": "Enregistrer localement",
+      "saveLocalDesc": "Enregistrer le fichier sur votre appareil",
+      "openFrom": "Ouvrir depuis",
+      "saveTo": "Enregistrer dans"
     }
   },
   "dropbox": {
