@@ -265,14 +265,14 @@ jobs:
         if: ${{ github.event.inputs.buildType == 'release' }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ vars.AWS_REGION }}
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
 
       - name: Upload APK to apuntador.io S3
         if: ${{ github.event.inputs.buildType == 'release' }}
         env:
-          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
           VERSION: ${{ github.event.inputs.release_tag }}
         run: |
           APK_PATH="android/app/build/outputs/apk/release/apuntador-release-${VERSION}.apk"
@@ -291,7 +291,7 @@ jobs:
       - name: Update versions.json
         if: ${{ github.event.inputs.buildType == 'release' }}
         env:
-          S3_BUCKET: ${{ vars.S3_BUCKET }}
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
           VERSION: ${{ github.event.inputs.release_tag }}
         run: |
           TARGET_FILENAME="apuntador-${VERSION}.apk"
