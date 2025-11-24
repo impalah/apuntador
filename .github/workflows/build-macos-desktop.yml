@@ -317,6 +317,71 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Upload to apuntador.io S3 bucket (only for release universal builds with installers)
+      - name: Configure AWS credentials for apuntador.io
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' && github.event.inputs.generateInstallers == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Upload DMG to apuntador.io S3
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' && github.event.inputs.generateInstallers == 'true' }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          dmgPath="artifacts/installers/Apuntador-${VERSION}-macos-universal.dmg"
+          targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
+          
+          echo "⬆️  Uploading DMG to apuntador.io..."
+          echo "   Source: ${dmgPath}"
+          echo "   Destination: s3://${S3_BUCKET}/downloads/${targetFilename}"
+          
+          aws s3 cp "${dmgPath}" "s3://${S3_BUCKET}/downloads/${targetFilename}" \
+            --acl public-read \
+            --metadata "version=${VERSION},type=macos-dmg,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ DMG uploaded successfully"
+
+      - name: Update versions.json
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' && github.event.inputs.generateInstallers == 'true' }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
+          
+          echo "⬇️  Downloading current versions.json..."
+          if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
+            echo "✅ Downloaded existing versions.json"
+          else
+            echo "⚠️  versions.json not found, creating new one"
+            echo '{}' > versions.json
+          fi
+          
+          echo "📝 Updating versions.json..."
+          
+          # macOS runners should have jq installed
+          jq --arg filename "${targetFilename}" \
+             '.["macos-dmg"] = $filename' \
+             versions.json > versions.json.tmp
+          
+          mv versions.json.tmp versions.json
+          
+          echo "✅ Updated versions.json:"
+          cat versions.json
+          
+          echo "⬆️  Uploading updated versions.json..."
+          aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
+            --acl public-read \
+            --content-type "application/json" \
+            --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ versions.json updated successfully"
+          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+
       - name: Build Summary
         run: |
           echo ""

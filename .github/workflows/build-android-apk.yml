@@ -249,3 +249,68 @@ jobs:
         run: |
           rm -f android/app/apuntador-release-key.keystore
           rm -f android/key.properties
+
+      # Upload to apuntador.io S3 bucket (only for release builds)
+      - name: Configure AWS credentials for apuntador.io
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Upload APK to apuntador.io S3
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          APK_PATH="android/app/build/outputs/apk/release/apuntador-release-${VERSION}.apk"
+          TARGET_FILENAME="apuntador-${VERSION}.apk"
+          
+          echo "⬆️  Uploading APK to apuntador.io..."
+          echo "   Source: ${APK_PATH}"
+          echo "   Destination: s3://${S3_BUCKET}/downloads/${TARGET_FILENAME}"
+          
+          aws s3 cp "${APK_PATH}" "s3://${S3_BUCKET}/downloads/${TARGET_FILENAME}" \
+            --acl public-read \
+            --metadata "version=${VERSION},type=android-apk,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ APK uploaded successfully"
+
+      - name: Update versions.json
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          TARGET_FILENAME="apuntador-${VERSION}.apk"
+          
+          echo "⬇️  Downloading current versions.json..."
+          if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
+            echo "✅ Downloaded existing versions.json"
+          else
+            echo "⚠️  versions.json not found, creating new one"
+            echo '{}' > versions.json
+          fi
+          
+          echo "📝 Updating versions.json..."
+          sudo apt-get update && sudo apt-get install -y jq
+          
+          jq --arg filename "${TARGET_FILENAME}" \
+             '.["android-apk"] = $filename' \
+             versions.json > versions.json.tmp
+          
+          mv versions.json.tmp versions.json
+          
+          echo "✅ Updated versions.json:"
+          cat versions.json
+          
+          echo "⬆️  Uploading updated versions.json..."
+          aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
+            --acl public-read \
+            --content-type "application/json" \
+            --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ versions.json updated successfully"
+          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"

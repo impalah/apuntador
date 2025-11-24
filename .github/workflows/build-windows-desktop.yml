@@ -288,6 +288,72 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      # Upload to apuntador.io S3 bucket (only for release builds with installers)
+      - name: Configure AWS credentials for apuntador.io
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Upload MSI to apuntador.io S3
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
+        shell: pwsh
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          $msiPath = "artifacts\installers\apuntador-${env:VERSION}-windows-x64-installer.msi"
+          $targetFilename = "apuntador-${env:VERSION}-windows-x64-installer.msi"
+          
+          Write-Host "⬆️  Uploading MSI to apuntador.io..." -ForegroundColor Yellow
+          Write-Host "   Source: $msiPath" -ForegroundColor Cyan
+          Write-Host "   Destination: s3://${env:S3_BUCKET}/downloads/$targetFilename" -ForegroundColor Cyan
+          
+          aws s3 cp "$msiPath" "s3://${env:S3_BUCKET}/downloads/$targetFilename" `
+            --acl public-read `
+            --metadata "version=${env:VERSION},type=windows-msi,uploaded=$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')"
+          
+          Write-Host "✅ MSI uploaded successfully" -ForegroundColor Green
+
+      - name: Update versions.json
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
+        shell: pwsh
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ github.event.inputs.release_tag }}
+        run: |
+          $targetFilename = "apuntador-${env:VERSION}-windows-x64-installer.msi"
+          
+          Write-Host "⬇️  Downloading current versions.json..." -ForegroundColor Yellow
+          try {
+            aws s3 cp "s3://${env:S3_BUCKET}/downloads/versions.json" versions.json 2>$null
+            Write-Host "✅ Downloaded existing versions.json" -ForegroundColor Green
+          } catch {
+            Write-Host "⚠️  versions.json not found, creating new one" -ForegroundColor Yellow
+            '{}' | Out-File -FilePath versions.json -Encoding UTF8
+          }
+          
+          Write-Host "📝 Updating versions.json..." -ForegroundColor Yellow
+          
+          # Install jq if not available (Windows runner usually has it)
+          $versionsContent = Get-Content versions.json -Raw | ConvertFrom-Json
+          $versionsContent | Add-Member -MemberType NoteProperty -Name "windows-msi" -Value $targetFilename -Force
+          $versionsContent | ConvertTo-Json | Out-File -FilePath versions.json -Encoding UTF8
+          
+          Write-Host "✅ Updated versions.json:" -ForegroundColor Green
+          Get-Content versions.json
+          
+          Write-Host "⬆️  Uploading updated versions.json..." -ForegroundColor Yellow
+          aws s3 cp versions.json "s3://${env:S3_BUCKET}/downloads/versions.json" `
+            --acl public-read `
+            --content-type "application/json" `
+            --metadata "last-updated=$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')"
+          
+          Write-Host "✅ versions.json updated successfully" -ForegroundColor Green
+          Write-Host "📍 Public URL: https://${env:S3_BUCKET}.s3.amazonaws.com/downloads/versions.json" -ForegroundColor Cyan
+
       - name: Build Summary
         run: |
           Write-Host ""
