@@ -1,0 +1,179 @@
+name: Update Apuntador.io Downloads
+
+# Reusable workflow to upload build artifacts to apuntador.io S3 bucket
+# and update versions.json
+
+on:
+  workflow_call:
+    inputs:
+      artifact-path:
+        description: 'Path to the artifact file to upload'
+        required: true
+        type: string
+      artifact-type:
+        description: 'Type of artifact (android-apk, windows-msi, macos-dmg, linux-appimage, linux-deb, linux-rpm)'
+        required: true
+        type: string
+      version:
+        description: 'Version number (e.g., 1.0.0)'
+        required: true
+        type: string
+    secrets:
+      APUNTADOR_IO_AWS_ACCESS_KEY_ID:
+        description: 'AWS Access Key ID for apuntador.io S3 bucket'
+        required: true
+      APUNTADOR_IO_AWS_SECRET_ACCESS_KEY:
+        description: 'AWS Secret Access Key for apuntador.io S3 bucket'
+        required: true
+      APUNTADOR_IO_AWS_REGION:
+        description: 'AWS Region for apuntador.io S3 bucket'
+        required: true
+      APUNTADOR_IO_S3_BUCKET:
+        description: 'S3 bucket name for apuntador.io'
+        required: true
+
+jobs:
+  upload-and-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Validate inputs
+        run: |
+          echo "📋 Upload Configuration:"
+          echo "  Artifact Path: ${{ inputs.artifact-path }}"
+          echo "  Artifact Type: ${{ inputs.artifact-type }}"
+          echo "  Version: ${{ inputs.version }}"
+          
+          # Validate artifact type
+          VALID_TYPES="android-apk windows-msi macos-dmg linux-appimage linux-deb linux-rpm"
+          if ! echo "$VALID_TYPES" | grep -w "${{ inputs.artifact-type }}" > /dev/null; then
+            echo "❌ Invalid artifact type: ${{ inputs.artifact-type }}"
+            echo "   Valid types: $VALID_TYPES"
+            exit 1
+          fi
+          
+          echo "✅ Configuration validated"
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Determine file extension and name
+        id: filename
+        run: |
+          case "${{ inputs.artifact-type }}" in
+            android-apk)
+              EXTENSION="apk"
+              FILENAME="apuntador-${{ inputs.version }}.apk"
+              ;;
+            windows-msi)
+              EXTENSION="msi"
+              FILENAME="apuntador-${{ inputs.version }}-windows-x64-installer.msi"
+              ;;
+            macos-dmg)
+              EXTENSION="dmg"
+              FILENAME="Apuntador-${{ inputs.version }}-macos-universal.dmg"
+              ;;
+            linux-appimage)
+              EXTENSION="AppImage"
+              FILENAME="Apuntador_${{ inputs.version }}_amd64.AppImage"
+              ;;
+            linux-deb)
+              EXTENSION="deb"
+              FILENAME="Apuntador_${{ inputs.version }}_amd64.deb"
+              ;;
+            linux-rpm)
+              EXTENSION="rpm"
+              FILENAME="Apuntador-${{ inputs.version }}-1.x86_64.rpm"
+              ;;
+          esac
+          
+          echo "filename=${FILENAME}" >> $GITHUB_OUTPUT
+          echo "📦 Target filename: ${FILENAME}"
+
+      - name: Upload artifact to S3
+        env:
+          S3_BUCKET: ${{ secrets.APUNTADOR_IO_S3_BUCKET }}
+          ARTIFACT_PATH: ${{ inputs.artifact-path }}
+          TARGET_FILENAME: ${{ steps.filename.outputs.filename }}
+        run: |
+          echo "⬆️  Uploading artifact to S3..."
+          echo "   Source: ${ARTIFACT_PATH}"
+          echo "   Destination: s3://${S3_BUCKET}/downloads/${TARGET_FILENAME}"
+          
+          # Upload file
+          aws s3 cp "${ARTIFACT_PATH}" "s3://${S3_BUCKET}/downloads/${TARGET_FILENAME}" \
+            --acl public-read \
+            --metadata "version=${{ inputs.version }},type=${{ inputs.artifact-type }},uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ Artifact uploaded successfully"
+
+      - name: Download current versions.json
+        env:
+          S3_BUCKET: ${{ secrets.APUNTADOR_IO_S3_BUCKET }}
+        run: |
+          echo "⬇️  Downloading current versions.json..."
+          
+          # Try to download, create empty if doesn't exist
+          if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
+            echo "✅ Downloaded existing versions.json"
+            cat versions.json
+          else
+            echo "⚠️  versions.json not found, creating new one"
+            echo '{}' > versions.json
+          fi
+
+      - name: Update versions.json
+        env:
+          ARTIFACT_TYPE: ${{ inputs.artifact-type }}
+          TARGET_FILENAME: ${{ steps.filename.outputs.filename }}
+        run: |
+          echo "📝 Updating versions.json..."
+          
+          # Install jq if not available
+          if ! command -v jq &> /dev/null; then
+            sudo apt-get update && sudo apt-get install -y jq
+          fi
+          
+          # Update the specific artifact type
+          jq --arg type "${ARTIFACT_TYPE}" \
+             --arg filename "${TARGET_FILENAME}" \
+             '.[$type] = $filename' \
+             versions.json > versions.json.tmp
+          
+          mv versions.json.tmp versions.json
+          
+          echo "✅ Updated versions.json:"
+          cat versions.json
+
+      - name: Upload updated versions.json
+        env:
+          S3_BUCKET: ${{ secrets.APUNTADOR_IO_S3_BUCKET }}
+        run: |
+          echo "⬆️  Uploading updated versions.json..."
+          
+          aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
+            --acl public-read \
+            --content-type "application/json" \
+            --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ versions.json updated successfully"
+
+      - name: Verify upload
+        env:
+          S3_BUCKET: ${{ secrets.APUNTADOR_IO_S3_BUCKET }}
+          TARGET_FILENAME: ${{ steps.filename.outputs.filename }}
+        run: |
+          echo "🔍 Verifying upload..."
+          
+          # Check if file exists and get its details
+          aws s3 ls "s3://${S3_BUCKET}/downloads/${TARGET_FILENAME}" --human-readable
+          aws s3 ls "s3://${S3_BUCKET}/downloads/versions.json" --human-readable
+          
+          echo "✅ Upload verification complete"
+          echo "📍 Public URLs:"
+          echo "   Artifact: https://${S3_BUCKET}.s3.amazonaws.com/downloads/${TARGET_FILENAME}"
+          echo "   versions.json: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"

@@ -222,6 +222,138 @@ jobs:
           cat artifacts/checksums.txt >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
 
+      # Upload to apuntador.io S3 bucket (only for release x86_64 builds with packages)
+      - name: Configure AWS credentials for apuntador.io
+        if: ${{ inputs.buildType == 'release' && inputs.buildTarget == 'x86_64-unknown-linux-gnu' && inputs.generatePackages == true }}
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Find and rename Linux packages
+        if: ${{ inputs.buildType == 'release' && inputs.buildTarget == 'x86_64-unknown-linux-gnu' && inputs.generatePackages == true }}
+        env:
+          VERSION: ${{ inputs.release_tag }}
+        run: |
+          cd artifacts
+          
+          # Find and rename packages with consistent naming
+          DEB_FILE=$(ls *.deb 2>/dev/null | head -1)
+          RPM_FILE=$(ls *.rpm 2>/dev/null | head -1)
+          APPIMAGE_FILE=$(ls *.AppImage 2>/dev/null | head -1)
+          
+          if [ -n "$DEB_FILE" ]; then
+            NEW_DEB="Apuntador_${VERSION}_amd64.deb"
+            mv "$DEB_FILE" "$NEW_DEB"
+            echo "DEB_FILENAME=$NEW_DEB" >> $GITHUB_ENV
+            echo "✅ Renamed DEB: $NEW_DEB"
+          fi
+          
+          if [ -n "$RPM_FILE" ]; then
+            NEW_RPM="Apuntador-${VERSION}-1.x86_64.rpm"
+            mv "$RPM_FILE" "$NEW_RPM"
+            echo "RPM_FILENAME=$NEW_RPM" >> $GITHUB_ENV
+            echo "✅ Renamed RPM: $NEW_RPM"
+          fi
+          
+          if [ -n "$APPIMAGE_FILE" ]; then
+            NEW_APPIMAGE="Apuntador_${VERSION}_amd64.AppImage"
+            mv "$APPIMAGE_FILE" "$NEW_APPIMAGE"
+            echo "APPIMAGE_FILENAME=$NEW_APPIMAGE" >> $GITHUB_ENV
+            echo "✅ Renamed AppImage: $NEW_APPIMAGE"
+          fi
+          
+          ls -la
+
+      - name: Upload Linux packages to apuntador.io S3
+        if: ${{ inputs.buildType == 'release' && inputs.buildTarget == 'x86_64-unknown-linux-gnu' && inputs.generatePackages == true }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ inputs.release_tag }}
+        run: |
+          cd artifacts
+          
+          echo "⬆️  Uploading Linux packages to apuntador.io..."
+          
+          # Upload DEB
+          if [ -n "$DEB_FILENAME" ] && [ -f "$DEB_FILENAME" ]; then
+            echo "   Uploading DEB: $DEB_FILENAME"
+            aws s3 cp "$DEB_FILENAME" "s3://${S3_BUCKET}/downloads/${DEB_FILENAME}" \
+              --acl public-read \
+              --metadata "version=${VERSION},type=linux-deb,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "✅ DEB uploaded"
+          fi
+          
+          # Upload RPM
+          if [ -n "$RPM_FILENAME" ] && [ -f "$RPM_FILENAME" ]; then
+            echo "   Uploading RPM: $RPM_FILENAME"
+            aws s3 cp "$RPM_FILENAME" "s3://${S3_BUCKET}/downloads/${RPM_FILENAME}" \
+              --acl public-read \
+              --metadata "version=${VERSION},type=linux-rpm,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "✅ RPM uploaded"
+          fi
+          
+          # Upload AppImage
+          if [ -n "$APPIMAGE_FILENAME" ] && [ -f "$APPIMAGE_FILENAME" ]; then
+            echo "   Uploading AppImage: $APPIMAGE_FILENAME"
+            aws s3 cp "$APPIMAGE_FILENAME" "s3://${S3_BUCKET}/downloads/${APPIMAGE_FILENAME}" \
+              --acl public-read \
+              --metadata "version=${VERSION},type=linux-appimage,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            echo "✅ AppImage uploaded"
+          fi
+
+      - name: Update versions.json for Linux packages
+        if: ${{ inputs.buildType == 'release' && inputs.buildTarget == 'x86_64-unknown-linux-gnu' && inputs.generatePackages == true }}
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+        run: |
+          echo "⬇️  Downloading current versions.json..."
+          if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
+            echo "✅ Downloaded existing versions.json"
+          else
+            echo "⚠️  versions.json not found, creating new one"
+            echo '{}' > versions.json
+          fi
+          
+          echo "📝 Updating versions.json with Linux packages..."
+          
+          # Update all three Linux package types
+          jq_updated=false
+          if [ -n "$DEB_FILENAME" ]; then
+            jq --arg filename "$DEB_FILENAME" '.["linux-deb"] = $filename' versions.json > versions.json.tmp
+            mv versions.json.tmp versions.json
+            jq_updated=true
+          fi
+          
+          if [ -n "$RPM_FILENAME" ]; then
+            jq --arg filename "$RPM_FILENAME" '.["linux-rpm"] = $filename' versions.json > versions.json.tmp
+            mv versions.json.tmp versions.json
+            jq_updated=true
+          fi
+          
+          if [ -n "$APPIMAGE_FILENAME" ]; then
+            jq --arg filename "$APPIMAGE_FILENAME" '.["linux-appimage"] = $filename' versions.json > versions.json.tmp
+            mv versions.json.tmp versions.json
+            jq_updated=true
+          fi
+          
+          if [ "$jq_updated" = true ]; then
+            echo "✅ Updated versions.json:"
+            cat versions.json
+            
+            echo "⬆️  Uploading updated versions.json..."
+            aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
+              --acl public-read \
+              --content-type "application/json" \
+              --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            
+            echo "✅ versions.json updated successfully"
+            echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+          else
+            echo "⚠️  No Linux packages to update in versions.json"
+          fi
+
   # Job for ARM64 build (if needed)
   build-linux-arm64:
     runs-on: ubuntu-latest
