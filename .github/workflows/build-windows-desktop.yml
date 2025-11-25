@@ -66,6 +66,20 @@ jobs:
       - name: Install dependencies (minimal for Tauri)
         run: npm ci --prefer-offline --no-audit
 
+      - name: Create .env file
+        run: |
+          Write-Host "📝 Creating .env file from secrets..." -ForegroundColor Yellow
+          @"
+          ${{ secrets.ENV_FILE }}
+          "@ | Out-File -FilePath .env -Encoding UTF8
+          
+          Write-Host "✅ .env file created successfully" -ForegroundColor Green
+          Write-Host "📋 Variables configured (masked):" -ForegroundColor Cyan
+          Get-Content .env | Where-Object { $_ -match '^[^#]' } | ForEach-Object {
+            $varName = ($_ -split '=')[0]
+            Write-Host "   ✓ $varName" -ForegroundColor White
+          }
+
       - name: Setup environment variables
         run: |
           echo "TAURI_PRIVATE_KEY=${{ secrets.TAURI_PRIVATE_KEY }}" >> $env:GITHUB_ENV
@@ -164,20 +178,6 @@ jobs:
 
           Write-Host "Contents of dist directory:" -ForegroundColor Cyan
           Get-ChildItem -Path dist/ | Format-Table Name, Length
-
-      - name: Disable beforeBuildCommand in tauri.conf.json
-        run: |
-          Write-Host "Disabling beforeBuildCommand in tauri.conf.json..." -ForegroundColor Yellow
-          
-          $configPath = "src-tauri\tauri.conf.json"
-          $config = Get-Content $configPath -Raw | ConvertFrom-Json
-          
-          # Disable beforeBuildCommand since we already have dist/ from release ZIP
-          $config.build.beforeBuildCommand = ""
-          
-          $config | ConvertTo-Json -Depth 10 | Set-Content $configPath
-          
-          Write-Host "✅ beforeBuildCommand disabled - using pre-built dist/" -ForegroundColor Green
 
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}

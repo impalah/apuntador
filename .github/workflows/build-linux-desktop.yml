@@ -107,6 +107,16 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Create .env file
+        run: |
+          echo "📝 Creating .env file from secrets..."
+          cat > .env << 'EOF'
+          ${{ secrets.ENV_FILE }}
+          EOF
+          echo "✅ .env file created successfully"
+          echo "📋 Variables configured (masked):"
+          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
+
       - name: Verify environment
         run: |
           echo "Node.js version: $(node --version)"
@@ -461,16 +471,6 @@ jobs:
 
           echo "Contents of dist directory:"
           ls -la dist/
-
-      - name: Disable beforeBuildCommand in tauri.conf.json
-        run: |
-          echo "Disabling beforeBuildCommand in tauri.conf.json..."
-          
-          # Use jq to disable beforeBuildCommand
-          jq '.build.beforeBuildCommand = ""' src-tauri/tauri.conf.json > src-tauri/tauri.conf.json.tmp
-          mv src-tauri/tauri.conf.json.tmp src-tauri/tauri.conf.json
-          
-          echo "✅ beforeBuildCommand disabled - using pre-built dist/"
 
       - name: Build Tauri application
         run: |

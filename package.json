@@ -56,7 +56,7 @@
     "tauri:build": "tauri build",
     "tauri:build:debug": "tauri build --debug --features devtools",
     "tauri:build:release": "tauri build --config '{\"bundle\":{\"targets\":\"msi\"}}' --target x86_64-pc-windows-msvc",
-    "tauri:build:win": "tauri build --target x86_64-pc-windows-msv",
+    "tauri:build:win": "tauri build --target x86_64-pc-windows-msvc",
     "tauri:build:mac": "tauri build --target aarch64-apple-darwin",
     "tauri:build:mac-intel": "tauri build --target x86_64-apple-darwin",
     "tauri:build:mac-universal": "tauri build --target universal-apple-darwin",
