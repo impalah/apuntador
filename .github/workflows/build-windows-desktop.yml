@@ -165,6 +165,20 @@ jobs:
           Write-Host "Contents of dist directory:" -ForegroundColor Cyan
           Get-ChildItem -Path dist/ | Format-Table Name, Length
 
+      - name: Disable beforeBuildCommand in tauri.conf.json
+        run: |
+          Write-Host "Disabling beforeBuildCommand in tauri.conf.json..." -ForegroundColor Yellow
+          
+          $configPath = "src-tauri\tauri.conf.json"
+          $config = Get-Content $configPath -Raw | ConvertFrom-Json
+          
+          # Disable beforeBuildCommand since we already have dist/ from release ZIP
+          $config.build.beforeBuildCommand = ""
+          
+          $config | ConvertTo-Json -Depth 10 | Set-Content $configPath
+          
+          Write-Host "✅ beforeBuildCommand disabled - using pre-built dist/" -ForegroundColor Green
+
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}
         run: |
