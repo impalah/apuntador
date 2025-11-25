@@ -413,10 +413,56 @@ jobs:
           cache-on-failure: true
           key: ${{ runner.os }}-rust-arm64-${{ inputs.buildType }}
 
-      - name: Install npm dependencies
+      - name: Install npm dependencies (minimal for Tauri)
         run: npm ci
 
-      - name: Build ARM64 Tauri application
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          echo "Downloading release asset for tag: ${RELEASE_TAG}"
+
+          # Get the release by tag
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
+
+          # Extract the download URL for the ZIP asset
+          DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+
+          if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
+            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "Available assets:"
+            echo "${RELEASE_DATA}" | jq -r '.assets[].name'
+            exit 1
+          fi
+
+          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
+            -o "release-${RELEASE_TAG}.zip" \
+            "${DOWNLOAD_URL}"
+
+          # Verify download
+          if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
+            echo "❌ Failed to download release asset"
+            exit 1
+          fi
+
+          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          ls -la "release-${RELEASE_TAG}.zip"
+
+      - name: Extract and prepare web build
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: |
+          echo "Extracting release-${RELEASE_TAG}.zip to dist/"
+          mkdir -p dist
+          unzip "release-${RELEASE_TAG}.zip" -d dist/
+
+          echo "Contents of dist directory:"
+          ls -la dist/
+
+      - name: Build Tauri application
         run: |
           if [ "${{ inputs.buildType }}" = "debug" ]; then
             npm run tauri:build -- --target aarch64-unknown-linux-gnu --debug

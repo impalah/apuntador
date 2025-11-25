@@ -98,6 +98,10 @@ Los siguientes workflows han sido actualizados para incluir la subida automátic
 
 ## 🚀 Proceso de Build
 
+### Prerequisito: Release debe existir
+
+**IMPORTANTE**: Antes de ejecutar cualquier workflow de build, debes haber creado un release con el workflow `inspect-build-release.yml`. Este workflow genera el ZIP con el frontend construido que los workflows de build descargarán.
+
 ### Paso 1: Ejecutar Workflow de Build
 
 Para cada plataforma, ejecuta el workflow manualmente desde GitHub Actions con los parámetros apropiados:

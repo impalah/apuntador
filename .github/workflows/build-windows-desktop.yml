@@ -63,7 +63,7 @@ jobs:
         with:
           workspaces: src-tauri -> target
 
-      - name: Install dependencies
+      - name: Install dependencies (minimal for Tauri)
         run: npm ci --prefer-offline --no-audit
 
       - name: Setup environment variables
@@ -115,8 +115,55 @@ jobs:
             exit 1
           }
 
-      - name: Build frontend
-        run: npm run build
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          Write-Host "Downloading release asset for tag: ${env:RELEASE_TAG}" -ForegroundColor Yellow
+
+          # Get the release by tag
+          $headers = @{
+            "Authorization" = "token ${env:GITHUB_TOKEN}"
+            "Accept" = "application/vnd.github.v3+json"
+          }
+          $releaseUrl = "https://api.github.com/repos/${{ github.repository }}/releases/tags/${env:RELEASE_TAG}"
+          $releaseData = Invoke-RestMethod -Uri $releaseUrl -Headers $headers
+
+          # Find ZIP asset
+          $zipAsset = $releaseData.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -First 1
+
+          if (-not $zipAsset) {
+            Write-Host "❌ No ZIP asset found for release ${env:RELEASE_TAG}" -ForegroundColor Red
+            Write-Host "Available assets:" -ForegroundColor Yellow
+            $releaseData.assets | ForEach-Object { Write-Host "  - $($_.name)" }
+            exit 1
+          }
+
+          Write-Host "📦 Downloading: $($zipAsset.name)" -ForegroundColor Cyan
+          $downloadUrl = $zipAsset.browser_download_url
+          $outputFile = "release-${env:RELEASE_TAG}.zip"
+          
+          Invoke-WebRequest -Uri $downloadUrl -Headers $headers -OutFile $outputFile
+
+          if (-not (Test-Path $outputFile)) {
+            Write-Host "❌ Failed to download release asset" -ForegroundColor Red
+            exit 1
+          }
+
+          Write-Host "✅ Downloaded $outputFile" -ForegroundColor Green
+          Get-Item $outputFile | Format-List
+
+      - name: Extract and prepare web build
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          Write-Host "Extracting release-${env:RELEASE_TAG}.zip to dist/" -ForegroundColor Yellow
+          New-Item -ItemType Directory -Force -Path dist | Out-Null
+          Expand-Archive -Path "release-${env:RELEASE_TAG}.zip" -DestinationPath dist/ -Force
+
+          Write-Host "Contents of dist directory:" -ForegroundColor Cyan
+          Get-ChildItem -Path dist/ | Format-Table Name, Length
 
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}
