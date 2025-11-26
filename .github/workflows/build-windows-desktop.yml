@@ -30,6 +30,15 @@ on:
         required: false
         default: true
         type: boolean
+      environment:
+        description: 'Environment to deploy (only for release builds)'
+        required: true
+        type: choice
+        options:
+          - dev
+          - pre
+          - pro
+        default: 'dev'
 
 env:
   NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
@@ -39,6 +48,7 @@ jobs:
   build-windows-desktop:
     runs-on: windows-latest
     timeout-minutes: 60
+    environment: ${{ inputs.buildType == 'release' && inputs.generateInstallers == true && inputs.environment || '' }}
 
     steps:
       - name: Checkout repository

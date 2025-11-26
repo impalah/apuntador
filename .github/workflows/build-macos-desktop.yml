@@ -39,6 +39,15 @@ on:
           - universal
           - aarch64-apple-darwin
           - x86_64-apple-darwin
+      environment:
+        description: 'Environment to deploy (only for release builds)'
+        required: true
+        type: choice
+        options:
+          - dev
+          - pre
+          - pro
+        default: 'dev'
 
 env:
   NPM_CONFIG_CACHE: ${{ github.workspace }}/.npm
@@ -48,6 +57,7 @@ jobs:
   build-macos-desktop:
     runs-on: macos-latest
     timeout-minutes: 60
+    environment: ${{ inputs.buildType == 'release' && inputs.buildTarget == 'universal' && inputs.generateInstallers == true && inputs.environment || '' }}
 
     steps:
       - name: Checkout repository
