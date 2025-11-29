@@ -97,15 +97,17 @@ jobs:
 
       - name: Setup code signing certificate
         env:
-          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_BASE64: ${{ secrets.WINDOWS_CERTIFICATE_BASE64 }}
           WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: |
           # Verificar si el certificado está disponible
-          if ([string]::IsNullOrEmpty($env:WINDOWS_CERTIFICATE)) {
+          if ([string]::IsNullOrEmpty($env:WINDOWS_CERTIFICATE_BASE64)) {
             Write-Host "⚠️ No se encontró certificado de código - continuando sin firma..." -ForegroundColor Yellow
             Write-Host "   Para habilitar la firma de código, configura los secrets:" -ForegroundColor Cyan
-            Write-Host "   - WINDOWS_CERTIFICATE" -ForegroundColor Cyan
-            Write-Host "   - WINDOWS_CERTIFICATE_PASSWORD" -ForegroundColor Cyan
+            Write-Host "   - WINDOWS_CERTIFICATE_BASE64 (certificado PFX en Base64)" -ForegroundColor Cyan
+            Write-Host "   - WINDOWS_CERTIFICATE_PASSWORD (contraseña del certificado)" -ForegroundColor Cyan
+            Write-Host "" -ForegroundColor White
+            Write-Host "   Ver docs/WINDOWS_CODE_SIGNING.md para más información" -ForegroundColor Cyan
             exit 0
           }
 
@@ -116,27 +118,46 @@ jobs:
           New-Item -ItemType Directory -Path $certDir -Force | Out-Null
 
           # Decodificar el certificado Base64 y guardarlo como PFX
-          $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE)
+          $certBytes = [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE_BASE64)
           $certPath = Join-Path $certDir "codesigning.pfx"
           [IO.File]::WriteAllBytes($certPath, $certBytes)
 
           # Importar el certificado al almacén local
           $securePassword = ConvertTo-SecureString -String $env:WINDOWS_CERTIFICATE_PASSWORD -Force -AsPlainText
-          $cert = Import-PfxCertificate -FilePath $certPath -CertStoreLocation "Cert:\CurrentUser\My" -Password $securePassword
+          
+          try {
+            $cert = Import-PfxCertificate -FilePath $certPath -CertStoreLocation "Cert:\CurrentUser\My" -Password $securePassword -ErrorAction Stop
 
-          if ($cert) {
             Write-Host "✅ Certificado importado exitosamente" -ForegroundColor Green
+            Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
+            Write-Host "   Issuer: $($cert.Issuer)" -ForegroundColor White
             Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
+            Write-Host "   Válido desde: $($cert.NotBefore)" -ForegroundColor White
+            Write-Host "   Válido hasta: $($cert.NotAfter)" -ForegroundColor White
+            
+            # Verificar que el certificado es válido para firma de código
+            $codeSigningEku = $cert.EnhancedKeyUsageList | Where-Object { $_.ObjectId -eq "1.3.6.1.5.5.7.3.3" }
+            if ($codeSigningEku) {
+              Write-Host "   ✅ Certificado válido para firma de código" -ForegroundColor Green
+            } else {
+              Write-Host "   ⚠️ Advertencia: Este certificado podría no ser válido para firma de código" -ForegroundColor Yellow
+            }
             
             # Configurar variable de entorno para Tauri
             echo "WINDOWS_CODESIGN_CERT_THUMBPRINT=$($cert.Thumbprint)" >> $env:GITHUB_ENV
             
-            # Limpiar archivo temporal
-            Remove-Item $certPath -Force
-            Remove-Item $certDir -Force
-          } else {
-            Write-Host "❌ Error al importar certificado" -ForegroundColor Red
+          } catch {
+            Write-Host "❌ Error al importar certificado: $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "   Verifica que WINDOWS_CERTIFICATE_PASSWORD sea correcto" -ForegroundColor Yellow
             exit 1
+          } finally {
+            # Limpiar archivos temporales
+            if (Test-Path $certPath) {
+              Remove-Item $certPath -Force
+            }
+            if (Test-Path $certDir) {
+              Remove-Item $certDir -Force
+            }
           }
 
       - name: Download release asset

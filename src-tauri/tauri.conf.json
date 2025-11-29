@@ -53,9 +53,9 @@
     "license": "MIT",
     "licenseFile": "../LICENSE",
     "windows": {
-      "certificateThumbprint": "",
+      "certificateThumbprint": null,
       "digestAlgorithm": "sha256",
-      "timestampUrl": ""
+      "timestampUrl": "http://timestamp.digicert.com"
     },
     "macOS": {
       "entitlements": null,
