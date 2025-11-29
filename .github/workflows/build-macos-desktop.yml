@@ -213,6 +213,116 @@ jobs:
             done
           fi
 
+      - name: Import Apple Code Signing Certificate
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        env:
+          APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+        run: |
+          echo "🔐 Importing Apple Developer ID certificate..."
+          
+          # Create temporary keychain
+          KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
+          KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
+          
+          # Create keychain
+          security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
+          security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Import certificate
+          echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
+          security import certificate.p12 \
+            -k "$KEYCHAIN_PATH" \
+            -P "$APPLE_CERTIFICATE_PASSWORD" \
+            -T /usr/bin/codesign \
+            -T /usr/bin/productsign
+          
+          # Set keychain as default
+          security list-keychain -d user -s "$KEYCHAIN_PATH"
+          security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
+          
+          # Verify certificate
+          security find-identity -v -p codesigning "$KEYCHAIN_PATH"
+          
+          # Clean up certificate file
+          rm -f certificate.p12
+          
+          echo "✅ Certificate imported successfully"
+
+      - name: Sign and Notarize macOS Application
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          echo "🔏 Starting code signing and notarization process..."
+          
+          # Find the .app bundle
+          APP_PATH=""
+          for target in universal-apple-darwin aarch64-apple-darwin x86_64-apple-darwin; do
+            for buildType in release debug; do
+              searchPath="src-tauri/target/$target/$buildType/bundle/macos"
+              if [ -d "$searchPath" ]; then
+                found=$(find "$searchPath" -name "*.app" -type d 2>/dev/null | head -1)
+                if [ -n "$found" ]; then
+                  APP_PATH="$found"
+                  echo "✅ Found app bundle: $APP_PATH"
+                  break 2
+                fi
+              fi
+            done
+          done
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ App bundle not found"
+            exit 1
+          fi
+          
+          # Get signing identity
+          SIGNING_IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | awk -F'"' '{print $2}')
+          echo "🔑 Using signing identity: $SIGNING_IDENTITY"
+          
+          # Sign the app bundle
+          echo "📝 Signing application..."
+          codesign --force --deep --sign "$SIGNING_IDENTITY" \
+            --options runtime \
+            --entitlements src-tauri/entitlements.plist \
+            --timestamp \
+            "$APP_PATH"
+          
+          # Verify signature
+          echo "✅ Verifying signature..."
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          
+          # Create ZIP for notarization
+          echo "📦 Creating ZIP for notarization..."
+          NOTARIZE_ZIP="Apuntador-notarize.zip"
+          ditto -c -k --keepParent "$APP_PATH" "$NOTARIZE_ZIP"
+          
+          # Submit for notarization
+          echo "🚀 Submitting to Apple for notarization..."
+          xcrun notarytool submit "$NOTARIZE_ZIP" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            --wait \
+            --timeout 30m
+          
+          # Staple the notarization ticket
+          echo "📌 Stapling notarization ticket..."
+          xcrun stapler staple "$APP_PATH"
+          
+          # Verify stapling
+          echo "✅ Verifying stapled ticket..."
+          xcrun stapler validate "$APP_PATH"
+          
+          # Clean up
+          rm -f "$NOTARIZE_ZIP"
+          
+          echo "✅ Code signing and notarization completed successfully!"
+
       - name: Create artifacts directory
         run: |
           mkdir -p artifacts
