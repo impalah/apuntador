@@ -318,9 +318,10 @@ jobs:
           
           echo "📊 ZIP file size: $(du -h "$NOTARIZE_ZIP" | cut -f1)"
           
-          # Submit for notarization with increased timeout
+          # Submit for notarization WITHOUT waiting
           echo "🚀 Submitting to Apple for notarization..."
-          echo "⏱️  This process can take 10-60 minutes, please be patient..."
+          echo "⚠️  Apple's notarization can take 10-90+ minutes"
+          echo "⚠️  We'll submit and continue without waiting to avoid GitHub Actions timeout"
           
           SUBMISSION_OUTPUT=$(xcrun notarytool submit "$NOTARIZE_ZIP" \
             --apple-id "$APPLE_ID" \
@@ -340,35 +341,36 @@ jobs:
             exit 1
           fi
           
-          echo "✅ Submission ID: $SUBMISSION_ID"
-          echo "⏳ Waiting for Apple to process (timeout: 60 minutes)..."
+          echo ""
+          echo "════════════════════════════════════════════════════════════════"
+          echo "✅ SUCCESSFULLY SUBMITTED TO APPLE NOTARIZATION SERVICE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "📋 Submission ID: $SUBMISSION_ID"
+          echo ""
+          echo "⏰ Apple will process this in the background (10-90+ minutes)"
+          echo ""
+          echo "🔍 To check status later, run:"
+          echo "   xcrun notarytool info $SUBMISSION_ID \\"
+          echo "     --apple-id YOUR_APPLE_ID \\"
+          echo "     --password YOUR_APP_PASSWORD \\"
+          echo "     --team-id $APPLE_TEAM_ID"
+          echo ""
+          echo "📌 Once approved, staple the ticket with:"
+          echo "   xcrun stapler staple /path/to/Apuntador.app"
+          echo ""
+          echo "⚠️  For now, we'll continue building and uploading the SIGNED (but not yet notarized) app"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
           
-          # Wait for notarization with longer timeout
-          xcrun notarytool wait "$SUBMISSION_ID" \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID" \
-            --timeout 60m
+          # Save submission ID to file for reference
+          echo "$SUBMISSION_ID" > notarization-submission-id.txt
+          echo "✅ Submission ID saved to notarization-submission-id.txt"
           
-          # Get the status
-          echo "📋 Getting notarization status..."
-          xcrun notarytool info "$SUBMISSION_ID" \
-            --apple-id "$APPLE_ID" \
-            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
-            --team-id "$APPLE_TEAM_ID"
-          
-          # Staple the notarization ticket
-          echo "📌 Stapling notarization ticket..."
-          xcrun stapler staple "$APP_PATH"
-          
-          # Verify stapling
-          echo "✅ Verifying stapled ticket..."
-          xcrun stapler validate "$APP_PATH"
-          
-          # Clean up
+          # Clean up ZIP (we don't need it anymore)
           rm -f "$NOTARIZE_ZIP"
           
-          echo "✅ Code signing and notarization completed successfully!"
+          echo "✅ Code signing completed! (Notarization submitted but not waited for)"
 
       - name: Create artifacts directory
         run: |
@@ -520,6 +522,14 @@ jobs:
         with:
           name: apuntador-macos-build-info-${{ github.event.inputs.buildTarget }}-${{ github.event.inputs.release_tag }}
           path: artifacts/build-info.json
+          retention-days: 90
+
+      - name: Upload notarization submission ID
+        if: ${{ github.event.inputs.buildType == 'release' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: notarization-submission-id-${{ github.event.inputs.release_tag }}
+          path: notarization-submission-id.txt
           retention-days: 90
 
       - name: Create Release (if release tag)

@@ -204,6 +204,61 @@ Si todo está correcto, deberías ver:
 - Verifica con `stapler validate` que el ticket esté grapado
 - Si descargaste la app antes de que terminara el proceso de notarización, vuelve a descargarla
 
+## ⚡ Nuevo Flujo: Notarización Asíncrona (Recomendado)
+
+Debido a que la notarización de Apple puede tardar **10-90+ minutos** (especialmente en horarios pico), el workflow ahora usa un **proceso asíncrono**:
+
+### Cómo Funciona:
+
+1. **El workflow firma y envía** la app a Apple para notarización
+2. **NO espera** la aprobación (evita timeout de GitHub Actions)
+3. **Guarda el Submission ID** como artefacto
+4. **Continúa** construyendo y subiendo la app firmada
+
+### Verificar Estado Manualmente:
+
+Descarga el archivo `notarization-submission-id-<version>.txt` de los artefactos del workflow y usa el script helper:
+
+```bash
+# Configurar variables de entorno
+export APPLE_ID='tu@email.com'
+export APPLE_APP_SPECIFIC_PASSWORD='xxxx-xxxx-xxxx-xxxx'
+export APPLE_TEAM_ID='B9VZ5U9FAZ'
+
+# Leer el submission ID del archivo descargado
+SUBMISSION_ID=$(cat notarization-submission-id-*.txt)
+
+# Verificar estado
+./scripts/check-notarization-status.sh "$SUBMISSION_ID"
+```
+
+### Grapar Ticket Una Vez Aprobado:
+
+Cuando el estado sea "Accepted":
+
+```bash
+# Opción 1: Manualmente
+xcrun stapler staple /path/to/Apuntador.app
+xcrun stapler validate /path/to/Apuntador.app
+
+# Opción 2: Con el script (hace todo automáticamente)
+./scripts/check-notarization-status.sh "$SUBMISSION_ID" --staple /path/to/Apuntador.app
+```
+
+### Timeline Típico:
+
+- **0-5 min**: Workflow completa (firma + envío + build + upload)
+- **5-90 min**: Apple procesa en background (fuera del workflow)
+- **Después**: Verificas estado y grapas ticket manualmente
+
+### Ventajas:
+
+- ✅ El workflow NO falla por timeout
+- ✅ Más rápido (no espera 90 minutos)
+- ✅ Más barato (menos minutos de GitHub Actions)
+- ✅ La app FIRMADA está disponible inmediatamente
+- ✅ El grapado (stapling) se hace solo cuando Apple aprueba
+
 ## 📚 Referencias
 
 - [Apple Developer Documentation - Notarizing macOS Software](https://developer.apple.com/documentation/security/notarizing_macos_software_before_distribution)
