@@ -189,6 +189,24 @@ jobs:
           Write-Host "Contents of dist directory:" -ForegroundColor Cyan
           Get-ChildItem -Path dist/ | Format-Table Name, Length
 
+      - name: Update version in Cargo.toml
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          Write-Host "📝 Updating version in Cargo.toml to ${env:RELEASE_TAG}" -ForegroundColor Yellow
+          
+          $cargoPath = "src-tauri\Cargo.toml"
+          $content = Get-Content $cargoPath -Raw
+          
+          # Update version line
+          $content = $content -replace 'version = "[^"]+"', "version = `"${env:RELEASE_TAG}`""
+          
+          Set-Content -Path $cargoPath -Value $content
+          
+          Write-Host "✅ Version updated successfully" -ForegroundColor Green
+          Write-Host "📋 Verifying version:" -ForegroundColor Cyan
+          Select-String -Path $cargoPath -Pattern '^version = ' | Select-Object -First 1
+
       - name: Build Tauri app (Debug)
         if: ${{ github.event.inputs.buildType == 'debug' }}
         run: |

@@ -148,6 +148,21 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist/
 
+      - name: Update version in Cargo.toml
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "📝 Updating version in Cargo.toml to ${RELEASE_TAG}"
+          
+          CARGO_PATH="src-tauri/Cargo.toml"
+          
+          # Update version using sed (macOS compatible)
+          sed -i '' "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
+          
+          echo "✅ Version updated successfully"
+          echo "📋 Verifying version:"
+          grep '^version = ' "$CARGO_PATH" | head -1
+
       - name: Build Tauri app (Debug) - Universal
         if: ${{ github.event.inputs.buildType == 'debug' && github.event.inputs.buildTarget == 'universal' }}
         run: |
