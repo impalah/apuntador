@@ -11,6 +11,10 @@ on:
         description: 'Apple notarization submission ID'
         required: true
         type: string
+      workflow_run_id:
+        description: 'Workflow Run ID from Build macOS Desktop (find in URL)'
+        required: true
+        type: string
       buildTarget:
         description: 'Build target used in original build'
         required: true
@@ -45,6 +49,8 @@ jobs:
         with:
           name: apuntador-macos-installers-${{ inputs.buildTarget }}-${{ inputs.release_tag }}
           path: artifacts/
+          run-id: ${{ inputs.workflow_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: List downloaded artifacts
         run: |
