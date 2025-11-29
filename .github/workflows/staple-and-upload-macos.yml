@@ -1,0 +1,262 @@
+name: Staple and Upload macOS DMG
+
+on:
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: 'Release tag (e.g., 0.1.24)'
+        required: true
+        type: string
+      submission_id:
+        description: 'Apple notarization submission ID'
+        required: true
+        type: string
+      buildTarget:
+        description: 'Build target used in original build'
+        required: true
+        default: 'universal'
+        type: choice
+        options:
+          - universal
+          - aarch64-apple-darwin
+          - x86_64-apple-darwin
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - dev
+          - pre
+          - pro
+        default: 'dev'
+
+jobs:
+  staple-and-upload:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    environment: ${{ inputs.environment }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download DMG artifact from previous build
+        uses: actions/download-artifact@v4
+        with:
+          name: apuntador-macos-installers-${{ inputs.buildTarget }}-${{ inputs.release_tag }}
+          path: artifacts/
+
+      - name: List downloaded artifacts
+        run: |
+          echo "📦 Downloaded artifacts:"
+          ls -lah artifacts/
+          
+          # Find the DMG file
+          DMG_FILE=$(find artifacts -name "*.dmg" | head -1)
+          if [ -z "$DMG_FILE" ]; then
+            echo "❌ No DMG file found in artifacts"
+            exit 1
+          fi
+          
+          echo "✅ Found DMG: $DMG_FILE"
+          echo "DMG_PATH=$DMG_FILE" >> $GITHUB_ENV
+
+      - name: Check notarization status
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SUBMISSION_ID: ${{ inputs.submission_id }}
+        run: |
+          echo "🔍 Checking notarization status..."
+          echo "📋 Submission ID: $SUBMISSION_ID"
+          
+          STATUS_OUTPUT=$(xcrun notarytool info "$SUBMISSION_ID" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            2>&1)
+          
+          echo "$STATUS_OUTPUT"
+          
+          # Extract status
+          STATUS=$(echo "$STATUS_OUTPUT" | grep "status:" | awk '{print $2}')
+          
+          if [ "$STATUS" != "Accepted" ]; then
+            echo ""
+            echo "❌ ERROR: Notarization not accepted yet"
+            echo "Current status: $STATUS"
+            echo ""
+            if [ "$STATUS" = "In Progress" ]; then
+              echo "⏳ Apple is still processing. Please wait and try again later."
+            elif [ "$STATUS" = "Invalid" ]; then
+              echo "🚫 Notarization was REJECTED by Apple."
+              echo ""
+              echo "Get detailed logs with:"
+              echo "  xcrun notarytool log $SUBMISSION_ID \\"
+              echo "    --apple-id $APPLE_ID \\"
+              echo "    --password \$APPLE_APP_SPECIFIC_PASSWORD \\"
+              echo "    --team-id $APPLE_TEAM_ID"
+            fi
+            exit 1
+          fi
+          
+          echo ""
+          echo "✅ Notarization status: Accepted"
+          echo "Ready to staple!"
+
+      - name: Mount DMG and staple ticket
+        run: |
+          echo "📀 Mounting DMG..."
+          DMG_PATH="${{ env.DMG_PATH }}"
+          
+          # Mount the DMG
+          hdiutil attach "$DMG_PATH" -nobrowse -quiet
+          
+          # Find the mounted volume
+          VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | awk '{print $NF}')
+          
+          if [ -z "$VOLUME_PATH" ]; then
+            echo "❌ Failed to find mounted volume"
+            hdiutil info
+            exit 1
+          fi
+          
+          echo "✅ Mounted at: $VOLUME_PATH"
+          
+          # Find the .app bundle
+          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d | head -1)
+          
+          if [ -z "$APP_PATH" ]; then
+            echo "❌ No .app bundle found in DMG"
+            ls -la "$VOLUME_PATH"
+            exit 1
+          fi
+          
+          echo "✅ Found app: $APP_PATH"
+          
+          # Staple the notarization ticket
+          echo "📌 Stapling notarization ticket..."
+          xcrun stapler staple "$APP_PATH"
+          
+          # Verify stapling
+          echo "✅ Verifying stapled ticket..."
+          xcrun stapler validate "$APP_PATH"
+          
+          echo ""
+          echo "✅ Ticket stapled successfully!"
+          
+          # Unmount (changes are saved automatically)
+          echo "📤 Unmounting DMG..."
+          hdiutil detach "$VOLUME_PATH" -quiet
+          
+          echo "✅ DMG updated with stapled ticket"
+
+      - name: Verify DMG signature and notarization
+        run: |
+          echo "🔍 Final verification of DMG..."
+          DMG_PATH="${{ env.DMG_PATH }}"
+          
+          # Mount again to verify
+          hdiutil attach "$DMG_PATH" -nobrowse -quiet
+          VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | awk '{print $NF}')
+          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d | head -1)
+          
+          echo "Verifying code signature..."
+          codesign --verify --deep --strict --verbose=2 "$APP_PATH"
+          
+          echo ""
+          echo "Verifying stapled notarization ticket..."
+          xcrun stapler validate "$APP_PATH"
+          
+          echo ""
+          echo "Checking Gatekeeper assessment..."
+          spctl -a -vv "$APP_PATH"
+          
+          hdiutil detach "$VOLUME_PATH" -quiet
+          
+          echo ""
+          echo "✅ All verifications passed!"
+
+      - name: Configure AWS credentials for apuntador.io
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.APUNTADOR_IO_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.APUNTADOR_IO_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.APUNTADOR_IO_AWS_REGION }}
+
+      - name: Upload DMG to apuntador.io S3
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ inputs.release_tag }}
+        run: |
+          DMG_PATH="${{ env.DMG_PATH }}"
+          DMG_FILENAME=$(basename "$DMG_PATH")
+          
+          echo "⬆️  Uploading notarized DMG to apuntador.io..."
+          echo "   Source: $DMG_PATH"
+          echo "   Destination: s3://${S3_BUCKET}/downloads/$DMG_FILENAME"
+          
+          aws s3 cp "$DMG_PATH" "s3://${S3_BUCKET}/downloads/$DMG_FILENAME" \
+            --acl public-read \
+            --metadata "version=${VERSION},type=macos-dmg,notarized=true,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ DMG uploaded successfully"
+
+      - name: Update versions.json
+        env:
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+          VERSION: ${{ inputs.release_tag }}
+        run: |
+          DMG_PATH="${{ env.DMG_PATH }}"
+          DMG_FILENAME=$(basename "$DMG_PATH")
+          
+          echo "⬇️  Downloading current versions.json..."
+          if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
+            echo "✅ Downloaded existing versions.json"
+          else
+            echo "⚠️  versions.json not found, creating new one"
+            echo '{}' > versions.json
+          fi
+          
+          echo "📝 Updating versions.json..."
+          
+          # Update using jq (macOS has it pre-installed)
+          jq --arg filename "$DMG_FILENAME" '.["macos-dmg"] = $filename' versions.json > versions.json.tmp
+          mv versions.json.tmp versions.json
+          
+          echo "✅ Updated versions.json:"
+          cat versions.json
+          
+          echo "⬆️  Uploading updated versions.json..."
+          aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
+            --acl public-read \
+            --content-type "application/json" \
+            --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          
+          echo "✅ versions.json updated successfully"
+          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+
+      - name: Upload stapled DMG as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apuntador-macos-dmg-notarized-${{ inputs.release_tag }}
+          path: ${{ env.DMG_PATH }}
+          retention-days: 90
+
+      - name: Summary
+        run: |
+          echo ""
+          echo "════════════════════════════════════════════════════════════════"
+          echo "🎉 PROCESO COMPLETADO EXITOSAMENTE"
+          echo "════════════════════════════════════════════════════════════════"
+          echo ""
+          echo "✅ DMG notarizado y con ticket grapado"
+          echo "✅ Subido a apuntador.io S3"
+          echo "✅ versions.json actualizado"
+          echo ""
+          echo "📦 Archivo: $(basename ${{ env.DMG_PATH }})"
+          echo "🔗 URL público: https://${{ vars.APUNTADOR_IO_S3_BUCKET }}.s3.amazonaws.com/downloads/$(basename ${{ env.DMG_PATH }})"
+          echo ""
+          echo "Los usuarios ahora pueden descargar e instalar sin advertencias."
+          echo "════════════════════════════════════════════════════════════════"

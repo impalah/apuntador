@@ -206,58 +206,83 @@ Si todo está correcto, deberías ver:
 
 ## ⚡ Nuevo Flujo: Notarización Asíncrona (Recomendado)
 
-Debido a que la notarización de Apple puede tardar **10-90+ minutos** (especialmente en horarios pico), el workflow ahora usa un **proceso asíncrono**:
+Debido a que la notarización de Apple puede tardar **10-90+ minutos** (especialmente en horarios pico), ahora usamos un **proceso de 2 pasos**:
 
-### Cómo Funciona:
+### 📋 Flujo Completo:
 
-1. **El workflow firma y envía** la app a Apple para notarización
-2. **NO espera** la aprobación (evita timeout de GitHub Actions)
-3. **Guarda el Submission ID** como artefacto
-4. **Continúa** construyendo y subiendo la app firmada
+#### **Paso 1: Build macOS Desktop** (Workflow principal)
+```
+1. Firma la aplicación
+2. Envía a Apple para notarización
+3. Guarda el Submission ID
+4. Construye el DMG
+5. Sube DMG como artefacto (sin subir a S3 aún)
+```
 
-### Verificar Estado Manualmente:
+**Resultado**: DMG firmado pero NO notarizado, disponible como artefacto de GitHub.
 
-Descarga el archivo `notarization-submission-id-<version>.txt` de los artefactos del workflow y usa el script helper:
+#### **Paso 2: Verificar y Subir** (Manual o segundo workflow)
+
+**Opción A: Verificación Manual** (para desarrollo/testing)
 
 ```bash
-# Configurar variables de entorno
+# 1. Descargar submission ID del artefacto del workflow
+SUBMISSION_ID=$(cat notarization-submission-id-*.txt)
+
+# 2. Configurar credenciales
 export APPLE_ID='tu@email.com'
 export APPLE_APP_SPECIFIC_PASSWORD='xxxx-xxxx-xxxx-xxxx'
 export APPLE_TEAM_ID='B9VZ5U9FAZ'
 
-# Leer el submission ID del archivo descargado
-SUBMISSION_ID=$(cat notarization-submission-id-*.txt)
-
-# Verificar estado
+# 3. Verificar estado
 ./scripts/check-notarization-status.sh "$SUBMISSION_ID"
-```
 
-### Grapar Ticket Una Vez Aprobado:
-
-Cuando el estado sea "Accepted":
-
-```bash
-# Opción 1: Manualmente
-xcrun stapler staple /path/to/Apuntador.app
-xcrun stapler validate /path/to/Apuntador.app
-
-# Opción 2: Con el script (hace todo automáticamente)
+# 4. Si está "Accepted", grapar y subir manualmente
 ./scripts/check-notarization-status.sh "$SUBMISSION_ID" --staple /path/to/Apuntador.app
+# Luego subes el DMG a S3 manualmente
 ```
 
-### Timeline Típico:
+**Opción B: Workflow Automatizado "Staple and Upload"** (para producción) ✅ **RECOMENDADO**
 
-- **0-5 min**: Workflow completa (firma + envío + build + upload)
-- **5-90 min**: Apple procesa en background (fuera del workflow)
-- **Después**: Verificas estado y grapas ticket manualmente
+1. Espera a que Apple apruebe (verifica con el script o espera ~30-60 min)
+2. Ve a **Actions** → **"Staple and Upload macOS DMG"**
+3. **Run workflow** con:
+   ```
+   release_tag: 0.1.24
+   submission_id: [el ID del artefacto del paso 1]
+   buildTarget: universal
+   environment: dev/pre/pro
+   ```
+4. Este workflow:
+   - ✅ Verifica que Apple haya aprobado
+   - ✅ Descarga el DMG del artefacto anterior
+   - ✅ Grapa el ticket de notarización
+   - ✅ Verifica firma + notarización + Gatekeeper
+   - ✅ Sube a S3 (apuntador.io)
+   - ✅ Actualiza versions.json
+   - ✅ Guarda DMG notarizado como artefacto
 
-### Ventajas:
+### 📅 Timeline Típico:
 
-- ✅ El workflow NO falla por timeout
-- ✅ Más rápido (no espera 90 minutos)
-- ✅ Más barato (menos minutos de GitHub Actions)
-- ✅ La app FIRMADA está disponible inmediatamente
-- ✅ El grapado (stapling) se hace solo cuando Apple aprueba
+```
+Día 1, 10:00 AM - Ejecutar "Build macOS Desktop"
+  ├─ 0-5 min: Firma + envío a Apple + build
+  ├─ 5 min: Workflow completa ✅
+  └─ Artefactos disponibles: DMG firmado + submission ID
+
+Día 1, 10:30 AM - 11:30 AM - Apple procesa en background
+  └─ (Mientras tanto puedes hacer otras cosas)
+
+Día 1, 11:00 AM - Verificar estado (opcional)
+  └─ ./scripts/check-notarization-status.sh <ID>
+
+Día 1, 11:30 AM - Ejecutar "Staple and Upload macOS DMG"
+  ├─ 0-2 min: Verifica que Apple aprobó
+  ├─ 2-4 min: Grapa ticket + sube a S3
+  └─ 4 min: Workflow completa ✅
+  
+RESULTADO: DMG notarizado disponible en apuntador.io
+```
 
 ## 📚 Referencias
 
