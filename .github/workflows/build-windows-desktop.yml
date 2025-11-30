@@ -464,6 +464,140 @@ jobs:
           Write-Host "✅ versions.json updated successfully" -ForegroundColor Green
           Write-Host "📍 Public URL: https://${env:S3_BUCKET}.s3.amazonaws.com/downloads/versions.json" -ForegroundColor Cyan
 
+      - name: Generate Winget Manifests
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
+        shell: pwsh
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+          ENVIRONMENT: ${{ github.event.inputs.environment }}
+          S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
+        run: |
+          Write-Host "📦 Generating Winget manifests for version ${env:RELEASE_TAG}..." -ForegroundColor Cyan
+          Write-Host ""
+          
+          $version = $env:RELEASE_TAG
+          $msiPath = "artifacts\installers\apuntador-${version}-windows-x64-installer.msi"
+          $msiUrl = "https://apuntador.io/downloads/apuntador-${version}-windows-x64-installer.msi"
+          
+          # Calcular SHA256
+          Write-Host "🔐 Calculating SHA256 hash..." -ForegroundColor Yellow
+          $hash = (Get-FileHash -Path $msiPath -Algorithm SHA256).Hash
+          Write-Host "   SHA256: $hash" -ForegroundColor White
+          Write-Host ""
+          
+          # Extraer ProductCode del MSI
+          Write-Host "🔍 Extracting ProductCode from MSI..." -ForegroundColor Yellow
+          try {
+            $installer = New-Object -ComObject WindowsInstaller.Installer
+            $database = $installer.GetType().InvokeMember("OpenDatabase", "InvokeMethod", $null, $installer, @($msiPath, 0))
+            $view = $database.GetType().InvokeMember("OpenView", "InvokeMethod", $null, $database, ("SELECT Value FROM Property WHERE Property='ProductCode'"))
+            $view.GetType().InvokeMember("Execute", "InvokeMethod", $null, $view, $null)
+            $record = $view.GetType().InvokeMember("Fetch", "InvokeMethod", $null, $view, $null)
+            $productCode = $record.GetType().InvokeMember("StringData", "GetProperty", $null, $record, 1)
+            Write-Host "   ProductCode: $productCode" -ForegroundColor White
+            Write-Host ""
+          } catch {
+            Write-Host "   ⚠️ Could not extract ProductCode, using placeholder" -ForegroundColor Yellow
+            $productCode = "{PLACEHOLDER-GUID}"
+          }
+          
+          # Crear directorio para manifests
+          $manifestDir = "winget-manifests\$version"
+          New-Item -ItemType Directory -Force -Path $manifestDir | Out-Null
+          
+          Write-Host "📝 Creating manifest files..." -ForegroundColor Yellow
+          
+          # 1. Apuntador.Apuntador.yaml (version manifest)
+          $versionManifest = @"
+PackageIdentifier: Apuntador.Apuntador
+PackageVersion: $version
+DefaultLocale: en-US
+ManifestType: version
+ManifestVersion: 1.6.0
+"@
+          $versionManifest | Out-File -FilePath "$manifestDir\Apuntador.Apuntador.yaml" -Encoding UTF8 -NoNewline
+          Write-Host "   ✓ Apuntador.Apuntador.yaml" -ForegroundColor Green
+          
+          # 2. Apuntador.Apuntador.installer.yaml
+          $installerManifest = @"
+PackageIdentifier: Apuntador.Apuntador
+PackageVersion: $version
+MinimumOSVersion: 10.0.0.0
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+InstallerSwitches:
+  Silent: /quiet
+  SilentWithProgress: /passive
+UpgradeBehavior: install
+FileExtensions:
+  - md
+  - txt
+Installers:
+  - Architecture: x64
+    InstallerType: wix
+    InstallerUrl: $msiUrl
+    InstallerSha256: $hash
+    ProductCode: '$productCode'
+    Scope: machine
+ManifestType: installer
+ManifestVersion: 1.6.0
+"@
+          $installerManifest | Out-File -FilePath "$manifestDir\Apuntador.Apuntador.installer.yaml" -Encoding UTF8 -NoNewline
+          Write-Host "   ✓ Apuntador.Apuntador.installer.yaml" -ForegroundColor Green
+          
+          # 3. Apuntador.Apuntador.locale.en-US.yaml
+          $localeManifest = @"
+PackageIdentifier: Apuntador.Apuntador
+PackageVersion: $version
+PackageLocale: en-US
+Publisher: Apuntador
+PublisherUrl: https://apuntador.io
+PublisherSupportUrl: https://github.com/impalah/apuntador/issues
+Author: Apuntador Team
+PackageName: Apuntador
+PackageUrl: https://apuntador.io
+License: MIT
+LicenseUrl: https://github.com/impalah/apuntador/blob/main/LICENSE
+Copyright: Copyright (c) 2024-2025 Apuntador
+ShortDescription: Professional teleprompter for content creators
+Description: |-
+  Apuntador is a modern, web-based teleprompter designed for content creators,
+  presenters, and speakers. Features include variable scrolling speed, mirror mode,
+  mobile and desktop support, and full-screen capabilities.
+Moniker: apuntador
+Tags:
+  - teleprompter
+  - presentation
+  - content-creation
+  - video
+  - streaming
+  - prompter
+  - open-source
+ManifestType: defaultLocale
+ManifestVersion: 1.6.0
+"@
+          $localeManifest | Out-File -FilePath "$manifestDir\Apuntador.Apuntador.locale.en-US.yaml" -Encoding UTF8 -NoNewline
+          Write-Host "   ✓ Apuntador.Apuntador.locale.en-US.yaml" -ForegroundColor Green
+          
+          Write-Host ""
+          Write-Host "✅ Winget manifests generated successfully in $manifestDir/" -ForegroundColor Green
+          Write-Host ""
+          Write-Host "📋 Manifest contents:" -ForegroundColor Cyan
+          Get-ChildItem $manifestDir | ForEach-Object {
+            Write-Host "   - $($_.Name)" -ForegroundColor White
+          }
+
+      - name: Upload Winget Manifests as Artifact
+        if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: winget-manifests-${{ github.event.inputs.release_tag }}
+          path: winget-manifests/${{ github.event.inputs.release_tag }}/
+          retention-days: 90
+          if-no-files-found: error
+
       - name: Build Summary
         run: |
           Write-Host ""
