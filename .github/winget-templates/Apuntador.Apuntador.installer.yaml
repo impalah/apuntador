@@ -1,0 +1,23 @@
+PackageIdentifier: Apuntador.Apuntador
+PackageVersion: {{VERSION}}
+MinimumOSVersion: 10.0.0.0
+InstallModes:
+  - interactive
+  - silent
+  - silentWithProgress
+InstallerSwitches:
+  Silent: /quiet
+  SilentWithProgress: /passive
+UpgradeBehavior: install
+FileExtensions:
+  - md
+  - txt
+Installers:
+  - Architecture: x64
+    InstallerType: wix
+    InstallerUrl: {{INSTALLER_URL}}
+    InstallerSha256: {{SHA256}}
+    ProductCode: '{{PRODUCT_CODE}}'
+    Scope: machine
+ManifestType: installer
+ManifestVersion: 1.6.0
