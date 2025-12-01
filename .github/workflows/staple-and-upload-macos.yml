@@ -141,10 +141,10 @@ jobs:
         run: |
           set +e  # Don't exit immediately on error so we can capture it
           
-          echo "📀 Mounting DMG..."
+          echo "📀 Preparing DMG for stapling..."
           DMG_PATH="${{ env.DMG_PATH }}"
           
-          echo "DMG file: $DMG_PATH"
+          echo "Original DMG: $DMG_PATH"
           ls -lh "$DMG_PATH"
           
           # Verify hdiutil is available
@@ -152,69 +152,61 @@ jobs:
           echo "Checking hdiutil availability..."
           if ! command -v hdiutil &> /dev/null; then
             echo "❌ hdiutil command not found!"
-            echo "PATH: $PATH"
-            echo "Available commands:"
-            ls -la /usr/bin/ | grep -i disk || true
             exit 1
           fi
           
-          hdiutil version
-          
-          # Mount the DMG (capture both stdout and stderr)
-          # Use echo "Y" to auto-accept the license agreement in CI
+          # Convert DMG to read-write format
           echo ""
-          echo "Attempting to mount (auto-accepting license)..."
-          MOUNT_OUTPUT=$(echo "Y" | hdiutil attach "$DMG_PATH" -nobrowse 2>&1)
+          echo "🔄 Converting DMG to read-write format..."
+          DMG_RW="${DMG_PATH%.dmg}-rw.dmg"
+          hdiutil convert "$DMG_PATH" -format UDRW -o "$DMG_RW"
+          
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to convert DMG to read-write"
+            exit 1
+          fi
+          
+          echo "✅ Converted to: $DMG_RW"
+          ls -lh "$DMG_RW"
+          
+          # Mount the read-write DMG (auto-accept license)
+          echo ""
+          echo "📀 Mounting read-write DMG (auto-accepting license)..."
+          MOUNT_OUTPUT=$(echo "Y" | hdiutil attach "$DMG_RW" -nobrowse 2>&1)
           MOUNT_EXIT=$?
           
           echo "Exit code: $MOUNT_EXIT"
-          echo "Full output:"
-          echo "----------------------------------------"
-          echo "$MOUNT_OUTPUT"
-          echo "----------------------------------------"
           
           if [ $MOUNT_EXIT -ne 0 ]; then
-            echo ""
             echo "❌ Failed to mount DMG"
-            echo ""
-            echo "Trying to get more info about the DMG file..."
-            file "$DMG_PATH"
-            echo ""
-            echo "DMG file details:"
-            hdiutil imageinfo "$DMG_PATH" || echo "Could not get imageinfo"
+            echo "$MOUNT_OUTPUT"
             exit 1
           fi
           
-          # Find the mounted volume - try multiple methods
+          # Find the mounted volume
           VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | grep "/Volumes" | awk '{print $NF}')
           
           if [ -z "$VOLUME_PATH" ]; then
-            # Alternative: search in hdiutil info
             VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
           fi
           
           if [ -z "$VOLUME_PATH" ]; then
             echo "❌ Failed to find mounted volume"
-            echo "Current mounts:"
-            hdiutil info
-            echo ""
-            echo "Volumes directory:"
-            ls -la /Volumes/
             exit 1
           fi
           
           echo "✅ Mounted at: $VOLUME_PATH"
           
           # Find the .app bundle
-          echo "Searching for .app bundle..."
+          echo ""
+          echo "🔍 Searching for .app bundle..."
           ls -la "$VOLUME_PATH"
           
           APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d -maxdepth 2 | head -1)
           
           if [ -z "$APP_PATH" ]; then
             echo "❌ No .app bundle found in DMG"
-            echo "Contents of volume:"
-            find "$VOLUME_PATH" -type d
+            hdiutil detach "$VOLUME_PATH" || true
             exit 1
           fi
           
@@ -275,11 +267,33 @@ jobs:
           echo ""
           echo "✅ Ticket stapled successfully!"
           
-          # Unmount (changes are saved automatically)
+          # Unmount the read-write DMG
+          echo ""
           echo "📤 Unmounting DMG..."
           hdiutil detach "$VOLUME_PATH"
           
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to unmount DMG"
+            exit 1
+          fi
+          
+          # Convert back to compressed format
+          echo ""
+          echo "🗜️  Converting DMG back to compressed format..."
+          DMG_FINAL="${DMG_PATH%.dmg}-notarized.dmg"
+          hdiutil convert "$DMG_RW" -format UDZO -o "$DMG_FINAL"
+          
+          if [ $? -ne 0 ]; then
+            echo "❌ Failed to convert DMG to compressed format"
+            exit 1
+          fi
+          
+          # Replace original DMG with notarized version
+          mv "$DMG_FINAL" "$DMG_PATH"
+          rm -f "$DMG_RW"
+          
           echo "✅ DMG updated with stapled ticket"
+          ls -lh "$DMG_PATH"
 
       - name: Verify DMG signature and notarization
         run: |
