@@ -110,6 +110,30 @@ jobs:
           echo ""
           echo "✅ Notarization status: Accepted"
           echo "Ready to staple!"
+          
+          # Wait a bit for CloudKit to sync the ticket
+          echo ""
+          echo "⏳ Waiting 30 seconds for ticket to sync to CloudKit..."
+          sleep 30
+
+      - name: Verify ticket availability
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          echo "🔍 Checking if notarization ticket is available..."
+          DMG_PATH="${{ env.DMG_PATH }}"
+          
+          # Try to get ticket info
+          echo "Checking ticket status with notarytool..."
+          xcrun notarytool info "${{ env.SUBMISSION_ID }}" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID"
+          
+          echo ""
+          echo "✅ Ticket information retrieved successfully"
 
       - name: Mount DMG and staple ticket
         shell: bash
@@ -195,14 +219,42 @@ jobs:
           
           echo "✅ Found app: $APP_PATH"
           
-          # Staple the notarization ticket
+          # Staple the notarization ticket with retries
           echo ""
           echo "📌 Stapling notarization ticket..."
-          xcrun stapler staple "$APP_PATH"
-          STAPLE_EXIT=$?
+          
+          MAX_RETRIES=3
+          RETRY_DELAY=30
+          STAPLE_EXIT=1
+          
+          for i in $(seq 1 $MAX_RETRIES); do
+            echo "Attempt $i/$MAX_RETRIES..."
+            
+            xcrun stapler staple "$APP_PATH" 2>&1 | tee /tmp/staple_output.txt
+            STAPLE_EXIT=$?
+            
+            if [ $STAPLE_EXIT -eq 0 ]; then
+              echo "✅ Stapling successful!"
+              break
+            fi
+            
+            # Check if it's a "Record not found" error
+            if grep -q "Record not found" /tmp/staple_output.txt; then
+              if [ $i -lt $MAX_RETRIES ]; then
+                echo "⚠️  Ticket not yet available in CloudKit, waiting ${RETRY_DELAY}s..."
+                sleep $RETRY_DELAY
+              else
+                echo "❌ Ticket still not available after $MAX_RETRIES attempts"
+              fi
+            else
+              # Different error, don't retry
+              echo "❌ Stapling failed with different error"
+              break
+            fi
+          done
           
           if [ $STAPLE_EXIT -ne 0 ]; then
-            echo "❌ Failed to staple ticket"
+            echo "❌ Failed to staple ticket after $MAX_RETRIES attempts"
             hdiutil detach "$VOLUME_PATH" || true
             exit 1
           fi
