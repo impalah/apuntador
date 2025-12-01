@@ -138,6 +138,11 @@ jobs:
 
       - name: Mount DMG and staple ticket
         shell: bash
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SUBMISSION_ID: ${{ inputs.submission_id }}
         run: |
           set +e  # Don't exit immediately on error so we can capture it
           
@@ -211,6 +216,55 @@ jobs:
           fi
           
           echo "✅ Found app: $APP_PATH"
+          
+          # Extensive diagnostics before stapling
+          echo ""
+          echo "🔍 === DIAGNOSTIC INFORMATION ==="
+          echo ""
+          
+          echo "1️⃣ App bundle signature info:"
+          codesign -dvvv "$APP_PATH" 2>&1 | head -20
+          
+          echo ""
+          echo "2️⃣ App bundle executable hash:"
+          EXECUTABLE="$APP_PATH/Contents/MacOS/Apuntador"
+          if [ -f "$EXECUTABLE" ]; then
+            echo "Executable: $EXECUTABLE"
+            shasum -a 256 "$EXECUTABLE"
+          else
+            echo "⚠️  Executable not found at expected path"
+            find "$APP_PATH/Contents/MacOS" -type f
+          fi
+          
+          echo ""
+          echo "3️⃣ Check if app is already notarized:"
+          spctl -a -vv "$APP_PATH" 2>&1 || echo "Not notarized or rejected"
+          
+          echo ""
+          echo "4️⃣ Check for existing stapled ticket:"
+          xcrun stapler validate "$APP_PATH" 2>&1 || echo "No ticket stapled yet (expected)"
+          
+          echo ""
+          echo "5️⃣ Notarization submission details:"
+          echo "Submission ID: $SUBMISSION_ID"
+          
+          echo ""
+          echo "6️⃣ Try to get notarization log:"
+          xcrun notarytool log "$SUBMISSION_ID" \
+            --apple-id "$APPLE_ID" \
+            --password "$APPLE_APP_SPECIFIC_PASSWORD" \
+            --team-id "$APPLE_TEAM_ID" \
+            /tmp/notarization.log 2>&1 || echo "Could not retrieve log"
+          
+          if [ -f /tmp/notarization.log ]; then
+            echo ""
+            echo "7️⃣ Notarization log contents:"
+            cat /tmp/notarization.log
+          fi
+          
+          echo ""
+          echo "=== END DIAGNOSTICS ==="
+          echo ""
           
           # Staple the notarization ticket with retries
           echo ""
