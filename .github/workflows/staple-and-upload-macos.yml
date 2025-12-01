@@ -112,27 +112,52 @@ jobs:
           echo "Ready to staple!"
 
       - name: Mount DMG and staple ticket
+        shell: bash
         run: |
+          set +e  # Don't exit immediately on error so we can capture it
+          
           echo "📀 Mounting DMG..."
           DMG_PATH="${{ env.DMG_PATH }}"
           
           echo "DMG file: $DMG_PATH"
           ls -lh "$DMG_PATH"
           
-          # Mount the DMG (without -quiet to see errors)
+          # Verify hdiutil is available
+          echo ""
+          echo "Checking hdiutil availability..."
+          if ! command -v hdiutil &> /dev/null; then
+            echo "❌ hdiutil command not found!"
+            echo "PATH: $PATH"
+            echo "Available commands:"
+            ls -la /usr/bin/ | grep -i disk || true
+            exit 1
+          fi
+          
+          hdiutil version
+          
+          # Mount the DMG (capture both stdout and stderr)
+          echo ""
           echo "Attempting to mount..."
           MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" -nobrowse 2>&1)
           MOUNT_EXIT=$?
           
+          echo "Exit code: $MOUNT_EXIT"
+          echo "Full output:"
+          echo "----------------------------------------"
+          echo "$MOUNT_OUTPUT"
+          echo "----------------------------------------"
+          
           if [ $MOUNT_EXIT -ne 0 ]; then
+            echo ""
             echo "❌ Failed to mount DMG"
-            echo "Exit code: $MOUNT_EXIT"
-            echo "Output: $MOUNT_OUTPUT"
+            echo ""
+            echo "Trying to get more info about the DMG file..."
+            file "$DMG_PATH"
+            echo ""
+            echo "DMG file details:"
+            hdiutil imageinfo "$DMG_PATH" || echo "Could not get imageinfo"
             exit 1
           fi
-          
-          echo "Mount output:"
-          echo "$MOUNT_OUTPUT"
           
           # Find the mounted volume - try multiple methods
           VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | grep "/Volumes" | awk '{print $NF}')
@@ -173,11 +198,25 @@ jobs:
           echo ""
           echo "📌 Stapling notarization ticket..."
           xcrun stapler staple "$APP_PATH"
+          STAPLE_EXIT=$?
+          
+          if [ $STAPLE_EXIT -ne 0 ]; then
+            echo "❌ Failed to staple ticket"
+            hdiutil detach "$VOLUME_PATH" || true
+            exit 1
+          fi
           
           # Verify stapling
           echo ""
           echo "✅ Verifying stapled ticket..."
           xcrun stapler validate "$APP_PATH"
+          VALIDATE_EXIT=$?
+          
+          if [ $VALIDATE_EXIT -ne 0 ]; then
+            echo "❌ Failed to validate stapled ticket"
+            hdiutil detach "$VOLUME_PATH" || true
+            exit 1
+          fi
           
           echo ""
           echo "✅ Ticket stapled successfully!"
