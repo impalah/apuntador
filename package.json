@@ -1,7 +1,7 @@
 {
   "name": "apuntador",
   "private": true,
-  "version": "1.1.84",
+  "version": "1.1.85",
   "type": "module",
   "description": "Modular teleprompter platform with interchangeable components - built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
