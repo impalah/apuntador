@@ -116,36 +116,66 @@ jobs:
           echo "📀 Mounting DMG..."
           DMG_PATH="${{ env.DMG_PATH }}"
           
-          # Mount the DMG
-          hdiutil attach "$DMG_PATH" -nobrowse -quiet
+          echo "DMG file: $DMG_PATH"
+          ls -lh "$DMG_PATH"
           
-          # Find the mounted volume
-          VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | awk '{print $NF}')
+          # Mount the DMG (without -quiet to see errors)
+          echo "Attempting to mount..."
+          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" -nobrowse 2>&1)
+          MOUNT_EXIT=$?
+          
+          if [ $MOUNT_EXIT -ne 0 ]; then
+            echo "❌ Failed to mount DMG"
+            echo "Exit code: $MOUNT_EXIT"
+            echo "Output: $MOUNT_OUTPUT"
+            exit 1
+          fi
+          
+          echo "Mount output:"
+          echo "$MOUNT_OUTPUT"
+          
+          # Find the mounted volume - try multiple methods
+          VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | grep "/Volumes" | awk '{print $NF}')
+          
+          if [ -z "$VOLUME_PATH" ]; then
+            # Alternative: search in hdiutil info
+            VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
+          fi
           
           if [ -z "$VOLUME_PATH" ]; then
             echo "❌ Failed to find mounted volume"
+            echo "Current mounts:"
             hdiutil info
+            echo ""
+            echo "Volumes directory:"
+            ls -la /Volumes/
             exit 1
           fi
           
           echo "✅ Mounted at: $VOLUME_PATH"
           
           # Find the .app bundle
-          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d | head -1)
+          echo "Searching for .app bundle..."
+          ls -la "$VOLUME_PATH"
+          
+          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d -maxdepth 2 | head -1)
           
           if [ -z "$APP_PATH" ]; then
             echo "❌ No .app bundle found in DMG"
-            ls -la "$VOLUME_PATH"
+            echo "Contents of volume:"
+            find "$VOLUME_PATH" -type d
             exit 1
           fi
           
           echo "✅ Found app: $APP_PATH"
           
           # Staple the notarization ticket
+          echo ""
           echo "📌 Stapling notarization ticket..."
           xcrun stapler staple "$APP_PATH"
           
           # Verify stapling
+          echo ""
           echo "✅ Verifying stapled ticket..."
           xcrun stapler validate "$APP_PATH"
           
@@ -154,7 +184,7 @@ jobs:
           
           # Unmount (changes are saved automatically)
           echo "📤 Unmounting DMG..."
-          hdiutil detach "$VOLUME_PATH" -quiet
+          hdiutil detach "$VOLUME_PATH"
           
           echo "✅ DMG updated with stapled ticket"
 
@@ -164,10 +194,18 @@ jobs:
           DMG_PATH="${{ env.DMG_PATH }}"
           
           # Mount again to verify
-          hdiutil attach "$DMG_PATH" -nobrowse -quiet
-          VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | awk '{print $NF}')
-          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d | head -1)
+          echo "Mounting DMG for verification..."
+          hdiutil attach "$DMG_PATH" -nobrowse
           
+          VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
+          if [ -z "$VOLUME_PATH" ]; then
+            VOLUME_PATH=$(ls -d /Volumes/Apuntador* 2>/dev/null | head -1)
+          fi
+          
+          APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d -maxdepth 2 | head -1)
+          
+          echo "App path: $APP_PATH"
+          echo ""
           echo "Verifying code signature..."
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
           
@@ -179,7 +217,7 @@ jobs:
           echo "Checking Gatekeeper assessment..."
           spctl -a -vv "$APP_PATH"
           
-          hdiutil detach "$VOLUME_PATH" -quiet
+          hdiutil detach "$VOLUME_PATH"
           
           echo ""
           echo "✅ All verifications passed!"

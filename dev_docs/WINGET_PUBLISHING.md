@@ -129,7 +129,7 @@ git push origin main
    ```
    New package: Apuntador.Apuntador version 1.1.76
    ```
-5. Descripción (opcional):
+5. Descripción:
    ```markdown
    ## Apuntador - Professional Teleprompter
    
@@ -140,8 +140,29 @@ git push origin main
    - MIT License
    - Homepage: https://apuntador.io
    - GitHub: https://github.com/impalah/apuntador
+   
+   ---
+   
+   **Checklist:**
+   - [x] CLA signed at https://cla.opensource.microsoft.com/microsoft/winget-pkgs
+   - [x] No linked issue (new package submission)
+   - [x] No other open PRs for this package (verified)
+   - [x] Only modifies one manifest (Apuntador.Apuntador v1.1.76)
+   - [x] Manifests generated from official Tauri build
+   - [x] Conforms to schema 1.6.0
    ```
 6. Haz clic en **Create pull request**
+
+### Paso 5.1: Firmar el CLA (Solo Primera Vez)
+
+Cuando crees el PR, un bot te pedirá firmar el **Contributor License Agreement (CLA)**:
+
+1. El bot comentará en tu PR con un enlace
+2. Haz clic en el enlace: https://cla.opensource.microsoft.com/microsoft/winget-pkgs
+3. Firma con tu cuenta de GitHub
+4. El bot actualizará el PR automáticamente como "✅ CLA signed"
+
+**Importante:** Solo necesitas hacer esto **una vez**. Futuras contribuciones no requerirán firmar de nuevo.
 
 ### Paso 6: Esperar Validación Automática
 
@@ -429,8 +450,11 @@ winget install Apuntador.Apuntador
 - [ ] Hacer fork de `microsoft/winget-pkgs`
 - [ ] Crear estructura: `manifests/a/Apuntador/Apuntador/X.X.X/`
 - [ ] Copiar los 3 archivos YAML
+- [ ] **IMPORTANTE: Firmar CLA de Microsoft** (https://cla.opensource.microsoft.com/microsoft/winget-pkgs)
 - [ ] Crear Pull Request con título: "New package: Apuntador.Apuntador version X.X.X"
-- [ ] Esperar validaciones (~5 min)
+- [ ] Marcar checklist en descripción del PR
+- [ ] Esperar validaciones automáticas (~5 min)
+- [ ] Responder al bot de CLA si es necesario
 - [ ] Esperar aprobación (~24-48h primera vez)
 - [ ] Verificar con `winget search Apuntador`
 - [ ] Actualizar web con botón ms-appinstaller://
@@ -442,6 +466,7 @@ winget install Apuntador.Apuntador
 - [ ] Crear carpeta nueva versión
 - [ ] Copiar archivos YAML
 - [ ] PR con título: "Update: Apuntador.Apuntador version X.X.X"
+- [ ] Marcar checklist en descripción del PR
 - [ ] Esperar auto-aprobación (~pocas horas)
 
 ---
