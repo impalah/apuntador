@@ -136,9 +136,10 @@ jobs:
           hdiutil version
           
           # Mount the DMG (capture both stdout and stderr)
+          # Use -autoopen to bypass license agreement in CI
           echo ""
           echo "Attempting to mount..."
-          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" -nobrowse 2>&1)
+          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" -nobrowse -noautoopen -noverify 2>&1)
           MOUNT_EXIT=$?
           
           echo "Exit code: $MOUNT_EXIT"
