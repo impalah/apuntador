@@ -121,13 +121,14 @@ jobs:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          SUBMISSION_ID: ${{ inputs.submission_id }}
         run: |
           echo "🔍 Checking if notarization ticket is available..."
           DMG_PATH="${{ env.DMG_PATH }}"
           
           # Try to get ticket info
           echo "Checking ticket status with notarytool..."
-          xcrun notarytool info "${{ env.SUBMISSION_ID }}" \
+          xcrun notarytool info "$SUBMISSION_ID" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID"
