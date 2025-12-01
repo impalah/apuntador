@@ -136,10 +136,10 @@ jobs:
           hdiutil version
           
           # Mount the DMG (capture both stdout and stderr)
-          # Use -autoopen to bypass license agreement in CI
+          # Use echo "Y" to auto-accept the license agreement in CI
           echo ""
-          echo "Attempting to mount..."
-          MOUNT_OUTPUT=$(hdiutil attach "$DMG_PATH" -nobrowse -noautoopen -noverify 2>&1)
+          echo "Attempting to mount (auto-accepting license)..."
+          MOUNT_OUTPUT=$(echo "Y" | hdiutil attach "$DMG_PATH" -nobrowse 2>&1)
           MOUNT_EXIT=$?
           
           echo "Exit code: $MOUNT_EXIT"
@@ -233,9 +233,9 @@ jobs:
           echo "🔍 Final verification of DMG..."
           DMG_PATH="${{ env.DMG_PATH }}"
           
-          # Mount again to verify
+          # Mount again to verify (auto-accept license)
           echo "Mounting DMG for verification..."
-          hdiutil attach "$DMG_PATH" -nobrowse
+          echo "Y" | hdiutil attach "$DMG_PATH" -nobrowse
           
           VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
           if [ -z "$VOLUME_PATH" ]; then
