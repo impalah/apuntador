@@ -5,9 +5,7 @@
   "identifier": "com.apuntador.teleprompter",
   "build": {
     "frontendDist": "../dist",
-    "devUrl": "http://localhost:3000",
-    "beforeDevCommand": "npm run dev",
-    "beforeBuildCommand": "npm run build"
+    "devUrl": "http://localhost:3000"
   },
   "app": {
     "withGlobalTauri": true,
