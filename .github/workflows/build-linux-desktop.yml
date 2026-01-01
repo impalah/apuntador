@@ -107,6 +107,52 @@ jobs:
       - name: Install npm dependencies
         run: npm ci
 
+      - name: Download release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Downloading release asset for tag: ${RELEASE_TAG}"
+
+          # Get the release by tag
+          RELEASE_DATA=$(curl -s -H "Authorization: token ${GITHUB_TOKEN}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/${RELEASE_TAG}")
+
+          # Extract the download URL for the ZIP asset
+          DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
+
+          if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
+            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "Available assets:"
+            echo "${RELEASE_DATA}" | jq -r '.assets[].name'
+            exit 1
+          fi
+
+          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
+            -o "release-${RELEASE_TAG}.zip" \
+            "${DOWNLOAD_URL}"
+
+          # Verify download
+          if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
+            echo "❌ Failed to download release asset"
+            exit 1
+          fi
+
+          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          ls -la "release-${RELEASE_TAG}.zip"
+
+      - name: Extract and prepare web build
+        env:
+          RELEASE_TAG: ${{ github.event.inputs.release_tag }}
+        run: |
+          echo "Extracting release-${RELEASE_TAG}.zip to dist/"
+          mkdir -p dist
+          unzip "release-${RELEASE_TAG}.zip" -d dist/
+
+          echo "Contents of dist directory:"
+          ls -la dist/
+
       - name: Create .env file
         run: |
           echo "📝 Creating .env file from secrets..."
@@ -257,33 +303,33 @@ jobs:
           VERSION: ${{ inputs.release_tag }}
         run: |
           cd artifacts
-          
+
           # Find and rename packages with consistent naming
           DEB_FILE=$(ls *.deb 2>/dev/null | head -1)
           RPM_FILE=$(ls *.rpm 2>/dev/null | head -1)
           APPIMAGE_FILE=$(ls *.AppImage 2>/dev/null | head -1)
-          
+
           if [ -n "$DEB_FILE" ]; then
             NEW_DEB="Apuntador_${VERSION}_amd64.deb"
             mv "$DEB_FILE" "$NEW_DEB"
             echo "DEB_FILENAME=$NEW_DEB" >> $GITHUB_ENV
             echo "✅ Renamed DEB: $NEW_DEB"
           fi
-          
+
           if [ -n "$RPM_FILE" ]; then
             NEW_RPM="Apuntador-${VERSION}-1.x86_64.rpm"
             mv "$RPM_FILE" "$NEW_RPM"
             echo "RPM_FILENAME=$NEW_RPM" >> $GITHUB_ENV
             echo "✅ Renamed RPM: $NEW_RPM"
           fi
-          
+
           if [ -n "$APPIMAGE_FILE" ]; then
             NEW_APPIMAGE="Apuntador_${VERSION}_amd64.AppImage"
             mv "$APPIMAGE_FILE" "$NEW_APPIMAGE"
             echo "APPIMAGE_FILENAME=$NEW_APPIMAGE" >> $GITHUB_ENV
             echo "✅ Renamed AppImage: $NEW_APPIMAGE"
           fi
-          
+
           ls -la
 
       - name: Upload Linux packages to apuntador.io S3
@@ -293,9 +339,9 @@ jobs:
           VERSION: ${{ inputs.release_tag }}
         run: |
           cd artifacts
-          
+
           echo "⬆️  Uploading Linux packages to apuntador.io..."
-          
+
           # Upload DEB
           if [ -n "$DEB_FILENAME" ] && [ -f "$DEB_FILENAME" ]; then
             echo "   Uploading DEB: $DEB_FILENAME"
@@ -304,7 +350,7 @@ jobs:
               --metadata "version=${VERSION},type=linux-deb,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "✅ DEB uploaded"
           fi
-          
+
           # Upload RPM
           if [ -n "$RPM_FILENAME" ] && [ -f "$RPM_FILENAME" ]; then
             echo "   Uploading RPM: $RPM_FILENAME"
@@ -313,7 +359,7 @@ jobs:
               --metadata "version=${VERSION},type=linux-rpm,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             echo "✅ RPM uploaded"
           fi
-          
+
           # Upload AppImage
           if [ -n "$APPIMAGE_FILENAME" ] && [ -f "$APPIMAGE_FILENAME" ]; then
             echo "   Uploading AppImage: $APPIMAGE_FILENAME"
@@ -335,9 +381,9 @@ jobs:
             echo "⚠️  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
-          
+
           echo "📝 Updating versions.json with Linux packages..."
-          
+
           # Update all three Linux package types
           jq_updated=false
           if [ -n "$DEB_FILENAME" ]; then
@@ -345,19 +391,19 @@ jobs:
             mv versions.json.tmp versions.json
             jq_updated=true
           fi
-          
+
           if [ -n "$RPM_FILENAME" ]; then
             jq --arg filename "$RPM_FILENAME" '.["linux-rpm"] = $filename' versions.json > versions.json.tmp
             mv versions.json.tmp versions.json
             jq_updated=true
           fi
-          
+
           if [ -n "$APPIMAGE_FILENAME" ]; then
             jq --arg filename "$APPIMAGE_FILENAME" '.["linux-appimage"] = $filename' versions.json > versions.json.tmp
             mv versions.json.tmp versions.json
             jq_updated=true
           fi
-          
+
           if [ "$jq_updated" = true ]; then
             echo "✅ Updated versions.json:"
             cat versions.json
@@ -477,12 +523,12 @@ jobs:
           RELEASE_TAG: ${{ inputs.releaseTag }}
         run: |
           echo "📝 Updating version in Cargo.toml to ${RELEASE_TAG}"
-          
+
           CARGO_PATH="src-tauri/Cargo.toml"
-          
+
           # Update version using sed (GNU sed)
           sed -i "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
-          
+
           echo "✅ Version updated successfully"
           echo "📋 Verifying version:"
           grep '^version = ' "$CARGO_PATH" | head -1
