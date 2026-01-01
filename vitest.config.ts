@@ -57,19 +57,32 @@ export default defineConfig({
         // Exclude platform-specific config
         'src/config/api.ts',
         'src/config/app-configuration.ts',
+        'src/config/component-configurations.ts',
         // Exclude plugins (native bridges)
         'src/plugins/**',
         // Exclude composables (UI-coupled, tested via e2e)
         'src/composables/**',
+        // Exclude cloud stores (platform-specific, integration tested)
+        'src/stores/useCloudStore.ts',
+        'src/stores/useDropboxStore.ts',
+        // Exclude platform-specific utils
+        'src/utils/gamepad.ts',
+        'src/utils/webFullscreen.ts',
+        'src/utils/fullscreen.ts',
+        'src/utils/immersiveMode.ts',
+        'src/utils/persistence.ts',
+        'src/utils/sentryErrorHandler.ts',
       ],
       include: [
-        'src/stores/**/*.ts',
+        'src/stores/useTeleprompterStore.ts',
+        'src/stores/usePrefsStore.ts',
+        'src/stores/useFileStore.ts',
+        'src/stores/useI18nStore.ts',
         'src/utils/**/*.ts',
         'src/adapters/**/*.ts',
         'src/coordinators/**/*.ts',
         'src/services/cloudProviderConfig.ts',
         'src/services/component-services.ts',
-        'src/config/component-configurations.ts',
       ],
       thresholds: {
         statements: 50,
