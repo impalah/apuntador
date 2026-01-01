@@ -9,11 +9,11 @@ vi.mock('@/utils/scrolling', () => ({
     const maxOffset = Math.max(0, contentHeight - viewportHeight)
     return Math.max(0, Math.min(offset, maxOffset))
   }),
-  AutoScroller: vi.fn().mockImplementation(() => ({
-    start: vi.fn(),
-    stop: vi.fn(),
-    setSpeed: vi.fn()
-  }))
+  AutoScroller: class {
+    start = vi.fn()
+    stop = vi.fn()
+    setSpeed = vi.fn()
+  }
 }))
 
 // Mock persistence

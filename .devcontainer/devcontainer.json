@@ -1,6 +1,6 @@
 {
   "name": "Apuntador Development (Full Stack: Node, Rust, Ionic, Tauri)",
-  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-20-bookworm",
+  "image": "mcr.microsoft.com/devcontainers/typescript-node:1-22-bookworm",
 
   "features": {
     "ghcr.io/devcontainers/features/git:1": {

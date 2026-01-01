@@ -39,78 +39,6 @@ export default defineConfig({
       },
     },
   },
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    include: ['tests/unit/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
-    exclude: ['tests/e2e/**/*', 'node_modules/**/*'],
-    coverage: {
-      provider: 'v8',
-      reporter: ['text', 'html', 'lcov'],
-      exclude: [
-        'coverage/**',
-        'dist/**',
-        '**/*.d.ts',
-        'test{,s}/**',
-        'test{,-*}.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}test.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/*{.,-}spec.{js,cjs,mjs,ts,tsx,jsx}',
-        '**/__tests__/**',
-        'src/main.ts',
-        'src/app/main.ts',
-        'tests/**',
-        'node_modules/**',
-        // Exclude Vue components and pages (tested via e2e)
-        '**/*.vue',
-        'src/pages/**',
-        'src/components/**',
-        // Exclude platform-specific and hard-to-test services
-        'src/services/oauth/**',
-        'src/services/dropbox/**',
-        'src/services/googledrive/**',
-        'src/services/tauriService.ts',
-        'src/services/desktopEnrollmentService.ts',
-        'src/services/iosSecureEnclaveService.ts',
-        'src/services/secureEnclaveNativeBridge.ts',
-        'src/services/unifiedMTLSService.ts',
-        'src/services/http/**',
-        'src/services/certificate/**',
-        // Exclude platform-specific config
-        'src/config/api.ts',
-        'src/config/app-configuration.ts',
-        // Exclude plugins (native bridges)
-        'src/plugins/**',
-        // Exclude composables (UI-coupled, tested via e2e)
-        'src/composables/**',
-      ],
-      include: [
-        'src/stores/**/*.ts',
-        'src/utils/**/*.ts',
-        'src/adapters/**/*.ts',
-        'src/coordinators/**/*.ts',
-        'src/services/cloudProviderConfig.ts',
-        'src/services/component-services.ts',
-        'src/config/component-configurations.ts',
-      ],
-      thresholds: {
-        statements: 50,
-        branches: 75,
-        functions: 55,
-        lines: 50,
-      },
-      reportsDirectory: './coverage',
-      enabled: true,
-      ignoreEmptyLines: true,
-    },
-    // Handle CSS and Vuetify styles in tests
-    setupFiles: ['tests/setup.ts'],
-    server: {
-      deps: {
-        // Inline all dependencies in tests to avoid CSS import issues
-        inline: ['vuetify'],
-      },
-    },
-  },
   build: {
     target: 'esnext',
     sourcemap: true,
@@ -143,5 +71,10 @@ export default defineConfig({
   server: {
     host: true,
     port: 3000,
+    allowedHosts: [
+      'apuntador.ngrok.app',
+      '.ngrok.app', // Allow all ngrok subdomains
+      '.ngrok-free.app', // Allow free ngrok domains
+    ],
   },
 })

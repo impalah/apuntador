@@ -4,31 +4,31 @@ import { useCloudStore } from '@/stores/useCloudStore'
 
 // Mock de los servicios
 vi.mock('@/services/dropbox/dropboxService', () => ({
-  DropboxService: vi.fn().mockImplementation(() => ({
-    isConnected: vi.fn(() => false),
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    restoreSession: vi.fn(() => Promise.resolve(false)),
-    listFiles: vi.fn(() => Promise.resolve([])),
-    downloadFile: vi.fn(),
-    uploadFile: vi.fn(),
-    deleteFile: vi.fn(),
-    getUserInfo: vi.fn(() => Promise.resolve(null)),
-  })),
+  DropboxService: class {
+    isConnected = vi.fn(() => false)
+    connect = vi.fn()
+    disconnect = vi.fn()
+    restoreSession = vi.fn(() => Promise.resolve(false))
+    listFiles = vi.fn(() => Promise.resolve([]))
+    downloadFile = vi.fn()
+    uploadFile = vi.fn()
+    deleteFile = vi.fn()
+    getUserInfo = vi.fn(() => Promise.resolve(null))
+  },
 }))
 
 vi.mock('@/services/googledrive/googleDriveService', () => ({
-  GoogleDriveService: vi.fn().mockImplementation(() => ({
-    isConnected: vi.fn(() => false),
-    connect: vi.fn(),
-    disconnect: vi.fn(),
-    restoreSession: vi.fn(() => Promise.resolve(false)),
-    listFiles: vi.fn(() => Promise.resolve([])),
-    downloadFile: vi.fn(),
-    uploadFile: vi.fn(),
-    deleteFile: vi.fn(),
-    getUserInfo: vi.fn(() => Promise.resolve(null)),
-  })),
+  GoogleDriveService: class {
+    isConnected = vi.fn(() => false)
+    connect = vi.fn()
+    disconnect = vi.fn()
+    restoreSession = vi.fn(() => Promise.resolve(false))
+    listFiles = vi.fn(() => Promise.resolve([]))
+    downloadFile = vi.fn()
+    uploadFile = vi.fn()
+    deleteFile = vi.fn()
+    getUserInfo = vi.fn(() => Promise.resolve(null))
+  },
 }))
 
 vi.mock('@/services/tauriService', () => ({

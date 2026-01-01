@@ -45,7 +45,7 @@ export function measureText(
   // Use RegExp.exec for better control
   const fontSizeRegex = /\b(\d+(?:\.\d+)?)px\b/
   const fontSizeMatch = fontSizeRegex.exec(font)
-  const fontSize = fontSizeMatch ? Number.parseFloat(fontSizeMatch[1]) : 16
+  const fontSize = fontSizeMatch?.[1] ? Number.parseFloat(fontSizeMatch[1]) : 16
   const height = fontSize * 1.2 // Approximate line height
 
   return { width, height }

@@ -27,18 +27,18 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
    */
   protected async saveTokens(accessToken: string, refreshToken?: string): Promise<void> {
     console.log('💾 GoogleDriveService: Saving tokens to storage...')
-    
+
     await storage.set(STORAGE_KEYS.GOOGLEDRIVE_TOKEN, accessToken)
-    
+
     if (refreshToken) {
       await storage.set(STORAGE_KEYS.GOOGLEDRIVE_REFRESH_TOKEN, refreshToken)
     }
-    
+
     // Verificar que se guardó
     const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
     console.log('✅ GoogleDriveService: Tokens saved and verified:', {
       saved: !!savedToken,
-      matches: savedToken === accessToken
+      matches: savedToken === accessToken,
     })
   }
 
@@ -62,18 +62,18 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
    */
   async disconnect(): Promise<void> {
     console.log('🔌 GoogleDriveService: Disconnecting...')
-    
+
     this.accessToken = null
-    
+
     // Limpiar tokens usando el sistema de persistencia
     await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
     await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_REFRESH_TOKEN)
-    
+
     // Limpiar state de OAuth
     localStorage.removeItem('googledrive_oauth_state')
-    
+
     console.log('👋 GoogleDriveService: Disconnected successfully')
-    
+
     // Mostrar mensaje de éxito
     this.successHandler.showCloudSuccess('disconnect')
   }
@@ -84,12 +84,12 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
   isConnected(): boolean {
     // Verificar si hay token en memoria
     const result = !!this.accessToken
-    
+
     console.log('🔍 GoogleDriveService isConnected():', {
       hasAccessToken: !!this.accessToken,
-      result
+      result,
     })
-    
+
     return result
   }
 
@@ -98,7 +98,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
    */
   async initialize(): Promise<void> {
     console.log('🔄 GoogleDriveService: Initializing...')
-    
+
     const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
     if (savedToken) {
       this.accessToken = savedToken
@@ -114,13 +114,16 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
   async restoreSession(): Promise<boolean> {
     try {
       const token = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
-      console.log('🔄 GoogleDriveService: Attempting to restore session with token:', token ? 'PRESENT' : 'NONE')
+      console.log(
+        '🔄 GoogleDriveService: Attempting to restore session with token:',
+        token ? 'PRESENT' : 'NONE'
+      )
       console.log('🔍 GoogleDriveService: Storage inspection:', {
         tokenKey: STORAGE_KEYS.GOOGLEDRIVE_TOKEN,
         tokenFound: !!token,
-        tokenLength: token?.length || 0
+        tokenLength: token?.length || 0,
       })
-      
+
       if (!token) {
         console.log('❌ GoogleDriveService: No token found in storage')
         return false
@@ -128,26 +131,25 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
 
       // Establecer token en memoria
       this.accessToken = token
-      
+
       console.log('🔧 GoogleDriveService: Token set, testing validity...')
-      
+
       // Verificar que el token funciona llamando a getUserInfo
       console.log('🔄 GoogleDriveService: Testing token with user info call...')
-      
+
       // Small delay to ensure token is active on Google servers
       console.log('⏳ GoogleDriveService: Waiting 1 second for token to become active...')
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+
       await this.getUserInfo()
       console.log('✅ GoogleDriveService: Session restored successfully')
       return true
-      
     } catch (error) {
       console.error('❌ GoogleDriveService: Error restoring session:', error)
-      
+
       // Solo borrar token si es un error de autenticación específico
       let shouldClearToken = false
-      
+
       if (error && typeof error === 'object') {
         // Borrar token solo si es un error de token inválido/expirado
         if ('status' in error && (error.status === 401 || error.status === 400)) {
@@ -162,12 +164,12 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
         // Error desconocido, ser conservador y mantener token
         console.log('❓ GoogleDriveService: Unknown error, keeping token for retry...')
       }
-      
+
       if (shouldClearToken) {
         await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
         await storage.remove(STORAGE_KEYS.GOOGLEDRIVE_REFRESH_TOKEN)
       }
-      
+
       this.accessToken = null
       return false
     }
@@ -182,18 +184,20 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     try {
       // Tratar cadena vacía como 'root'
       const targetPath = !path || path === 'root' ? 'root' : path
-      
+
       // Query para buscar archivos de markdown y carpetas en la ubicación especificada
-      const query = targetPath === 'root' 
-        ? "'root' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false"
-        : `'${targetPath}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
+      const query =
+        targetPath === 'root'
+          ? "'root' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false"
+          : `'${targetPath}' in parents and (mimeType='text/markdown' or mimeType='text/plain' or mimeType='application/vnd.google-apps.folder') and trashed=false`
 
       const response = await fetch(
-        `${GOOGLE_API_URLS.drive}/files?` + new URLSearchParams({
-          q: query,
-          fields: 'files(id,name,mimeType,size,modifiedTime,parents)',
-          orderBy: 'folder,name'
-        }),
+        `${GOOGLE_API_URLS.drive}/files?` +
+          new URLSearchParams({
+            q: query,
+            fields: 'files(id,name,mimeType,size,modifiedTime,parents)',
+            orderBy: 'folder,name',
+          }),
         {
           headers: {
             Authorization: `Bearer ${this.accessToken}`,
@@ -206,7 +210,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
       }
 
       const data = await response.json()
-      
+
       return data.files.map((file: any) => ({
         id: file.id,
         name: file.name,
@@ -228,24 +232,21 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     await this.ensureToken()
 
     try {
-      const response = await fetch(
-        `${GOOGLE_API_URLS.drive}/files/${fileId}?alt=media`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        }
-      )
+      const response = await fetch(`${GOOGLE_API_URLS.drive}/files/${fileId}?alt=media`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to download file: ${response.statusText}`)
       }
 
       const content = await response.text()
-      
+
       // Mostrar mensaje de éxito
       this.successHandler.showCloudSuccess('download')
-      
+
       return content
     } catch (error) {
       this.errorHandler.handleCloudError(error, 'download', { provider: 'googledrive', fileId })
@@ -264,17 +265,17 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
       // - Solo el nombre del archivo: "file.md" → guarda en root
       // - ID de carpeta/nombre: "folderId/file.md" → guarda en esa carpeta
       // - Solo ID de carpeta: "folderId" → error, necesita nombre
-      
+
       const parts = path.split('/')
-      const fileName = parts.at(-1) || 'untitled.md'
-      const parentFolderId = parts.length > 1 ? parts.at(-2) : null
-      
+      const fileName = parts[parts.length - 1] || 'untitled.md'
+      const parentFolderId = parts.length > 1 ? parts[parts.length - 2] : null
+
       // Metadata del archivo
       const metadata: any = {
         name: fileName,
         mimeType: 'text/markdown',
       }
-      
+
       // Si hay un parent folder ID, incluirlo en metadata
       if (parentFolderId && parentFolderId !== 'root') {
         metadata.parents = [parentFolderId]
@@ -294,24 +295,21 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
         content +
         closeDelimiter
 
-      const response = await fetch(
-        `${GOOGLE_API_URLS.upload}/files?uploadType=multipart`,
-        {
-          method: 'POST',
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-            'Content-Type': `multipart/related; boundary=${boundary}`,
-          },
-          body: multipartRequestBody,
-        }
-      )
+      const response = await fetch(`${GOOGLE_API_URLS.upload}/files?uploadType=multipart`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+          'Content-Type': `multipart/related; boundary=${boundary}`,
+        },
+        body: multipartRequestBody,
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to upload file: ${response.statusText}`)
       }
 
       const data = await response.json()
-      
+
       const result: CloudFile = {
         id: data.id,
         name: data.name,
@@ -320,10 +318,10 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
         modified: new Date(data.modifiedTime),
         isFolder: false,
       }
-      
+
       // Mostrar mensaje de éxito
       this.successHandler.showCloudSuccess('upload')
-      
+
       return result
     } catch (error) {
       this.errorHandler.handleCloudError(error, 'upload', { provider: 'googledrive', path })
@@ -338,22 +336,19 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     await this.ensureToken()
 
     try {
-      const response = await fetch(
-        `${GOOGLE_API_URLS.drive}/files/${fileId}`,
-        {
-          method: 'DELETE',
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        }
-      )
+      const response = await fetch(`${GOOGLE_API_URLS.drive}/files/${fileId}`, {
+        method: 'DELETE',
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to delete file: ${response.statusText}`)
       }
 
       console.log('✅ GoogleDrive Service: File deleted successfully')
-      
+
       // Mostrar mensaje de éxito
       this.successHandler.showCloudSuccess('delete')
     } catch (error) {
@@ -369,21 +364,18 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     await this.ensureToken()
 
     try {
-      const response = await fetch(
-        `${GOOGLE_API_URLS.drive}/about?fields=user`,
-        {
-          headers: {
-            Authorization: `Bearer ${this.accessToken}`,
-          },
-        }
-      )
+      const response = await fetch(`${GOOGLE_API_URLS.drive}/about?fields=user`, {
+        headers: {
+          Authorization: `Bearer ${this.accessToken}`,
+        },
+      })
 
       if (!response.ok) {
         throw new Error(`Failed to get user info: ${response.statusText}`)
       }
 
       const data = await response.json()
-      
+
       return {
         name: data.user.displayName,
         email: data.user.emailAddress,
@@ -392,7 +384,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
       // Este error es silencioso - no es crítico para el usuario
       this.errorHandler.handle(error, {
         severity: 'silent',
-        context: { provider: 'googledrive', operation: 'getUserInfo' }
+        context: { provider: 'googledrive', operation: 'getUserInfo' },
       })
       throw error
     }

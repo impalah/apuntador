@@ -1,11 +1,11 @@
-@import './variables.scss';
+@use './variables.scss' as *;
 
 // Global styles
 * {
   box-sizing: border-box;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer and Edge */
-  
+
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
     width: 0;
@@ -20,7 +20,7 @@ html {
   -moz-osx-font-smoothing: grayscale;
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer and Edge */
-  
+
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
     width: 0;
@@ -37,7 +37,7 @@ body {
   overflow: hidden; // Prevent scrollbars on teleprompter
   scrollbar-width: none; /* Firefox */
   -ms-overflow-style: none; /* Internet Explorer and Edge */
-  
+
   &::-webkit-scrollbar {
     display: none; /* Chrome, Safari, and Opera */
     width: 0;

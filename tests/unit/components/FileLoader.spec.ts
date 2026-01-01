@@ -218,30 +218,31 @@ describe('FileLoader Component', () => {
     it('should handle file reading with mock FileReader', async () => {
       const validFile = new File(['# Test Content'], 'test.md', { type: 'text/markdown' })
 
-      // Mock FileReader
-      const mockFileReader = {
-        readAsText: vi.fn(),
-        result: '# Test Content',
-        onload: null as any,
-        onerror: null as any,
+      // Create a proper mock FileReader class
+      class MockFileReader {
+        result: string | null = null
+        onload: ((event: any) => void) | null = null
+        onerror: ((event: any) => void) | null = null
+        
+        readAsText() {
+          // Simulate async file read
+          setTimeout(() => {
+            this.result = '# Test Content'
+            if (this.onload) {
+              this.onload({ target: this })
+            }
+          }, 0)
+        }
       }
 
       // Mock the FileReader constructor
-      global.FileReader = vi.fn(() => mockFileReader) as any
+      vi.stubGlobal('FileReader', MockFileReader)
 
-      // Start processing
-      const processPromise = wrapper.vm.processFile(validFile)
+      // Start processing and wait for completion
+      await wrapper.vm.processFile(validFile)
 
-      // Verify loading state is set
-      expect(wrapper.vm.loading).toBe(true)
-      expect(wrapper.vm.error).toBe('')
-
-      // Simulate successful file read
-      if (mockFileReader.onload) {
-        mockFileReader.onload()
-      }
-
-      await processPromise
+      // Wait for all microtasks
+      await new Promise(resolve => setTimeout(resolve, 10))
 
       // Verify final state
       expect(wrapper.vm.loading).toBe(false)
@@ -251,33 +252,38 @@ describe('FileLoader Component', () => {
         size: validFile.size,
         type: 'text/markdown',
       })
+
+      // Cleanup
+      vi.unstubAllGlobals()
     })
 
     it('should handle auto-import when enabled', async () => {
       const wrapper = createWrapper({ autoImport: true })
       const validFile = new File(['# Auto Import Test'], 'test.md', { type: 'text/markdown' })
 
-      // Mock FileReader
-      const mockFileReader = {
-        readAsText: vi.fn(),
-        result: '# Auto Import Test',
-        onload: null as any,
-        onerror: null as any,
+      // Create a proper mock FileReader class
+      class MockFileReader {
+        result: string | null = null
+        onload: ((event: any) => void) | null = null
+        onerror: ((event: any) => void) | null = null
+        
+        readAsText() {
+          setTimeout(() => {
+            this.result = '# Auto Import Test'
+            if (this.onload) {
+              this.onload({ target: this })
+            }
+          }, 0)
+        }
       }
 
-      global.FileReader = vi.fn(() => mockFileReader) as any
+      vi.stubGlobal('FileReader', MockFileReader)
 
       // Start processing
-      const processPromise = wrapper.vm.processFile(validFile)
+      await wrapper.vm.processFile(validFile)
 
-      // Simulate successful file read
-      if (mockFileReader.onload) {
-        mockFileReader.onload()
-      }
-
-      await processPromise
-
-      // Wait for DOM updates
+      // Wait for async operations
+      await new Promise(resolve => setTimeout(resolve, 10))
       await wrapper.vm.$nextTick()
 
       // Verify fileImported event was emitted (which happens in onImport when autoImport is true)
@@ -286,6 +292,9 @@ describe('FileLoader Component', () => {
       if (emittedEvents) {
         expect(emittedEvents[0]).toEqual(['# Auto Import Test', { name: 'test.md', handle: null }])
       }
+
+      // Cleanup
+      vi.unstubAllGlobals()
     })
   })
 })

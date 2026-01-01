@@ -35,7 +35,10 @@ export const useI18nStore = defineStore('i18n', () => {
     const languages = ['es-ES', 'en-US']
     const currentIndex = languages.indexOf(currentLanguage.value)
     const nextIndex = (currentIndex + 1) % languages.length
-    changeLanguage(languages[nextIndex])
+    const nextLang = languages[nextIndex]
+    if (nextLang) {
+      changeLanguage(nextLang)
+    }
   }
 
   function detectBrowserLanguage() {

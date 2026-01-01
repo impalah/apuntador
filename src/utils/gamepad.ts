@@ -211,6 +211,7 @@ export function useGamepad() {
     for (let buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
       const button = gamepad.buttons[buttonIndex]
       const wasPressed = prevState.buttons[buttonIndex] || false
+      if (!button) continue
       const isPressed = button.pressed
 
       // Detect button press (not release, to avoid double triggers)
@@ -230,6 +231,7 @@ export function useGamepad() {
   const checkAxes = (gamepad: Gamepad, prevState: { buttons: boolean[]; axes: number[] }) => {
     for (let axisIndex = 0; axisIndex < gamepad.axes.length; axisIndex++) {
       const currentValue = gamepad.axes[axisIndex]
+      if (currentValue === undefined) continue
       const previousValue = prevState.axes[axisIndex] || 0
 
       if (axisIndex === 9) {

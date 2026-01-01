@@ -17,12 +17,15 @@
         isPlaying: teleprompterStore.isPlaying,
         canScrollUp: teleprompterStore.scrollOffset > 0,
         canScrollDown: teleprompterStore.scrollOffset < teleprompterStore.maxOffset,
-        progress: teleprompterStore.maxOffset > 0 ? (teleprompterStore.scrollOffset / teleprompterStore.maxOffset) * 100 : 0
+        progress:
+          teleprompterStore.maxOffset > 0
+            ? (teleprompterStore.scrollOffset / teleprompterStore.maxOffset) * 100
+            : 0,
       }"
       :speed-config="{
         current: prefsStore.speedPxPerSec,
         min: prefsStore.speedMin,
-        max: prefsStore.speedMax
+        max: prefsStore.speedMax,
       }"
       :display-prefs="{
         fontFamily: prefsStore.fontFamily,
@@ -32,7 +35,7 @@
         bgColor: prefsStore.bgColor,
         mirrorH: prefsStore.mirrorH,
         mirrorV: prefsStore.mirrorV,
-        textAlignment: prefsStore.textAlignment
+        textAlignment: prefsStore.textAlignment,
       }"
       :is-visible="toolbarVisible"
       :is-minimal="isMinimalLayout"
@@ -61,26 +64,17 @@
     />
 
     <!-- Settings Dialog -->
-    <SettingsDialog 
-      v-model="settingsOpen" 
+    <SettingsDialog
+      v-model="settingsOpen"
       :initial-tab="settingsInitialTab"
-      @file-imported="onFileImported" 
+      @file-imported="onFileImported"
     />
 
     <!-- File Loader -->
-    <FileLoader 
-      v-model="fileLoaderOpen" 
-      auto-import 
-      @file-imported="onFileImported" 
-    />
+    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
 
     <!-- Android Exit Confirmation Snackbar -->
-    <v-snackbar
-      v-model="showExitSnackbar"
-      :timeout="2000"
-      color="info"
-      location="top"
-    >
+    <v-snackbar v-model="showExitSnackbar" :timeout="2000" color="info" location="top">
       {{ t('teleprompter.pressBackAgainToExit') }}
     </v-snackbar>
   </div>
@@ -189,7 +183,7 @@ watch(
       hideToolbar()
       return
     }
-    
+
     if (isPlaying) {
       // Hide toolbar during playback for clean reading experience on all devices
       hideToolbar()
@@ -240,13 +234,13 @@ function setupBackButtonHandler() {
   backButtonHandler = App.addListener('backButton', () => {
     const currentRoute = router.currentRoute.value.path
     const now = Date.now()
-    
+
     // If we're NOT on the main route (/), go to main route
     if (currentRoute !== '/') {
       router.push('/')
       return
     }
-    
+
     // We're on main route - check for double tap to exit
     if (now - lastBackPress < 2000) {
       // Double tap detected - exit app
@@ -263,7 +257,7 @@ function setupBackButtonHandler() {
 // Toast message for exit confirmation
 function showExitToast() {
   showExitSnackbar.value = true
-  
+
   // Hide snackbar after 2 seconds
   setTimeout(() => {
     showExitSnackbar.value = false
@@ -472,7 +466,7 @@ function onTeleprompterTap() {
   } else {
     showToolbar()
   }
-  
+
   // Emit custom event for backward compatibility
   const event = new CustomEvent('teleprompter-tap')
   window.dispatchEvent(event)
@@ -481,34 +475,34 @@ function onTeleprompterTap() {
 // Parse hash navigation for deep linking (e.g., /#options/cloud)
 function parseHashNavigation() {
   const hash = globalThis.location.hash
-  
+
   if (!hash || hash === '#' || hash === '#/') {
     return
   }
 
   // Remove the leading '#' or '#/'
   const path = hash.replace(/^#\/?/, '')
-  
+
   // Parse the path segments
   const segments = path.split('/')
-  
+
   // Handle different navigation patterns
   if (segments[0] === 'options' && segments.length > 1) {
     // Open settings dialog with specific tab
     const tab = segments[1]
-    settingsInitialTab.value = tab
-    
+    if (tab) {
+      settingsInitialTab.value = tab
+    }
+
     // Use nextTick to ensure the dialog opens after the tab is set
     nextTick(() => {
       settingsOpen.value = true
     })
-    
+
     // Clear the hash after processing to avoid re-triggering
     window.history.replaceState(null, '', globalThis.location.pathname)
   }
 }
-
-
 
 async function onFileImported(content: string, fileInfo?: { name: string; handle?: any }) {
   await teleprompterStore.setContent(content)
@@ -662,7 +656,7 @@ function setupGamepad() {
     padding-left: max(0px, env(safe-area-inset-left, 0px));
     padding-right: max(0px, env(safe-area-inset-right, 0px));
   }
-  
+
   /* iOS Back Button respects safe area */
   .ios-back-button {
     top: max(20px, env(safe-area-inset-top, 20px));

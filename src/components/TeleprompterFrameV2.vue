@@ -5,14 +5,19 @@
   making it completely swappable with other implementations.
 -->
 <template>
-  <div ref="containerRef" class="teleprompter-frame" :class="{ 'tauri-desktop': isTauri() }" @click="onTap">
+  <div
+    ref="containerRef"
+    class="teleprompter-frame"
+    :class="{ 'tauri-desktop': isTauri() }"
+    @click="onTap"
+  >
     <!-- DEBUG INFO - Temporary for Android debugging -->
     <!-- Debug Info Window - Controlled by environment variables -->
     <div v-if="showDebug" class="debug-info">
       <div class="debug-header">🛠️ DEBUG MODE</div>
       <div class="debug-row">
         <span class="debug-label">Status:</span>
-        <span :class="['debug-value', { 'playing': scrollState.isPlaying }]">
+        <span :class="['debug-value', { playing: scrollState.isPlaying }]">
           {{ scrollState.isPlaying ? 'PLAYING' : 'PAUSED' }}
         </span>
       </div>
@@ -30,7 +35,15 @@
       </div>
       <div class="debug-row">
         <span class="debug-label">Scroll:</span>
-        <span class="debug-value">{{ Math.round((scrollState.offset / Math.max(1, (measuredContentHeight || 1) - (viewportHeight || 1))) * 100) }}%</span>
+        <span class="debug-value"
+          >{{
+            Math.round(
+              (scrollState.offset /
+                Math.max(1, (measuredContentHeight || 1) - (viewportHeight || 1))) *
+                100
+            )
+          }}%</span
+        >
       </div>
     </div>
     <!-- Transformed content container -->
@@ -142,9 +155,9 @@ const contentStyle = computed(() => {
     viewportHeight.value * 2, // At least 2x viewport for scrolling
     measuredContentHeight.value || viewportHeight.value * 2 // Use measured or fallback
   )
-  
+
   // console.log('[ANDROID DEBUG] contentStyle computed - viewport:', viewportHeight.value, 'measured:', measuredContentHeight.value, 'minHeight:', minHeight)
-  
+
   return {
     fontSize: `${props.displayPrefs.fontSizePx}px`,
     lineHeight: props.displayPrefs.lineHeight.toString(),
@@ -300,11 +313,11 @@ watch(
     if (transformedContainerRef.value && !isScrollingSynchronizing) {
       const el = transformedContainerRef.value
       // console.log('[SCROLL SYNC] Updating DOM scrollTop from', el.scrollTop.toFixed(1), 'to', newOffset.toFixed(1))
-      
+
       // Set flag to prevent sync loop
       isScrollingSynchronizing = true
       el.scrollTop = newOffset
-      
+
       // Reset flag after a brief moment
       setTimeout(() => {
         isScrollingSynchronizing = false
@@ -366,11 +379,11 @@ function measureDimensions() {
 
   const newViewportHeight = containerRef.value.clientHeight
   const newContentHeight = contentRef.value.scrollHeight
-  
+
   // Update reactive refs for computed styles
   viewportHeight.value = newViewportHeight
   measuredContentHeight.value = newContentHeight
-  
+
   // console.log('[ANDROID DEBUG] measureDimensions - viewport:', newViewportHeight, 'content:', newContentHeight)
 
   emit('content-height-changed', newContentHeight)
@@ -384,14 +397,18 @@ function measureDimensions() {
 function onTouchStart(event: TouchEvent) {
   if (event.touches.length !== 1) return
 
-  touchStartY = event.touches[0].clientY
+  const touch = event.touches[0]
+  if (!touch) return
+  touchStartY = touch.clientY
   touchStartTime = Date.now()
 }
 
 function onTouchEnd(event: TouchEvent) {
   if (event.changedTouches.length !== 1) return
 
-  const touchEndY = event.changedTouches[0].clientY
+  const touch = event.changedTouches[0]
+  if (!touch) return
+  const touchEndY = touch.clientY
   const touchEndTime = Date.now()
   const deltaY = touchEndY - touchStartY
   const duration = touchEndTime - touchStartTime
@@ -440,14 +457,14 @@ function onManualScroll(event: Event) {
 
   const target = event.target as HTMLElement
   const scrollTop = target.scrollTop
-  
+
   // console.log('[SCROLL SYNC] Manual scroll detected:', scrollTop.toFixed(1))
-  
+
   // Debounce the scroll events to avoid too many updates
   if (scrollTimeout) {
     clearTimeout(scrollTimeout)
   }
-  
+
   scrollTimeout = window.setTimeout(() => {
     // console.log('[SCROLL SYNC] Emitting manual scroll offset:', scrollTop.toFixed(1))
     emit('manual-scroll', scrollTop)

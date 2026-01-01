@@ -102,8 +102,9 @@ function onTouchStart(event: TouchEvent) {
     // Handle case where preventDefault is not allowed (should not happen with passive: false)
     console.warn('Could not prevent default touch behavior:', e)
   }
-  
+
   const touch = event.touches[0]
+  if (!touch) return
   startDrag(touch.clientY)
 }
 
@@ -132,7 +133,9 @@ function startDrag(startY: number) {
   const onTouchMove = (event: TouchEvent) => {
     if (event.touches.length !== 1) return
     event.preventDefault()
-    onMove(event.touches[0].clientY)
+    const touch = event.touches[0]
+    if (!touch) return
+    onMove(touch.clientY)
   }
 
   const onEnd = () => {

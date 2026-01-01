@@ -68,7 +68,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'npm'
 
       - name: Setup Rust
@@ -153,12 +153,12 @@ jobs:
           RELEASE_TAG: ${{ github.event.inputs.release_tag }}
         run: |
           echo "📝 Updating version in Cargo.toml to ${RELEASE_TAG}"
-          
+
           CARGO_PATH="src-tauri/Cargo.toml"
-          
+
           # Update version using sed (macOS compatible)
           sed -i '' "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
-          
+
           echo "✅ Version updated successfully"
           echo "📋 Verifying version:"
           grep '^version = ' "$CARGO_PATH" | head -1
@@ -235,16 +235,16 @@ jobs:
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
           echo "🔐 Importing Apple Developer ID certificate..."
-          
+
           # Create temporary keychain
           KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
           KEYCHAIN_PASSWORD=$(openssl rand -base64 32)
-          
+
           # Create keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
           security set-keychain-settings -lut 21600 "$KEYCHAIN_PATH"
           security unlock-keychain -p "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          
+
           # Import certificate
           echo "$APPLE_CERTIFICATE_BASE64" | base64 --decode > certificate.p12
           security import certificate.p12 \
@@ -252,17 +252,17 @@ jobs:
             -P "$APPLE_CERTIFICATE_PASSWORD" \
             -T /usr/bin/codesign \
             -T /usr/bin/productsign
-          
+
           # Set keychain as default
           security list-keychain -d user -s "$KEYCHAIN_PATH"
           security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k "$KEYCHAIN_PASSWORD" "$KEYCHAIN_PATH"
-          
+
           # Verify certificate
           security find-identity -v -p codesigning "$KEYCHAIN_PATH"
-          
+
           # Clean up certificate file
           rm -f certificate.p12
-          
+
           echo "✅ Certificate imported successfully"
 
       - name: Sign and Notarize macOS Application
@@ -273,7 +273,7 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
           echo "🔏 Starting code signing and notarization process..."
-          
+
           # Find the .app bundle
           APP_PATH=""
           for target in universal-apple-darwin aarch64-apple-darwin x86_64-apple-darwin; do
@@ -289,16 +289,16 @@ jobs:
               fi
             done
           done
-          
+
           if [ -z "$APP_PATH" ]; then
             echo "❌ App bundle not found"
             exit 1
           fi
-          
+
           # Get signing identity
           SIGNING_IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | awk -F'"' '{print $2}')
           echo "🔑 Using signing identity: $SIGNING_IDENTITY"
-          
+
           # Sign the app bundle
           echo "📝 Signing application..."
           codesign --force --deep --sign "$SIGNING_IDENTITY" \
@@ -306,41 +306,41 @@ jobs:
             --entitlements src-tauri/entitlements.plist \
             --timestamp \
             "$APP_PATH"
-          
+
           # Verify signature
           echo "✅ Verifying signature..."
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-          
+
           # Create ZIP for notarization
           echo "📦 Creating ZIP for notarization..."
           NOTARIZE_ZIP="Apuntador-notarize.zip"
           ditto -c -k --keepParent "$APP_PATH" "$NOTARIZE_ZIP"
-          
+
           echo "📊 ZIP file size: $(du -h "$NOTARIZE_ZIP" | cut -f1)"
-          
+
           # Submit for notarization WITHOUT waiting
           echo "🚀 Submitting to Apple for notarization..."
           echo "⚠️  Apple's notarization can take 10-90+ minutes"
           echo "⚠️  We'll submit and continue without waiting to avoid GitHub Actions timeout"
-          
+
           SUBMISSION_OUTPUT=$(xcrun notarytool submit "$NOTARIZE_ZIP" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
             --output-format json \
             2>&1)
-          
+
           echo "$SUBMISSION_OUTPUT"
-          
+
           # Extract submission ID
           SUBMISSION_ID=$(echo "$SUBMISSION_OUTPUT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
-          
+
           if [ -z "$SUBMISSION_ID" ]; then
             echo "❌ Failed to get submission ID"
             echo "Output: $SUBMISSION_OUTPUT"
             exit 1
           fi
-          
+
           echo ""
           echo "════════════════════════════════════════════════════════════════"
           echo "✅ SUCCESSFULLY SUBMITTED TO APPLE NOTARIZATION SERVICE"
@@ -362,14 +362,14 @@ jobs:
           echo "⚠️  For now, we'll continue building and uploading the SIGNED (but not yet notarized) app"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
-          
+
           # Save submission ID to file for reference
           echo "$SUBMISSION_ID" > notarization-submission-id.txt
           echo "✅ Submission ID saved to notarization-submission-id.txt"
-          
+
           # Clean up ZIP (we don't need it anymore)
           rm -f "$NOTARIZE_ZIP"
-          
+
           echo "✅ Code signing completed! (Notarization submitted but not waited for)"
 
       - name: Create artifacts directory
@@ -564,15 +564,15 @@ jobs:
         run: |
           dmgPath="artifacts/installers/Apuntador-${VERSION}-macos-universal.dmg"
           targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
-          
+
           echo "⬆️  Uploading DMG to apuntador.io..."
           echo "   Source: ${dmgPath}"
           echo "   Destination: s3://${S3_BUCKET}/downloads/${targetFilename}"
-          
+
           aws s3 cp "${dmgPath}" "s3://${S3_BUCKET}/downloads/${targetFilename}" \
             --acl public-read \
             --metadata "version=${VERSION},type=macos-dmg,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          
+
           echo "✅ DMG uploaded successfully"
 
       - name: Update versions.json
@@ -582,7 +582,7 @@ jobs:
           VERSION: ${{ github.event.inputs.release_tag }}
         run: |
           targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
-          
+
           echo "⬇️  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
             echo "✅ Downloaded existing versions.json"
@@ -590,25 +590,25 @@ jobs:
             echo "⚠️  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
-          
+
           echo "📝 Updating versions.json..."
-          
+
           # macOS runners should have jq installed
           jq --arg filename "${targetFilename}" \
              '.["macos-dmg"] = $filename' \
              versions.json > versions.json.tmp
-          
+
           mv versions.json.tmp versions.json
-          
+
           echo "✅ Updated versions.json:"
           cat versions.json
-          
+
           echo "⬆️  Uploading updated versions.json..."
           aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
             --acl public-read \
             --content-type "application/json" \
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          
+
           echo "✅ versions.json updated successfully"
           echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
 

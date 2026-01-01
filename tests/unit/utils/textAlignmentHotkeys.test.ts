@@ -28,16 +28,16 @@ describe('Text Alignment Hotkeys', () => {
     const mapping = createDefaultMapping()
 
     expect(mapping['align-left']).toBeDefined()
-    expect(mapping['align-left'].key).toBe('1')
-    expect(mapping['align-left'].action).toBe('align-left')
+    expect(mapping['align-left']?.key).toBe('1')
+    expect(mapping['align-left']?.action).toBe('align-left')
 
     expect(mapping['align-center']).toBeDefined()
-    expect(mapping['align-center'].key).toBe('2')
-    expect(mapping['align-center'].action).toBe('align-center')
+    expect(mapping['align-center']?.key).toBe('2')
+    expect(mapping['align-center']?.action).toBe('align-center')
 
     expect(mapping['align-right']).toBeDefined()
-    expect(mapping['align-right'].key).toBe('3')
-    expect(mapping['align-right'].action).toBe('align-right')
+    expect(mapping['align-right']?.key).toBe('3')
+    expect(mapping['align-right']?.action).toBe('align-right')
   })
 
   it('should have correct action types', () => {

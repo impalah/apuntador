@@ -202,7 +202,10 @@ export class HotkeyManager {
     }
 
     if (keyMap[keyName]) {
-      keyName = keyMap[keyName]
+      const mappedKey = keyMap[keyName]
+      if (mappedKey) {
+        keyName = mappedKey
+      }
     } else if (keyName.length === 1) {
       keyName = keyName.toUpperCase()
     }

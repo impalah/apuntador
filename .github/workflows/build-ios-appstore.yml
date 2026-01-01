@@ -35,7 +35,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: '22.x'
           cache: 'npm'
 
       - name: Setup Xcode
@@ -152,37 +152,37 @@ jobs:
         run: |
           echo "🔍 Debugging iOS project configuration..."
           cd ios/App
-          
+
           # Check project settings
           echo "📱 Project deployment target:"
           grep -A5 -B5 "IPHONEOS_DEPLOYMENT_TARGET" App.xcodeproj/project.pbxproj | head -20
-          
+
           echo "📋 Scheme configuration:"
           xcodebuild -workspace App.xcworkspace -list
-          
+
           echo "📋 Available destinations (full):"
           xcodebuild -workspace App.xcworkspace -scheme App -showdestinations
 
-      - name: Fix iOS Scheme Configuration  
+      - name: Fix iOS Scheme Configuration
         run: |
           echo "🔧 Fixing iOS scheme configuration for archiving..."
           cd ios/App
-          
+
           # Get the actual target UUID from project.pbxproj
           echo "🔍 Finding App target UUID..."
           APP_TARGET_UUID=$(grep -A1 'targets = (' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
           echo "🎯 App target UUID: ${APP_TARGET_UUID}"
-          
+
           if [ -z "$APP_TARGET_UUID" ]; then
             echo "❌ Could not find App target UUID, using alternative method..."
             APP_TARGET_UUID=$(grep -E '\/\* App \*\/ = \{' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
             echo "🔄 Alternative UUID: ${APP_TARGET_UUID}"
           fi
-          
+
           # Check if scheme exists and is configured for archiving
           echo "📋 Creating scheme directory..."
           mkdir -p App.xcodeproj/xcshareddata/xcschemes
-          
+
           # Create a proper scheme file with correct UUID
           echo "🛠️ Creating scheme with correct target UUID..."
           cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << EOF
@@ -216,7 +216,7 @@ jobs:
              </ArchiveAction>
           </Scheme>
           EOF
-          
+
           echo "✅ Scheme created with target UUID: \${APP_TARGET_UUID}"
 
       - name: Build and Archive iOS app

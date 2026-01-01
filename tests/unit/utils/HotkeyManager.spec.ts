@@ -4,11 +4,11 @@ import type { HotkeyAction, CustomHotkeyMapping, HotkeyDefinition } from '@/type
 
 describe('HotkeyManager', () => {
   let hotkeyManager: HotkeyManager
-  let mockCallback: ReturnType<typeof vi.fn>
+  let mockCallback: () => void
 
   beforeEach(() => {
     hotkeyManager = new HotkeyManager()
-    mockCallback = vi.fn()
+    mockCallback = vi.fn() as () => void
 
     // Clear all handlers and stop listening
     hotkeyManager.clear()
@@ -111,7 +111,7 @@ describe('HotkeyManager', () => {
         },
       })
 
-      expect(hotkeyManager['customMapping']['toggle-play'].key).toBe('p')
+      expect(hotkeyManager['customMapping']['toggle-play']?.key).toBe('p')
     })
   })
 

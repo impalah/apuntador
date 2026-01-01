@@ -46,32 +46,33 @@ onMounted(async () => {
   if (isAndroid) {
     document.documentElement.classList.add('android')
     document.documentElement.dataset.android = 'true'
-    
+
     // Detect Android API level for specific fixes
     const androidMatch = navigator.userAgent.match(/Android\s+([\d.]+)/)
-    if (androidMatch) {
-      const version = androidMatch[1]
+    const version = androidMatch?.[1]
+    if (version) {
       document.documentElement.dataset.androidVersion = version
-      
+
       // Map versions to API levels (approximate)
-      const majorVersion = Number.parseInt(version.split('.')[0])
+      const versionParts = version.split('.')
+      const majorVersion = versionParts[0] ? Number.parseInt(versionParts[0]) : 0
       if (majorVersion >= 15) {
         document.documentElement.dataset.androidApi = '35'
       } else if (majorVersion >= 14) {
         document.documentElement.dataset.androidApi = '34'
       }
     }
-    
+
     // Add Capacitor-specific class if running in Capacitor
     if ((globalThis as any).Capacitor) {
       document.documentElement.classList.add('capacitor-android')
     }
-    
+
     // Debug logging - enabled for Android edge-to-edge testing
     console.log('Android device detected:', {
       userAgent: navigator.userAgent,
       isCapacitor: !!(globalThis as any).Capacitor,
-      version: androidMatch?.[1]
+      version: androidMatch?.[1],
     })
   }
 })

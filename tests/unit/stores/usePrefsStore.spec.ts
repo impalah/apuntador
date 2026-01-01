@@ -147,7 +147,7 @@ describe('usePrefsStore', () => {
         description: 'Play/Pause',
       })
 
-      expect(store.customHotkeys['toggle-play'].key).toBe('p')
+      expect(store.customHotkeys['toggle-play']?.key).toBe('p')
     })
 
     it('persists changes to localStorage', async () => {
@@ -198,7 +198,7 @@ describe('usePrefsStore', () => {
 
       // Should be back to default mapping (not empty)
       expect(Object.keys(store.customHotkeys).length).toBeGreaterThan(0)
-      expect(store.customHotkeys['toggle-play'].key).toBe(' ') // Default
+      expect(store.customHotkeys['toggle-play']?.key).toBe(' ') // Default
     })
 
     it('persists reset to localStorage', async () => {
@@ -314,7 +314,7 @@ describe('usePrefsStore', () => {
       // Should have same number of keys but the value should be different
       expect(updatedKeys.length).toBe(initialKeys.length)
       expect(updatedKeys).toContain('toggle-play')
-      expect(store.customHotkeys['toggle-play'].key).toBe('p')
+      expect(store.customHotkeys['toggle-play']?.key).toBe('p')
     })
   })
 
@@ -337,7 +337,7 @@ describe('usePrefsStore', () => {
         description: 'Play/Pause',
       })
 
-      expect(store.customHotkeys['toggle-play'].key).toBe('')
+      expect(store.customHotkeys['toggle-play']?.key).toBe('')
     })
 
     it('handles special characters in keys', () => {
@@ -349,7 +349,7 @@ describe('usePrefsStore', () => {
         description: 'Complex Combo',
       })
 
-      expect(store.customHotkeys['toggle-play'].key).toBe('ctrl+shift+meta+alt+F12')
+      expect(store.customHotkeys['toggle-play']?.key).toBe('ctrl+shift+meta+alt+F12')
     })
 
     it('validates font size bounds', () => {
@@ -404,7 +404,7 @@ describe('usePrefsStore', () => {
 
       // Reset pinia to get a fresh store instance
       setActivePinia(createPinia())
-      
+
       // Create new store instance to test loading
       const newStore = usePrefsStore()
       await newStore.load()

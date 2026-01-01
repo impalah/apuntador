@@ -1,20 +1,20 @@
 PODS:
-  - Capacitor (7.4.3):
+  - Capacitor (8.0.0):
     - CapacitorCordova
-  - CapacitorApp (7.1.0):
+  - CapacitorApp (8.0.0):
     - Capacitor
-  - CapacitorBrowser (7.0.2):
+  - CapacitorBrowser (8.0.0):
     - Capacitor
-  - CapacitorCordova (7.4.3)
-  - CapacitorHaptics (7.0.2):
+  - CapacitorCordova (8.0.0)
+  - CapacitorHaptics (8.0.0):
     - Capacitor
-  - CapacitorKeyboard (7.0.2):
+  - CapacitorKeyboard (8.0.0):
     - Capacitor
-  - CapacitorScreenOrientation (7.0.2):
+  - CapacitorScreenOrientation (8.0.0):
     - Capacitor
-  - CapacitorSplashScreen (7.0.3):
+  - CapacitorSplashScreen (8.0.0):
     - Capacitor
-  - CapacitorStatusBar (7.0.2):
+  - CapacitorStatusBar (8.0.0):
     - Capacitor
 
 DEPENDENCIES:
@@ -49,15 +49,15 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: b4741ca7affb32c1b70debd03df92cbf522d8a80
-  CapacitorApp: 846d4b4a1dbb19dd1e9029c08ba6f028aa7be862
-  CapacitorBrowser: 45c681e7abc3b4384e54eb52bafeef1347d98fa8
-  CapacitorCordova: 435121e81a2df4d0034f0fb11fcefab5104cfdb5
-  CapacitorHaptics: 09d96bcb5a2b74ede8fd039b4cdf58fc43dcacf1
-  CapacitorKeyboard: 056bbe3711830ccb782f1705a8ad183b27b6c51e
-  CapacitorScreenOrientation: f698d08d01a06dfe0b21392f6c6ba522b9f61773
-  CapacitorSplashScreen: d06ae8804808e9f649a08e7bb7f283c77b688084
-  CapacitorStatusBar: 5526833b87fa9c96a2a90c1322bb1f663c04505f
+  Capacitor: 79e40e5e76f852965dce30406c65253fa154e24a
+  CapacitorApp: cfa0120a1f3a6f69d4d37d3041782aa5c5167d0b
+  CapacitorBrowser: 7452c73a202716d9c9035e5dbe5c5d8d07737f22
+  CapacitorCordova: 5dc3912d25ef770a3fe0f431bb65c9fbfa2e92f9
+  CapacitorHaptics: 7a77ce744c4b516b3ffd7f8c96d3de574d77b898
+  CapacitorKeyboard: 0a2e7c0635ccf3db60abed14bd6f35147ce25942
+  CapacitorScreenOrientation: 82b7c0bcc6189e97269ec66c613d0cd4f1c1c004
+  CapacitorSplashScreen: 4b78177a21f0f73ccc1c78dd93b2a94854ac4b83
+  CapacitorStatusBar: c6fa2d404083e41d145ea56698707a6986d4428b
 
 PODFILE CHECKSUM: 9ac8934b0d82ed76fcd142aa779e393126e9d55e
 

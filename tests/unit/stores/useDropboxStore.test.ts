@@ -4,19 +4,19 @@ import { useDropboxStore } from '@/stores/useDropboxStore'
 
 // Mock del servicio de Dropbox
 vi.mock('@/services/dropbox/dropboxService', () => ({
-  DropboxService: vi.fn().mockImplementation(() => ({
-    isConnected: vi.fn(() => false),
-    connect: vi.fn(() => Promise.resolve()),
-    disconnect: vi.fn(() => Promise.resolve()),
-    restoreSession: vi.fn(() => Promise.resolve(false)),
-    handleOAuthCallback: vi.fn(() => Promise.resolve()),
-    listFiles: vi.fn(() => Promise.resolve([])),
-    downloadFile: vi.fn(() => Promise.resolve('')),
-    uploadFile: vi.fn(() => Promise.resolve()),
-    deleteFile: vi.fn(() => Promise.resolve()),
-    getUserInfo: vi.fn(() => Promise.resolve(null)),
-    getAccessToken: vi.fn(() => Promise.resolve('mock-token')),
-  })),
+  DropboxService: class {
+    isConnected = vi.fn(() => false)
+    connect = vi.fn(() => Promise.resolve())
+    disconnect = vi.fn(() => Promise.resolve())
+    restoreSession = vi.fn(() => Promise.resolve(false))
+    handleOAuthCallback = vi.fn(() => Promise.resolve())
+    listFiles = vi.fn(() => Promise.resolve([]))
+    downloadFile = vi.fn(() => Promise.resolve(''))
+    uploadFile = vi.fn(() => Promise.resolve())
+    deleteFile = vi.fn(() => Promise.resolve())
+    getUserInfo = vi.fn(() => Promise.resolve(null))
+    getAccessToken = vi.fn(() => Promise.resolve('mock-token'))
+  },
 }))
 
 vi.mock('@/services/tauriService', () => ({

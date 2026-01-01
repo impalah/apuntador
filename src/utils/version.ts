@@ -23,7 +23,7 @@ export const APP_NAME = 'Apuntador'
 /**
  * Copyright information
  */
-export const COPYRIGHT_YEAR = '2025'
+export const COPYRIGHT_YEAR = '2026'
 export const COPYRIGHT_OWNER = 'Impalah'
 export const REPOSITORY_URL = 'https://github.com/impalah/apuntador'
 

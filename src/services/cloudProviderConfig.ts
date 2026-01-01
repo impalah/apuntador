@@ -1,6 +1,6 @@
 /**
  * Cloud Provider Configuration Service
- * 
+ *
  * Fetches and caches cloud provider configuration from backend.
  * Determines which providers are enabled and their requirements.
  */
@@ -64,34 +64,37 @@ export class CloudProviderConfigService {
 
     const url = `${BACKEND_URL}/config/providers`
     const headers = {
-      'Authorization': `Bearer ${API_KEY}`,
+      Authorization: `Bearer ${API_KEY}`,
       'Content-Type': 'application/json',
     }
-    
+
     console.log('🌐 [CloudProviderConfig] Using direct fetch (bypassing adapter)')
     console.log('   URL:', url)
-    console.log('   Headers:', { ...headers, Authorization: `Bearer ${API_KEY.substring(0, 10)}...` })
+    console.log('   Headers:', {
+      ...headers,
+      Authorization: `Bearer ${API_KEY.substring(0, 10)}...`,
+    })
 
     try {
       const response = await fetch(url, {
         method: 'GET',
         headers,
       })
-    
+
       console.log('📡 [CloudProviderConfig] Response received:', {
         status: response.status,
         statusText: response.statusText,
-        ok: response.ok
+        ok: response.ok,
       })
-    
+
       if (!response.ok) {
         const errorBody = await response.text()
         console.error('❌ [CloudProviderConfig] HTTP Error:', {
           status: response.status,
           statusText: response.statusText,
-          body: errorBody
+          body: errorBody,
         })
-        
+
         if (response.status === 401) {
           throw new Error(`Unauthorized: Invalid or missing API key (${response.status})`)
         }
@@ -101,7 +104,10 @@ export class CloudProviderConfigService {
       const config: CloudProviderConfig = await response.json()
 
       console.log('✅ [CloudProviderConfig] Configuration fetched successfully')
-      console.log('   Enabled providers:', Object.keys(config.providers).filter(p => config.providers[p].enabled))
+      console.log(
+        '   Enabled providers:',
+        Object.keys(config.providers).filter((p) => config.providers[p]?.enabled)
+      )
       console.log('   Backend version:', config.version)
       console.log('   Cache TTL:', config.cacheTtl, 'seconds')
 
@@ -120,7 +126,7 @@ export class CloudProviderConfigService {
       console.error('   Error instanceof Error:', error instanceof Error)
       console.error('   Error instanceof TypeError:', error instanceof TypeError)
       console.error('   Full error object:', error)
-      
+
       // Try to return cached config even if expired (better than nothing)
       const cached = this.loadFromCache(true)
       if (cached) {
@@ -148,7 +154,7 @@ export class CloudProviderConfigService {
       console.log('💾 [CloudProviderConfig] Using localStorage cache')
       this.memoryCache = {
         config: cached,
-        expiresAt: Date.now() + (cached.cacheTtl * 1000),
+        expiresAt: Date.now() + cached.cacheTtl * 1000,
       }
       return cached
     }
@@ -180,7 +186,7 @@ export class CloudProviderConfigService {
     try {
       const config = await this.getConfig()
       return Object.keys(config.providers).filter(
-        providerId => config.providers[providerId].enabled
+        (providerId) => config.providers[providerId]?.enabled
       )
     } catch (error) {
       console.error('❌ Failed to get enabled providers:', error)
@@ -206,7 +212,7 @@ export class CloudProviderConfigService {
    * Save configuration to cache
    */
   private saveToCache(config: CloudProviderConfig): void {
-    const expiresAt = Date.now() + (config.cacheTtl * 1000)
+    const expiresAt = Date.now() + config.cacheTtl * 1000
 
     // Save to memory
     this.memoryCache = { config, expiresAt }
@@ -215,7 +221,11 @@ export class CloudProviderConfigService {
     try {
       const cached: CachedConfig = { config, expiresAt }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
-      console.log('💾 [CloudProviderConfig] Saved to cache (expires in', config.cacheTtl, 'seconds)')
+      console.log(
+        '💾 [CloudProviderConfig] Saved to cache (expires in',
+        config.cacheTtl,
+        'seconds)'
+      )
     } catch (error) {
       console.warn('Failed to save to localStorage:', error)
     }
