@@ -39,9 +39,10 @@ class StorageService {
    */
   async set<T>(key: string, value: T): Promise<void> {
     try {
-      // Serialize the value to ensure it can be cloned
-      const serializedValue = structuredClone(value)
-      await this.store.setItem(key, serializedValue)
+      // Use JSON serialization to avoid Pinia 3 metadata issues
+      // Parse and stringify to create a clean copy without internal references
+      const cleanValue = JSON.parse(JSON.stringify(value))
+      await this.store.setItem(key, cleanValue)
       // Also save to localStorage as backup
       this.fallbackSet(key, value)
     } catch (error) {

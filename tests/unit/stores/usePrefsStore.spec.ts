@@ -65,9 +65,20 @@ describe('usePrefsStore', () => {
 
     it('loads preferences from localStorage', async () => {
       const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
         fontSizePx: 36,
+        lineHeight: 1.5,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
         speedPxPerSec: 80,
+        speedMin: 10,
+        speedMax: 200,
         mirrorH: true,
+        mirrorV: false,
+        highlightBandLines: 2,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
         customHotkeys: {
           'toggle-play': {
             key: 'p',
@@ -75,6 +86,7 @@ describe('usePrefsStore', () => {
             description: 'Play/Pause',
           },
         },
+        customGamepadMappings: {},
       }
 
       // Store directly as JSON object (localforage format)
@@ -390,6 +402,9 @@ describe('usePrefsStore', () => {
       store.setTextAlignment('left')
       await store.save()
 
+      // Reset pinia to get a fresh store instance
+      setActivePinia(createPinia())
+      
       // Create new store instance to test loading
       const newStore = usePrefsStore()
       await newStore.load()

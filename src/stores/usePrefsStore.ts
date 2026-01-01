@@ -62,6 +62,7 @@ const preferencesSchema = z.object({
   textAlignment: z.enum(TEXT_ALIGNMENTS).default(DEFAULT_TEXT_ALIGNMENT as TextAlignment),
   customHotkeys: z
     .record(
+      z.string(),
       z.object({
         key: z.string(),
         ctrlKey: z.boolean().optional(),
@@ -75,6 +76,7 @@ const preferencesSchema = z.object({
     .default({}),
   customGamepadMappings: z
     .record(
+      z.string(),
       z.object({
         buttonIndex: z.number().nullable(),
         action: z.string(),
