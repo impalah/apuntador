@@ -15,7 +15,7 @@ name = "apuntador_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.4.1", features = [] }
+tauri-build = { version = "2.5.3", features = [] }
 dotenvy = "0.15"
 
 [dependencies]
@@ -24,13 +24,16 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 # Tauri without devtools feature in production
 # To enable devtools in development, build with: cargo build --features devtools
-tauri = { version = "2.8.5", features = [] }
+tauri = { version = "2.9.5", features = [] }
 tauri-plugin-log = "2.0.0"
 tauri-plugin-http = "2.0.0"
 tauri-plugin-shell = "2.0.0"
 tauri-plugin-opener = "2.0.0"
 tokio = { version = "1.0", features = ["full"] }
-reqwest = { version = "0.11", features = ["json", "rustls-tls"], default-features = false }
+reqwest = { version = "0.11", features = [
+    "json",
+    "rustls-tls",
+], default-features = false }
 url = "2.4"
 base64 = "0.21"
 sha2 = "0.10"
