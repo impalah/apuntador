@@ -44,8 +44,8 @@ There are three ways to get content into Apuntador:
 
 **Play/Pause**
 
-- Click the **Play** button (▶️) to start auto-scrolling
-- Click **Pause** (⏸️) to stop
+- Click the **Play** button ([PLAY]) to start auto-scrolling
+- Click **Pause** ([PAUSE]) to stop
 - Use **Spacebar** on desktop for quick toggle
 
 **Speed Control**

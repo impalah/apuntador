@@ -1,8 +1,8 @@
-# 📱 Android Bundle Build Guide
+# [MOBILE] Android Bundle Build Guide
 
 This guide explains how to build Android App Bundles (AAB) for Google Play Store distribution.
 
-## 🎯 What is an Android App Bundle?
+## [TARGET] What is an Android App Bundle?
 
 Android App Bundle (AAB) is the recommended publishing format for Android apps. It offers several advantages over APK:
 
@@ -11,7 +11,7 @@ Android App Bundle (AAB) is the recommended publishing format for Android apps. 
 - **Better compression**: Reduces app size by up to 15%
 - **Required for new apps**: Google Play requires AAB for apps targeting Android 12+
 
-## 🚀 Quick Start
+## [LAUNCH] Quick Start
 
 ### Option 1: GitHub Actions (Recommended)
 
@@ -51,7 +51,7 @@ chmod +x scripts/build-bundle.sh
 ./scripts/build-bundle.sh debug
 ```
 
-## 🔐 Keystore Setup
+## [SECURE] Keystore Setup
 
 Before building release bundles, you need to set up your keystore:
 
@@ -87,7 +87,7 @@ export ANDROID_KEY_ALIAS="apuntador"
 export ANDROID_KEYSTORE_FILE="apuntador-release-key.keystore"
 ```
 
-## 📋 Prerequisites
+## [LIST] Prerequisites
 
 ### Software Requirements
 
@@ -114,16 +114,16 @@ Set these secrets in your repository:
 base64 -i android/app/apuntador-release-key.keystore | pbcopy
 ```
 
-## 🔧 Build Process
+## [CONFIG] Build Process
 
 The build process consists of these steps:
 
-1. **📦 Install Dependencies**: Install npm packages
-2. **🏗️ Build Web**: Create production web build
-3. **📱 Copy Assets**: Copy web files to Android project
-4. **🔄 Sync Capacitor**: Update native plugins
-5. **🔐 Setup Keystore**: Configure signing (release only)
-6. **📱 Build Bundle**: Generate AAB file
+1. **[PACKAGE] Install Dependencies**: Install npm packages
+2. **[BUILD] Build Web**: Create production web build
+3. **[MOBILE] Copy Assets**: Copy web files to Android project
+4. **[REFRESH] Sync Capacitor**: Update native plugins
+5. **[SECURE] Setup Keystore**: Configure signing (release only)
+6. **[MOBILE] Build Bundle**: Generate AAB file
 
 ## 📁 Output Files
 
@@ -155,7 +155,7 @@ project-root/
         └── build-android-bundle.yml
 ```
 
-## 🚀 Uploading to Google Play
+## [LAUNCH] Uploading to Google Play
 
 1. **Open Google Play Console**: Go to [play.google.com/console](https://play.google.com/console)
 2. **Select Your App**: Choose your app from the dashboard
@@ -165,7 +165,7 @@ project-root/
 6. **Complete Release Notes**: Add release information
 7. **Review and Publish**: Submit for review
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### Common Issues
 
@@ -218,17 +218,17 @@ Check these files for detailed error information:
 
 ### Keystore Security
 
-- ✅ **Backup your keystore**: Store in multiple secure locations
-- ✅ **Use strong passwords**: Minimum 12 characters
-- ✅ **Never commit**: Add to `.gitignore`
-- ✅ **Rotate regularly**: Update keys periodically
+- [OK] **Backup your keystore**: Store in multiple secure locations
+- [OK] **Use strong passwords**: Minimum 12 characters
+- [OK] **Never commit**: Add to `.gitignore`
+- [OK] **Rotate regularly**: Update keys periodically
 
 ### Environment Variables
 
-- ✅ **Use encrypted storage**: GitHub Secrets, Azure Key Vault, etc.
-- ✅ **Limit access**: Only necessary team members
-- ✅ **Audit regularly**: Review who has access
-- ✅ **Use different keys**: Separate keys for dev/staging/production
+- [OK] **Use encrypted storage**: GitHub Secrets, Azure Key Vault, etc.
+- [OK] **Limit access**: Only necessary team members
+- [OK] **Audit regularly**: Review who has access
+- [OK] **Use different keys**: Separate keys for dev/staging/production
 
 ### Version Control
 
@@ -240,7 +240,7 @@ android/app/*.keystore
 *.p12
 ```
 
-## 📊 Bundle Analysis
+## [STATS] Bundle Analysis
 
 ### Checking Bundle Size
 
@@ -260,7 +260,7 @@ bundletool get-size total --apks=apuntador.apks
 - **Remove unused resources**: Enable resource shrinking
 - **Split by ABI**: Generate separate APKs for different architectures
 
-## 🎯 Next Steps
+## [TARGET] Next Steps
 
 1. **Test Bundle**: Install and test the generated bundle
 2. **Upload to Play Console**: Submit for review
@@ -270,4 +270,4 @@ bundletool get-size total --apks=apuntador.apks
 
 ---
 
-**🎉 Happy Building!** Your app is ready for the Google Play Store!
+**[SUCCESS] Happy Building!** Your app is ready for the Google Play Store!

@@ -58,7 +58,7 @@ export class CloudProviderConfigService {
    * Fetch provider configuration from backend
    */
   async fetchConfig(): Promise<CloudProviderConfig> {
-    console.log('🔍 [CloudProviderConfig] Fetching provider configuration from backend...')
+    console.log('[SEARCH] [CloudProviderConfig] Fetching provider configuration from backend...')
     console.log('   Backend URL:', BACKEND_URL)
     console.log('   API Key configured:', API_KEY ? 'Yes' : 'No')
 
@@ -68,7 +68,7 @@ export class CloudProviderConfigService {
       'Content-Type': 'application/json',
     }
 
-    console.log('🌐 [CloudProviderConfig] Using direct fetch (bypassing adapter)')
+    console.log('[WEB] [CloudProviderConfig] Using direct fetch (bypassing adapter)')
     console.log('   URL:', url)
     console.log('   Headers:', {
       ...headers,
@@ -81,7 +81,7 @@ export class CloudProviderConfigService {
         headers,
       })
 
-      console.log('📡 [CloudProviderConfig] Response received:', {
+      console.log('[SIGNAL] [CloudProviderConfig] Response received:', {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
@@ -89,7 +89,7 @@ export class CloudProviderConfigService {
 
       if (!response.ok) {
         const errorBody = await response.text()
-        console.error('❌ [CloudProviderConfig] HTTP Error:', {
+        console.error('[ERROR] [CloudProviderConfig] HTTP Error:', {
           status: response.status,
           statusText: response.statusText,
           body: errorBody,
@@ -103,7 +103,7 @@ export class CloudProviderConfigService {
 
       const config: CloudProviderConfig = await response.json()
 
-      console.log('✅ [CloudProviderConfig] Configuration fetched successfully')
+      console.log('[OK] [CloudProviderConfig] Configuration fetched successfully')
       console.log(
         '   Enabled providers:',
         Object.keys(config.providers).filter((p) => config.providers[p]?.enabled)
@@ -116,7 +116,7 @@ export class CloudProviderConfigService {
 
       return config
     } catch (error: any) {
-      console.error('❌ [CloudProviderConfig] Failed to fetch configuration')
+      console.error('[ERROR] [CloudProviderConfig] Failed to fetch configuration')
       console.error('   Backend URL:', BACKEND_URL)
       console.error('   API Key:', API_KEY ? `${API_KEY.substring(0, 10)}...` : 'NOT SET')
       console.error('   Error type:', typeof error)
@@ -130,7 +130,7 @@ export class CloudProviderConfigService {
       // Try to return cached config even if expired (better than nothing)
       const cached = this.loadFromCache(true)
       if (cached) {
-        console.warn('⚠️  Using expired cached configuration as fallback')
+        console.warn('[WARNING]  Using expired cached configuration as fallback')
         return cached
       }
 
@@ -144,14 +144,14 @@ export class CloudProviderConfigService {
   async getConfig(): Promise<CloudProviderConfig> {
     // Check memory cache first
     if (this.memoryCache && this.memoryCache.expiresAt > Date.now()) {
-      console.log('📦 [CloudProviderConfig] Using memory cache')
+      console.log('[PACKAGE] [CloudProviderConfig] Using memory cache')
       return this.memoryCache.config
     }
 
     // Check localStorage cache
     const cached = this.loadFromCache()
     if (cached) {
-      console.log('💾 [CloudProviderConfig] Using localStorage cache')
+      console.log('[SAVE] [CloudProviderConfig] Using localStorage cache')
       this.memoryCache = {
         config: cached,
         expiresAt: Date.now() + cached.cacheTtl * 1000,
@@ -160,7 +160,7 @@ export class CloudProviderConfigService {
     }
 
     // Fetch from backend
-    console.log('🌐 [CloudProviderConfig] No valid cache, fetching from backend...')
+    console.log('[WEB] [CloudProviderConfig] No valid cache, fetching from backend...')
     return await this.fetchConfig()
   }
 
@@ -173,7 +173,7 @@ export class CloudProviderConfigService {
       const provider = config.providers[providerId.toLowerCase()]
       return provider ? provider.enabled : false
     } catch (error) {
-      console.error(`❌ Failed to check if provider ${providerId} is enabled:`, error)
+      console.error(`[ERROR] Failed to check if provider ${providerId} is enabled:`, error)
       // Default to enabled on error (fail open)
       return true
     }
@@ -189,7 +189,7 @@ export class CloudProviderConfigService {
         (providerId) => config.providers[providerId]?.enabled
       )
     } catch (error) {
-      console.error('❌ Failed to get enabled providers:', error)
+      console.error('[ERROR] Failed to get enabled providers:', error)
       // Default to all known providers on error
       return ['googledrive', 'dropbox']
     }
@@ -199,7 +199,7 @@ export class CloudProviderConfigService {
    * Clear cache (force refresh on next request)
    */
   clearCache(): void {
-    console.log('🗑️  [CloudProviderConfig] Clearing cache')
+    console.log('[DELETE]  [CloudProviderConfig] Clearing cache')
     this.memoryCache = null
     try {
       localStorage.removeItem(STORAGE_KEY)
@@ -222,7 +222,7 @@ export class CloudProviderConfigService {
       const cached: CachedConfig = { config, expiresAt }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
       console.log(
-        '💾 [CloudProviderConfig] Saved to cache (expires in',
+        '[SAVE] [CloudProviderConfig] Saved to cache (expires in',
         config.cacheTtl,
         'seconds)'
       )
@@ -245,7 +245,7 @@ export class CloudProviderConfigService {
 
       // Check expiration
       if (!ignoreExpiration && cached.expiresAt <= Date.now()) {
-        console.log('⏰ [CloudProviderConfig] Cache expired')
+        console.log('[TIME] [CloudProviderConfig] Cache expired')
         return null
       }
 

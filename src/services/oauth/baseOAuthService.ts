@@ -36,7 +36,7 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
       redirectUri: getOAuthRedirectUri()
     })
     
-    console.log(`🔧 ${this.getProviderName()}: Initialized with backend OAuth proxy`, {
+    console.log(`[CONFIG] ${this.getProviderName()}: Initialized with backend OAuth proxy`, {
       backendUrl: getBackendUrl(),
       redirectUri: getOAuthRedirectUri()
     })
@@ -67,33 +67,33 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
    */
   async connect(): Promise<void> {
     try {
-      console.log(`🚀 ${this.getProviderName()}: Starting OAuth connection via backend...`)
+      console.log(`[LAUNCH] ${this.getProviderName()}: Starting OAuth connection via backend...`)
       
       if (isTauri()) {
-        console.log('🔧 Platform: Tauri/Desktop')
+        console.log('[CONFIG] Platform: Tauri/Desktop')
       } else if (Capacitor.isNativePlatform()) {
-        console.log('🔧 Platform: Mobile Native', Capacitor.getPlatform())
+        console.log('[CONFIG] Platform: Mobile Native', Capacitor.getPlatform())
       } else {
-        console.log('🔧 Platform: Web')
+        console.log('[CONFIG] Platform: Web')
       }
       
       // Obtener URL de autorización del backend
-      console.log(`📡 ${this.getProviderName()}: Requesting authorization URL from backend...`)
+      console.log(`[SIGNAL] ${this.getProviderName()}: Requesting authorization URL from backend...`)
       const { authorization_url, state } = await this.backendClient.authorize()
       
-      console.log(`✅ ${this.getProviderName()}: Authorization URL received from backend`)
+      console.log(`[OK] ${this.getProviderName()}: Authorization URL received from backend`)
       console.log(`📍 Redirect URI:`, getOAuthRedirectUri())
 
       // Guardar state para validar en el callback
       localStorage.setItem(this.getStateKey(), state)
-      console.log('💾 State saved to localStorage')
+      console.log('[SAVE] State saved to localStorage')
 
       // Guardar ruta actual para retornar después de OAuth
       // Solo guardar si estamos en la aplicación (no en callback)
       if (typeof window !== 'undefined' && globalThis.location.pathname !== '/oauth-callback') {
         const currentPath = globalThis.location.pathname
         localStorage.setItem('oauth_return_to', currentPath)
-        console.log('💾 Return path saved:', currentPath)
+        console.log('[SAVE] Return path saved:', currentPath)
       }
 
       // Redirigir al usuario al proveedor OAuth para autorizar
@@ -119,18 +119,18 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
     
     if (isTauriPlatform) {
       // Desktop (Tauri): abrir en navegador del sistema
-      console.log(`🖥️ ${this.getProviderName()}: Opening OAuth URL in system browser (Tauri)`)
+      console.log(`[SERVER] ${this.getProviderName()}: Opening OAuth URL in system browser (Tauri)`)
       await tauriService.openUrl(url)
-      console.log('✅ Browser opened successfully')
+      console.log('[OK] Browser opened successfully')
       
     } else if (Capacitor.isNativePlatform()) {
       // Mobile: usar Browser plugin
-      console.log(`📱 ${this.getProviderName()}: Opening OAuth URL in system browser (Native)`)
+      console.log(`[MOBILE] ${this.getProviderName()}: Opening OAuth URL in system browser (Native)`)
       await Browser.open({ url })
       
     } else {
       // Web: redirección normal
-      console.log(`🌐 ${this.getProviderName()}: Redirecting to OAuth URL (Web)`)
+      console.log(`[WEB] ${this.getProviderName()}: Redirecting to OAuth URL (Web)`)
       globalThis.location.href = url
     }
   }
@@ -149,7 +149,7 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
    * @param state - State para validación CSRF (opcional)
    */
   async handleOAuthCallback(code: string, state?: string): Promise<void> {
-    console.log(`🔧 ${this.getProviderName()}: handleOAuthCallback called via backend`)
+    console.log(`[CONFIG] ${this.getProviderName()}: handleOAuthCallback called via backend`)
     
     try {
       // Verificar state si está disponible
@@ -160,12 +160,12 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
         }
       }
       
-      console.log(`🔑 ${this.getProviderName()}: Exchanging code for tokens via backend...`)
+      console.log(`[KEY] ${this.getProviderName()}: Exchanging code for tokens via backend...`)
       
       // Intercambiar código por tokens a través del backend
       const tokens = await this.backendClient.handleCallback(code, state || '')
       
-      console.log(`✅ ${this.getProviderName()}: Tokens received from backend`, {
+      console.log(`[OK] ${this.getProviderName()}: Tokens received from backend`, {
         hasAccessToken: !!tokens.access_token,
         hasRefreshToken: !!tokens.refresh_token,
         expiresIn: tokens.expires_in,
@@ -182,7 +182,7 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
       // Permitir a la clase hija procesar los tokens (e.g., inicializar cliente SDK)
       await this.onTokensReceived(tokens.access_token, tokens.refresh_token)
       
-      console.log(`✅ ${this.getProviderName()}: OAuth flow completed successfully via backend`)
+      console.log(`[OK] ${this.getProviderName()}: OAuth flow completed successfully via backend`)
       
       // Limpiar state
       localStorage.removeItem(this.getStateKey())

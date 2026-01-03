@@ -16,9 +16,9 @@ import { BACKEND_OAUTH_URL } from '@/config/api'
 
 // Simple logger replacement
 const logger = {
-  info: (message: string, data?: any) => console.log(`ℹ️  ${message}`, data || ''),
-  warn: (message: string, data?: any) => console.warn(`⚠️  ${message}`, data || ''),
-  error: (message: string, data?: any) => console.error(`❌ ${message}`, data || ''),
+  info: (message: string, data?: any) => console.log(`[INFO]  ${message}`, data || ''),
+  warn: (message: string, data?: any) => console.warn(`[WARNING]  ${message}`, data || ''),
+  error: (message: string, data?: any) => console.error(`[ERROR] ${message}`, data || ''),
 }
 
 export interface IOSEnrollmentStatus {
@@ -56,12 +56,12 @@ export class IOSSecureEnclaveService {
     // Detectar si el native bridge está disponible
     if ((globalThis as any).webkit !== undefined) {
       this.useNativeBridge = true
-      logger.info('📱 [iOS Secure Enclave] Using native WebKit bridge')
+      logger.info('[MOBILE] [iOS Secure Enclave] Using native WebKit bridge')
     } else {
-      logger.info('📱 [iOS Secure Enclave] Using Capacitor plugins')
+      logger.info('[MOBILE] [iOS Secure Enclave] Using Capacitor plugins')
     }
 
-    logger.info('📱 [iOS Secure Enclave] Service initialized', {
+    logger.info('[MOBILE] [iOS Secure Enclave] Service initialized', {
       backendUrl: this.backendUrl,
       platform: Capacitor.getPlatform(),
       useNativeBridge: this.useNativeBridge,
@@ -97,7 +97,7 @@ export class IOSSecureEnclaveService {
         // Usar native bridge
         const bridge = getSecureEnclaveNativeBridge()
         result = await bridge.isSecureEnclaveAvailable()
-        logger.info('🔐 [iOS Native Bridge] Availability check', {
+        logger.info('[SECURE] [iOS Native Bridge] Availability check', {
           available: result.available,
           deviceModel: result.deviceModel,
           osVersion: result.osVersion,
@@ -105,7 +105,7 @@ export class IOSSecureEnclaveService {
       } else {
         // Usar Capacitor plugin
         result = await SecureEnclave.isSecureEnclaveAvailable()
-        logger.info('🔐 [iOS Secure Enclave] Availability check', {
+        logger.info('[SECURE] [iOS Secure Enclave] Availability check', {
           available: result.available,
           deviceModel: result.deviceModel,
           osVersion: result.osVersion,
@@ -114,7 +114,7 @@ export class IOSSecureEnclaveService {
       
       return result.available
     } catch (error) {
-      logger.error('❌ [iOS Secure Enclave] Failed to check availability', { error })
+      logger.error('[ERROR] [iOS Secure Enclave] Failed to check availability', { error })
       return false
     }
   }
@@ -137,7 +137,7 @@ export class IOSSecureEnclaveService {
         // Si certResult.success es false, significa que no hay certificado (no enrolled)
         const enrolled = certResult.success && !!certResult.certificate
         
-        logger.info('📊 [iOS Native Bridge] Enrollment status check', {
+        logger.info('[STATS] [iOS Native Bridge] Enrollment status check', {
           hasCertificate: certResult.success,
           enrolled: enrolled
         })
@@ -151,7 +151,7 @@ export class IOSSecureEnclaveService {
         }
       } catch (error) {
         // Si hay un error real (no solo "no encontrado"), loguearlo
-        logger.error('❌ [iOS Enrollment] Failed to check status', { error })
+        logger.error('[ERROR] [iOS Enrollment] Failed to check status', { error })
         // Pero no lanzar el error, devolver como "no enrolled"
         const availResult = await bridge.isSecureEnclaveAvailable()
         return {
@@ -170,7 +170,7 @@ export class IOSSecureEnclaveService {
         this.isSecureEnclaveAvailable(),
       ])
 
-      logger.info('📊 [iOS Enrollment] Status check', {
+      logger.info('[STATS] [iOS Enrollment] Status check', {
         enrolled: status.enrolled,
         deviceId: status.deviceId,
         hasSecureEnclave,
@@ -181,7 +181,7 @@ export class IOSSecureEnclaveService {
         hasSecureEnclave,
       }
     } catch (error) {
-      logger.error('❌ [iOS Enrollment] Failed to check status', { error })
+      logger.error('[ERROR] [iOS Enrollment] Failed to check status', { error })
       throw error
     }
   }
@@ -213,7 +213,7 @@ export class IOSSecureEnclaveService {
     try {
       const status = await this.checkEnrollmentStatus()
       if (status.enrolled) {
-        logger.info('✅ [iOS Enrollment] Device already enrolled', {
+        logger.info('[OK] [iOS Enrollment] Device already enrolled', {
           deviceId: status.deviceId,
         })
         return {
@@ -224,7 +224,7 @@ export class IOSSecureEnclaveService {
         }
       }
     } catch (error) {
-      logger.warn('⚠️  [iOS Enrollment] Could not check status, proceeding with enrollment', {
+      logger.warn('[WARNING]  [iOS Enrollment] Could not check status, proceeding with enrollment', {
         error,
       })
     }
@@ -244,7 +244,7 @@ export class IOSSecureEnclaveService {
    * Realiza el proceso de enrollment con el backend
    */
   private async performEnrollment(): Promise<IOSEnrollmentResult> {
-    logger.info('🔐 [iOS Enrollment] Starting enrollment process...')
+    logger.info('[SECURE] [iOS Enrollment] Starting enrollment process...')
 
     try {
       // Verificar que el Secure Enclave está disponible
@@ -264,7 +264,7 @@ export class IOSSecureEnclaveService {
       })
 
       if (result.success && result.enrolled) {
-        logger.info('✅ [iOS Enrollment] Enrollment completed successfully!', {
+        logger.info('[OK] [iOS Enrollment] Enrollment completed successfully!', {
           deviceId: result.deviceId,
           certificateSize: result.certificateSize,
         })
@@ -275,7 +275,7 @@ export class IOSSecureEnclaveService {
           certificateSize: result.certificateSize,
         }
       } else {
-        logger.error('❌ [iOS Enrollment] Enrollment failed', { result })
+        logger.error('[ERROR] [iOS Enrollment] Enrollment failed', { result })
         return {
           success: false,
           enrolled: false,
@@ -283,7 +283,7 @@ export class IOSSecureEnclaveService {
         }
       }
     } catch (error) {
-      logger.error('❌ [iOS Enrollment] Enrollment error', { error })
+      logger.error('[ERROR] [iOS Enrollment] Enrollment error', { error })
       return {
         success: false,
         enrolled: false,
@@ -300,14 +300,14 @@ export class IOSSecureEnclaveService {
     
     try {
       // 1. Generar par de claves en Secure Enclave
-      logger.info('🔑 [iOS Native Enrollment] Generating key pair in Secure Enclave...')
+      logger.info('[KEY] [iOS Native Enrollment] Generating key pair in Secure Enclave...')
       const keyResult = await bridge.generateKeyPair()
       if (!keyResult.success) {
         throw new Error('Failed to generate key pair')
       }
 
       // 2. Generar CSR
-      logger.info('📝 [iOS Native Enrollment] Generating CSR...')
+      logger.info('[NOTE] [iOS Native Enrollment] Generating CSR...')
       const deviceInfo = await bridge.isSecureEnclaveAvailable()
       const deviceId = `ios-${deviceInfo.deviceModel}-${Date.now()}`
       
@@ -330,7 +330,7 @@ export class IOSSecureEnclaveService {
       // En iOS, el certificate pinning se aplica automáticamente a TODAS las conexiones
       // gracias a MTLSHTTPClient.urlSession que actúa como delegate global
       // No necesitamos un plugin especial, CapacitorHttp ya usa el pinning configurado
-      logger.info('🔐 [iOS Native Enrollment] Using Certificate Pinning (via URLSession delegate)')
+      logger.info('[SECURE] [iOS Native Enrollment] Using Certificate Pinning (via URLSession delegate)')
       
       const { CapacitorHttp } = await import('@capacitor/core')
       
@@ -354,10 +354,10 @@ export class IOSSecureEnclaveService {
       }
 
       const enrollmentData = response.data
-      logger.info('📥 [iOS Native Enrollment] Received certificate from backend')
+      logger.info('[DOWNLOAD] [iOS Native Enrollment] Received certificate from backend')
 
       // 4. Almacenar certificado
-      logger.info('💾 [iOS Native Enrollment] Storing certificate...')
+      logger.info('[SAVE] [iOS Native Enrollment] Storing certificate...')
       const storeResult = await bridge.storeCertificate({
         certificate: enrollmentData.certificate
       })
@@ -366,7 +366,7 @@ export class IOSSecureEnclaveService {
         throw new Error('Failed to store certificate')
       }
 
-      logger.info('✅ [iOS Native Enrollment] Enrollment completed successfully!', {
+      logger.info('[OK] [iOS Native Enrollment] Enrollment completed successfully!', {
         deviceId: deviceId,
         certificateSize: enrollmentData.certificate?.length || 0
       })
@@ -378,7 +378,7 @@ export class IOSSecureEnclaveService {
         certificateSize: enrollmentData.certificate?.length || 0,
       }
     } catch (error) {
-      logger.error('❌ [iOS Native Enrollment] Enrollment failed', { error })
+      logger.error('[ERROR] [iOS Native Enrollment] Enrollment failed', { error })
       return {
         success: false,
         enrolled: false,
@@ -404,14 +404,14 @@ export class IOSSecureEnclaveService {
       }
     }
 
-    logger.info('🔄 [iOS Enrollment] Starting forced re-enrollment...')
+    logger.info('[REFRESH] [iOS Enrollment] Starting forced re-enrollment...')
 
     try {
       if (this.useNativeBridge) {
         // Eliminar certificado actual y volver a enrollar usando native bridge
         const bridge = getSecureEnclaveNativeBridge()
         await bridge.deleteCertificate()
-        logger.info('🗑️  [iOS Native Enrollment] Previous certificate deleted')
+        logger.info('[DELETE]  [iOS Native Enrollment] Previous certificate deleted')
         
         // Realizar nuevo enrollment
         return await this.performNativeBridgeEnrollment()
@@ -423,7 +423,7 @@ export class IOSSecureEnclaveService {
       })
 
       if (result.success && result.enrolled) {
-        logger.info('✅ [iOS Enrollment] Re-enrollment completed successfully!', {
+        logger.info('[OK] [iOS Enrollment] Re-enrollment completed successfully!', {
           deviceId: result.deviceId,
           certificateSize: result.certificateSize,
         })
@@ -434,7 +434,7 @@ export class IOSSecureEnclaveService {
           certificateSize: result.certificateSize,
         }
       } else {
-        logger.error('❌ [iOS Enrollment] Re-enrollment failed', { result })
+        logger.error('[ERROR] [iOS Enrollment] Re-enrollment failed', { result })
         return {
           success: false,
           enrolled: false,
@@ -442,7 +442,7 @@ export class IOSSecureEnclaveService {
         }
       }
     } catch (error) {
-      logger.error('❌ [iOS Enrollment] Re-enrollment error', { error })
+      logger.error('[ERROR] [iOS Enrollment] Re-enrollment error', { error })
       return {
         success: false,
         enrolled: false,
@@ -463,13 +463,13 @@ export class IOSSecureEnclaveService {
       if (this.useNativeBridge) {
         const bridge = getSecureEnclaveNativeBridge()
         await bridge.deleteCertificate()
-        logger.info('🗑️  [iOS Native Bridge] All credentials deleted')
+        logger.info('[DELETE]  [iOS Native Bridge] All credentials deleted')
       } else {
         await SecureEnclave.deleteAll()
-        logger.info('🗑️  [iOS Secure Enclave] All credentials deleted')
+        logger.info('[DELETE]  [iOS Secure Enclave] All credentials deleted')
       }
     } catch (error) {
-      logger.error('❌ [iOS Secure Enclave] Failed to delete credentials', { error })
+      logger.error('[ERROR] [iOS Secure Enclave] Failed to delete credentials', { error })
       throw error
     }
   }

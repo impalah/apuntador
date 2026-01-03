@@ -1,19 +1,19 @@
 # Configuración DevContainer Apuntador - Resumen Ejecutivo
 
-## ✅ Cambios Realizados
+## [OK] Cambios Realizados
 
 ### 1. Actualización de devcontainer.json
 
 Se ha actualizado [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) con:
 
-- ✅ **Rust** (última versión estable)
-- ✅ **Java 17** + Gradle (para Android)
-- ✅ **Android SDK** (Platform 34, Build Tools, NDK 26)
-- ✅ **Tauri CLI** (versión 2+)
-- ✅ **Ionic CLI** + Capacitor CLI
-- ✅ **Extensiones VS Code**: Rust Analyzer, TOML, Crates, Ionic
-- ✅ **Puertos adicionales**: 1420 (Tauri dev server)
-- ✅ **Volúmenes persistentes**:
+- [OK] **Rust** (última versión estable)
+- [OK] **Java 17** + Gradle (para Android)
+- [OK] **Android SDK** (Platform 34, Build Tools, NDK 26)
+- [OK] **Tauri CLI** (versión 2+)
+- [OK] **Ionic CLI** + Capacitor CLI
+- [OK] **Extensiones VS Code**: Rust Analyzer, TOML, Crates, Ionic
+- [OK] **Puertos adicionales**: 1420 (Tauri dev server)
+- [OK] **Volúmenes persistentes**:
   - `apuntador-node-modules` (npm dependencies)
   - `apuntador-rust-target` (Rust build artifacts)
 
@@ -63,7 +63,7 @@ Creados dos scripts en [.devcontainer/scripts/](.devcontainer/scripts/):
 
 ---
 
-## 🚀 Cómo Empezar
+## [LAUNCH] Cómo Empezar
 
 ### Instalación en macOS (Una Sola Vez)
 
@@ -83,7 +83,7 @@ brew install --cask visual-studio-code
 # 5. Instalar extensión Dev Containers
 code --install-extension ms-vscode-remote.remote-containers
 
-# ✅ Listo!
+# [OK] Listo!
 ```
 
 **Solo si desarrollas iOS** (opcional):
@@ -110,7 +110,7 @@ code /Users/linus/projects/apuntador
 
 ---
 
-## 📦 Volúmenes Mapeados
+## [PACKAGE] Volúmenes Mapeados
 
 ### Configuración Actual (Por Defecto)
 
@@ -122,13 +122,13 @@ code /Users/linus/projects/apuntador
 ```
 
 **Ventajas**:
-- ✅ Mejor rendimiento (especialmente en macOS)
-- ✅ `node_modules` y `target` no ocupan espacio en tu proyecto local
-- ✅ Persisten entre reconstrucciones del container
+- [OK] Mejor rendimiento (especialmente en macOS)
+- [OK] `node_modules` y `target` no ocupan espacio en tu proyecto local
+- [OK] Persisten entre reconstrucciones del container
 
 **Desventajas**:
-- ⚠️ No visibles en Finder (solo dentro del container)
-- ⚠️ Ocupan espacio en el disco interno (~15-20GB total)
+- [WARNING] No visibles en Finder (solo dentro del container)
+- [WARNING] Ocupan espacio en el disco interno (~15-20GB total)
 
 ### Mapear a Disco Externo (Opcional)
 
@@ -149,22 +149,22 @@ Si necesitas ahorrar espacio en tu SSD, puedes mapear los volúmenes a un disco 
 
 ---
 
-## 🎯 Qué Puedes Hacer en el Container
+## [TARGET] Qué Puedes Hacer en el Container
 
 | Plataforma | Desarrollo | Build | Notas |
 |------------|------------|-------|-------|
-| **Web** | ✅ Completo | ✅ Completo | Vite, tests, builds |
-| **Android** | ✅ Completo | ✅ APK/AAB | Sin emulador gráfico |
-| **Tauri Linux** | ✅ Completo | ✅ Completo | Binarios Linux |
-| **Tauri macOS** | ✅ Código Rust | ❌ Build en macOS | |
-| **Tauri Windows** | ✅ Código Rust | ❌ Build en Windows | |
-| **iOS** | ⚠️ Sync only | ❌ Build en macOS | Requiere Xcode |
+| **Web** | [OK] Completo | [OK] Completo | Vite, tests, builds |
+| **Android** | [OK] Completo | [OK] APK/AAB | Sin emulador gráfico |
+| **Tauri Linux** | [OK] Completo | [OK] Completo | Binarios Linux |
+| **Tauri macOS** | [OK] Código Rust | [ERROR] Build en macOS | |
+| **Tauri Windows** | [OK] Código Rust | [ERROR] Build en Windows | |
+| **iOS** | [WARNING] Sync only | [ERROR] Build en macOS | Requiere Xcode |
 
 **Ver detalles completos**: [PLATFORM_NOTES.md](.devcontainer/PLATFORM_NOTES.md)
 
 ---
 
-## 💻 Recursos Recomendados (Colima)
+## [DESKTOP] Recursos Recomendados (Colima)
 
 ### Desarrollo Full-Stack (Recomendado)
 
@@ -199,7 +199,7 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## 🔧 Comandos Disponibles
+## [CONFIG] Comandos Disponibles
 
 ### Web Development
 ```bash
@@ -233,7 +233,7 @@ npx cap open ios         # Abre Xcode
 
 ---
 
-## 🔄 Workflows Recomendados
+## [REFRESH] Workflows Recomendados
 
 ### Desarrollo Normal (80% del tiempo)
 
@@ -281,7 +281,7 @@ npm run tauri build
 
 ---
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### Container no inicia
 
@@ -325,7 +325,7 @@ docker volume prune
 
 ---
 
-## 📊 Espacio en Disco
+## [STATS] Espacio en Disco
 
 ### En macOS (fuera del container)
 
@@ -344,7 +344,7 @@ docker volume prune
 
 ---
 
-## 📚 Documentación
+## [DOCS] Documentación
 
 - **[README.md](README.md)** - Guía principal del devcontainer
 - **[MACOS_SETUP.md](MACOS_SETUP.md)** - Instalación en macOS local
@@ -353,7 +353,7 @@ docker volume prune
 
 ---
 
-## ✅ Checklist de Configuración
+## [OK] Checklist de Configuración
 
 ### Primera vez
 
@@ -382,13 +382,13 @@ docker volume prune
 
 ---
 
-## 🎉 ¡Listo!
+## [SUCCESS] ¡Listo!
 
 Con esta configuración tienes un entorno de desarrollo completo para:
-- ✅ Vue 3 + TypeScript + Vite
-- ✅ Rust + Tauri (desktop)
-- ✅ Ionic + Capacitor (mobile)
-- ✅ Android (APK/AAB builds)
-- ✅ iOS (requiere macOS nativo para builds)
+- [OK] Vue 3 + TypeScript + Vite
+- [OK] Rust + Tauri (desktop)
+- [OK] Ionic + Capacitor (mobile)
+- [OK] Android (APK/AAB builds)
+- [OK] iOS (requiere macOS nativo para builds)
 
 **Siguiente paso**: `code /Users/linus/projects/apuntador` → "Reopen in Container" → `npm run dev`

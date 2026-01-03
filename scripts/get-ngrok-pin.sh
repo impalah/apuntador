@@ -31,27 +31,27 @@ echo -e "${YELLOW}ngrok Domain:${NC} $NGROK_DOMAIN"
 echo ""
 
 # Verificar que ngrok está corriendo
-echo -e "${BLUE}🔍 Verificando que ngrok está corriendo...${NC}"
+echo -e "${BLUE}[SEARCH] Verificando que ngrok está corriendo...${NC}"
 if ! curl -s -f "https://$NGROK_DOMAIN" > /dev/null 2>&1; then
-    echo -e "${RED}❌ Error: No se puede conectar a $NGROK_DOMAIN${NC}"
+    echo -e "${RED}[ERROR] Error: No se puede conectar a $NGROK_DOMAIN${NC}"
     echo -e "${YELLOW}   Asegúrate de que ngrok está corriendo:${NC}"
     echo -e "${YELLOW}   ngrok http 8000 --domain=$NGROK_DOMAIN${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ ngrok está corriendo${NC}"
+echo -e "${GREEN}[OK] ngrok está corriendo${NC}"
 echo ""
 
 # Obtener el pin SHA-256
-echo -e "${BLUE}📡 Obteniendo certificado de ngrok...${NC}"
+echo -e "${BLUE}[SIGNAL] Obteniendo certificado de ngrok...${NC}"
 PIN=$(echo | openssl s_client -servername $NGROK_DOMAIN -connect $NGROK_DOMAIN:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64)
 
 if [ -z "$PIN" ]; then
-    echo -e "${RED}❌ Error: No se pudo obtener el pin del certificado${NC}"
+    echo -e "${RED}[ERROR] Error: No se pudo obtener el pin del certificado${NC}"
     exit 1
 fi
 
-echo -e "${GREEN}✅ Pin obtenido exitosamente${NC}"
+echo -e "${GREEN}[OK] Pin obtenido exitosamente${NC}"
 echo ""
 
 # Mostrar resultado
@@ -99,7 +99,7 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${GREEN}  Nota Importante${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "${YELLOW}⚠️  Con ngrok Pro y dominio fijo, el certificado debería ser estable.${NC}"
+echo -e "${YELLOW}[WARNING]  Con ngrok Pro y dominio fijo, el certificado debería ser estable.${NC}"
 echo ""
 echo "Pero si ngrok rota el certificado:"
 echo "1. Ejecuta este script de nuevo"

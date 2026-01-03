@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================
-# 🔐 Android Keystore Setup Script (Bash)
+# [SECURE] Android Keystore Setup Script (Bash)
 # ====================================================================
 # 
 # Purpose: Configure Android keystore for release builds
@@ -30,28 +30,28 @@ NC='\033[0m' # No Color
 
 # Functions for colored output
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_info() {
-    echo -e "${CYAN}ℹ️  $1${NC}"
+    echo -e "${CYAN}[INFO]  $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING]  $1${NC}"
 }
 
 print_step() {
-    echo -e "${MAGENTA}🔧 $1${NC}"
+    echo -e "${MAGENTA}[CONFIG] $1${NC}"
 }
 
 # Show help
 show_help() {
-    echo -e "${CYAN}🔐 Android Keystore Setup Script${NC}"
+    echo -e "${CYAN}[SECURE] Android Keystore Setup Script${NC}"
     echo ""
     echo -e "${YELLOW}Usage:${NC}"
     echo -e "  ${GREEN}./setup-keystore.sh [--keystore path] [--alias alias]${NC}"
@@ -89,7 +89,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${CYAN}🔐 Setting up Android Keystore for Release Builds${NC}"
+echo -e "${CYAN}[SECURE] Setting up Android Keystore for Release Builds${NC}"
 echo ""
 
 # Check if keystore already exists
@@ -110,7 +110,7 @@ if ! command -v keytool &> /dev/null; then
 fi
 
 # Get keystore information
-echo -e "${YELLOW}📝 Please provide the following information:${NC}"
+echo -e "${YELLOW}[NOTE] Please provide the following information:${NC}"
 echo ""
 
 echo -n "Keystore password: "
@@ -203,7 +203,7 @@ export ANDROID_KEY_PASSWORD="$KEY_PASSWORD"
 export ANDROID_KEY_ALIAS="$ALIAS"
 export ANDROID_KEYSTORE_FILE="$KEYSTORE_FILENAME"
 
-echo "✅ Android environment variables set"
+echo "[OK] Android environment variables set"
 EOF
 
 chmod +x "$ENV_SCRIPT"
@@ -211,9 +211,9 @@ print_success "Created: $ENV_SCRIPT"
 
 # Show summary
 echo ""
-print_success "🎉 Keystore setup completed!"
+print_success "[SUCCESS] Keystore setup completed!"
 echo ""
-echo -e "${YELLOW}📋 Summary:${NC}"
+echo -e "${YELLOW}[LIST] Summary:${NC}"
 echo -e "  ${NC}Keystore file: $KEYSTORE_PATH${NC}"
 echo -e "  ${NC}Key alias: $ALIAS${NC}"
 echo -e "  ${NC}Properties file: $KEY_PROPERTIES_PATH${NC}"
@@ -224,7 +224,7 @@ echo -e "  ${NC}• Keep your keystore file secure and backed up${NC}"
 echo -e "  ${NC}• Never commit key.properties to version control${NC}"
 echo -e "  ${NC}• Store passwords securely (consider using a password manager)${NC}"
 echo ""
-echo -e "${YELLOW}🚀 Next Steps:${NC}"
+echo -e "${YELLOW}[LAUNCH] Next Steps:${NC}"
 echo -e "  ${NC}1. To set environment variables: source $ENV_SCRIPT${NC}"
 echo -e "  ${NC}2. Build release bundle: ./scripts/build-bundle.sh release${NC}"
 echo ""

@@ -525,7 +525,7 @@ const isNativePlatform = computed(() => Capacitor.isNativePlatform())
 // Check if running in Tauri (Desktop) - use the utility function
 const isTauriPlatform = computed(() => {
   const result = isTauri()
-  console.log('🔍 isTauriPlatform check:', result)
+  console.log('[SEARCH] isTauriPlatform check:', result)
   return result
 })
 

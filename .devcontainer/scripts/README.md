@@ -4,7 +4,7 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ## Scripts
 
-### 🔧 on-create.sh
+### [CONFIG] on-create.sh
 
 **When it runs**: Automatically when the container is first created.
 
@@ -23,7 +23,7 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ---
 
-### 📦 post-create.sh
+### [PACKAGE] post-create.sh
 
 **When it runs**: After `on-create.sh` completes.
 
@@ -39,7 +39,7 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ---
 
-### ✅ verify-setup.sh
+### [OK] verify-setup.sh
 
 **When it runs**: Manually, when you want to verify the setup.
 

@@ -16,19 +16,19 @@ NC='\033[0m' # No Color
 
 # Función para imprimir mensajes con color
 print_status() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}[INFO]  $1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING]  $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 # Verificar que estamos en macOS
@@ -89,7 +89,7 @@ if [ -d "ios" ]; then
     print_success "CocoaPods instalado correctamente"
 fi
 
-print_success "🎉 Configuración de iOS completada!"
+print_success "[SUCCESS] Configuración de iOS completada!"
 print_status ""
 print_status "Comandos disponibles:"
 print_status "  npm run ios:dev              - Abrir proyecto en Xcode"

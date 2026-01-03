@@ -115,7 +115,7 @@ export const compactFloatingToolbar: IFloatingToolbarComponent = {
     template: `
       <div class="compact-toolbar">
         <button @click="$emit('toggle-play')">
-          {{ scrollState.isPlaying ? '⏸' : '▶' }}
+          {{ scrollState.isPlaying ? '[PAUSE]' : '[PLAY]' }}
         </button>
         <button @click="$emit('open-settings')">⚙</button>
       </div>

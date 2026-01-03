@@ -64,7 +64,7 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
       const version = packageJson.version
 
       if (!version) {
-        console.warn('⚠️ No version found in package.json')
+        console.warn('[WARNING] No version found in package.json')
         return
       }
 
@@ -87,11 +87,11 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
       // Write updated file only if content changed
       if (finalContent !== currentContent) {
         writeFileSync(versionFileFull, finalContent, 'utf-8')
-        console.log(`✨ Version synced: ${version} → src/utils/version.ts`)
+        console.log(`[FEATURE] Version synced: ${version} → src/utils/version.ts`)
       }
 
     } catch (error) {
-      console.error('❌ Error syncing version:', error)
+      console.error('[ERROR] Error syncing version:', error)
     }
   }
 }

@@ -20,7 +20,7 @@ This guide covers the complete process to prepare and submit Apuntador to the Ap
 ## Phase 1: App Store Connect Setup
 
 ### 1.1 Create App ID (FIRST - Required)
-**⚠️ You must create the App ID BEFORE creating the app in App Store Connect**
+**[WARNING] You must create the App ID BEFORE creating the app in App Store Connect**
 
 1. Go to **Apple Developer Portal**: https://developer.apple.com/account/
 2. **Certificates, Identifiers & Profiles** → **Identifiers** → **+**
@@ -51,12 +51,12 @@ This guide covers the complete process to prepare and submit Apuntador to the Ap
 ## Phase 2: Code Signing & Xcode Configuration
 
 ### 2.1 Code Signing Setup (CRITICAL)
-**⚠️ The app MUST be signed to upload to App Store Connect**
+**[WARNING] The app MUST be signed to upload to App Store Connect**
 
 1. Open `ios/App/App.xcodeproj` in Xcode
 2. Select **App** target → **Signing & Capabilities**
 3. Configure signing:
-   - **Automatically manage signing**: ✅ Checked (recommended)
+   - **Automatically manage signing**: [OK] Checked (recommended)
    - **Team**: Select your Apple Developer Team
    - **Bundle Identifier**: `io.apuntador.app`
 
@@ -289,16 +289,16 @@ set -e
 echo "🍎 Building Apuntador for App Store submission..."
 
 # Build web assets
-echo "📦 Building web assets..."
+echo "[PACKAGE] Building web assets..."
 npm run build
 
 # Sync with iOS
-echo "📱 Syncing with iOS..."
+echo "[MOBILE] Syncing with iOS..."
 npx cap copy ios
 npx cap sync ios
 
 # Open Xcode for manual archive
-echo "🔧 Opening Xcode..."
+echo "[CONFIG] Opening Xcode..."
 echo "Next steps:"
 echo "1. Select 'Generic iOS Device'"
 echo "2. Product → Archive"

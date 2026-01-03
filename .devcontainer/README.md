@@ -2,21 +2,21 @@
 
 This devcontainer provides a **complete and isolated development environment** for the Apuntador project, supporting **multi-platform development** for Web, Android, iOS, and Desktop (Tauri).
 
-## 🚀 Quick Start
+## [LAUNCH] Quick Start
 
 **First time? Start here**: [QUICKSTART.md](QUICKSTART.md) - Get up and running in 5 minutes!
 
-## 📚 Documentation
+## [DOCS] Documentation
 
-- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute setup guide ⚡
-- **[FIX_COCOAPODS.md](FIX_COCOAPODS.md)** - Fix Ruby/CocoaPods installation issues 🔧
-- **[TROUBLESHOOTING_ANDROID_SDK.md](TROUBLESHOOTING_ANDROID_SDK.md)** - Fix Android SDK installation failures 📱
+- **[QUICKSTART.md](QUICKSTART.md)** - 5-minute setup guide [FAST]
+- **[FIX_COCOAPODS.md](FIX_COCOAPODS.md)** - Fix Ruby/CocoaPods installation issues [CONFIG]
+- **[TROUBLESHOOTING_ANDROID_SDK.md](TROUBLESHOOTING_ANDROID_SDK.md)** - Fix Android SDK installation failures [MOBILE]
 - **[SETUP_SUMMARY.md](SETUP_SUMMARY.md)** - Executive summary of the configuration
 - **[MACOS_SETUP.md](MACOS_SETUP.md)** - What to install on your Mac
 - **[VOLUME_MANAGEMENT.md](VOLUME_MANAGEMENT.md)** - Managing Docker volumes and external drives
 - **[PLATFORM_NOTES.md](PLATFORM_NOTES.md)** - Detailed capabilities per platform (Web/Android/iOS/Tauri)
 
-## �🚀 Features
+## �[LAUNCH] Features
 
 ### Development Stack
 
@@ -41,7 +41,7 @@ This devcontainer provides a **complete and isolated development environment** f
 - Crates - Rust dependency management
 - Ionic - Ionic framework support
 
-ℹ️ **Note**: These extensions run **inside the container**, not on your host. They have full access to node_modules, project code, and can execute npm commands. VS Code uses a client-server architecture to connect your UI (local) with the development environment (container).
+[INFO] **Note**: These extensions run **inside the container**, not on your host. They have full access to node_modules, project code, and can execute npm commands. VS Code uses a client-server architecture to connect your UI (local) with the development environment (container).
 
 ### Automatic Configuration
 
@@ -68,7 +68,7 @@ This devcontainer provides a **complete and isolated development environment** f
 - Pre-configured Android environment
 - Capacitor sync
 
-## 📦 Prerequisites
+## [PACKAGE] Prerequisites
 
 1. **Docker Runtime** - Choose one option:
 
@@ -139,7 +139,7 @@ If you don't have the project cloned:
 3. Enter the repository URL
 4. Wait for it to clone and configure everything
 
-## 🗂️ Multiple Projects in a Workspace
+## [FILES] Multiple Projects in a Workspace
 
 If you have multiple projects, each with its own devcontainer, you have several options:
 
@@ -156,9 +156,9 @@ Then use "Reopen in Container" normally. Each project will have its own window a
 
 **Advantages**:
 
-- ✅ Simple and straightforward
-- ✅ Each project completely isolated
-- ✅ No confusion about which devcontainer to use
+- [OK] Simple and straightforward
+- [OK] Each project completely isolated
+- [OK] No confusion about which devcontainer to use
 
 ### Strategy 2: Multi-Root Workspace
 
@@ -228,13 +228,13 @@ code /Users/linus/projects/apuntador
 - Each will have its own running container
 - Containers are independent and don't affect each other
 
-### ⚠️ Important
+### [WARNING] Important
 
 - **VS Code looks for `.devcontainer/` in the root of the folder you open**
 - If you open a parent folder containing subfolders with devcontainers, VS Code may not detect them automatically
 - **Solution**: Always open the specific project folder (e.g., `apuntador/` not `projects/`)
 
-## 🔧 Available Commands
+## [CONFIG] Available Commands
 
 Once inside the container, all development commands work:
 
@@ -260,15 +260,15 @@ cargVolume Persistence
 The devcontainer uses Docker volumes for heavy build artifacts:
 
 **`node_modules` volume**:
-- ✅ Faster installation
-- ✅ Better performance on Mac/Windows
-- ⚠️ Not visible on host system (this is intentional)
+- [OK] Faster installation
+- [OK] Better performance on Mac/Windows
+- [WARNING] Not visible on host system (this is intentional)
 
 **`src-tauri/target` volume**:
-- ✅ Saves disk space (Rust builds can be 5-10GB+)
-- ✅ Faster incremental builds
-- ✅ Can be mapped to external drive if needed
-- ⚠️ Not visible on host system
+- [OK] Saves disk space (Rust builds can be 5-10GB+)
+- [OK] Faster incremental builds
+- [OK] Can be mapped to external drive if needed
+- [WARNING] Not visible on host system
 
 To map volumes to specific locations (e.g., external drive):
 ```bash
@@ -296,7 +296,7 @@ npx cap sync ios         # Sync Capacitor to iOS
 # Note: Actual iOS builds require macOS host with Xcode
 ```
 
-✅ **iOS Development Simplified**:
+[OK] **iOS Development Simplified**:
 
 With bind mounts (shared directories), `node_modules` is automatically available on both the container and your Mac. Xcode can access it directly!
 
@@ -306,7 +306,7 @@ npm run build && npx cap sync ios
 
 # Then open Xcode on Mac:
 open ios/App/App.xcworkspace
-# No additional npm install needed! ✅
+# No additional npm install needed! [OK]
 ```
 
 See [VOLUME_MANAGEMENT.md](VOLUME_MANAGEMENT.md) for details about the bind mounts configuration.
@@ -319,7 +319,7 @@ ionic build              # Build Ionic app
 ionic capacitor sync     # Sync to all platforms
 ```
 
-## 📝 Important NotFull Stack: Vue + TypeScript + Rust + Android):
+## [NOTE] Important NotFull Stack: Vue + TypeScript + Rust + Android):
 
 | Task                                   | Recommended CPUs | Recommended Memory |
 | -------------------------------------- | ---------------- | ------------------ |
@@ -333,7 +333,7 @@ ionic capacitor sync     # Sync to all platforms
 - Rust compilation is CPU-intensive
 - Android Gradle builds need significant memory
 - Running multiple dev servers simultaneously (Vite + Tauri + Android emulator)
-- ⚠️ `node_modules` are not visible on your host system (this is intentional)
+- [WARNING] `node_modules` are not visible on your host system (this is intentional)
 
 ### Ports
 
@@ -355,24 +355,24 @@ To return to working locally:
 1. `Cmd+Shift+P` / `Ctrl+Shift+P`
 2. **"Dev Containers: Reopen Folder Locally"**
 
-## 💻 Resources and Performance
+## [DESKTOP] Resources and Performance
 
 ### What Uses Docker Resources?
 
 **Inside the Container** (limited by your Docker allocation):
 
-- ✅ Node.js and npm
-- ✅ Vite dev server (hot reload, compilation)
-- ✅ Production builds (`npm run build`)
-- ✅ Tests (Vitest, Playwright)
-- ✅ ESLint, Prettier, TypeScript compiler
-- ✅ VS Code extensions running in the container (Volar, etc.)
+- [OK] Node.js and npm
+- [OK] Vite dev server (hot reload, compilation)
+- [OK] Production builds (`npm run build`)
+- [OK] Tests (Vitest, Playwright)
+- [OK] ESLint, Prettier, TypeScript compiler
+- [OK] VS Code extensions running in the container (Volar, etc.)
 
 **On the Host** (unlimited resources from your machine):
 
-- ✅ VS Code window and interface
-- ✅ UI extensions (themes, icons)
-- ✅ Web browser to view the application
+- [OK] VS Code window and interface
+- [OK] UI extensions (themes, icons)
+- [OK] Web browser to view the application
 
 ### Resource Recommendations
 
@@ -384,7 +384,7 @@ For **Apuntador** (Vue 3 + TypeScript + Vite project):
 | **Optimal development**     | **4-6**          | **8-10 GB**        |
 | With E2E tests (Playwright) | 6-8              | 10-12 GB           |
 
-**Example: 4 CPUs / 8GB**: ✅ Sufficient for normal development, can be adjusted if running E2E tests frequently.
+**Example: 4 CPUs / 8GB**: [OK] Sufficient for normal development, can be adjusted if running E2E tests frequently.
 
 ### How to Adjust Resources
 
@@ -417,7 +417,7 @@ colima start --cpu 6 --memory 10 --disk 60
 - Test execution
 - Production builds
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### Container Won't Start
 
@@ -490,17 +490,17 @@ colima restart
 - Colima uses QEMU instead of VirtualBox/HyperKit
 - For better performance on Apple Silicon (M1/M2): `colima start --vm-type vz --vz-rosetta`
 
-## 🎯 DevContainer Benefits
+## [TARGET] DevContainer Benefits
 
-- ✅ Consistent environment across developers
-- ✅ Doesn't pollute your local system with dependencies
-- ✅ Automatic tool configuration
-- ✅ Easy to share and replicate
-- ✅ Complete project isolation
-- ✅ Compatible with GitHub Codespaces
-- ✅ **Multi-architecture support** (ARM64 and x86-64)
+- [OK] Consistent environment across developers
+- [OK] Doesn't pollute your local system with dependencies
+- [OK] Automatic tool configuration
+- [OK] Easy to share and replicate
+- [OK] Complete project isolation
+- [OK] Compatible with GitHub Codespaces
+- [OK] **Multi-architecture support** (ARM64 and x86-64)
 
-## 🏗️ Multi-Architecture Support
+## [BUILD] Multi-Architecture Support
 
 The devcontainer **automatically detects** the host architecture and configures itself accordingly:
 
@@ -508,9 +508,9 @@ The devcontainer **automatically detects** the host architecture and configures 
 
 When running on ARM64 systems, the container:
 
-- ✅ Automatically enables **amd64 multi-arch support**
-- ✅ Installs x86-64 compatibility libraries (`libc6:amd64`, `libstdc++6:amd64`, `zlib1g:amd64`)
-- ✅ Allows running Android SDK tools (which are x86-64 only) via QEMU emulation
+- [OK] Automatically enables **amd64 multi-arch support**
+- [OK] Installs x86-64 compatibility libraries (`libc6:amd64`, `libstdc++6:amd64`, `zlib1g:amd64`)
+- [OK] Allows running Android SDK tools (which are x86-64 only) via QEMU emulation
 
 **Why is this needed?**
 
@@ -551,7 +551,7 @@ If `adb` fails with "Could not open '/lib64/ld-linux-x86-64.so.2'":
 
 See [TROUBLESHOOTING_ANDROID_SDK.md](TROUBLESHOOTING_ANDROID_SDK.md) for more details.
 
-## 🔌 Extensions: Container vs Host
+## [PLUGIN] Extensions: Container vs Host
 
 ### Where Do Extensions Run?
 

@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-echo "🔐 iOS GitHub Actions Setup Helper"
+echo "[SECURE] iOS GitHub Actions Setup Helper"
 echo "This script helps generate base64 values for GitHub Secrets"
 echo ""
 
 # Check if we're on macOS
 if [[ "$OSTYPE" != "darwin"* ]]; then
-    echo "❌ This script requires macOS for iOS certificate handling"
+    echo "[ERROR] This script requires macOS for iOS certificate handling"
     exit 1
 fi
 
@@ -17,18 +17,18 @@ encode_file() {
     local description="$2"
     
     if [ ! -f "$file_path" ]; then
-        echo "❌ File not found: $file_path"
+        echo "[ERROR] File not found: $file_path"
         return 1
     fi
     
     echo ""
-    echo "📝 $description"
+    echo "[NOTE] $description"
     echo "File: $file_path"
     echo "Base64 (copy this to GitHub Secrets):"
     echo "----------------------------------------"
     base64 -i "$file_path"
     echo "----------------------------------------"
-    echo "✅ Copied to clipboard"
+    echo "[OK] Copied to clipboard"
     base64 -i "$file_path" | pbcopy
 }
 
@@ -53,7 +53,7 @@ if [ -n "$cert_path" ] && [ -f "$cert_path" ]; then
     read -s cert_password
     echo "Password length: ${#cert_password} characters"
     if [ ${#cert_password} -gt 0 ]; then
-        echo "✅ Remember to add this password as IOS_CERTIFICATE_PASSWORD in GitHub"
+        echo "[OK] Remember to add this password as IOS_CERTIFICATE_PASSWORD in GitHub"
     fi
 else
     echo "⏭️  Skipping certificate (file not found)"
@@ -101,14 +101,14 @@ echo "Enter your Team ID (or press Enter to skip):"
 read -r team_id
 
 if [ ${#team_id} -eq 10 ]; then
-    echo "✅ Team ID: $team_id"
+    echo "[OK] Team ID: $team_id"
     echo "Use this for IOS_TEAM_ID secret"
 elif [ -n "$team_id" ]; then
-    echo "⚠️  Team ID should be 10 characters. You entered: $team_id (${#team_id} chars)"
+    echo "[WARNING]  Team ID should be 10 characters. You entered: $team_id (${#team_id} chars)"
 fi
 
 echo ""
-echo "📋 SUMMARY OF GITHUB SECRETS TO CREATE:"
+echo "[LIST] SUMMARY OF GITHUB SECRETS TO CREATE:"
 echo "======================================="
 echo ""
 echo "Required secrets:"
@@ -125,9 +125,9 @@ echo "- APP_STORE_CONNECT_API_KEY_BASE64 (generated above)"
 echo ""
 echo "📖 Full setup guide: docs/IOS_GITHUB_ACTIONS.md"
 echo ""
-echo "🚀 Next steps:"
+echo "[LAUNCH] Next steps:"
 echo "1. Add all secrets to GitHub: Settings → Secrets and variables → Actions"
 echo "2. Test the workflow: Actions → 'Build iOS App Store Package'"
 echo "3. Check the build output and artifacts"
 echo ""
-echo "✅ Setup helper completed!"
+echo "[OK] Setup helper completed!"

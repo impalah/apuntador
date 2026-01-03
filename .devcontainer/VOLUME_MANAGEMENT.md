@@ -2,17 +2,17 @@
 
 Este documento explica la configuración de almacenamiento del proyecto Apuntador y cómo gestionar `node_modules` y compilaciones de Rust.
 
-## 📦 Configuración Actual: Bind Mounts (Compartidos)
+## [PACKAGE] Configuración Actual: Bind Mounts (Compartidos)
 
 **Actualizado**: Desde diciembre 2025, el proyecto usa **bind mounts** en lugar de volúmenes Docker aislados.
 
 ### Qué significa esto:
 
-- ✅ `node_modules` y `src-tauri/target` están **compartidos** entre el host (tu Mac) y el contenedor
-- ✅ Un solo directorio, accesible desde ambos lados
-- ✅ Ahorra 10-20GB de espacio en disco
-- ✅ Xcode puede acceder directamente a `node_modules` para builds de iOS
-- ✅ Cambios visibles inmediatamente en host y contenedor
+- [OK] `node_modules` y `src-tauri/target` están **compartidos** entre el host (tu Mac) y el contenedor
+- [OK] Un solo directorio, accesible desde ambos lados
+- [OK] Ahorra 10-20GB de espacio en disco
+- [OK] Xcode puede acceder directamente a `node_modules` para builds de iOS
+- [OK] Cambios visibles inmediatamente en host y contenedor
 
 ### Ubicación de los Directorios:
 
@@ -31,7 +31,7 @@ Este documento explica la configuración de almacenamiento del proyecto Apuntado
 
 ---
 
-## 🔄 Migración desde Volúmenes Docker Antiguos
+## [REFRESH] Migración desde Volúmenes Docker Antiguos
 
 Si estás actualizando desde una configuración anterior que usaba volúmenes Docker, ejecuta el script de migración:
 
@@ -63,14 +63,14 @@ Con bind mounts, ya **NO necesitas** instalar `node_modules` por separado en el 
 **Antes (con volúmenes Docker):**
 ```bash
 # Tenías que hacer esto en el host:
-npm install  # ❌ Ya no es necesario
+npm install  # [ERROR] Ya no es necesario
 ```
 
 **Ahora (con bind mounts):**
 ```bash
 # El contenedor instala node_modules
 # que automáticamente aparece en el host
-# Xcode lo ve directamente ✅
+# Xcode lo ve directamente [OK]
 ```
 
 **Workflow de iOS:**
@@ -81,23 +81,23 @@ npm run build && npx cap sync ios
 # 2. En tu Mac:
 open ios/App/App.xcworkspace
 
-# 3. Xcode ya puede ver node_modules/@capacitor/ios ✅
+# 3. Xcode ya puede ver node_modules/@capacitor/ios [OK]
 ```
 
 ---
 
-## ⚡ Rendimiento: Bind Mounts vs Volúmenes
+## [FAST] Rendimiento: Bind Mounts vs Volúmenes
 
 ### Trade-offs:
 
 | Aspecto              | Volúmenes Docker     | Bind Mounts (Actual) |
 | -------------------- | -------------------- | -------------------- |
-| Velocidad en Linux   | Rápido ⚡            | Rápido ⚡            |
-| Velocidad en macOS   | Rápido ⚡            | Un poco más lento 🐌 |
-| Espacio en disco     | Doble (2x) ❌        | Simple (1x) ✅       |
-| Acceso desde host    | No ❌                | Sí ✅                |
-| iOS development      | Complicado ⚠️        | Simple ✅            |
-| Android development  | Excelente ✅         | Excelente ✅         |
+| Velocidad en Linux   | Rápido [FAST]            | Rápido [FAST]            |
+| Velocidad en macOS   | Rápido [FAST]            | Un poco más lento 🐌 |
+| Espacio en disco     | Doble (2x) [ERROR]        | Simple (1x) [OK]       |
+| Acceso desde host    | No [ERROR]                | Sí [OK]                |
+| iOS development      | Complicado [WARNING]        | Simple [OK]            |
+| Android development  | Excelente [OK]         | Excelente [OK]         |
 
 ### Impacto Real:
 
@@ -147,7 +147,7 @@ npm install
 
 ---
 
-## 🔍 Ver Volúmenes Actuales
+## [SEARCH] Ver Volúmenes Actuales
 
 ```bash
 # Listar todos los volúmenes
@@ -163,11 +163,11 @@ docker system df -v
 
 ---
 
-## 🗑️ Limpiar Volúmenes (Liberar Espacio)
+## [DELETE] Limpiar Volúmenes (Liberar Espacio)
 
 ### Eliminar volúmenes específicos del proyecto
 
-⚠️ **Advertencia**: Esto eliminará las dependencias compiladas. Se reinstalarán al reconstruir el container.
+[WARNING] **Advertencia**: Esto eliminará las dependencias compiladas. Se reinstalarán al reconstruir el container.
 
 ```bash
 # Detener el container primero
@@ -195,7 +195,7 @@ docker volume prune -f
 
 ---
 
-## 💾 Mapear a Disco Externo
+## [SAVE] Mapear a Disco Externo
 
 Si quieres usar un disco externo para `src-tauri/target` (ahorra espacio en SSD interno):
 
@@ -223,35 +223,35 @@ Edita `.devcontainer/devcontainer.json`:
 ]
 ```
 
-⚠️ **Nota**: El disco externo debe estar montado antes de iniciar el contenedor.
+[WARNING] **Nota**: El disco externo debe estar montado antes de iniciar el contenedor.
 
 ---
 
-## 🎯 Recomendaciones
+## [TARGET] Recomendaciones
 
 ### Para la mayoría de usuarios:
 
-✅ **Usar bind mounts** (configuración actual)
+[OK] **Usar bind mounts** (configuración actual)
 - Ahorro de espacio
 - Simplicidad para iOS
 - Rendimiento aceptable
 
 ### Para usuarios con espacio ilimitado y prioridad en velocidad:
 
-✅ **Usar volúmenes Docker**
+[OK] **Usar volúmenes Docker**
 - Máximo rendimiento
 - Requiere instalación dual de node_modules para iOS
 
 ### Para usuarios con SSDs pequeños:
 
-✅ **Bind mounts + disco externo para Rust**
+[OK] **Bind mounts + disco externo para Rust**
 - Mejor de ambos mundos
 - `node_modules` en SSD (~1GB)
 - `target` en disco externo (~10-20GB)
 
 ---
 
-## 📚 Referencias
+## [DOCS] Referencias
 
 - [Docker Volumes Documentation](https://docs.docker.com/storage/volumes/)
 - [Bind Mounts Documentation](https://docs.docker.com/storage/bind-mounts/)

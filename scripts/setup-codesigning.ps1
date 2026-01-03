@@ -3,12 +3,12 @@
 # Script de configuración completa para certificados auto-firmados
 # Uso: .\scripts\setup-codesigning.ps1
 
-Write-Host "🔐 Configuración completa de certificados para Apuntador" -ForegroundColor Green
+Write-Host "[SECURE] Configuración completa de certificados para Apuntador" -ForegroundColor Green
 Write-Host ""
 
 # Verificar si estamos en PowerShell 5.1+ 
 if ($PSVersionTable.PSVersion.Major -lt 5) {
-    Write-Host "❌ Se requiere PowerShell 5.1 o superior" -ForegroundColor Red
+    Write-Host "[ERROR] Se requiere PowerShell 5.1 o superior" -ForegroundColor Red
     exit 1
 }
 
@@ -16,32 +16,32 @@ if ($PSVersionTable.PSVersion.Major -lt 5) {
 $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
 
 if (-not $isAdmin) {
-    Write-Host "⚠️  Ejecutando sin permisos de administrador" -ForegroundColor Yellow
+    Write-Host "[WARNING]  Ejecutando sin permisos de administrador" -ForegroundColor Yellow
     Write-Host "   Algunas funciones pueden requerir elevación" -ForegroundColor Yellow
     Write-Host ""
 }
 
-Write-Host "📋 PASOS DE CONFIGURACIÓN:" -ForegroundColor Blue
+Write-Host "[LIST] PASOS DE CONFIGURACIÓN:" -ForegroundColor Blue
 Write-Host "1. Generar certificado auto-firmado" -ForegroundColor White
 Write-Host "2. Configurar GitHub Actions (opcional)" -ForegroundColor White
 Write-Host "3. Probar compilación local" -ForegroundColor White
 Write-Host ""
 
 # Paso 1: Generar certificado
-Write-Host "🔑 Paso 1: Generando certificado..." -ForegroundColor Cyan
+Write-Host "[KEY] Paso 1: Generando certificado..." -ForegroundColor Cyan
 $createScript = ".\scripts\create-self-signed-cert.ps1"
 
 if (Test-Path $createScript) {
     & $createScript
     
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "✅ Certificado generado exitosamente" -ForegroundColor Green
+        Write-Host "[OK] Certificado generado exitosamente" -ForegroundColor Green
     } else {
-        Write-Host "❌ Error generando certificado" -ForegroundColor Red
+        Write-Host "[ERROR] Error generando certificado" -ForegroundColor Red
         exit 1
     }
 } else {
-    Write-Host "❌ Script no encontrado: $createScript" -ForegroundColor Red
+    Write-Host "[ERROR] Script no encontrado: $createScript" -ForegroundColor Red
     exit 1
 }
 
@@ -76,18 +76,18 @@ if (Test-Path $base64File) {
         Start-Process notepad.exe -ArgumentList $base64File
     }
 } else {
-    Write-Host "❌ Archivo Base64 no encontrado: $base64File" -ForegroundColor Red
+    Write-Host "[ERROR] Archivo Base64 no encontrado: $base64File" -ForegroundColor Red
 }
 
 Write-Host ""
 
 # Paso 3: Probar compilación
-Write-Host "🔧 Paso 3: Probar compilación local" -ForegroundColor Cyan
+Write-Host "[CONFIG] Paso 3: Probar compilación local" -ForegroundColor Cyan
 $response = Read-Host "¿Quieres probar la compilación con firma ahora? (y/n)"
 
 if ($response -eq 'y' -or $response -eq 'Y') {
     Write-Host ""
-    Write-Host "🚀 Iniciando compilación de prueba..." -ForegroundColor Yellow
+    Write-Host "[LAUNCH] Iniciando compilación de prueba..." -ForegroundColor Yellow
     
     $buildScript = ".\scripts\build-windows-signed.ps1"
     if (Test-Path $buildScript) {
@@ -95,20 +95,20 @@ if ($response -eq 'y' -or $response -eq 'Y') {
         
         if ($LASTEXITCODE -eq 0) {
             Write-Host ""
-            Write-Host "🎉 ¡Compilación de prueba exitosa!" -ForegroundColor Green
+            Write-Host "[SUCCESS] ¡Compilación de prueba exitosa!" -ForegroundColor Green
         } else {
             Write-Host ""
-            Write-Host "❌ Error en la compilación de prueba" -ForegroundColor Red
+            Write-Host "[ERROR] Error en la compilación de prueba" -ForegroundColor Red
         }
     } else {
-        Write-Host "❌ Script no encontrado: $buildScript" -ForegroundColor Red
+        Write-Host "[ERROR] Script no encontrado: $buildScript" -ForegroundColor Red
     }
 }
 
 Write-Host ""
-Write-Host "✅ CONFIGURACIÓN COMPLETADA" -ForegroundColor Green
+Write-Host "[OK] CONFIGURACIÓN COMPLETADA" -ForegroundColor Green
 Write-Host ""
-Write-Host "📝 PRÓXIMOS PASOS:" -ForegroundColor Blue
+Write-Host "[NOTE] PRÓXIMOS PASOS:" -ForegroundColor Blue
 Write-Host "1. Configurar secrets en GitHub (si no lo hiciste)" -ForegroundColor White
 Write-Host "2. Hacer commit de los cambios en tauri.conf.json" -ForegroundColor White
 Write-Host "3. Probar el workflow de GitHub Actions" -ForegroundColor White
@@ -116,4 +116,4 @@ Write-Host "4. Distribuir aplicaciones firmadas" -ForegroundColor White
 Write-Host ""
 Write-Host "📚 Documentación completa: .\docs\SELF-SIGNED-CERTIFICATE.md" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "🎯 ¡Listo para distribución con certificado auto-firmado!" -ForegroundColor Green
+Write-Host "[TARGET] ¡Listo para distribución con certificado auto-firmado!" -ForegroundColor Green

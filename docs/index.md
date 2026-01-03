@@ -17,13 +17,13 @@ hero:
       link: https://github.com/yourusername/apuntador
 
 features:
-  - icon: 🎯
+  - icon: [TARGET]
     title: Auto-Scrolling
     details: Smooth, customizable auto-scrolling with adjustable speed and precision timing.
-  - icon: 📱
+  - icon: [MOBILE]
     title: Mobile-First
     details: Designed for mobile and tablet use with touch-friendly controls and responsive design.
-  - icon: ✨
+  - icon: [FEATURE]
     title: Highlight Band
     details: Focus on current reading line with adjustable highlight band and dimming effects.
   - icon: 🪞
@@ -32,16 +32,16 @@ features:
   - icon: ⌨️
     title: Keyboard Shortcuts
     details: Full keyboard control for desktop use with intuitive shortcuts.
-  - icon: 📝
+  - icon: [NOTE]
     title: Markdown Support
     details: Built-in markdown editor with live preview and file import capabilities.
-  - icon: 🎨
+  - icon: [STYLE]
     title: Customizable
     details: Extensive customization options for fonts, colors, speed, and behavior.
-  - icon: 💾
+  - icon: [SAVE]
     title: Privacy-First
     details: All data stored locally - no external servers, complete privacy control.
-  - icon: 🚀
+  - icon: [LAUNCH]
     title: High Performance
     details: Optimized for 60fps smooth scrolling with efficient rendering.
 ---
@@ -71,9 +71,9 @@ Apuntador is built with modern web technologies:
 
 ## Browser Support
 
-- ✅ **Modern browsers** with ES2020 support
-- ✅ **Mobile browsers** iOS Safari 14+, Chrome 90+
-- ✅ **Desktop browsers** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
+- [OK] **Modern browsers** with ES2020 support
+- [OK] **Mobile browsers** iOS Safari 14+, Chrome 90+
+- [OK] **Desktop browsers** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
 ## Test Coverage
 

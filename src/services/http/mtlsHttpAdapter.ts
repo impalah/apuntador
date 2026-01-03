@@ -56,7 +56,7 @@ export class MTLSHttpAdapter {
     try {
       if (platform === 'android') {
         // Use mTLS client on Android
-        console.log(`📱 Android mTLS Request: ${options.method || 'GET'} ${url}`)
+        console.log(`[MOBILE] Android mTLS Request: ${options.method || 'GET'} ${url}`)
         
         const result = await this.makeAndroidRequest(url, {
           method: options.method || 'GET',
@@ -68,7 +68,7 @@ export class MTLSHttpAdapter {
 
       } else if (platform === 'ios') {
         // Use mTLS HTTP plugin on iOS (bypasses WebView fetch restrictions)
-        console.log(`📱 iOS mTLS Request: ${options.method || 'GET'} ${url}`)
+        console.log(`[MOBILE] iOS mTLS Request: ${options.method || 'GET'} ${url}`)
         
         const result = await this.makeIOSRequest(url, {
           method: options.method || 'GET',
@@ -80,7 +80,7 @@ export class MTLSHttpAdapter {
 
       } else {
         // Use regular fetch on web
-        console.log(`🌐 Web Fetch Request: ${options.method || 'GET'} ${url}`)
+        console.log(`[WEB] Web Fetch Request: ${options.method || 'GET'} ${url}`)
         
         const response = await fetch(url, {
           method: options.method || 'GET',
@@ -175,7 +175,7 @@ export class MTLSHttpAdapter {
     }
   ): Promise<HttpResponse<T>> {
     try {
-      console.log(`📱 iOS HTTP Request: ${options.method} ${url}`)
+      console.log(`[MOBILE] iOS HTTP Request: ${options.method} ${url}`)
       
       const result = await CapacitorHttp.request({
         url,
@@ -184,7 +184,7 @@ export class MTLSHttpAdapter {
         data: options.body,
       })
 
-      console.log('📱 iOS HTTP Response:', {
+      console.log('[MOBILE] iOS HTTP Response:', {
         status: result.status,
         dataLength: result.data ? String(result.data).length : 0
       })

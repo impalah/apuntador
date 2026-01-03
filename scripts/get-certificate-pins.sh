@@ -39,13 +39,13 @@ echo ""
 
 # Verificar que curl está instalado
 if ! command -v curl &> /dev/null; then
-    echo -e "${RED}❌ Error: curl no está instalado${NC}"
+    echo -e "${RED}[ERROR] Error: curl no está instalado${NC}"
     exit 1
 fi
 
 # Verificar que jq está instalado
 if ! command -v jq &> /dev/null; then
-    echo -e "${RED}❌ Error: jq no está instalado${NC}"
+    echo -e "${RED}[ERROR] Error: jq no está instalado${NC}"
     echo -e "${YELLOW}   Instalar con: brew install jq${NC}"
     exit 1
 fi
@@ -54,14 +54,14 @@ fi
 TMP_DIR=$(mktemp -d)
 trap "rm -rf $TMP_DIR" EXIT
 
-echo -e "${BLUE}📡 Descargando pins del certificado desde el backend...${NC}"
+echo -e "${BLUE}[SIGNAL] Descargando pins del certificado desde el backend...${NC}"
 echo ""
 
 # Descargar pins desde el endpoint del backend
 RESPONSE=$(curl -s -f "$BACKEND_URL/device/ca-certificate-pin" || echo "")
 
 if [ -z "$RESPONSE" ]; then
-    echo -e "${RED}❌ Error: No se pudo conectar con el backend${NC}"
+    echo -e "${RED}[ERROR] Error: No se pudo conectar con el backend${NC}"
     echo -e "${YELLOW}   Verifica que el backend esté corriendo en: $BACKEND_URL${NC}"
     exit 1
 fi
@@ -73,14 +73,14 @@ ALGORITHM=$(echo "$RESPONSE" | jq -r '.algorithm')
 USAGE=$(echo "$RESPONSE" | jq -r '.usage')
 
 if [ "$SHA256_BASE64" == "null" ] || [ -z "$SHA256_BASE64" ]; then
-    echo -e "${RED}❌ Error: Respuesta inválida del backend${NC}"
+    echo -e "${RED}[ERROR] Error: Respuesta inválida del backend${NC}"
     echo -e "${YELLOW}   Respuesta recibida:${NC}"
     echo "$RESPONSE" | jq .
     exit 1
 fi
 
 # Mostrar resultados
-echo -e "${GREEN}✅ Certificate pins obtenidos exitosamente${NC}"
+echo -e "${GREEN}[OK] Certificate pins obtenidos exitosamente${NC}"
 echo ""
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}  Pins SHA-256 del Certificado CA${NC}"
@@ -132,7 +132,7 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${GREEN}  Nota sobre Backup Pins${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
-echo -e "${YELLOW}⚠️  Importante:${NC} Debes mantener un backup pin para rotación de certificados."
+echo -e "${YELLOW}[WARNING]  Importante:${NC} Debes mantener un backup pin para rotación de certificados."
 echo ""
 echo "Cuando rotes el certificado del CA:"
 echo "1. Genera el nuevo certificado en el backend"

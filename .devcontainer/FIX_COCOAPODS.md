@@ -1,4 +1,4 @@
-# ⚠️ Solución Rápida: Error de CocoaPods con Ruby
+# [WARNING] Solución Rápida: Error de CocoaPods con Ruby
 
 ## El Problema
 
@@ -12,11 +12,11 @@ macOS incluye Ruby 2.6.10 por defecto, pero CocoaPods necesita Ruby >= 3.0.
 
 ---
 
-## ✅ Solución (5 minutos)
+## [OK] Solución (5 minutos)
 
 ### Paso 1: Instalar rbenv (gestor de versiones de Ruby)
 
-**⚠️ NO usar `brew install ruby`** - Instala Ruby 4.0.0 (inestable)
+**[WARNING] NO usar `brew install ruby`** - Instala Ruby 4.0.0 (inestable)
 
 ```bash
 # Instalar rbenv y ruby-build
@@ -82,7 +82,7 @@ pod --version
 
 ---
 
-## 🎯 Comandos Resumidos (Copiar y Pegar)
+## [TARGET] Comandos Resumidos (Copiar y Pegar)
 
 ```bash
 # 1. Si ya instalaste Ruby con Homebrew, desinstalarlo
@@ -114,7 +114,7 @@ pod --version
 
 ---
 
-## 🔧 Solución Alternativa: rbenv
+## [CONFIG] Solución Alternativa: rbenv
 
 Si prefieres gestionar múltiples versiones de Ruby:
 
@@ -139,7 +139,7 @@ gem install cocoapods
 
 ---
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### "Si instalaste Ruby con Homebrew, desinstalarlo
 brew uninstall ruby
@@ -252,7 +252,7 @@ source ~/.zshrc
 
 ---
 
-## ✅ Checklist
+## [OK] Checklist
 
 - [ ] `brew install ruby` completado
 - [ ] PATH actualizado en `~/.zshrc`
@@ -261,4 +261,4 @@ source ~/.zshrc
 - [ ] `gem install cocoapods` exitoso
 - [ ] `pod --version` funciona
 
-**¡Listo para desarrollo iOS!** 🎉
+**¡Listo para desarrollo iOS!** [SUCCESS]

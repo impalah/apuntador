@@ -1,19 +1,19 @@
-# 🎉 COMPLETE SETUP: Self-Signed Certificate
+# [SUCCESS] COMPLETE SETUP: Self-Signed Certificate
 
-## ✅ Current Status
+## [OK] Current Status
 
 A self-signed certificate system has been successfully configured to reduce Windows Defender warnings for Apuntador applications.
 
-## 📋 What has been completed
+## [LIST] What has been completed
 
-### 1. ✅ Certificate Generation
+### 1. [OK] Certificate Generation
 
 - Functional PowerShell script: `scripts/create-self-signed-cert.ps1`
 - RSA 2048 bits certificate successfully generated
 - Validity: 3 years
 - Password: `apuntador2024!`
 
-### 2. ✅ Generated Files
+### 2. [OK] Generated Files
 
 ```
 certificates/
@@ -21,25 +21,25 @@ certificates/
 └── certificate-base64.txt         # Base64 for GitHub Actions
 ```
 
-### 3. ✅ Security Configuration
+### 3. [OK] Security Configuration
 
 - `certificates/` directory added to `.gitignore`
 - PFX files protected against accidental upload
 - Security documentation created
 
-### 4. ✅ GitHub Actions Integration
+### 4. [OK] GitHub Actions Integration
 
 - Workflow `build-windows-desktop.yml` already configured
 - Environment variables prepared for secrets
 - System ready for automatic signed builds
 
-### 5. ✅ Documentation
+### 5. [OK] Documentation
 
 - Complete guide in `docs/WINDOWS-CERTIFICATE.md`
 - Step-by-step configuration instructions
 - Information about benefits and limitations
 
-## 🚀 Next Steps for User
+## [LAUNCH] Next Steps for User
 
 ### 1. Configure Secrets in GitHub (REQUIRED)
 
@@ -63,32 +63,32 @@ Once the secrets are configured, any push to the main branch will automatically 
 - Install it on Windows
 - Verify there are fewer Windows Defender warnings
 
-## 🎯 Expected Impact
+## [TARGET] Expected Impact
 
 ### Before (without certificate):
 
-- ⚠️ Windows Defender blocks installation
-- ⚠️ Multiple security warnings
-- ⚠️ Users hesitate to install the application
+- [WARNING] Windows Defender blocks installation
+- [WARNING] Multiple security warnings
+- [WARNING] Users hesitate to install the application
 
 ### After (with self-signed certificate):
 
-- ✅ Smoother installation
-- ✅ Fewer security warnings
-- ✅ Better user trust
-- ✅ More professional process
+- [OK] Smoother installation
+- [OK] Fewer security warnings
+- [OK] Better user trust
+- [OK] More professional process
 
-## 📊 Technical Summary
+## [STATS] Technical Summary
 
 | Component      | Status        | Description                          |
 | -------------- | ------------- | ------------------------------------ |
-| PS1 Script     | ✅ Functional | Automatically generates certificates |
-| Certificate    | ✅ Created    | RSA 2048, valid for 3 years          |
-| GitHub Actions | ✅ Configured | Ready for signed builds              |
-| Security       | ✅ Protected  | Sensitive files in .gitignore        |
-| Documentation  | ✅ Complete   | Guides for user and developer        |
+| PS1 Script     | [OK] Functional | Automatically generates certificates |
+| Certificate    | [OK] Created    | RSA 2048, valid for 3 years          |
+| GitHub Actions | [OK] Configured | Ready for signed builds              |
+| Security       | [OK] Protected  | Sensitive files in .gitignore        |
+| Documentation  | [OK] Complete   | Guides for user and developer        |
 
-## 🔧 Quick Reference Commands
+## [CONFIG] Quick Reference Commands
 
 ```powershell
 # Regenerate certificate if needed
@@ -101,8 +101,8 @@ Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Apuntador*
 Get-ChildItem Cert:\CurrentUser\My | Where-Object {$_.Subject -like "*Apuntador*"} | Remove-Item
 ```
 
-## ✨ Conclusion
+## [FEATURE] Conclusion
 
 The self-signed certificate system is **100% ready and functional**. Only configuring the secrets in GitHub remains to complete the implementation.
 
-Your Apuntador application will now have professional signed builds! 🚀
+Your Apuntador application will now have professional signed builds! [LAUNCH]

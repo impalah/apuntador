@@ -8,7 +8,7 @@ param(
 
 if ($Verbose) { $VerbosePreference = "Continue" }
 
-Write-Host "🔐 Creating certificate for code signing..." -ForegroundColor Green
+Write-Host "[SECURE] Creating certificate for code signing..." -ForegroundColor Green
 
 # Validate and handle password securely
 if ($Interactive) {
@@ -54,13 +54,13 @@ $CertParams = @{
 Write-Verbose "Certificate parameters: $(ConvertTo-Json $CertParams -Compress)"
 
 try {
-    Write-Host "🔑 Generating certificate..." -ForegroundColor Yellow
+    Write-Host "[KEY] Generating certificate..." -ForegroundColor Yellow
     Write-Verbose "Executing New-SelfSignedCertificate"
     
     $cert = New-SelfSignedCertificate @CertParams
     
     if ($cert) {
-        Write-Host "✅ Certificate created successfully" -ForegroundColor Green
+        Write-Host "[OK] Certificate created successfully" -ForegroundColor Green
         Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
         Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
         Write-Host "   Valid Until: $($cert.NotAfter)" -ForegroundColor White
@@ -74,16 +74,16 @@ try {
         
         if (Test-Path $pfxPath) {
             $fileSize = (Get-Item $pfxPath).Length
-            Write-Host "✅ PFX exported: $pfxPath" -ForegroundColor Green
+            Write-Host "[OK] PFX exported: $pfxPath" -ForegroundColor Green
             Write-Host "   Size: $([math]::Round($fileSize / 1KB, 2)) KB" -ForegroundColor White
             Write-Verbose "PFX file size: $fileSize bytes"
             
-            Write-Host "🔄 Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
+            Write-Host "[REFRESH] Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
             $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
             $base64Path = Join-Path $OutputDir "certificate-base64.txt"
             $base64 | Out-File -FilePath $base64Path -Encoding UTF8
             
-            Write-Host "✅ Base64 generated: $base64Path" -ForegroundColor Green
+            Write-Host "[OK] Base64 generated: $base64Path" -ForegroundColor Green
             Write-Host "   Password: $passwordDisplay" -ForegroundColor White
             Write-Verbose "Base64 length: $($base64.Length) characters"
             
@@ -120,12 +120,12 @@ Usage Examples:
             
             $infoPath = Join-Path $OutputDir "certificate-info.txt"
             $infoContent | Out-File -FilePath $infoPath -Encoding UTF8
-            Write-Host "📋 Info saved: $infoPath" -ForegroundColor Cyan
+            Write-Host "[LIST] Info saved: $infoPath" -ForegroundColor Cyan
             
             Write-Host ""
-            Write-Host "🎉 SUCCESS: Certificate ready for code signing!" -ForegroundColor Green
+            Write-Host "[SUCCESS] SUCCESS: Certificate ready for code signing!" -ForegroundColor Green
             Write-Host ""
-            Write-Host "📝 Next Steps:" -ForegroundColor Blue
+            Write-Host "[NOTE] Next Steps:" -ForegroundColor Blue
             Write-Host "1. Copy content of certificate-base64.txt to GitHub secret WINDOWS_CERTIFICATE" -ForegroundColor White
             Write-Host "2. Add password to GitHub secret WINDOWS_CERTIFICATE_PASSWORD" -ForegroundColor White
             Write-Host "3. Run a build to test code signing" -ForegroundColor White
@@ -139,8 +139,8 @@ Usage Examples:
     }
     
 } catch {
-    Write-Host "❌ Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "💡 Troubleshooting:" -ForegroundColor Yellow
+    Write-Host "[ERROR] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[TIP] Troubleshooting:" -ForegroundColor Yellow
     Write-Host "   - Make sure PowerShell is running as Administrator" -ForegroundColor White
     Write-Host "   - Check if certificate store is accessible" -ForegroundColor White
     Write-Host "   - Verify output directory permissions" -ForegroundColor White

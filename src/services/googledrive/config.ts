@@ -30,7 +30,7 @@ export const GOOGLE_DRIVE_CONFIG: OAuthConfig = {
 export { GOOGLE_API_URLS }
 
 // Debug logs para verificar configuración
-console.log('🔍 Google Drive Config (Backend Proxy Mode):')
+console.log('[SEARCH] Google Drive Config (Backend Proxy Mode):')
 console.log('  - Redirect URI:', GOOGLE_DRIVE_CONFIG.redirectUri)
 console.log('  - Scope:', GOOGLE_DRIVE_CONFIG.scope)
 console.log('  - Google API URLs:', GOOGLE_API_URLS)

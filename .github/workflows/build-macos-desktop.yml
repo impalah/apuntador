@@ -89,12 +89,12 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "📝 Creating .env file from secrets..."
+          echo "[NOTE] Creating .env file from secrets..."
           cat > .env << 'EOF'
           ${{ secrets.ENV_FILE }}
           EOF
-          echo "✅ .env file created successfully"
-          echo "📋 Variables configured (masked):"
+          echo "[OK] .env file created successfully"
+          echo "[LIST] Variables configured (masked):"
           grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
 
       - name: Setup environment variables
@@ -117,24 +117,24 @@ jobs:
           DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
 
           if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
-            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "[ERROR] No ZIP asset found for release ${RELEASE_TAG}"
             echo "Available assets:"
             echo "${RELEASE_DATA}" | jq -r '.assets[].name'
             exit 1
           fi
 
-          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
 
           # Verify download
           if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
-            echo "❌ Failed to download release asset"
+            echo "[ERROR] Failed to download release asset"
             exit 1
           fi
 
-          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -152,15 +152,15 @@ jobs:
         env:
           RELEASE_TAG: ${{ github.event.inputs.release_tag }}
         run: |
-          echo "📝 Updating version in Cargo.toml to ${RELEASE_TAG}"
+          echo "[NOTE] Updating version in Cargo.toml to ${RELEASE_TAG}"
 
           CARGO_PATH="src-tauri/Cargo.toml"
 
           # Update version using sed (macOS compatible)
           sed -i '' "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
 
-          echo "✅ Version updated successfully"
-          echo "📋 Verifying version:"
+          echo "[OK] Version updated successfully"
+          echo "[LIST] Verifying version:"
           grep '^version = ' "$CARGO_PATH" | head -1
 
       - name: Build Tauri app (Debug) - Universal
@@ -190,24 +190,24 @@ jobs:
       - name: List generated files
         run: |
           echo "=== Archivos generados ==="
-          echo "🔍 Searching for build artifacts..."
+          echo "[SEARCH] Searching for build artifacts..."
 
           # Buscar archivos generados en diferentes ubicaciones
           if [ -d "src-tauri/target/universal-apple-darwin" ]; then
             echo "📂 Universal build directory contents:"
             find src-tauri/target/universal-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  ✅ $(basename "$file") ($size) - $file"
+              echo "  [OK] $(basename "$file") ($size) - $file"
             done
           else
-            echo "❌ Universal build directory not found"
+            echo "[ERROR] Universal build directory not found"
           fi
 
           if [ -d "src-tauri/target/aarch64-apple-darwin" ]; then
             echo "📂 ARM64 build directory contents:"
             find src-tauri/target/aarch64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  ✅ $(basename "$file") ($size) - $file"
+              echo "  [OK] $(basename "$file") ($size) - $file"
             done
           fi
 
@@ -215,16 +215,16 @@ jobs:
             echo "📂 Intel build directory contents:"
             find src-tauri/target/x86_64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
-              echo "  ✅ $(basename "$file") ($size) - $file"
+              echo "  [OK] $(basename "$file") ($size) - $file"
             done
           fi
 
           # También buscar en ubicaciones alternativas
-          echo "🔍 Searching in alternative locations..."
+          echo "[SEARCH] Searching in alternative locations..."
           if [ -d "src-tauri/target" ]; then
             find src-tauri/target -name "*.app" -type d | head -10 | while read file; do
               size=$(du -sh "$file" | cut -f1)
-              echo "  📱 $(basename "$file") ($size) - $file"
+              echo "  [MOBILE] $(basename "$file") ($size) - $file"
             done
           fi
 
@@ -234,7 +234,7 @@ jobs:
           APPLE_CERTIFICATE_BASE64: ${{ secrets.APPLE_CERTIFICATE_BASE64 }}
           APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
         run: |
-          echo "🔐 Importing Apple Developer ID certificate..."
+          echo "[SECURE] Importing Apple Developer ID certificate..."
 
           # Create temporary keychain
           KEYCHAIN_PATH="$RUNNER_TEMP/app-signing.keychain-db"
@@ -263,7 +263,7 @@ jobs:
           # Clean up certificate file
           rm -f certificate.p12
 
-          echo "✅ Certificate imported successfully"
+          echo "[OK] Certificate imported successfully"
 
       - name: Sign and Notarize macOS Application
         if: ${{ github.event.inputs.buildType == 'release' }}
@@ -283,7 +283,7 @@ jobs:
                 found=$(find "$searchPath" -name "*.app" -type d 2>/dev/null | head -1)
                 if [ -n "$found" ]; then
                   APP_PATH="$found"
-                  echo "✅ Found app bundle: $APP_PATH"
+                  echo "[OK] Found app bundle: $APP_PATH"
                   break 2
                 fi
               fi
@@ -291,16 +291,16 @@ jobs:
           done
 
           if [ -z "$APP_PATH" ]; then
-            echo "❌ App bundle not found"
+            echo "[ERROR] App bundle not found"
             exit 1
           fi
 
           # Get signing identity
           SIGNING_IDENTITY=$(security find-identity -v -p codesigning | grep "Developer ID Application" | head -1 | awk -F'"' '{print $2}')
-          echo "🔑 Using signing identity: $SIGNING_IDENTITY"
+          echo "[KEY] Using signing identity: $SIGNING_IDENTITY"
 
           # Sign the app bundle
-          echo "📝 Signing application..."
+          echo "[NOTE] Signing application..."
           codesign --force --deep --sign "$SIGNING_IDENTITY" \
             --options runtime \
             --entitlements src-tauri/entitlements.plist \
@@ -308,20 +308,20 @@ jobs:
             "$APP_PATH"
 
           # Verify signature
-          echo "✅ Verifying signature..."
+          echo "[OK] Verifying signature..."
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
 
           # Create ZIP for notarization
-          echo "📦 Creating ZIP for notarization..."
+          echo "[PACKAGE] Creating ZIP for notarization..."
           NOTARIZE_ZIP="Apuntador-notarize.zip"
           ditto -c -k --keepParent "$APP_PATH" "$NOTARIZE_ZIP"
 
-          echo "📊 ZIP file size: $(du -h "$NOTARIZE_ZIP" | cut -f1)"
+          echo "[STATS] ZIP file size: $(du -h "$NOTARIZE_ZIP" | cut -f1)"
 
           # Submit for notarization WITHOUT waiting
-          echo "🚀 Submitting to Apple for notarization..."
-          echo "⚠️  Apple's notarization can take 10-90+ minutes"
-          echo "⚠️  We'll submit and continue without waiting to avoid GitHub Actions timeout"
+          echo "[LAUNCH] Submitting to Apple for notarization..."
+          echo "[WARNING]  Apple's notarization can take 10-90+ minutes"
+          echo "[WARNING]  We'll submit and continue without waiting to avoid GitHub Actions timeout"
 
           SUBMISSION_OUTPUT=$(xcrun notarytool submit "$NOTARIZE_ZIP" \
             --apple-id "$APPLE_ID" \
@@ -336,41 +336,41 @@ jobs:
           SUBMISSION_ID=$(echo "$SUBMISSION_OUTPUT" | grep -o '"id":"[^"]*"' | head -1 | cut -d'"' -f4)
 
           if [ -z "$SUBMISSION_ID" ]; then
-            echo "❌ Failed to get submission ID"
+            echo "[ERROR] Failed to get submission ID"
             echo "Output: $SUBMISSION_OUTPUT"
             exit 1
           fi
 
           echo ""
           echo "════════════════════════════════════════════════════════════════"
-          echo "✅ SUCCESSFULLY SUBMITTED TO APPLE NOTARIZATION SERVICE"
+          echo "[OK] SUCCESSFULLY SUBMITTED TO APPLE NOTARIZATION SERVICE"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
-          echo "📋 Submission ID: $SUBMISSION_ID"
+          echo "[LIST] Submission ID: $SUBMISSION_ID"
           echo ""
-          echo "⏰ Apple will process this in the background (10-90+ minutes)"
+          echo "[TIME] Apple will process this in the background (10-90+ minutes)"
           echo ""
-          echo "🔍 To check status later, run:"
+          echo "[SEARCH] To check status later, run:"
           echo "   xcrun notarytool info $SUBMISSION_ID \\"
           echo "     --apple-id YOUR_APPLE_ID \\"
           echo "     --password YOUR_APP_PASSWORD \\"
           echo "     --team-id $APPLE_TEAM_ID"
           echo ""
-          echo "📌 Once approved, staple the ticket with:"
+          echo "[PIN] Once approved, staple the ticket with:"
           echo "   xcrun stapler staple /path/to/Apuntador.app"
           echo ""
-          echo "⚠️  For now, we'll continue building and uploading the SIGNED (but not yet notarized) app"
+          echo "[WARNING]  For now, we'll continue building and uploading the SIGNED (but not yet notarized) app"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
 
           # Save submission ID to file for reference
           echo "$SUBMISSION_ID" > notarization-submission-id.txt
-          echo "✅ Submission ID saved to notarization-submission-id.txt"
+          echo "[OK] Submission ID saved to notarization-submission-id.txt"
 
           # Clean up ZIP (we don't need it anymore)
           rm -f "$NOTARIZE_ZIP"
 
-          echo "✅ Code signing completed! (Notarization submitted but not waited for)"
+          echo "[OK] Code signing completed! (Notarization submitted but not waited for)"
 
       - name: Create artifacts directory
         run: |
@@ -381,7 +381,7 @@ jobs:
         if: ${{ github.event.inputs.buildTarget == 'universal' }}
         run: |
           buildType="${{ github.event.inputs.buildType }}"
-          echo "🔍 Looking for universal build artifacts in $buildType mode..."
+          echo "[SEARCH] Looking for universal build artifacts in $buildType mode..."
 
           # Buscar en múltiples ubicaciones posibles
           appPath=""
@@ -394,7 +394,7 @@ jobs:
               found=$(find "$searchPath" -name "*.app" 2>/dev/null | head -1)
               if [ -n "$found" ]; then
                 appPath="$found"
-                echo "✅ Found .app bundle: $appPath"
+                echo "[OK] Found .app bundle: $appPath"
                 break
               fi
             fi
@@ -402,10 +402,10 @@ jobs:
 
           if [ -n "$appPath" ]; then
             cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.app"
-            echo "✅ Universal .app bundle copied successfully"
+            echo "[OK] Universal .app bundle copied successfully"
           else
-            echo "❌ Universal .app bundle not found in any expected location"
-            echo "🔍 Debugging: Let's see what was actually built..."
+            echo "[ERROR] Universal .app bundle not found in any expected location"
+            echo "[SEARCH] Debugging: Let's see what was actually built..."
             find src-tauri/target -name "*.app" -type d 2>/dev/null || echo "No .app bundles found anywhere"
             exit 1
           fi
@@ -428,9 +428,9 @@ jobs:
 
             if [ -n "$dmgPath" ]; then
               cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-universal.dmg"
-              echo "✅ Universal DMG installer copied successfully"
+              echo "[OK] Universal DMG installer copied successfully"
             else
-              echo "⚠️ No Universal DMG installer found"
+              echo "[WARNING] No Universal DMG installer found"
             fi
           fi
 
@@ -443,9 +443,9 @@ jobs:
           appPath=$(find src-tauri/target/aarch64-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
           if [ -n "$appPath" ]; then
             cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-arm64.app"
-            echo "✅ ARM64 .app bundle copied successfully"
+            echo "[OK] ARM64 .app bundle copied successfully"
           else
-            echo "❌ ARM64 .app bundle not found"
+            echo "[ERROR] ARM64 .app bundle not found"
             exit 1
           fi
 
@@ -454,9 +454,9 @@ jobs:
             dmgPath=$(find src-tauri/target/aarch64-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
             if [ -n "$dmgPath" ]; then
               cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-arm64.dmg"
-              echo "✅ ARM64 DMG installer copied successfully"
+              echo "[OK] ARM64 DMG installer copied successfully"
             else
-              echo "⚠️ No ARM64 DMG installer found"
+              echo "[WARNING] No ARM64 DMG installer found"
             fi
           fi
 
@@ -469,9 +469,9 @@ jobs:
           appPath=$(find src-tauri/target/x86_64-apple-darwin/$buildType/bundle/macos -name "*.app" 2>/dev/null | head -1)
           if [ -n "$appPath" ]; then
             cp -r "$appPath" "artifacts/Apuntador-${{ github.event.inputs.release_tag }}-macos-intel.app"
-            echo "✅ Intel .app bundle copied successfully"
+            echo "[OK] Intel .app bundle copied successfully"
           else
-            echo "❌ Intel .app bundle not found"
+            echo "[ERROR] Intel .app bundle not found"
             exit 1
           fi
 
@@ -480,9 +480,9 @@ jobs:
             dmgPath=$(find src-tauri/target/x86_64-apple-darwin/$buildType/bundle/dmg -name "*.dmg" 2>/dev/null | head -1)
             if [ -n "$dmgPath" ]; then
               cp "$dmgPath" "artifacts/installers/Apuntador-${{ github.event.inputs.release_tag }}-macos-intel.dmg"
-              echo "✅ Intel DMG installer copied successfully"
+              echo "[OK] Intel DMG installer copied successfully"
             else
-              echo "⚠️ No Intel DMG installer found"
+              echo "[WARNING] No Intel DMG installer found"
             fi
           fi
 
@@ -500,7 +500,7 @@ jobs:
             "architecture": "$(uname -m)"
           }
           EOF
-          echo "✅ Build info generated"
+          echo "[OK] Build info generated"
 
       - name: Upload application bundle artifact
         uses: actions/upload-artifact@v4
@@ -565,7 +565,7 @@ jobs:
           dmgPath="artifacts/installers/Apuntador-${VERSION}-macos-universal.dmg"
           targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
 
-          echo "⬆️  Uploading DMG to apuntador.io..."
+          echo "[UP]  Uploading DMG to apuntador.io..."
           echo "   Source: ${dmgPath}"
           echo "   Destination: s3://${S3_BUCKET}/downloads/${targetFilename}"
 
@@ -573,7 +573,7 @@ jobs:
             --acl public-read \
             --metadata "version=${VERSION},type=macos-dmg,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          echo "✅ DMG uploaded successfully"
+          echo "[OK] DMG uploaded successfully"
 
       - name: Update versions.json
         if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.buildTarget == 'universal' && github.event.inputs.generateInstallers == 'true' }}
@@ -583,15 +583,15 @@ jobs:
         run: |
           targetFilename="Apuntador-${VERSION}-macos-universal.dmg"
 
-          echo "⬇️  Downloading current versions.json..."
+          echo "[DOWN]  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
-            echo "✅ Downloaded existing versions.json"
+            echo "[OK] Downloaded existing versions.json"
           else
-            echo "⚠️  versions.json not found, creating new one"
+            echo "[WARNING]  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
 
-          echo "📝 Updating versions.json..."
+          echo "[NOTE] Updating versions.json..."
 
           # macOS runners should have jq installed
           jq --arg filename "${targetFilename}" \
@@ -600,24 +600,24 @@ jobs:
 
           mv versions.json.tmp versions.json
 
-          echo "✅ Updated versions.json:"
+          echo "[OK] Updated versions.json:"
           cat versions.json
 
-          echo "⬆️  Uploading updated versions.json..."
+          echo "[UP]  Uploading updated versions.json..."
           aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
             --acl public-read \
             --content-type "application/json" \
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          echo "✅ versions.json updated successfully"
+          echo "[OK] versions.json updated successfully"
           echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
 
       - name: Build Summary
         run: |
           echo ""
-          echo "🎉 Build completed successfully!"
+          echo "[SUCCESS] Build completed successfully!"
           echo ""
-          echo "📦 Generated artifacts:"
+          echo "[PACKAGE] Generated artifacts:"
 
           find artifacts -type f | while read file; do
             size=$(du -h "$file" | cut -f1)
@@ -625,8 +625,8 @@ jobs:
           done
 
           echo ""
-          echo "🔗 Download artifacts from the Actions tab"
-          echo "🚀 Ready for distribution!"
+          echo "[LINK] Download artifacts from the Actions tab"
+          echo "[LAUNCH] Ready for distribution!"
           echo ""
           echo "🏗️ Build details:"
           echo "  Target: ${{ github.event.inputs.buildTarget }}"

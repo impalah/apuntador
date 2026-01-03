@@ -9,7 +9,7 @@ param(
     [string]$OutputDir = "certificates"
 )
 
-Write-Host "🔐 Generando certificado auto-firmado para Tauri..." -ForegroundColor Green
+Write-Host "[SECURE] Generando certificado auto-firmado para Tauri..." -ForegroundColor Green
 Write-Host ""
 
 # Crear directorio para certificados si no existe
@@ -33,11 +33,11 @@ $CertParams = @{
 
 try {
     # Generar el certificado
-    Write-Host "🔑 Generando certificado..." -ForegroundColor Yellow
+    Write-Host "[KEY] Generando certificado..." -ForegroundColor Yellow
     $cert = New-SelfSignedCertificate @CertParams
     
     if ($cert) {
-        Write-Host "✅ Certificado generado exitosamente" -ForegroundColor Green
+        Write-Host "[OK] Certificado generado exitosamente" -ForegroundColor Green
         Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
         Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
         Write-Host "   Valid Until: $($cert.NotAfter)" -ForegroundColor White
@@ -51,7 +51,7 @@ try {
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password | Out-Null
         
         if (Test-Path $pfxPath) {
-            Write-Host "✅ Certificado PFX exportado: $pfxPath" -ForegroundColor Green
+            Write-Host "[OK] Certificado PFX exportado: $pfxPath" -ForegroundColor Green
             
             # Mostrar el tamaño del archivo
             $fileSize = (Get-Item $pfxPath).Length
@@ -59,11 +59,11 @@ try {
             Write-Host ""
             
             # Generar Base64 para GitHub Actions
-            Write-Host "🔄 Generando Base64 para GitHub Actions..." -ForegroundColor Yellow
+            Write-Host "[REFRESH] Generando Base64 para GitHub Actions..." -ForegroundColor Yellow
             $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
             $base64Path = Join-Path $OutputDir "certificate-base64.txt"
             $base64 | Out-File -FilePath $base64Path -Encoding UTF8
-            Write-Host "✅ Base64 generado: $base64Path" -ForegroundColor Green
+            Write-Host "[OK] Base64 generado: $base64Path" -ForegroundColor Green
             Write-Host ""
             
             # Crear archivo con información del certificado
@@ -83,32 +83,32 @@ Generado: $(Get-Date)
             
             $infoPath = Join-Path $OutputDir "certificate-info.txt"
             $certInfo | Out-File -FilePath $infoPath -Encoding UTF8
-            Write-Host "📋 Información guardada en: $infoPath" -ForegroundColor Cyan
+            Write-Host "[LIST] Información guardada en: $infoPath" -ForegroundColor Cyan
             
-            Write-Host "🎉 CERTIFICADO CREADO EXITOSAMENTE!" -ForegroundColor Green
+            Write-Host "[SUCCESS] CERTIFICADO CREADO EXITOSAMENTE!" -ForegroundColor Green
             Write-Host ""
-            Write-Host "📝 PRÓXIMOS PASOS:" -ForegroundColor Blue
+            Write-Host "[NOTE] PRÓXIMOS PASOS:" -ForegroundColor Blue
             Write-Host "1. Copia el contenido de '$base64Path'" -ForegroundColor White
             Write-Host "2. Ve a GitHub → Settings → Secrets and variables → Actions" -ForegroundColor White
             Write-Host "3. Agrega estos secrets:" -ForegroundColor White
             Write-Host "   - WINDOWS_CERTIFICATE: (pega el contenido de certificate-base64.txt)" -ForegroundColor White
             Write-Host "   - WINDOWS_CERTIFICATE_PASSWORD: apuntador2024!" -ForegroundColor White
             Write-Host ""
-            Write-Host "⚠️  IMPORTANTE: Mantén estos archivos seguros y NO los subas a GitHub" -ForegroundColor Red
+            Write-Host "[WARNING]  IMPORTANTE: Mantén estos archivos seguros y NO los subas a GitHub" -ForegroundColor Red
             
         } else {
-            Write-Host "❌ Error al exportar certificado PFX" -ForegroundColor Red
+            Write-Host "[ERROR] Error al exportar certificado PFX" -ForegroundColor Red
             exit 1
         }
         
     } else {
-        Write-Host "❌ Error al generar certificado" -ForegroundColor Red
+        Write-Host "[ERROR] Error al generar certificado" -ForegroundColor Red
         exit 1
     }
     
 } catch {
-    Write-Host "❌ Error: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "⚠️  Asegúrate de ejecutar PowerShell como Administrador" -ForegroundColor Yellow
+    Write-Host "[ERROR] Error: $($_.Exception.Message)" -ForegroundColor Red
+    Write-Host "[WARNING]  Asegúrate de ejecutar PowerShell como Administrador" -ForegroundColor Yellow
     exit 1
 }
 

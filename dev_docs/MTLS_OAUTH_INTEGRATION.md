@@ -1,10 +1,10 @@
 # mTLS OAuth Integration - Implementation Guide
 
-## 📋 Overview
+## [LIST] Overview
 
 This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token requests to cloud storage providers (Dropbox and Google Drive). The certificate validation ensures that devices are properly enrolled before requesting OAuth tokens.
 
-## 🎯 Implementation Details
+## [TARGET] Implementation Details
 
 ### Architecture
 
@@ -22,7 +22,7 @@ This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token re
                             ↓
                 ┌───────────┴───────────┐
                 │                       │
-        ❌ NOT VALID           ✅ VALID
+        [ERROR] NOT VALID           [OK] VALID
                 │                       │
           Throw Error            Proceed with OAuth
      "Certificate required"              ↓
@@ -94,10 +94,10 @@ OAuth client with mTLS support for token operations.
 **Endpoints**:
 | Method | Endpoint | mTLS Required | Description |
 |--------|----------|---------------|-------------|
-| `authorize()` | `/oauth/authorize/{provider}` | ❌ No | Get authorization URL (public) |
-| `handleCallback()` | `/oauth/token/{provider}` | ✅ Yes | Exchange code for tokens |
-| `refreshToken()` | `/oauth/token/refresh/{provider}` | ✅ Yes | Refresh expired token |
-| `revokeToken()` | `/oauth/token/revoke/{provider}` | ✅ Yes | Revoke token (logout) |
+| `authorize()` | `/oauth/authorize/{provider}` | [ERROR] No | Get authorization URL (public) |
+| `handleCallback()` | `/oauth/token/{provider}` | [OK] Yes | Exchange code for tokens |
+| `refreshToken()` | `/oauth/token/refresh/{provider}` | [OK] Yes | Refresh expired token |
+| `revokeToken()` | `/oauth/token/revoke/{provider}` | [OK] Yes | Revoke token (logout) |
 
 **Why different mTLS requirements?**
 - `authorize()` is called **before** the device is enrolled, so it can't require mTLS
@@ -122,13 +122,13 @@ const connect = async () => {
 }
 ```
 
-## 🧪 Testing Guide
+## [EXPERIMENT] Testing Guide
 
 ### Prerequisites
 
 1. **Device must be enrolled** with valid certificate
    - Navigate to: Settings → "Device Enrollment Test"
-   - Click "🔐 Enroll Device"
+   - Click "[SECURE] Enroll Device"
    - Verify certificate appears with expiry date
 
 2. **Backend must be running**:
@@ -140,24 +140,24 @@ const connect = async () => {
 
 ### Test Scenarios
 
-#### ✅ **Scenario 1: Valid Certificate + Dropbox OAuth**
+#### [OK] **Scenario 1: Valid Certificate + Dropbox OAuth**
 
 1. Open app on Samsung tablet
 2. Navigate to Settings → Cloud Storage
 3. Click "Connect Dropbox"
 4. **Expected**: 
-   - Console shows: `🔐 Checking certificate status...`
-   - Console shows: `✅ Certificate validated successfully`
+   - Console shows: `[SECURE] Checking certificate status...`
+   - Console shows: `[OK] Certificate validated successfully`
    - Console shows: `📅 Certificate expires in X days`
    - Browser opens with Dropbox authorization page
 
 5. Authorize Dropbox
 6. **Expected**:
    - Console shows: `🔒 Using mTLS for token exchange`
-   - Console shows: `✅ Tokens received`
+   - Console shows: `[OK] Tokens received`
    - Dropbox connected successfully
 
-#### ❌ **Scenario 2: No Certificate (Not Enrolled)**
+#### [ERROR] **Scenario 2: No Certificate (Not Enrolled)**
 
 1. Fresh install (no enrollment)
 2. Try to connect Dropbox
@@ -166,7 +166,7 @@ const connect = async () => {
    - OAuth flow DOES NOT start
    - User should be redirected to enrollment page
 
-#### ⚠️ **Scenario 3: Expired Certificate**
+#### [WARNING] **Scenario 3: Expired Certificate**
 
 1. Device with expired certificate (simulate by changing device date forward)
 2. Try to connect Dropbox
@@ -174,7 +174,7 @@ const connect = async () => {
    - Error: "Certificate has expired. Please renew your enrollment."
    - OAuth flow DOES NOT start
 
-#### ♻️ **Scenario 4: Certificate About to Expire (<5 days)**
+#### [RECYCLE] **Scenario 4: Certificate About to Expire (<5 days)**
 
 1. Device with certificate expiring in 3 days
 2. Try to connect Dropbox
@@ -182,7 +182,7 @@ const connect = async () => {
    - Error: "Certificate expires in 3 days (renewal recommended)"
    - OAuth flow DOES NOT start
 
-#### ✅ **Scenario 5: Google Drive OAuth**
+#### [OK] **Scenario 5: Google Drive OAuth**
 
 Same as Scenario 1, but with Google Drive:
 1. Settings → Cloud Storage → "Connect Google Drive"
@@ -194,18 +194,18 @@ Enable detailed logging in console:
 
 ```typescript
 // Certificate validation
-🔐 Checking certificate status before OAuth...
-✅ Certificate validated successfully
+[SECURE] Checking certificate status before OAuth...
+[OK] Certificate validated successfully
 📅 Certificate expires in 25 days
 
 // OAuth flow
-🌐 Using web OAuth flow
-🔗 Authorization URL received from backend
+[WEB] Using web OAuth flow
+[LINK] Authorization URL received from backend
 
 // Token exchange (with mTLS)
 🔒 Using mTLS for token exchange
-🔑 Tokens received
-✅ Token refreshed
+[KEY] Tokens received
+[OK] Token refreshed
 ```
 
 ### Common Issues & Solutions
@@ -237,18 +237,18 @@ Enable detailed logging in console:
 2. Verify certificate is in backend whitelist
 3. Re-enroll if necessary
 
-## 📊 Backend Requirements
+## [STATS] Backend Requirements
 
 ### Endpoints Configuration
 
 | Endpoint | mTLS Required | Middleware |
 |----------|---------------|------------|
-| `/health/public` | ❌ No | Exempt in `exempt_paths` |
-| `/oauth/authorize/{provider}` | ❌ No | Exempt in `exempt_prefixes` |
-| `/oauth/token/{provider}` | ✅ Yes | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/refresh/{provider}` | ✅ Yes | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/revoke/{provider}` | ✅ Yes | Protected by `MTLSValidationMiddleware` |
-| `/device/enroll` | ❌ No | Exempt (initial enrollment) |
+| `/health/public` | [ERROR] No | Exempt in `exempt_paths` |
+| `/oauth/authorize/{provider}` | [ERROR] No | Exempt in `exempt_prefixes` |
+| `/oauth/token/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/refresh/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/revoke/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
+| `/device/enroll` | [ERROR] No | Exempt (initial enrollment) |
 
 ### Backend Configuration
 
@@ -279,7 +279,7 @@ self.exempt_exact = {
 
 **Important**: The `/oauth/` prefix is in `exempt_prefixes`, BUT individual token endpoints check for mTLS in the client. The authorization endpoint is truly public, while token operations use mTLS.
 
-## 🔐 Security Considerations
+## [SECURE] Security Considerations
 
 ### Why This Architecture?
 
@@ -289,11 +289,11 @@ self.exempt_exact = {
 
 ### Security Benefits
 
-- ✅ Only enrolled devices can get OAuth tokens
-- ✅ Certificate expiry forces periodic re-enrollment
-- ✅ Expired/revoked certificates cannot get new tokens
-- ✅ Backend validates device identity for sensitive operations
-- ✅ OAuth tokens are scoped to cloud provider APIs only
+- [OK] Only enrolled devices can get OAuth tokens
+- [OK] Certificate expiry forces periodic re-enrollment
+- [OK] Expired/revoked certificates cannot get new tokens
+- [OK] Backend validates device identity for sensitive operations
+- [OK] OAuth tokens are scoped to cloud provider APIs only
 
 ### What's NOT Protected by mTLS
 
@@ -304,14 +304,14 @@ self.exempt_exact = {
 
 This is by design - mTLS is only for backend communication, not cloud provider APIs.
 
-## 📝 Summary
+## [NOTE] Summary
 
 **What was implemented**:
-- ✅ Certificate validation before OAuth
-- ✅ mTLS HTTP adapter for backend communication
-- ✅ Updated OAuth client with mTLS for token operations
-- ✅ Store integration with certificate checks
-- ✅ Error handling for invalid/expired certificates
+- [OK] Certificate validation before OAuth
+- [OK] mTLS HTTP adapter for backend communication
+- [OK] Updated OAuth client with mTLS for token operations
+- [OK] Store integration with certificate checks
+- [OK] Error handling for invalid/expired certificates
 
 **What to test**:
 1. Enroll device
@@ -328,4 +328,4 @@ This is by design - mTLS is only for backend communication, not cloud provider A
 
 ---
 
-**Ready for testing!** 🚀
+**Ready for testing!** [LAUNCH]

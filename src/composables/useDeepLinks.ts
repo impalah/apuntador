@@ -37,19 +37,19 @@ export function useDeepLinks() {
     platform: string
   ) => {
     const codeStatus = query.code ? 'PRESENT' : 'MISSING'
-    console.log(`📋 [${platform}] ${provider} OAuth params - code:`, codeStatus, 'error:', query.error, 'state:', query.state)
+    console.log(`[LIST] [${platform}] ${provider} OAuth params - code:`, codeStatus, 'error:', query.error, 'state:', query.state)
     console.log(`🧭 [${platform}] Navigating to oauth-callback with query:`, query)
     
     await router.push({ name: 'oauth-callback', query })
     
-    console.log(`✅ [${platform}] Navigated to ${provider} OAuth callback page`)
+    console.log(`[OK] [${platform}] Navigated to ${provider} OAuth callback page`)
   }
 
   /**
    * Process OAuth callback deep link
    */
   const processOAuthCallback = async (urlString: string, provider: string, platform: string) => {
-    console.log(`🚀 [${platform}] Processing ${provider} OAuth deep link`)
+    console.log(`[LAUNCH] [${platform}] Processing ${provider} OAuth deep link`)
     
     const query = extractOAuthParams(urlString)
     await navigateToOAuthCallback(provider, query, platform)
@@ -57,7 +57,7 @@ export function useDeepLinks() {
 
   const handleAppUrl = async (data: { url: string }) => {
     const platform = Capacitor.getPlatform().toUpperCase()
-    console.log(`🔗 [${platform}] Deep link received:`, data.url)
+    console.log(`[LINK] [${platform}] Deep link received:`, data.url)
     
     try {
       const urlString = data.url
@@ -71,21 +71,21 @@ export function useDeepLinks() {
       } else if (isGoogleCallback) {
         await processOAuthCallback(urlString, 'Google Drive', platform)
       } else {
-        console.log(`🔍 [${platform}] Unknown deep link format, ignoring. URL:`, urlString)
+        console.log(`[SEARCH] [${platform}] Unknown deep link format, ignoring. URL:`, urlString)
       }
     } catch (error) {
-      console.error(`❌ [${platform}] Error processing deep link:`, error)
+      console.error(`[ERROR] [${platform}] Error processing deep link:`, error)
     }
   }
 
   const setupDeepLinks = async () => {
     // Solo configurar deep links en plataformas nativas
     if (!Capacitor.isNativePlatform()) {
-      console.log('🌐 Web platform detected, skipping deep link setup')
+      console.log('[WEB] Web platform detected, skipping deep link setup')
       return
     }
 
-    console.log('📱 Native platform detected, setting up deep links')
+    console.log('[MOBILE] Native platform detected, setting up deep links')
     
     try {
       // Listener para deep links cuando la app está activa
@@ -94,20 +94,20 @@ export function useDeepLinks() {
       // Verificar si la app se abrió con un deep link
       const initialUrl = await App.getLaunchUrl()
       if (initialUrl?.url) {
-        console.log('🚀 App launched with deep link:', initialUrl.url)
+        console.log('[LAUNCH] App launched with deep link:', initialUrl.url)
         await handleAppUrl(initialUrl)
       }
       
-      // console.log('✅ Deep links configured successfully')
+      // console.log('[OK] Deep links configured successfully')
     } catch (error) {
-      console.error('❌ Error setting up deep links:', error)
+      console.error('[ERROR] Error setting up deep links:', error)
     }
   }
 
   const cleanupDeepLinks = () => {
     if (Capacitor.isNativePlatform()) {
       App.removeAllListeners()
-      console.log('🧹 Deep link listeners cleaned up')
+      console.log('[CLEANUP] Deep link listeners cleaned up')
     }
   }
 

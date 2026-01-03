@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================
-# 🔄 Version Sync Script (Bash)
+# [REFRESH] Version Sync Script (Bash)
 # ====================================================================
 # 
 # Purpose: Sync version from package.json to Android build.gradle
@@ -20,11 +20,11 @@ NC='\033[0m' # No Color
 
 # Functions for colored output
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_info() {
@@ -32,12 +32,12 @@ print_info() {
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING]  $1${NC}"
 }
 
 # Show help
 show_help() {
-    echo -e "${CYAN}🔄 Version Sync Script${NC}"
+    echo -e "${CYAN}[REFRESH] Version Sync Script${NC}"
     echo ""
     echo -e "${YELLOW}Purpose: Synchronize version from package.json to Android build.gradle${NC}"
     echo ""
@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${CYAN}🔄 Synchronizing version from package.json to Android...${NC}"
+echo -e "${CYAN}[REFRESH] Synchronizing version from package.json to Android...${NC}"
 
 # Check if files exist
 if [[ ! -f "package.json" ]]; then
@@ -140,5 +140,5 @@ else
 fi
 
 echo ""
-print_success "🎉 Version synchronization completed!"
+print_success "[SUCCESS] Version synchronization completed!"
 print_warning "Remember to rebuild your Android app to see the new version."

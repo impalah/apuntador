@@ -411,4 +411,4 @@ When creating issues, please use the provided templates:
 
 ---
 
-Thank you for contributing to Apuntador! Your efforts help make this teleprompter solution better for everyone. 🎯
+Thank you for contributing to Apuntador! Your efforts help make this teleprompter solution better for everyone. [TARGET]

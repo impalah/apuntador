@@ -1,5 +1,5 @@
 # ====================================================================
-# 📱 Android Bundle Builder Script (PowerShell)
+# [MOBILE] Android Bundle Builder Script (PowerShell)
 # ====================================================================
 # 
 # Purpose: Build Android App Bundle (AAB) for Google Play Store
@@ -206,7 +206,7 @@ storeFile=$keystoreFile
         
         if ($BuildType -eq "release") {
             Write-Host ""
-            Write-Host "🎉 Ready for Google Play Store!" -ForegroundColor Green
+            Write-Host "[SUCCESS] Ready for Google Play Store!" -ForegroundColor Green
             Write-Host "Upload the .aab file to Google Play Console" -ForegroundColor Yellow
         }
     } else {

@@ -2,11 +2,11 @@
 
 Este documento describe qué necesitas instalar en tu macOS local para desarrollar con el proyecto Apuntador.
 
-## 📋 Resumen
+## [LIST] Resumen
 
 El **devcontainer maneja la mayoría de las dependencias**, pero hay algunas herramientas que necesitas en tu macOS local:
 
-### ✅ Obligatorio (para usar el devcontainer)
+### [OK] Obligatorio (para usar el devcontainer)
 
 1. **Docker Runtime** (Colima o Docker Desktop)
 2. **Visual Studio Code**
@@ -112,7 +112,7 @@ code --install-extension ms-vscode-remote.remote-containers
 
 ## 4. Xcode (OPCIONAL - Solo para desarrollo iOS nativo)
 
-⚠️ **Nota**: El container Linux NO puede compilar apps iOS. Para iOS necesitas macOS nativo.
+[WARNING] **Nota**: El container Linux NO puede compilar apps iOS. Para iOS necesitas macOS nativo.
 
 ### Instalar Xcode completo:
 
@@ -145,7 +145,7 @@ CocoaPods requiere Ruby >= 3.0, pero macOS incluye Ruby 2.6.10. Necesitas instal
 
 ### Opción A: Instalar Ruby con rbenv (Recomendado - Versión Estable)
 
-**⚠️ IMPORTANTE**: Homebrew instala Ruby 4.0.0 (inestable). Usa rbenv para instalar Ruby 3.3.x (estable y compatible con CocoaPods).
+**[WARNING] IMPORTANTE**: Homebrew instala Ruby 4.0.0 (inestable). Usa rbenv para instalar Ruby 3.3.x (estable y compatible con CocoaPods).
 
 ```bash
 # Instalar rbenv y ruby-build
@@ -168,7 +168,7 @@ gem --version
 
 ### Opción B: Instalar Ruby con Homebrew (Puede instalar Ruby 4.0 - NO recomendado)
 
-**⚠️ ADVERTENCIA**: Homebrew puede instalar Ruby 4.0.0 (versión en desarrollo, inestable). Solo usa esta opción si sabes lo que haces.
+**[WARNING] ADVERTENCIA**: Homebrew puede instalar Ruby 4.0.0 (versión en desarrollo, inestable). Solo usa esta opción si sabes lo que haces.
 
 ```bash
 # Instalar Ruby (puede ser 4.0.0)
@@ -191,7 +191,7 @@ brew uninstall ruby
 
 ## 6. CocoaPods (OPCIONAL - Solo para iOS)
 
-⚠️ **Importante**: Instalar Ruby 3.x primero (ver sección anterior).
+[WARNING] **Importante**: Instalar Ruby 3.x primero (ver sección anterior).
 
 ```bash
 # Instalar CocoaPods
@@ -255,7 +255,7 @@ brew --version
 
 ---
 
-## ✅ Verificación Rápida
+## [OK] Verificación Rápida
 
 Ejecuta estos comandos para verificar que todo está instalado correctamente:
 
@@ -291,7 +291,7 @@ npm --version
 
 ---
 
-## 🚀 Flujo de Trabajo Recomendado
+## [LAUNCH] Flujo de Trabajo Recomendado
 
 ### Desarrollo Web/Android/Tauri → Usar el devcontainer
 
@@ -336,7 +336,7 @@ Para iOS, necesitas salir del container:
 
 ---
 
-## 📊 Espacio en Disco Requerido
+## [STATS] Espacio en Disco Requerido
 
 Estima estos tamaños en tu macOS:
 
@@ -355,7 +355,7 @@ Estima estos tamaños en tu macOS:
 
 ---
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### "Cannot connect to Docker daemon"
 
@@ -490,7 +490,7 @@ which pod         # Mostrar ubicación del comando
 
 ---
 
-## 📝 Resumen para tu Caso
+## [NOTE] Resumen para tu Caso
 
 ### Instalación Mínima (solo devcontainer)
 
@@ -510,7 +510,7 @@ brew install --cask visual-studio-code
 # 5. Instalar extensión Dev Containers
 code --install-extension ms-vscode-remote.remote-containers
 
-# ✅ Listo! Ahora puedes abrir el proyecto en container
+# [OK] Listo! Ahora puedes abrir el proyecto en container
 ```
 
 ### Instalación Completa (con soporte iOS nativo)
@@ -544,22 +544,22 @@ brew install node@20
 
 ---
 
-## 🎯 ¿Qué se queda en el container vs en tu Mac?
+## [TARGET] ¿Qué se queda en el container vs en tu Mac?
 
 | Herramienta | Container | macOS Host | Notas |
 |-------------|-----------|------------|-------|
-| Node.js 20 | ✅ | ⚠️ Opcional | En container para desarrollo principal |
-| Rust + Cargo | ✅ | ❌ | Solo en container |
-| Android SDK | ✅ | ❌ | Solo en container (~30GB) |
-| Tauri CLI | ✅ | ❌ | Solo en container |
-| Xcode | ❌ | ✅ | Solo en macOS (no funciona en Linux) |
-| CocoaPods | ⚠️ Instalado en ambos | ✅ | iOS requiere macOS nativo |
-| Docker/Colima | ❌ | ✅ | Runtime en host |
-| VS Code | ❌ | ✅ | UI en host, extensiones en container |
+| Node.js 20 | [OK] | [WARNING] Opcional | En container para desarrollo principal |
+| Rust + Cargo | [OK] | [ERROR] | Solo en container |
+| Android SDK | [OK] | [ERROR] | Solo en container (~30GB) |
+| Tauri CLI | [OK] | [ERROR] | Solo en container |
+| Xcode | [ERROR] | [OK] | Solo en macOS (no funciona en Linux) |
+| CocoaPods | [WARNING] Instalado en ambos | [OK] | iOS requiere macOS nativo |
+| Docker/Colima | [ERROR] | [OK] | Runtime en host |
+| VS Code | [ERROR] | [OK] | UI en host, extensiones en container |
 
 ---
 
-## 🔗 Links Útiles
+## [LINK] Links Útiles
 
 - [Colima GitHub](https://github.com/abiosoft/colima)
 - [Docker Desktop](https://www.docker.com/products/docker-desktop/)

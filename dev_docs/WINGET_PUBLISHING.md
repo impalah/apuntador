@@ -2,7 +2,7 @@
 
 Esta guía explica cómo publicar y actualizar Apuntador en el repositorio oficial de Winget ([microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs)).
 
-## 📋 Tabla de Contenidos
+## [LIST] Tabla de Contenidos
 
 1. [Prerequisitos](#prerequisitos)
 2. [Primera Publicación](#primera-publicación)
@@ -16,8 +16,8 @@ Esta guía explica cómo publicar y actualizar Apuntador en el repositorio ofici
 ## Prerequisitos
 
 ### Cuenta de GitHub
-- ✅ Cuenta de GitHub activa
-- ✅ Two-factor authentication (2FA) habilitada
+- [OK] Cuenta de GitHub activa
+- [OK] Two-factor authentication (2FA) habilitada
 
 ### Herramientas Locales (Opcional)
 ```powershell
@@ -27,8 +27,8 @@ winget install Microsoft.WingetCreate
 
 ### Información Necesaria
 Los manifests se generan automáticamente por el workflow `build-windows-desktop.yml`, pero necesitas:
-- ✅ Versión del release (ej: `1.1.76`)
-- ✅ URL pública del MSI (ej: `https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi`)
+- [OK] Versión del release (ej: `1.1.76`)
+- [OK] URL pública del MSI (ej: `https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi`)
 
 ---
 
@@ -160,7 +160,7 @@ Cuando crees el PR, un bot te pedirá firmar el **Contributor License Agreement 
 1. El bot comentará en tu PR con un enlace
 2. Haz clic en el enlace: https://cla.opensource.microsoft.com/microsoft/winget-pkgs
 3. Firma con tu cuenta de GitHub
-4. El bot actualizará el PR automáticamente como "✅ CLA signed"
+4. El bot actualizará el PR automáticamente como "[OK] CLA signed"
 
 **Importante:** Solo necesitas hacer esto **una vez**. Futuras contribuciones no requerirán firmar de nuevo.
 
@@ -169,22 +169,22 @@ Cuando crees el PR, un bot te pedirá firmar el **Contributor License Agreement 
 Microsoft tiene bots que validan automáticamente:
 
 **Validaciones que se ejecutan (~2-5 minutos):**
-- ✅ Formato YAML correcto
-- ✅ SHA256 del MSI coincide
-- ✅ URL del instalador es accesible
-- ✅ ProductCode es válido
-- ✅ Versión sigue formato semántico
+- [OK] Formato YAML correcto
+- [OK] SHA256 del MSI coincide
+- [OK] URL del instalador es accesible
+- [OK] ProductCode es válido
+- [OK] Versión sigue formato semántico
 
 **Posibles resultados:**
 
-#### ✅ Success (Todo OK)
+#### [OK] Success (Todo OK)
 ```
 ✓ Azure Pipelines — All checks passed
 ✓ Validation - PASS
 ```
 → El PR será **aprobado y mergeado automáticamente** en 24-48h
 
-#### ❌ Failure (Hay errores)
+#### [ERROR] Failure (Hay errores)
 ```
 ✗ Azure Pipelines — Checks failed
 ✗ Validation - FAILED
@@ -204,7 +204,7 @@ Microsoft tiene bots que validan automáticamente:
 **Notificación:**
 Recibirás un email cuando el PR sea mergeado:
 ```
-✅ Your pull request has been merged!
+[OK] Your pull request has been merged!
    Apuntador.Apuntador is now available in Winget.
 ```
 
@@ -284,19 +284,19 @@ git push origin main
 ### Paso 4: Aprobación (Más Rápida)
 
 Las actualizaciones suelen ser **auto-aprobadas en pocas horas** si:
-- ✅ Las validaciones pasan
-- ✅ Solo cambia la versión
-- ✅ El publisher es el mismo
+- [OK] Las validaciones pasan
+- [OK] Solo cambia la versión
+- [OK] El publisher es el mismo
 
 ---
 
 ## Automatización con el Workflow
 
 El workflow `build-windows-desktop.yml` **genera automáticamente** los manifests con:
-- ✅ SHA256 calculado del MSI real
-- ✅ ProductCode extraído del MSI
-- ✅ URLs correctas según el environment
-- ✅ Versión desde el `release_tag`
+- [OK] SHA256 calculado del MSI real
+- [OK] ProductCode extraído del MSI
+- [OK] URLs correctas según el environment
+- [OK] Versión desde el `release_tag`
 
 ### Qué hace automáticamente:
 
@@ -312,7 +312,7 @@ Generate Winget Manifests:
 
 1. ⏬ Descargar artefacto `winget-manifests-X.X.X`
 2. 📤 Subirlo al repositorio microsoft/winget-pkgs
-3. 🔄 Crear Pull Request
+3. [REFRESH] Crear Pull Request
 
 **Tiempo total:** ~5 minutos por release
 
@@ -415,7 +415,7 @@ winget uninstall Apuntador.Apuntador
 ```html
 <!-- Añadir a apuntador.io -->
 <a href="ms-appinstaller:?source=winget&package=Apuntador.Apuntador">
-  🚀 Instalar Apuntador con un clic
+  [LAUNCH] Instalar Apuntador con un clic
 </a>
 ```
 
@@ -434,10 +434,10 @@ winget install Apuntador.Apuntador
 ```
 
 ### Opción 2: Instalación con un clic
-[🚀 Instalar Apuntador](ms-appinstaller:?source=winget&package=Apuntador.Apuntador)
+[[LAUNCH] Instalar Apuntador](ms-appinstaller:?source=winget&package=Apuntador.Apuntador)
 
 ### Opción 3: Descarga Manual
-[📦 Descargar MSI](https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi)
+[[PACKAGE] Descargar MSI](https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi)
 ```
 
 ---

@@ -2,7 +2,7 @@
 
 Este documento describe cómo configurar los workflows de GitHub Actions para que automáticamente suban los paquetes construidos al bucket S3 de apuntador.io y actualicen el archivo `versions.json`.
 
-## 🎯 Objetivo
+## [TARGET] Objetivo
 
 Cuando se ejecuta un workflow de build (Android APK, Windows MSI, macOS DMG, o Linux DEB/RPM/AppImage), el sistema debe:
 
@@ -11,7 +11,7 @@ Cuando se ejecuta un workflow de build (Android APK, Windows MSI, macOS DMG, o L
 3. **Actualizar** `versions.json` con el nombre del nuevo archivo
 4. **Publicar** para que los botones de descarga en el sitio web apunten automáticamente a la nueva versión
 
-## 📋 Requisitos Previos
+## [LIST] Requisitos Previos
 
 ### 1. Bucket S3 para Apuntador.io
 
@@ -47,7 +47,7 @@ Ejemplo de política IAM:
 }
 ```
 
-## 🔐 Secrets de GitHub
+## [SECURE] Secrets de GitHub
 
 Ve a tu repositorio → Settings → Secrets and variables → Actions → New repository secret
 
@@ -58,7 +58,7 @@ Crea los siguientes **Secrets**:
 | `APUNTADOR_IO_AWS_ACCESS_KEY_ID` | Access Key ID del usuario IAM | `AKIAIOSFODNN7EXAMPLE` |
 | `APUNTADOR_IO_AWS_SECRET_ACCESS_KEY` | Secret Access Key del usuario IAM | `wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY` |
 
-## 📊 Variables de GitHub
+## [STATS] Variables de GitHub
 
 Ve a tu repositorio → Settings → Secrets and variables → Actions → Variables → New repository variable
 
@@ -69,7 +69,7 @@ Crea las siguientes **Variables**:
 | `APUNTADOR_IO_AWS_REGION` | Región del bucket S3 | `us-east-1` |
 | `APUNTADOR_IO_S3_BUCKET` | Nombre del bucket S3 | `apuntador.io` |
 
-## 🔧 Workflows Modificados
+## [CONFIG] Workflows Modificados
 
 Los siguientes workflows han sido actualizados para incluir la subida automática:
 
@@ -96,7 +96,7 @@ Los siguientes workflows han sido actualizados para incluir la subida automátic
   - `Apuntador_{VERSION}_amd64.AppImage`
 - **Keys en versions.json**: `linux-deb`, `linux-rpm`, `linux-appimage`
 
-## 🚀 Proceso de Build
+## [LAUNCH] Proceso de Build
 
 ### Prerequisito: Release debe existir
 
@@ -144,12 +144,12 @@ Inputs:
 
 El workflow automáticamente:
 
-1. ✅ Construye el paquete con el nombre versionado
-2. ✅ Configura credenciales AWS
-3. ✅ Sube el archivo a `s3://TU-BUCKET/downloads/`
-4. ✅ Descarga `versions.json` actual (o crea uno nuevo si no existe)
-5. ✅ Actualiza la key correspondiente con el nuevo nombre de archivo
-6. ✅ Sube el `versions.json` modificado de vuelta a S3
+1. [OK] Construye el paquete con el nombre versionado
+2. [OK] Configura credenciales AWS
+3. [OK] Sube el archivo a `s3://TU-BUCKET/downloads/`
+4. [OK] Descarga `versions.json` actual (o crea uno nuevo si no existe)
+5. [OK] Actualiza la key correspondiente con el nuevo nombre de archivo
+6. [OK] Sube el `versions.json` modificado de vuelta a S3
 
 ### Paso 3: Verificación Manual
 
@@ -172,7 +172,7 @@ Deberías ver algo como:
 }
 ```
 
-## 🌐 Integración con el Sitio Web
+## [WEB] Integración con el Sitio Web
 
 El sitio web de apuntador.io ya está configurado para leer `versions.json` automáticamente:
 
@@ -180,7 +180,7 @@ El sitio web de apuntador.io ya está configurado para leer `versions.json` auto
 2. Actualiza todos los botones con `data-download-type` para que apunten a los archivos correctos
 3. Los usuarios siempre descargan la última versión sin necesidad de editar manualmente el sitio
 
-## 🐛 Troubleshooting
+## [BUG] Troubleshooting
 
 ### Error: "Context access might be invalid"
 
@@ -204,7 +204,7 @@ Verifica:
 2. El archivo tiene permisos de lectura pública (`--acl public-read`)
 3. El sitio web está leyendo desde la URL correcta (revisa console en DevTools)
 
-## 📝 Notas Adicionales
+## [NOTE] Notas Adicionales
 
 ### Seguridad
 
@@ -225,7 +225,7 @@ Verifica:
 - Ejemplos: `1.0.0`, `1.2.3`, `2.0.0-beta.1`
 - El mismo número de versión debe usarse consistentemente en todos los workflows
 
-## ✅ Checklist de Configuración
+## [OK] Checklist de Configuración
 
 - [ ] Bucket S3 creado y configurado para hosting
 - [ ] Usuario IAM creado con permisos correctos
@@ -239,4 +239,4 @@ Verifica:
 
 ---
 
-**¡Listo!** Una vez configurado, cada build automáticamente actualiza los links de descarga en el sitio web. 🎉
+**¡Listo!** Una vez configurado, cada build automáticamente actualiza los links de descarga en el sitio web. [SUCCESS]

@@ -2,29 +2,29 @@
 
 Este documento explica las capacidades y limitaciones del devcontainer para cada plataforma objetivo.
 
-## 🌐 Matriz de Compatibilidad
+## [WEB] Matriz de Compatibilidad
 
 | Plataforma | Desarrollo en Container | Build en Container | Notas |
 |------------|------------------------|-------------------|-------|
-| **Web** | ✅ Completo | ✅ Completo | Vite dev server, builds, tests |
-| **Android** | ✅ Completo | ✅ Parcial | Desarrollo completo, builds APK/AAB. No emulador gráfico |
-| **Tauri Desktop (Linux)** | ✅ Completo | ✅ Completo | Build nativo para Linux |
-| **Tauri Desktop (Windows)** | ✅ Desarrollo | ❌ No | Cross-compile limitado, mejor en Windows nativo |
-| **Tauri Desktop (macOS)** | ✅ Desarrollo | ❌ No | Cross-compile no soportado, requiere macOS nativo |
-| **iOS** | ⚠️ Limitado | ❌ No | Solo sync de Capacitor, builds requieren macOS + Xcode |
+| **Web** | [OK] Completo | [OK] Completo | Vite dev server, builds, tests |
+| **Android** | [OK] Completo | [OK] Parcial | Desarrollo completo, builds APK/AAB. No emulador gráfico |
+| **Tauri Desktop (Linux)** | [OK] Completo | [OK] Completo | Build nativo para Linux |
+| **Tauri Desktop (Windows)** | [OK] Desarrollo | [ERROR] No | Cross-compile limitado, mejor en Windows nativo |
+| **Tauri Desktop (macOS)** | [OK] Desarrollo | [ERROR] No | Cross-compile no soportado, requiere macOS nativo |
+| **iOS** | [WARNING] Limitado | [ERROR] No | Solo sync de Capacitor, builds requieren macOS + Xcode |
 
 ---
 
-## 📱 Desarrollo por Plataforma
+## [MOBILE] Desarrollo por Plataforma
 
-### ✅ Web (Completamente Soportado)
+### [OK] Web (Completamente Soportado)
 
 **En el container puedes**:
-- ✅ Desarrollo con Vite dev server
-- ✅ Hot reload completo
-- ✅ Builds de producción
-- ✅ Tests (Vitest + Playwright)
-- ✅ Linting y formateo
+- [OK] Desarrollo con Vite dev server
+- [OK] Hot reload completo
+- [OK] Builds de producción
+- [OK] Tests (Vitest + Playwright)
+- [OK] Linting y formateo
 
 **Comandos**:
 ```bash
@@ -37,15 +37,15 @@ npm run test:e2e         # Tests E2E
 
 ---
 
-### ✅ Android (Completamente Soportado)
+### [OK] Android (Completamente Soportado)
 
 **En el container puedes**:
-- ✅ Sincronizar código con Capacitor (`npx cap sync android`)
-- ✅ Compilar APKs de debug
-- ✅ Compilar APKs/AABs de release
-- ✅ Ejecutar Gradle tasks
-- ❌ Usar Android Emulator con GUI (requiere X11 forwarding complejo)
-- ❌ Usar Android Studio GUI (mejor en host)
+- [OK] Sincronizar código con Capacitor (`npx cap sync android`)
+- [OK] Compilar APKs de debug
+- [OK] Compilar APKs/AABs de release
+- [OK] Ejecutar Gradle tasks
+- [ERROR] Usar Android Emulator con GUI (requiere X11 forwarding complejo)
+- [ERROR] Usar Android Studio GUI (mejor en host)
 
 **Comandos**:
 ```bash
@@ -85,15 +85,15 @@ npx cap open android      # Abrir proyecto
 
 ---
 
-### ⚠️ iOS (Limitado - Requiere macOS)
+### [WARNING] iOS (Limitado - Requiere macOS)
 
 **En el container puedes**:
-- ✅ Sincronizar código con Capacitor (`npx cap sync ios`)
-- ✅ Preparar el proyecto iOS
-- ❌ Compilar apps iOS (requiere Xcode)
-- ❌ Firmar apps iOS
-- ❌ Ejecutar en simulador iOS
-- ❌ Usar Xcode
+- [OK] Sincronizar código con Capacitor (`npx cap sync ios`)
+- [OK] Preparar el proyecto iOS
+- [ERROR] Compilar apps iOS (requiere Xcode)
+- [ERROR] Firmar apps iOS
+- [ERROR] Ejecutar en simulador iOS
+- [ERROR] Usar Xcode
 
 **Por qué**: Xcode y las herramientas de iOS solo funcionan en macOS.
 
@@ -141,13 +141,13 @@ npx cap sync ios
 
 ---
 
-### ✅ Tauri Desktop - Linux (Completamente Soportado)
+### [OK] Tauri Desktop - Linux (Completamente Soportado)
 
 **En el container puedes**:
-- ✅ Desarrollo completo con `cargo tauri dev`
-- ✅ Compilar binarios Linux
-- ✅ Tests de Rust
-- ✅ Builds de producción para Linux
+- [OK] Desarrollo completo con `cargo tauri dev`
+- [OK] Compilar binarios Linux
+- [OK] Tests de Rust
+- [OK] Builds de producción para Linux
 
 **Comandos**:
 ```bash
@@ -178,15 +178,15 @@ npm run tauri dev
 
 ---
 
-### ⚠️ Tauri Desktop - macOS/Windows (Desarrollo Limitado)
+### [WARNING] Tauri Desktop - macOS/Windows (Desarrollo Limitado)
 
 **En el container puedes**:
-- ✅ Desarrollar código Rust
-- ✅ Compilar Rust para Linux
-- ⚠️ Cross-compilar para macOS (muy limitado)
-- ❌ Cross-compilar para Windows
-- ❌ Generar instaladores (.dmg, .msi, .exe)
-- ❌ Firmar aplicaciones
+- [OK] Desarrollar código Rust
+- [OK] Compilar Rust para Linux
+- [WARNING] Cross-compilar para macOS (muy limitado)
+- [ERROR] Cross-compilar para Windows
+- [ERROR] Generar instaladores (.dmg, .msi, .exe)
+- [ERROR] Firmar aplicaciones
 
 **Por qué**: Tauri requiere las SDK nativas de cada plataforma para builds completos.
 
@@ -221,7 +221,7 @@ npm run tauri build -- --target x86_64-unknown-linux-gnu
 
 ---
 
-## 🎯 Workflows Recomendados
+## [TARGET] Workflows Recomendados
 
 ### Workflow 1: Desarrollo Web Principal (80% del tiempo)
 
@@ -288,7 +288,7 @@ npm run tauri build      # .exe, .msi
 
 ---
 
-## 🔧 Configuración para Desarrollo Híbrido
+## [CONFIG] Configuración para Desarrollo Híbrido
 
 ### Estrategia A: Container para todo excepto iOS/macOS
 
@@ -315,7 +315,7 @@ npx cap open ios
 
 ---
 
-## 📊 Resumen de Comandos por Plataforma
+## [STATS] Resumen de Comandos por Plataforma
 
 ### En Container (Linux)
 
@@ -366,7 +366,7 @@ npm run tauri build      # .exe/.msi
 
 ---
 
-## 🚀 Setup Inicial Recomendado
+## [LAUNCH] Setup Inicial Recomendado
 
 ### 1. Preparar macOS (una vez)
 
@@ -408,7 +408,7 @@ npx cap sync android     # Android sincroniza
 
 ---
 
-## 💡 Tips Pro
+## [IDEA] Tips Pro
 
 ### Sincronización Rápida entre Container y Nativo
 
@@ -440,7 +440,7 @@ npm run dev
 
 ---
 
-## 🔗 Documentación Adicional
+## [LINK] Documentación Adicional
 
 - [Capacitor iOS Setup](https://capacitorjs.com/docs/ios)
 - [Capacitor Android Setup](https://capacitorjs.com/docs/android)

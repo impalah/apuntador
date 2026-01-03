@@ -4,7 +4,7 @@
 Write-Host "🍎 iOS Development Requirements" -ForegroundColor Blue
 Write-Host "================================" -ForegroundColor Blue
 Write-Host ""
-Write-Host "❌ iOS development is only available on macOS" -ForegroundColor Red
+Write-Host "[ERROR] iOS development is only available on macOS" -ForegroundColor Red
 Write-Host ""
 Write-Host "Requirements for iOS development:" -ForegroundColor Yellow
 Write-Host "  • macOS operating system" -ForegroundColor White

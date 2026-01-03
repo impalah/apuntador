@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo "🔍 Verificador de Estado de Notarización de Apple"
+echo "[SEARCH] Verificador de Estado de Notarización de Apple"
 echo "=================================================="
 echo ""
 
@@ -37,7 +37,7 @@ usage() {
 
 # Verificar argumentos
 if [ -z "$1" ]; then
-    echo -e "${RED}❌ Error: Se requiere el submission ID${NC}"
+    echo -e "${RED}[ERROR] Error: Se requiere el submission ID${NC}"
     echo ""
     usage
 fi
@@ -49,21 +49,21 @@ APP_PATH=""
 # Verificar si se pasó --staple
 if [ "$2" = "--staple" ]; then
     if [ -z "$3" ]; then
-        echo -e "${RED}❌ Error: Se requiere la ruta al .app con --staple${NC}"
+        echo -e "${RED}[ERROR] Error: Se requiere la ruta al .app con --staple${NC}"
         usage
     fi
     SHOULD_STAPLE=true
     APP_PATH="$3"
     
     if [ ! -d "$APP_PATH" ]; then
-        echo -e "${RED}❌ Error: No se encontró la aplicación en: $APP_PATH${NC}"
+        echo -e "${RED}[ERROR] Error: No se encontró la aplicación en: $APP_PATH${NC}"
         exit 1
     fi
 fi
 
 # Verificar variables de entorno
 if [ -z "$APPLE_ID" ] || [ -z "$APPLE_APP_SPECIFIC_PASSWORD" ] || [ -z "$APPLE_TEAM_ID" ]; then
-    echo -e "${RED}❌ Error: Faltan variables de entorno${NC}"
+    echo -e "${RED}[ERROR] Error: Faltan variables de entorno${NC}"
     echo ""
     echo "Configura las siguientes variables:"
     echo "  export APPLE_ID='tu@email.com'"
@@ -73,7 +73,7 @@ if [ -z "$APPLE_ID" ] || [ -z "$APPLE_APP_SPECIFIC_PASSWORD" ] || [ -z "$APPLE_T
     exit 1
 fi
 
-echo -e "${BLUE}📋 Submission ID:${NC} $SUBMISSION_ID"
+echo -e "${BLUE}[LIST] Submission ID:${NC} $SUBMISSION_ID"
 echo -e "${BLUE}🆔 Apple ID:${NC} $APPLE_ID"
 echo -e "${BLUE}👥 Team ID:${NC} $APPLE_TEAM_ID"
 echo ""
@@ -98,25 +98,25 @@ echo "════════════════════════�
 
 case "$STATUS" in
     "Accepted")
-        echo -e "${GREEN}✅ NOTARIZACIÓN APROBADA${NC}"
+        echo -e "${GREEN}[OK] NOTARIZACIÓN APROBADA${NC}"
         echo "════════════════════════════════════════════════════════════════"
         echo ""
         
         if [ "$SHOULD_STAPLE" = true ]; then
-            echo -e "${YELLOW}📌 Grapando (stapling) el ticket a la aplicación...${NC}"
+            echo -e "${YELLOW}[PIN] Grapando (stapling) el ticket a la aplicación...${NC}"
             xcrun stapler staple "$APP_PATH"
             
             echo ""
-            echo -e "${YELLOW}🔍 Verificando ticket grapado...${NC}"
+            echo -e "${YELLOW}[SEARCH] Verificando ticket grapado...${NC}"
             xcrun stapler validate "$APP_PATH"
             
             echo ""
-            echo -e "${GREEN}✅ Proceso completado exitosamente!${NC}"
+            echo -e "${GREEN}[OK] Proceso completado exitosamente!${NC}"
             echo ""
             echo "La aplicación ahora está firmada, notarizada y con ticket grapado."
             echo "Los usuarios NO verán advertencias de seguridad al instalarla."
         else
-            echo -e "${BLUE}ℹ️  La notarización está aprobada${NC}"
+            echo -e "${BLUE}[INFO]  La notarización está aprobada${NC}"
             echo ""
             echo "Para grapar el ticket a tu aplicación, ejecuta:"
             echo -e "${BLUE}  xcrun stapler staple /path/to/Apuntador.app${NC}"
@@ -138,7 +138,7 @@ case "$STATUS" in
         ;;
         
     "Invalid")
-        echo -e "${RED}❌ NOTARIZACIÓN RECHAZADA${NC}"
+        echo -e "${RED}[ERROR] NOTARIZACIÓN RECHAZADA${NC}"
         echo "════════════════════════════════════════════════════════════════"
         echo ""
         echo "Apple rechazó la notarización. Revisa los logs para ver el motivo:"
@@ -152,7 +152,7 @@ case "$STATUS" in
         ;;
         
     *)
-        echo -e "${YELLOW}⚠️  ESTADO DESCONOCIDO: $STATUS${NC}"
+        echo -e "${YELLOW}[WARNING]  ESTADO DESCONOCIDO: $STATUS${NC}"
         echo "════════════════════════════════════════════════════════════════"
         echo ""
         echo "Revisa los logs completos arriba."

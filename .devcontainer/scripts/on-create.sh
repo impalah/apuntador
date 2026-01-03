@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "🔧 Setting up Apuntador development environment..."
+echo "[CONFIG] Setting up Apuntador development environment..."
 
 # Fix permissions
 sudo chown -R node:node /workspaces/apuntador
@@ -13,18 +13,18 @@ sudo chown -R node:node /workspaces/apuntador/node_modules
 sudo chown -R node:node /workspaces/apuntador/src-tauri/target
 
 # Test network connectivity
-echo "🌐 Testing network connectivity..."
+echo "[WEB] Testing network connectivity..."
 if ! ping -c 1 google.com > /dev/null 2>&1; then
-    echo "⚠️  Warning: No internet connectivity detected. Some installations may fail."
+    echo "[WARNING]  Warning: No internet connectivity detected. Some installations may fail."
 fi
 
 # Install Android SDK and NDK
-echo "📱 Installing Android SDK and tools..."
+echo "[MOBILE] Installing Android SDK and tools..."
 
 # Detect architecture and enable amd64 if on ARM
 ARCH=$(dpkg --print-architecture)
 if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
-    echo "🔧 ARM64 detected - enabling amd64 compatibility for Android SDK..."
+    echo "[CONFIG] ARM64 detected - enabling amd64 compatibility for Android SDK..."
     sudo dpkg --add-architecture amd64 || true
 fi
 
@@ -43,11 +43,11 @@ sudo apt-get install -y \
 
 # Install amd64 dependencies if on ARM (required for Android SDK tools)
 if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
-    echo "📦 Installing amd64 libraries for Android SDK compatibility..."
+    echo "[PACKAGE] Installing amd64 libraries for Android SDK compatibility..."
     sudo apt-get install -y \
         libc6:amd64 \
         libstdc++6:amd64 \
-        zlib1g:amd64 || echo "⚠️  Warning: Some amd64 libraries failed to install"
+        zlib1g:amd64 || echo "[WARNING]  Warning: Some amd64 libraries failed to install"
 fi
 
 # Install Android Command Line Tools
@@ -66,7 +66,7 @@ else
             mv /tmp/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest
             rm /tmp/cmdline-tools.zip
         else
-            echo "⚠️  Failed to download Android Command Line Tools. Continuing without Android SDK..."
+            echo "[WARNING]  Failed to download Android Command Line Tools. Continuing without Android SDK..."
             echo "   You can install it manually later or rebuild the container."
             export SKIP_ANDROID=true
         fi
@@ -81,11 +81,11 @@ export PATH=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/pla
 # Only configure Android if not skipped
 if [ "${SKIP_ANDROID}" != "true" ]; then
     # Accept Android licenses
-    echo "📝 Accepting Android licenses..."
+    echo "[NOTE] Accepting Android licenses..."
     yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
     # Install Android SDK components with retries and error handling
-    echo "📦 Installing Android SDK components..."
+    echo "[PACKAGE] Installing Android SDK components..."
 
     # Function to install SDK package with retries
     install_sdk_package() {
@@ -146,11 +146,11 @@ sudo apt-get install -y ruby-full
 sudo gem install cocoapods || echo "CocoaPods installation failed (expected in Linux container)"
 
 # Install Ionic CLI globally
-echo "⚡ Installing Ionic CLI..."
+echo "[FAST] Installing Ionic CLI..."
 npm install -g @ionic/cli
 
 # Install Capacitor CLI globally
-echo "⚡ Installing Capacitor CLI..."
+echo "[FAST] Installing Capacitor CLI..."
 npm install -g @capacitor/cli
 
-echo "✅ On-create setup completed!"
+echo "[OK] On-create setup completed!"

@@ -18,21 +18,21 @@ NC='\033[0m'
 
 # Check GitHub CLI
 if ! command -v gh &> /dev/null; then
-    echo -e "${RED}❌ GitHub CLI required. Install: brew install gh${NC}"
+    echo -e "${RED}[ERROR] GitHub CLI required. Install: brew install gh${NC}"
     exit 1
 fi
 
 if ! gh auth status &> /dev/null; then
-    echo -e "${RED}❌ Not logged in to GitHub. Run: gh auth login${NC}"
+    echo -e "${RED}[ERROR] Not logged in to GitHub. Run: gh auth login${NC}"
     exit 1
 fi
 
 # Get current version from package.json
 CURRENT_VERSION=$(node -p "require('./package.json').version")
-echo -e "${BLUE}📱 Current version: $CURRENT_VERSION${NC}"
+echo -e "${BLUE}[MOBILE] Current version: $CURRENT_VERSION${NC}"
 
 # Get last iOS build number from GitHub Actions
-echo "🔍 Checking last build number..."
+echo "[SEARCH] Checking last build number..."
 LAST_BUILD=$(gh run list --workflow="build-ios-appstore.yml" --limit=1 --json displayTitle | jq -r '.[0].displayTitle' | grep -o 'versionCode: [0-9]*' | cut -d' ' -f2 || echo "35")
 
 if [ "$LAST_BUILD" = "null" ] || [ -z "$LAST_BUILD" ]; then
@@ -40,11 +40,11 @@ if [ "$LAST_BUILD" = "null" ] || [ -z "$LAST_BUILD" ]; then
 fi
 
 NEXT_BUILD=$((LAST_BUILD + 1))
-echo -e "${BLUE}📈 Next build number: $NEXT_BUILD${NC}"
+echo -e "${BLUE}[UP] Next build number: $NEXT_BUILD${NC}"
 echo ""
 
 # Ask for confirmation
-echo "🚀 Ready to build and upload to TestFlight:"
+echo "[LAUNCH] Ready to build and upload to TestFlight:"
 echo "   Version: $CURRENT_VERSION"
 echo "   Build: $NEXT_BUILD"
 echo "   Upload: YES"
@@ -57,7 +57,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo ""
-echo "🔄 Starting GitHub Actions workflow..."
+echo "[REFRESH] Starting GitHub Actions workflow..."
 
 # Trigger the workflow
 gh workflow run build-ios-appstore.yml \
@@ -66,17 +66,17 @@ gh workflow run build-ios-appstore.yml \
     --field upload_to_testflight=true \
     --field logLevel="info"
 
-echo -e "${GREEN}✅ Workflow started successfully!${NC}"
+echo -e "${GREEN}[OK] Workflow started successfully!${NC}"
 echo ""
 
 # Wait a moment then show status
 sleep 3
-echo "📊 Workflow status:"
+echo "[STATS] Workflow status:"
 gh run list --workflow="build-ios-appstore.yml" --limit=1
 
 echo ""
-echo -e "${YELLOW}🔗 Monitor progress:${NC}"
+echo -e "${YELLOW}[LINK] Monitor progress:${NC}"
 echo "   GitHub Actions: https://github.com/$(gh repo view --json nameWithOwner -q .nameWithOwner)/actions"
 echo "   App Store Connect: https://appstoreconnect.apple.com"
 echo ""
-echo -e "${GREEN}🎉 Your iOS app will be built and uploaded to TestFlight automatically!${NC}"
+echo -e "${GREEN}[SUCCESS] Your iOS app will be built and uploaded to TestFlight automatically!${NC}"

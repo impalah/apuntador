@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================
-# 📱 Android Bundle Builder Script (Bash)
+# [MOBILE] Android Bundle Builder Script (Bash)
 # ====================================================================
 # 
 # Purpose: Build Android App Bundle (AAB) for Google Play Store
@@ -32,28 +32,28 @@ NC='\033[0m' # No Color
 
 # Functions for colored output
 print_step() {
-    echo -e "${MAGENTA}🔄 $1${NC}"
+    echo -e "${MAGENTA}[REFRESH] $1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 print_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 print_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING]  $1${NC}"
 }
 
 print_info() {
-    echo -e "${CYAN}ℹ️  $1${NC}"
+    echo -e "${CYAN}[INFO]  $1${NC}"
 }
 
 # Show help
 show_help() {
-    echo -e "${CYAN}📱 Android Bundle Builder Script${NC}"
+    echo -e "${CYAN}[MOBILE] Android Bundle Builder Script${NC}"
     echo ""
     echo -e "${YELLOW}Usage:${NC}"
     echo -e "  ${GREEN}./build-bundle.sh [BuildType] [Version]${NC}"
@@ -89,7 +89,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Script start
-print_info "🚀 Starting Android Bundle Build Process"
+print_info "[LAUNCH] Starting Android Bundle Build Process"
 print_info "Build Type: $BUILD_TYPE"
 if [[ -n "$VERSION" ]]; then
     print_info "Version: $VERSION"
@@ -206,7 +206,7 @@ EOF
         
         if [[ "$BUILD_TYPE" == "release" ]]; then
             echo ""
-            print_success "🎉 Ready for Google Play Store!"
+            print_success "[SUCCESS] Ready for Google Play Store!"
             print_warning "Upload the .aab file to Google Play Console"
         fi
     else
@@ -234,7 +234,7 @@ EOF
 error_handler() {
     print_error "Build failed on line $1"
     echo ""
-    print_warning "🔧 Troubleshooting tips:"
+    print_warning "[CONFIG] Troubleshooting tips:"
     echo -e "  ${NC}1. Make sure you have Android SDK installed${NC}"
     echo -e "  ${NC}2. Verify Java JDK 17+ is installed${NC}"
     echo -e "  ${NC}3. Check that Capacitor is properly configured${NC}"
@@ -248,4 +248,4 @@ trap 'error_handler $LINENO' ERR
 main
 
 echo ""
-print_success "🎉 Bundle build process completed successfully!"
+print_success "[SUCCESS] Bundle build process completed successfully!"

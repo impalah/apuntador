@@ -1,6 +1,6 @@
-# 🚀 Quick Start - DevContainer Apuntador
+# [LAUNCH] Quick Start - DevContainer Apuntador
 
-## ⏱️ 5 Minutos para Empezar
+## [TIMER] 5 Minutos para Empezar
 
 ### Paso 1: Instalar Dependencias en macOS (5 minutos)
 
@@ -20,7 +20,7 @@ colima start --cpu 8 --memory 16 --disk 100 --vm-type vz --vz-rosetta
 # 4. Instalar extensión Dev Containers
 code --install-extension ms-vscode-remote.remote-containers
 
-# ✅ ¡Listo!
+# [OK] ¡Listo!
 ```
 
 ### (Opcional) Para Desarrollo iOS
@@ -72,11 +72,11 @@ npm run dev
 
 Abrir en navegador: http://localhost:3000
 
-**¡Funciona!** ✅
+**¡Funciona!** [OK]
 
 ---
 
-## 📋 Comandos Rápidos
+## [LIST] Comandos Rápidos
 
 ### Desarrollo Web
 ```bash
@@ -106,7 +106,7 @@ npx cap open ios         # Abre Xcode
 
 ---
 
-## ⚡ Comandos de Colima (macOS)
+## [FAST] Comandos de Colima (macOS)
 
 ```bash
 # Ver estado
@@ -125,7 +125,7 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## 🔄 Entrar/Salir del Container
+## [REFRESH] Entrar/Salir del Container
 
 ### Entrar (abrir en container)
 ```bash
@@ -148,7 +148,7 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## 📚 Documentación Completa
+## [DOCS] Documentación Completa
 
 - [SETUP_SUMMARY.md](SETUP_SUMMARY.md) - Resumen ejecutivo completo
 - [MACOS_SETUP.md](MACOS_SETUP.md) - Instalación detallada en macOS
@@ -158,7 +158,7 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## 🐛 Problemas Comunes
+## [BUG] Problemas Comunes
 
 ### "Cannot connect to Docker daemon"
 ```bash
@@ -190,7 +190,7 @@ kill -9 $(lsof -ti:3000)
 
 ---
 
-## ✅ Checklist
+## [OK] Checklist
 
 - [ ] Colima instalado y corriendo (`colima status`)
 - [ ] VS Code instalado
@@ -198,11 +198,11 @@ kill -9 $(lsof -ti:3000)
 - [ ] Proyecto abierto en container
 - [ ] `npm run dev` funciona → http://localhost:3000
 
-**¿Todo listo?** → ¡A desarrollar! 🎉
+**¿Todo listo?** → ¡A desarrollar! [SUCCESS]
 
 ---
 
-## 💡 Tips
+## [IDEA] Tips
 
 ### Tip 1: Salir del container antes de apagar el Mac
 ```bash
@@ -233,7 +233,7 @@ code /path/to/proyecto2
 
 ---
 
-## 🎯 Siguiente Paso
+## [TARGET] Siguiente Paso
 
 ```bash
 # 1. Iniciar Colima (si no está corriendo)
@@ -250,4 +250,4 @@ code /Users/linus/projects/apuntador
 npm run dev
 ```
 
-**¡Disfruta del desarrollo!** 🚀
+**¡Disfruta del desarrollo!** [LAUNCH]

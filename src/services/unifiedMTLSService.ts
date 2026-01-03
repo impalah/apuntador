@@ -49,7 +49,7 @@ export class UnifiedMTLSService {
 
   private constructor() {
     const platform = this.getPlatform()
-    console.log(`🔐 [Unified mTLS] Initialized for platform: ${platform}`)
+    console.log(`[SECURE] [Unified mTLS] Initialized for platform: ${platform}`)
   }
 
   public static getInstance(): UnifiedMTLSService {
@@ -173,7 +173,7 @@ export class UnifiedMTLSService {
   public async ensureEnrolled(): Promise<MTLSEnrollmentResult> {
     const platform = this.getPlatform()
 
-    console.log(`🔐 [Unified mTLS] Ensuring enrollment for platform: ${platform}`)
+    console.log(`[SECURE] [Unified mTLS] Ensuring enrollment for platform: ${platform}`)
 
     if (platform === 'android') {
       // Usar la API de producción desplegada en AWS
@@ -218,7 +218,7 @@ export class UnifiedMTLSService {
       }
     } else {
       // Web no requiere enrollment
-      console.log('ℹ️  [Unified mTLS] Web platform does not require enrollment')
+      console.log('[INFO]  [Unified mTLS] Web platform does not require enrollment')
       return {
         success: true,
         enrolled: false,
@@ -238,7 +238,7 @@ export class UnifiedMTLSService {
   public async forceReEnroll(): Promise<MTLSEnrollmentResult> {
     const platform = this.getPlatform()
 
-    console.log(`🔄 [Unified mTLS] Forcing re-enrollment for platform: ${platform}`)
+    console.log(`[REFRESH] [Unified mTLS] Forcing re-enrollment for platform: ${platform}`)
 
     if (platform === 'android') {
       // Para Android, primero unenroll y luego enroll de nuevo
@@ -281,7 +281,7 @@ export class UnifiedMTLSService {
         error: result.error,
       }
     } else {
-      console.log('ℹ️  [Unified mTLS] Web platform does not support re-enrollment')
+      console.log('[INFO]  [Unified mTLS] Web platform does not support re-enrollment')
       return {
         success: false,
         enrolled: false,
@@ -297,7 +297,7 @@ export class UnifiedMTLSService {
   public async deleteAllCredentials(): Promise<void> {
     const platform = this.getPlatform()
 
-    console.log(`🗑️  [Unified mTLS] Deleting credentials for platform: ${platform}`)
+    console.log(`[DELETE]  [Unified mTLS] Deleting credentials for platform: ${platform}`)
 
     if (platform === 'android') {
       await DeviceEnrollment.unenrollDevice()
@@ -306,7 +306,7 @@ export class UnifiedMTLSService {
     } else if (platform === 'desktop') {
       await desktopEnrollmentService.unenrollDevice()
     } else {
-      console.log('ℹ️  [Unified mTLS] Web platform has no credentials to delete')
+      console.log('[INFO]  [Unified mTLS] Web platform has no credentials to delete')
     }
   }
 
@@ -346,7 +346,7 @@ export const unifiedMTLSService = UnifiedMTLSService.getInstance()
  *       
  *       const result = await ensureEnrolled()
  *       if (result.success) {
- *         console.log('✅ mTLS ready')
+ *         console.log('[OK] mTLS ready')
  *       }
  *     })
  *   }

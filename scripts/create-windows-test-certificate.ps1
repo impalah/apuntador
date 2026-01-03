@@ -46,6 +46,6 @@ Write-Host "`n2. Para convertir el PFX a Base64, ejecuta:"
 Write-Host "   [Convert]::ToBase64String([IO.File]::ReadAllBytes('$pfxPath'))" -ForegroundColor Green
 Write-Host "`n3. Para instalar el certificado en tu máquina local (testing):"
 Write-Host "   Import-PfxCertificate -FilePath '$pfxPath' -CertStoreLocation Cert:\CurrentUser\My -Password (ConvertTo-SecureString -String '$certPassword' -AsPlainText -Force)" -ForegroundColor Green
-Write-Host "`n⚠️  IMPORTANTE: Este es un certificado de PRUEBA." -ForegroundColor Red
+Write-Host "`n[WARNING]  IMPORTANTE: Este es un certificado de PRUEBA." -ForegroundColor Red
 Write-Host "   Windows mostrará advertencias a usuarios finales." -ForegroundColor Red
 Write-Host "   Para producción, compra un certificado de DigiCert, Sectigo, etc." -ForegroundColor Red

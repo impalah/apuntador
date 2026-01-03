@@ -8,7 +8,7 @@
           @click="goBack"
           class="mr-2"
         ></v-btn>
-        🔐 mTLS Client Test
+        [SECURE] mTLS Client Test
       </v-card-title>
       
       <v-card-text>
@@ -23,7 +23,7 @@
         <!-- mTLS Status -->
         <v-card variant="outlined" class="mb-4">
           <v-card-title class="text-subtitle-1">
-            📊 mTLS Client Status
+            [STATS] mTLS Client Status
           </v-card-title>
           <v-card-text>
             <v-row dense>
@@ -33,7 +33,7 @@
                   label
                   class="mb-2"
                 >
-                  {{ clientStatus.isReady ? '✅ Ready' : '❌ Not Ready' }}
+                  {{ clientStatus.isReady ? '[OK] Ready' : '[ERROR] Not Ready' }}
                 </v-chip>
               </v-col>
               
@@ -62,7 +62,7 @@
               block
               class="mt-2"
             >
-              🔄 Refresh Status
+              [REFRESH] Refresh Status
             </v-btn>
           </v-card-text>
         </v-card>
@@ -70,7 +70,7 @@
         <!-- Test Endpoint -->
         <v-card variant="outlined" class="mb-4">
           <v-card-title class="text-subtitle-1">
-            🧪 Test mTLS Request
+            [EXPERIMENT] Test mTLS Request
           </v-card-title>
           <v-card-text>
             <!-- Quick Test Buttons -->
@@ -127,7 +127,7 @@
               color="primary"
               block
             >
-              🚀 Send Request
+              [LAUNCH] Send Request
             </v-btn>
             
             <v-card v-if="testResponse" variant="tonal" class="mt-4">
@@ -144,7 +144,7 @@
         <!-- Renewal Service -->
         <v-card variant="outlined" class="mb-4">
           <v-card-title class="text-subtitle-1">
-            ♻️ Certificate Renewal Service
+            [RECYCLE] Certificate Renewal Service
           </v-card-title>
           <v-card-text>
             <v-text-field
@@ -164,7 +164,7 @@
                   block
                   variant="outlined"
                 >
-                  ▶️ Start Service
+                  [PLAY] Start Service
                 </v-btn>
               </v-col>
               <v-col cols="6">
@@ -175,7 +175,7 @@
                   block
                   variant="outlined"
                 >
-                  ⏹️ Stop Service
+                  [STOP] Stop Service
                 </v-btn>
               </v-col>
             </v-row>
@@ -189,7 +189,7 @@
         <!-- Logs -->
         <v-card variant="outlined">
           <v-card-title class="text-subtitle-1">
-            📝 Logs
+            [NOTE] Logs
             <v-spacer />
             <v-btn
               @click="clearLogs"

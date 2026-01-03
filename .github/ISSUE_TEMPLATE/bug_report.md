@@ -1,17 +1,17 @@
 ---
-name: 🐛 Bug Report
+name: [BUG] Bug Report
 about: Report a bug or issue with Apuntador
 title: '[BUG] '
 labels: ['bug', 'needs-triage']
 assignees: ''
 ---
 
-## 🐛 Bug Description
+## [BUG] Bug Description
 <!-- Provide a clear and concise description of the bug -->
 
 
 
-## 🔄 Steps to Reproduce
+## [REFRESH] Steps to Reproduce
 <!-- Provide detailed steps to reproduce the behavior -->
 
 1. Go to '...'
@@ -19,17 +19,17 @@ assignees: ''
 3. Scroll down to '...'
 4. See error
 
-## ✅ Expected Behavior
+## [OK] Expected Behavior
 <!-- Describe what you expected to happen -->
 
 
 
-## ❌ Actual Behavior
+## [ERROR] Actual Behavior
 <!-- Describe what actually happened instead -->
 
 
 
-## 📱 Environment Information
+## [MOBILE] Environment Information
 
 **Platform:** (check all that apply)
 - [ ] Web Browser
@@ -59,7 +59,7 @@ assignees: ''
 
 
 
-## 📋 Additional Context
+## [LIST] Additional Context
 <!-- Add any other context about the problem here -->
 
 **Console Errors:** (if applicable)
@@ -75,7 +75,7 @@ Paste any console errors here
 - Mirror Mode: 
 - Highlight Band: 
 
-## 🔍 Troubleshooting Attempted
+## [SEARCH] Troubleshooting Attempted
 <!-- What have you already tried to fix the issue? -->
 
 - [ ] Refreshed the page/restarted the app
@@ -100,7 +100,7 @@ Paste any console errors here
 - [ ] Sometimes (10-50% of the time)
 - [ ] Rarely (<10% of the time)
 
-## 🔗 Related Issues
+## [LINK] Related Issues
 <!-- Link any related issues or discussions -->
 <!-- Example: "Similar to #123" or "Might be related to #456" -->
 

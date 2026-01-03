@@ -2,20 +2,33 @@
 
 A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite**, and **Vuetify**. Features web, Android (Capacitor), and desktop (Tauri) deployments with advanced component architecture. **Now includes mTLS authentication for physical devices with hardware-backed keystores**.
 
+## Code Style Guidelines
+
+**CRITICAL - NO EMOJIS OR ICONS**:
+
+- NEVER use emojis or Unicode icons in any code, comments, console logs, or documentation
+- Use plain text descriptors instead: "ERROR:", "SUCCESS:", "INFO:", "WARNING:", etc.
+- Use conventional prefixes like "[Service]", "[Component]", or descriptive text
+- Emojis make code less professional and harder to read in terminal outputs
+- This applies to ALL files: TypeScript, Vue, Markdown, YAML, shell scripts, etc.
+
 ## Architecture Overview
 
 **Modular Component System**: Uses coordinators + adapters to decouple UI components from state management.
+
 - `src/coordinators/` - Business logic orchestration between components
-- `src/adapters/` - Bridge Pinia stores to component interfaces  
+- `src/adapters/` - Bridge Pinia stores to component interfaces
 - `src/types/component-interfaces.d.ts` - Type contracts for modular components
 
 **Authentication Architecture**:
+
 - **Android**: mTLS with Android Keystore (TEE/StrongBox) + 30-day certificates
 - **iOS**: mTLS with Secure Enclave + 30-day certificates
 - **Desktop**: mTLS with encrypted file storage + 7-day certificates
 - **Web**: OAuth 2.0 + PKCE (no mTLS, CORS-protected)
 
 **Multi-Platform Deployment**:
+
 - **Web**: Vite build → static hosting (Vercel, Netlify, etc.)
 - **Android**: Capacitor → APK with automated GitHub Actions builds
 - **Desktop**: Tauri → native Windows/macOS/Linux apps with code signing
@@ -79,19 +92,22 @@ src/
 ## Critical Implementation Patterns
 
 ### Scrolling Architecture
+
 - **AutoScroller class** (`utils/scrolling.ts`): Handles smooth `requestAnimationFrame`-based scrolling
 - **Virtual scroll offset**: Pixel-based positioning with line-height calculations
 - **Play/pause loop**: Store triggers AutoScroller start/stop via coordinator
 
 ### Component Communication
+
 ```typescript
 // Coordinator orchestrates multiple components
 const coordinator = useTeleprompterCoordinator()
-coordinator.teleprompterFrameProps  // Reactive props from stores
+coordinator.teleprompterFrameProps // Reactive props from stores
 coordinator.toolbarHandlers.onPlay() // Actions bridge to stores
 ```
 
 ### Store-to-Component Adapter Pattern
+
 ```typescript
 // Converts Pinia state to component props format
 export function useTeleprompterFrameProps(): ComputedRef<TeleprompterFrameProps> {
@@ -106,6 +122,7 @@ export function useTeleprompterFrameProps(): ComputedRef<TeleprompterFrameProps>
 ### Multi-Platform Builds
 
 **Android APK** (automated):
+
 ```bash
 npm run android:apk:build  # Windows PowerShell script
 ./build-android-apk.sh     # Linux/macOS script
@@ -113,6 +130,7 @@ make android-apk           # Cross-platform via Makefile
 ```
 
 **Desktop** (Tauri):
+
 ```bash
 npm run tauri:build:win    # Windows MSI
 npm run tauri:build:mac    # macOS universal binary
@@ -122,6 +140,7 @@ make tauri-build-release   # Platform-specific build scripts
 ## Development Workflow
 
 **Core Commands**:
+
 ```bash
 npm run dev         # Vite dev server (port 3000)
 npm run build       # Production web build
@@ -132,6 +151,7 @@ npm run coverage    # Coverage report
 ```
 
 **Testing Strategy**:
+
 - **Unit**: Focus on stores (`useTeleprompterStore`, `usePrefsStore`) and utils
 - **E2E**: Full user flows across mobile/desktop viewports
 - **Coverage**: Store logic >85%, utils >75% (components covered by e2e)
@@ -143,7 +163,7 @@ Components communicate via typed interfaces in `types/component-interfaces.d.ts`
 ```typescript
 interface TeleprompterFrameProps {
   content: TeleprompterContent
-  scrollState: ScrollState  
+  scrollState: ScrollState
   displayPrefs: DisplayPreferences
   highlightBand: HighlightBandConfig
 }
@@ -154,20 +174,23 @@ This enables swapping component implementations without breaking the coordinator
 ## Input Handling Architecture
 
 **Multi-Input Support**:
+
 - **Keyboard**: `utils/hotkeys.ts` with customizable mappings
-- **Touch**: Vue touch directives for swipe/tap gestures  
+- **Touch**: Vue touch directives for swipe/tap gestures
 - **Gamepad**: `utils/gamepadManager.ts` for wireless controller support
 - **Accessibility**: ARIA roles, screen reader support
 
 ## Platform-Specific Features
 
 **Android** (Capacitor):
+
 - Edge-to-edge immersive mode
 - Hardware back button handling
 - Haptic feedback for interactions
 - Screen orientation lock
 
-**Desktop** (Tauri):  
+**Desktop** (Tauri):
+
 - Native window controls (minimize/maximize/close)
 - Always-on-top mode for professional setups
 - File system access for script import/export
@@ -487,7 +510,7 @@ Copilot must generate a `README.md` that covers:
 ## 12) Security & Privacy
 
 - **Local-first**: No network calls by default. Import is local‑file only.
-- **OAuth Security**: 
+- **OAuth Security**:
   - PKCE (Proof Key for Code Exchange) flow eliminates need for client secrets
   - State parameter validation prevents CSRF attacks
   - Code verifier/challenge using SHA256 hashing
@@ -517,10 +540,12 @@ Copilot must generate a `README.md` that covers:
 ### Dropbox OAuth Flow (Platform-Specific)
 
 **Web/Mobile (Capacitor)**:
+
 ```typescript
 // Direct browser-based PKCE flow
 const { code_verifier, code_challenge } = await generatePKCE()
-const authUrl = `https://www.dropbox.com/oauth2/authorize?` +
+const authUrl =
+  `https://www.dropbox.com/oauth2/authorize?` +
   `response_type=code&client_id=${CLIENT_ID}` +
   `&redirect_uri=${REDIRECT_URI}` +
   `&code_challenge=${code_challenge}` +
@@ -529,19 +554,20 @@ window.location.href = authUrl
 ```
 
 **Desktop (Tauri)**:
+
 ```rust
 // Rust backend HTTP server for OAuth callbacks
 #[tauri::command]
 async fn start_dropbox_oauth(app_handle: AppHandle) -> Result<String, String> {
   let code_verifier = generate_code_verifier();
   let code_challenge = generate_code_challenge(&code_verifier);
-  
+
   // Start local server on localhost:8080
   start_oauth_server(app_handle).await?;
-  
+
   // Open browser with OAuth URL
   open_browser(&auth_url)?;
-  
+
   Ok(auth_url)
 }
 
@@ -550,16 +576,19 @@ app_handle.emit("oauth-callback", json!({ code, state }))
 ```
 
 **Token Exchange** (Both platforms use PKCE without client_secret):
+
 ```typescript
+
 ```
 
 ### mTLS Client Authentication (Physical Devices)
 
 **Android - Android Keystore**:
+
 ```kotlin
 // Generate key pair in hardware (StrongBox if available)
 val keyPairGenerator = KeyPairGenerator.getInstance(
-    KeyProperties.KEY_ALGORITHM_RSA, 
+    KeyProperties.KEY_ALGORITHM_RSA,
     "AndroidKeyStore"
 )
 val parameterSpec = KeyGenParameterSpec.Builder(
@@ -571,6 +600,7 @@ val parameterSpec = KeyGenParameterSpec.Builder(
 ```
 
 **iOS - Secure Enclave**:
+
 ```swift
 // Generate key in Secure Enclave (hardware-isolated)
 let attributes: [String: Any] = [
@@ -586,6 +616,7 @@ let attributes: [String: Any] = [
 ```
 
 **Desktop (Tauri) - File-based with Encryption**:
+
 ```rust
 // Encrypted certificate storage
 use aes_gcm::{Aead, KeyInit, Aes256Gcm};
@@ -599,13 +630,14 @@ pub fn store_certificate(cert: &[u8]) -> Result<(), Box<dyn std::error::Error>> 
 ```
 
 **Web - OAuth 2.0 + PKCE (No mTLS)**:
+
 ```typescript
 const params = {
   client_id: CLIENT_ID,
   code: authorizationCode,
   code_verifier: codeVerifier,
   grant_type: 'authorization_code',
-  redirect_uri: REDIRECT_URI
+  redirect_uri: REDIRECT_URI,
 }
 // POST to https://api.dropboxapi.com/oauth2/token
 ```
@@ -661,7 +693,8 @@ await listen('oauth-callback', async (event) => {
 ---
 
 ## 16) Acceptance Criteria
-```
+
+````
 
 ### Tauri Commands Reference
 
@@ -684,7 +717,7 @@ await listen('oauth-callback', async (event) => {
   const { code, state } = event.payload
   await handleOAuthCallback(code, state)
 })
-```
+````
 
 ---
 

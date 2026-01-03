@@ -1,12 +1,12 @@
 ---
-name: 💡 Feature Request
+name: [IDEA] Feature Request
 about: Suggest a new feature or enhancement for Apuntador
 title: '[FEATURE] '
 labels: ['enhancement', 'feature-request']
 assignees: ''
 ---
 
-## 🎯 Feature Summary
+## [TARGET] Feature Summary
 <!-- Provide a clear and concise description of the feature you'd like to see -->
 
 
@@ -23,18 +23,18 @@ As a _________________, I want _________________ so that _________________.
 
 
 
-## 💡 Proposed Solution
+## [IDEA] Proposed Solution
 <!-- Describe your preferred solution in detail -->
 
 
 
-## 🎨 UI/UX Considerations
+## [STYLE] UI/UX Considerations
 <!-- If applicable, describe how this feature should look or behave -->
 <!-- Feel free to include mockups, sketches, or reference other apps -->
 
 
 
-## 🏗️ Technical Considerations
+## [BUILD] Technical Considerations
 <!-- Any technical details, constraints, or implementation ideas -->
 <!-- Platform-specific requirements (Web, Android, Desktop) -->
 
@@ -49,24 +49,24 @@ As a _________________, I want _________________ so that _________________.
 - [ ] Medium (New component or moderate logic)
 - [ ] High (Complex feature requiring significant development)
 
-## 📱 Alternative Solutions
+## [MOBILE] Alternative Solutions
 <!-- Describe any alternative solutions or workarounds you've considered -->
 
 
 
-## 🔗 Related Issues
+## [LINK] Related Issues
 <!-- Link any related issues, discussions, or feature requests -->
 <!-- Example: "Related to #123" or "Depends on #456" -->
 
 
 
-## 📋 Additional Context
+## [LIST] Additional Context
 <!-- Add any other context, screenshots, videos, or examples -->
 <!-- Include relevant screenshots from other teleprompter apps if helpful -->
 
 
 
-## ✅ Acceptance Criteria
+## [OK] Acceptance Criteria
 <!-- Define what "done" looks like for this feature -->
 <!-- Use checkboxes to create a clear definition of completion -->
 
@@ -74,7 +74,7 @@ As a _________________, I want _________________ so that _________________.
 - [ ] 
 - [ ] 
 
-## 🎯 Version Targeting
+## [TARGET] Version Targeting
 <!-- Which version should this feature target? -->
 
 **Preferred Version:**

@@ -46,7 +46,7 @@ export class TauriService {
     try {
       const { invoke } = await import('@tauri-apps/api/core')
       await invoke('start_oauth_callback_server')
-      console.log('✅ OAuth callback server started on localhost:8080')
+      console.log('[OK] OAuth callback server started on localhost:8080')
     } catch (error) {
       console.error('Error starting OAuth callback server:', error)
       throw error
@@ -165,13 +165,13 @@ export class TauriService {
   }
 
   async listenForOAuthCallback(): Promise<{ code: string; state: string }> {
-    console.log('👂 TauriService: Setting up listener for oauth-callback')
+    console.log('[LISTEN] TauriService: Setting up listener for oauth-callback')
     
     this.stopOAuthListener() // Clean up previous listener
     
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        console.log('⏰ TauriService: OAuth timeout after 5 minutes')
+        console.log('[TIME] TauriService: OAuth timeout after 5 minutes')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
       }, 300000) // 5 minutes timeout
@@ -181,7 +181,7 @@ export class TauriService {
         .then(({ listen }) => {
           // listen() returns a Promise that resolves to the unlisten function
           return listen('oauth-callback', (event: any) => {
-            console.log('📞 TauriService: oauth-callback event received:', event.payload)
+            console.log('[CALL] TauriService: oauth-callback event received:', event.payload)
             clearTimeout(timeout)
             this.stopOAuthListener()
             resolve(event.payload)
@@ -189,10 +189,10 @@ export class TauriService {
         })
         .then(unlistenFn => {
           this.oauthCallbackListener = unlistenFn
-          console.log('✅ TauriService: oauth-callback listener configured')
+          console.log('[OK] TauriService: oauth-callback listener configured')
         })
         .catch(error => {
-          console.error('❌ TauriService: Error setting up listener:', error)
+          console.error('[ERROR] TauriService: Error setting up listener:', error)
           clearTimeout(timeout)
           reject(error)
         })
@@ -227,7 +227,7 @@ export class TauriService {
   }
 
   async testEventEmit(): Promise<void> {
-    console.log('🧪 Testing event emission...')
+    console.log('[EXPERIMENT] Testing event emission...')
     
     try {
       const { listen } = await import('@tauri-apps/api/event')
@@ -235,24 +235,24 @@ export class TauriService {
       
       // Set up test listener
       const unlisten = await listen('test-event', (event: any) => {
-        console.log('✅ Test event received:', event.payload)
+        console.log('[OK] Test event received:', event.payload)
       })
       
       // Emit test event
       try {
         const result = await invoke('test_event_emit')
-        console.log('🚀 Test emit result:', result)
+        console.log('[LAUNCH] Test emit result:', result)
       } catch (error) {
-        console.error('❌ Test emit failed:', error)
+        console.error('[ERROR] Test emit failed:', error)
       }
       
       // Clean up listener after 2 seconds
       setTimeout(() => {
         unlisten()
-        console.log('🧹 Test listener cleaned up')
+        console.log('[CLEANUP] Test listener cleaned up')
       }, 2000)
     } catch (error) {
-      console.error('❌ Error in testEventEmit:', error)
+      console.error('[ERROR] Error in testEventEmit:', error)
     }
   }
 }

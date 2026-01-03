@@ -45,7 +45,7 @@ export class BackendOAuthClient {
   constructor(config: BackendOAuthConfig) {
     this.config = config
     this.httpClient = createBackendClient(config.backendUrl)
-    console.log(`🔧 BackendOAuthClient: Initialized for ${config.provider}`, {
+    console.log(`[CONFIG] BackendOAuthClient: Initialized for ${config.provider}`, {
       backendUrl: config.backendUrl,
       redirectUri: config.redirectUri
     })
@@ -72,17 +72,17 @@ export class BackendOAuthClient {
    * - Mobile (Android): Usa CapacitorHttp que maneja mTLS automáticamente
    */
   async authorize(): Promise<AuthorizeResponse> {
-    console.log(`🚀 BackendOAuthClient: Starting OAuth flow for ${this.config.provider}`)
-    console.log(`🔗 BackendOAuthClient: Backend URL: ${this.config.backendUrl}`)
+    console.log(`[LAUNCH] BackendOAuthClient: Starting OAuth flow for ${this.config.provider}`)
+    console.log(`[LINK] BackendOAuthClient: Backend URL: ${this.config.backendUrl}`)
 
     try {
       // Generar code verifier para PKCE
       this.codeVerifier = this.generateCodeVerifier()
-      console.log(`🔐 BackendOAuthClient: Generated code_verifier`)
+      console.log(`[SECURE] BackendOAuthClient: Generated code_verifier`)
 
       // Desktop (Tauri): Usar comando Rust con mTLS
       if (isTauri()) {
-        console.log(`🖥️ BackendOAuthClient: Using Tauri mTLS command`)
+        console.log(`[SERVER] BackendOAuthClient: Using Tauri mTLS command`)
         
         const result = await tauriService.backendOAuthAuthorize(
           this.config.provider,
@@ -90,7 +90,7 @@ export class BackendOAuthClient {
           this.config.redirectUri
         )
 
-        console.log(`✅ BackendOAuthClient: Authorization URL received from Tauri`, {
+        console.log(`[OK] BackendOAuthClient: Authorization URL received from Tauri`, {
           url: result.authorization_url.substring(0, 100) + '...',
           hasState: !!result.state
         })
@@ -104,7 +104,7 @@ export class BackendOAuthClient {
 
       // Mobile (Android): Usar CapacitorHttp con mTLS nativo
       const authUrl = `${this.config.backendUrl}/oauth/authorize/${this.config.provider}`
-      console.log(`📡 BackendOAuthClient: Calling: ${authUrl}`)
+      console.log(`[SIGNAL] BackendOAuthClient: Calling: ${authUrl}`)
 
       // IMPORTANTE: Usar CapacitorHttp en lugar de fetch
       // fetch tiene problemas con Mixed Content en Android WebView
@@ -121,7 +121,7 @@ export class BackendOAuthClient {
         }
       })
 
-      console.log(`📥 BackendOAuthClient: Response status: ${response.status}`)
+      console.log(`[DOWNLOAD] BackendOAuthClient: Response status: ${response.status}`)
 
       if (response.status !== 200) {
         const errorData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
@@ -132,7 +132,7 @@ export class BackendOAuthClient {
 
       const data: AuthorizeResponse = response.data
       
-      console.log(`✅ BackendOAuthClient: Authorization URL received`, {
+      console.log(`[OK] BackendOAuthClient: Authorization URL received`, {
         url: data.authorization_url.substring(0, 100) + '...',
         hasState: !!data.state
       })
@@ -145,10 +145,10 @@ export class BackendOAuthClient {
 
       return data
     } catch (error) {
-      console.error(`❌ BackendOAuthClient: Authorization failed:`, error)
-      console.error(`❌ BackendOAuthClient: Error type: ${error instanceof TypeError ? 'TypeError' : typeof error}`)
-      console.error(`❌ BackendOAuthClient: Error message: ${error instanceof Error ? error.message : String(error)}`)
-      console.error(`❌ BackendOAuthClient: Backend URL was: ${this.config.backendUrl}`)
+      console.error(`[ERROR] BackendOAuthClient: Authorization failed:`, error)
+      console.error(`[ERROR] BackendOAuthClient: Error type: ${error instanceof TypeError ? 'TypeError' : typeof error}`)
+      console.error(`[ERROR] BackendOAuthClient: Error message: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(`[ERROR] BackendOAuthClient: Backend URL was: ${this.config.backendUrl}`)
       throw error
     }
   }
@@ -161,7 +161,7 @@ export class BackendOAuthClient {
    * - Mobile (Android): Usa httpClient (CapacitorHttp) con mTLS nativo
    */
   async handleCallback(code: string, state: string): Promise<OAuthTokens> {
-    console.log(`🔐 BackendOAuthClient: Handling OAuth callback for ${this.config.provider}`)
+    console.log(`[SECURE] BackendOAuthClient: Handling OAuth callback for ${this.config.provider}`)
 
     try {
       // Recuperar code_verifier del localStorage
@@ -170,14 +170,14 @@ export class BackendOAuthClient {
         throw new Error('Code verifier not found. Please restart the OAuth flow.')
       }
 
-      console.log(`🔑 BackendOAuthClient: Code verifier retrieved from storage`)
+      console.log(`[KEY] BackendOAuthClient: Code verifier retrieved from storage`)
       console.log(`🔒 BackendOAuthClient: Using mTLS for token exchange`)
 
       let tokens: OAuthTokens
 
       // Desktop (Tauri): Usar comando Rust con mTLS
       if (isTauri()) {
-        console.log(`🖥️ BackendOAuthClient: Using Tauri mTLS command for token exchange`)
+        console.log(`[SERVER] BackendOAuthClient: Using Tauri mTLS command for token exchange`)
         
         const result = await tauriService.backendOAuthTokenExchange(
           this.config.provider,
@@ -188,7 +188,7 @@ export class BackendOAuthClient {
 
         tokens = result
 
-        console.log(`✅ BackendOAuthClient: Tokens received from Tauri`, {
+        console.log(`[OK] BackendOAuthClient: Tokens received from Tauri`, {
           hasAccessToken: !!tokens.access_token,
           hasRefreshToken: !!tokens.refresh_token,
           expiresIn: tokens.expires_in,
@@ -213,7 +213,7 @@ export class BackendOAuthClient {
 
         tokens = response.data
 
-        console.log(`✅ BackendOAuthClient: Tokens received`, {
+        console.log(`[OK] BackendOAuthClient: Tokens received`, {
           hasAccessToken: !!tokens.access_token,
           hasRefreshToken: !!tokens.refresh_token,
           expiresIn: tokens.expires_in,
@@ -226,7 +226,7 @@ export class BackendOAuthClient {
 
       return tokens
     } catch (error) {
-      console.error(`❌ BackendOAuthClient: Callback failed:`, error)
+      console.error(`[ERROR] BackendOAuthClient: Callback failed:`, error)
       // Limpiar code_verifier incluso si hay error
       localStorage.removeItem(`${this.config.provider}_code_verifier`)
       throw error
@@ -238,7 +238,7 @@ export class BackendOAuthClient {
    * NOTA: Este endpoint SÍ requiere mTLS
    */
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    console.log(`🔄 BackendOAuthClient: Refreshing token for ${this.config.provider}`)
+    console.log(`[REFRESH] BackendOAuthClient: Refreshing token for ${this.config.provider}`)
 
     try {
       console.log(`🔒 BackendOAuthClient: Using mTLS for token refresh`)
@@ -258,13 +258,13 @@ export class BackendOAuthClient {
 
       const tokens = response.data
 
-      console.log(`✅ BackendOAuthClient: Token refreshed`, {
+      console.log(`[OK] BackendOAuthClient: Token refreshed`, {
         expiresIn: tokens.expires_in
       })
 
       return tokens
     } catch (error) {
-      console.error(`❌ BackendOAuthClient: Refresh failed:`, error)
+      console.error(`[ERROR] BackendOAuthClient: Refresh failed:`, error)
       throw error
     }
   }
@@ -287,13 +287,13 @@ export class BackendOAuthClient {
       )
 
       if (response.status !== 200) {
-        console.warn(`⚠️ Token revocation failed: ${response.status}`)
+        console.warn(`[WARNING] Token revocation failed: ${response.status}`)
         // No lanzar error, el token puede estar ya inválido
       } else {
-        console.log(`✅ BackendOAuthClient: Token revoked successfully`)
+        console.log(`[OK] BackendOAuthClient: Token revoked successfully`)
       }
     } catch (error) {
-      console.error(`❌ BackendOAuthClient: Revoke failed:`, error)
+      console.error(`[ERROR] BackendOAuthClient: Revoke failed:`, error)
       // No lanzar error, continuar con logout local
     }
   }

@@ -23,9 +23,9 @@ class SecureEnclaveNativeBridge {
     // Verificar si el bridge está disponible
     if ((globalThis as any).webkit?.messageHandlers?.secureEnclave) {
       this.isReady = true
-      console.log('✅ [Native Bridge] Secure Enclave WebKit bridge available')
+      console.log('[OK] [Native Bridge] Secure Enclave WebKit bridge available')
     } else {
-      console.warn('⚠️ [Native Bridge] WebKit message handlers not found')
+      console.warn('[WARNING] [Native Bridge] WebKit message handlers not found')
     }
   }
 
@@ -34,7 +34,7 @@ class SecureEnclaveNativeBridge {
     const call = this.pendingCalls.get(callId)
     
     if (!call) {
-      console.warn(`⚠️ [Native Bridge] Received response for unknown callId: ${callId}`)
+      console.warn(`[WARNING] [Native Bridge] Received response for unknown callId: ${callId}`)
       return
     }
 

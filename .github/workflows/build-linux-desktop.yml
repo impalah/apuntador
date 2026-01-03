@@ -122,24 +122,24 @@ jobs:
           DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
 
           if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
-            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "[ERROR] No ZIP asset found for release ${RELEASE_TAG}"
             echo "Available assets:"
             echo "${RELEASE_DATA}" | jq -r '.assets[].name'
             exit 1
           fi
 
-          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
 
           # Verify download
           if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
-            echo "❌ Failed to download release asset"
+            echo "[ERROR] Failed to download release asset"
             exit 1
           fi
 
-          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -155,12 +155,12 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "📝 Creating .env file from secrets..."
+          echo "[NOTE] Creating .env file from secrets..."
           cat > .env << 'EOF'
           ${{ secrets.ENV_FILE }}
           EOF
-          echo "✅ .env file created successfully"
-          echo "📋 Variables configured (masked):"
+          echo "[OK] .env file created successfully"
+          echo "[LIST] Variables configured (masked):"
           grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
 
       - name: Verify environment
@@ -212,9 +212,9 @@ jobs:
           # Copy binary
           if [ -f "$TARGET_DIR/apuntador" ]; then
             cp "$TARGET_DIR/apuntador" artifacts/apuntador-linux-${{ inputs.buildTarget }}
-            echo "✅ Copied binary"
+            echo "[OK] Copied binary"
           else
-            echo "❌ Binary not found at $TARGET_DIR/apuntador"
+            echo "[ERROR] Binary not found at $TARGET_DIR/apuntador"
           fi
 
           # Copy packages if they exist
@@ -222,25 +222,25 @@ jobs:
             # DEB package
             if find "$BUNDLE_DIR" -name "*.deb" | head -1; then
               find "$BUNDLE_DIR" -name "*.deb" -exec cp {} artifacts/ \;
-              echo "✅ Copied DEB package"
+              echo "[OK] Copied DEB package"
             else
-              echo "⚠️ DEB package not found"
+              echo "[WARNING] DEB package not found"
             fi
             
             # RPM package
             if find "$BUNDLE_DIR" -name "*.rpm" | head -1; then
               find "$BUNDLE_DIR" -name "*.rpm" -exec cp {} artifacts/ \;
-              echo "✅ Copied RPM package"
+              echo "[OK] Copied RPM package"
             else
-              echo "⚠️ RPM package not found"
+              echo "[WARNING] RPM package not found"
             fi
             
             # AppImage
             if find "$BUNDLE_DIR" -name "*.AppImage" | head -1; then
               find "$BUNDLE_DIR" -name "*.AppImage" -exec cp {} artifacts/ \;
-              echo "✅ Copied AppImage"
+              echo "[OK] Copied AppImage"
             else
-              echo "⚠️ AppImage not found"
+              echo "[WARNING] AppImage not found"
             fi
           fi
 
@@ -313,21 +313,21 @@ jobs:
             NEW_DEB="Apuntador_${VERSION}_amd64.deb"
             mv "$DEB_FILE" "$NEW_DEB"
             echo "DEB_FILENAME=$NEW_DEB" >> $GITHUB_ENV
-            echo "✅ Renamed DEB: $NEW_DEB"
+            echo "[OK] Renamed DEB: $NEW_DEB"
           fi
 
           if [ -n "$RPM_FILE" ]; then
             NEW_RPM="Apuntador-${VERSION}-1.x86_64.rpm"
             mv "$RPM_FILE" "$NEW_RPM"
             echo "RPM_FILENAME=$NEW_RPM" >> $GITHUB_ENV
-            echo "✅ Renamed RPM: $NEW_RPM"
+            echo "[OK] Renamed RPM: $NEW_RPM"
           fi
 
           if [ -n "$APPIMAGE_FILE" ]; then
             NEW_APPIMAGE="Apuntador_${VERSION}_amd64.AppImage"
             mv "$APPIMAGE_FILE" "$NEW_APPIMAGE"
             echo "APPIMAGE_FILENAME=$NEW_APPIMAGE" >> $GITHUB_ENV
-            echo "✅ Renamed AppImage: $NEW_APPIMAGE"
+            echo "[OK] Renamed AppImage: $NEW_APPIMAGE"
           fi
 
           ls -la
@@ -340,7 +340,7 @@ jobs:
         run: |
           cd artifacts
 
-          echo "⬆️  Uploading Linux packages to apuntador.io..."
+          echo "[UP]  Uploading Linux packages to apuntador.io..."
 
           # Upload DEB
           if [ -n "$DEB_FILENAME" ] && [ -f "$DEB_FILENAME" ]; then
@@ -348,7 +348,7 @@ jobs:
             aws s3 cp "$DEB_FILENAME" "s3://${S3_BUCKET}/downloads/${DEB_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-deb,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "✅ DEB uploaded"
+            echo "[OK] DEB uploaded"
           fi
 
           # Upload RPM
@@ -357,7 +357,7 @@ jobs:
             aws s3 cp "$RPM_FILENAME" "s3://${S3_BUCKET}/downloads/${RPM_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-rpm,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "✅ RPM uploaded"
+            echo "[OK] RPM uploaded"
           fi
 
           # Upload AppImage
@@ -366,7 +366,7 @@ jobs:
             aws s3 cp "$APPIMAGE_FILENAME" "s3://${S3_BUCKET}/downloads/${APPIMAGE_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-appimage,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "✅ AppImage uploaded"
+            echo "[OK] AppImage uploaded"
           fi
 
       - name: Update versions.json for Linux packages
@@ -374,15 +374,15 @@ jobs:
         env:
           S3_BUCKET: ${{ vars.APUNTADOR_IO_S3_BUCKET }}
         run: |
-          echo "⬇️  Downloading current versions.json..."
+          echo "[DOWN]  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
-            echo "✅ Downloaded existing versions.json"
+            echo "[OK] Downloaded existing versions.json"
           else
-            echo "⚠️  versions.json not found, creating new one"
+            echo "[WARNING]  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
 
-          echo "📝 Updating versions.json with Linux packages..."
+          echo "[NOTE] Updating versions.json with Linux packages..."
 
           # Update all three Linux package types
           jq_updated=false
@@ -405,19 +405,19 @@ jobs:
           fi
 
           if [ "$jq_updated" = true ]; then
-            echo "✅ Updated versions.json:"
+            echo "[OK] Updated versions.json:"
             cat versions.json
             
-            echo "⬆️  Uploading updated versions.json..."
+            echo "[UP]  Uploading updated versions.json..."
             aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
               --acl public-read \
               --content-type "application/json" \
               --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             
-            echo "✅ versions.json updated successfully"
+            echo "[OK] versions.json updated successfully"
             echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
           else
-            echo "⚠️  No Linux packages to update in versions.json"
+            echo "[WARNING]  No Linux packages to update in versions.json"
           fi
 
   # Job for ARM64 build (if needed)
@@ -487,24 +487,24 @@ jobs:
           DOWNLOAD_URL=$(echo "${RELEASE_DATA}" | jq -r '.assets[] | select(.name | endswith(".zip")) | .browser_download_url')
 
           if [ "${DOWNLOAD_URL}" = "null" ] || [ -z "${DOWNLOAD_URL}" ]; then
-            echo "❌ No ZIP asset found for release ${RELEASE_TAG}"
+            echo "[ERROR] No ZIP asset found for release ${RELEASE_TAG}"
             echo "Available assets:"
             echo "${RELEASE_DATA}" | jq -r '.assets[].name'
             exit 1
           fi
 
-          echo "📦 Downloading: ${DOWNLOAD_URL}"
+          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
 
           # Verify download
           if [ ! -f "release-${RELEASE_TAG}.zip" ]; then
-            echo "❌ Failed to download release asset"
+            echo "[ERROR] Failed to download release asset"
             exit 1
           fi
 
-          echo "✅ Downloaded release-${RELEASE_TAG}.zip"
+          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -522,15 +522,15 @@ jobs:
         env:
           RELEASE_TAG: ${{ inputs.releaseTag }}
         run: |
-          echo "📝 Updating version in Cargo.toml to ${RELEASE_TAG}"
+          echo "[NOTE] Updating version in Cargo.toml to ${RELEASE_TAG}"
 
           CARGO_PATH="src-tauri/Cargo.toml"
 
           # Update version using sed (GNU sed)
           sed -i "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
 
-          echo "✅ Version updated successfully"
-          echo "📋 Verifying version:"
+          echo "[OK] Version updated successfully"
+          echo "[LIST] Verifying version:"
           grep '^version = ' "$CARGO_PATH" | head -1
 
       - name: Build Tauri application

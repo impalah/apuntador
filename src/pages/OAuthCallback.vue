@@ -96,9 +96,9 @@ const error = ref<string | null>(null)
 // Métodos
 const processOAuthCallback = async (): Promise<void> => {
   try {
-    console.log('🔄 Processing OAuth callback...')
+    console.log('[REFRESH] Processing OAuth callback...')
     console.log('📍 Current URL:', globalThis.location.href)
-    console.log('📋 Route query:', route.query)
+    console.log('[LIST] Route query:', route.query)
 
     // Obtener parámetros de la URL
     const code = route.query.code as string
@@ -112,14 +112,14 @@ const processOAuthCallback = async (): Promise<void> => {
       const savedProvider = localStorage.getItem('oauth_current_provider')
       if (savedProvider === 'dropbox' || savedProvider === 'googledrive') {
         provider = savedProvider as CloudProviderId
-        console.log(`🔍 Provider detected from localStorage: ${provider}`)
+        console.log(`[SEARCH] Provider detected from localStorage: ${provider}`)
       }
     }
 
-    console.log('🔑 Code:', code ? 'RECEIVED' : 'MISSING')
-    console.log('🏷️ State:', state || 'NONE')
+    console.log('[KEY] Code:', code ? 'RECEIVED' : 'MISSING')
+    console.log('[TAG] State:', state || 'NONE')
     console.log('🏢 Provider:', provider || 'NOT SPECIFIED')
-    console.log('❌ Error:', errorParam || 'NONE')
+    console.log('[ERROR] Error:', errorParam || 'NONE')
 
     // Verificar si hay error de OAuth
     if (errorParam) {
@@ -131,19 +131,19 @@ const processOAuthCallback = async (): Promise<void> => {
       throw new Error(t('cloud.oauth.noAuthCode'))
     }
 
-    console.log('🚀 Calling cloudStore.handleOAuthCallback...')
+    console.log('[LAUNCH] Calling cloudStore.handleOAuthCallback...')
     // Procesar el callback con el proveedor apropiado
     await cloudStore.handleOAuthCallback(code, state || '', provider)
-    console.log('✅ OAuth callback completed successfully')
+    console.log('[OK] OAuth callback completed successfully')
     
     // Cerrar el navegador en iOS/Android (solo en plataformas nativas)
     if (Capacitor.isNativePlatform()) {
-      console.log('📱 Closing browser window...')
+      console.log('[MOBILE] Closing browser window...')
       try {
         await Browser.close()
-        console.log('✅ Browser closed')
+        console.log('[OK] Browser closed')
       } catch (err) {
-        console.warn('⚠️ Failed to close browser:', err)
+        console.warn('[WARNING] Failed to close browser:', err)
         // No es crítico si falla, continuar de todos modos
       }
     }

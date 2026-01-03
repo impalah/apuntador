@@ -45,11 +45,11 @@ export class CertificateValidator {
     const isTauriPlatform = isTauri()
     const platform = isTauriPlatform ? 'desktop' : Capacitor.getPlatform()
     
-    console.log(`🔍 [CertificateValidator] Platform detected: ${platform}`)
+    console.log(`[SEARCH] [CertificateValidator] Platform detected: ${platform}`)
     
     // Web platform doesn't use mTLS
     if (platform === 'web') {
-      console.log('🌐 [CertificateValidator] Web platform, skipping mTLS validation')
+      console.log('[WEB] [CertificateValidator] Web platform, skipping mTLS validation')
       return {
         isValid: true,
         isEnrolled: true,
@@ -59,11 +59,11 @@ export class CertificateValidator {
 
     try {
       // Usar UnifiedMTLSService en lugar de plugins directos
-      console.log('🔐 [CertificateValidator] Checking enrollment status...')
+      console.log('[SECURE] [CertificateValidator] Checking enrollment status...')
       const mtlsService = UnifiedMTLSService.getInstance()
       const enrollmentStatus = await mtlsService.checkEnrollmentStatus()
       
-      console.log('📋 [CertificateValidator] Enrollment status:', enrollmentStatus)
+      console.log('[LIST] [CertificateValidator] Enrollment status:', enrollmentStatus)
       
       if (!enrollmentStatus.enrolled) {
         return {
@@ -83,7 +83,7 @@ export class CertificateValidator {
       }
 
     } catch (error: any) {
-      console.error('❌ [CertificateValidator] Validation error:', error)
+      console.error('[ERROR] [CertificateValidator] Validation error:', error)
       return {
         isValid: false,
         isEnrolled: false,
@@ -137,11 +137,11 @@ export class CertificateValidator {
     const isTauriPlatform = isTauri()
     const platform = isTauriPlatform ? 'desktop' : Capacitor.getPlatform()
     
-    console.log(`🔍 [CertificateValidator.ensureValidCertificate] Platform: ${platform}`)
+    console.log(`[SEARCH] [CertificateValidator.ensureValidCertificate] Platform: ${platform}`)
     
     // Web platform doesn't use mTLS
     if (platform === 'web') {
-      console.log('🌐 [CertificateValidator] Web platform, no certificate needed')
+      console.log('[WEB] [CertificateValidator] Web platform, no certificate needed')
       return {
         isValid: true,
         isEnrolled: true,
@@ -150,26 +150,26 @@ export class CertificateValidator {
     }
 
     // Check current certificate status
-    console.log('🔍 [CertificateValidator] Validating current certificate...')
+    console.log('[SEARCH] [CertificateValidator] Validating current certificate...')
     const status = await this.validate()
     
-    console.log('📋 [CertificateValidator] Current status:', status)
+    console.log('[LIST] [CertificateValidator] Current status:', status)
     
     // If valid, return immediately
     if (status.isValid) {
-      console.log('✅ Certificate is valid, no enrollment needed')
+      console.log('[OK] Certificate is valid, no enrollment needed')
       return status
     }
 
     // Need to enroll/re-enroll
-    console.log('🔐 Certificate not valid, starting automatic enrollment...')
+    console.log('[SECURE] Certificate not valid, starting automatic enrollment...')
     console.log('   Reason:', this.getStatusMessage(status))
     
     try {
       // Usar UnifiedMTLSService para enrollment multiplataforma
       const mtlsService = UnifiedMTLSService.getInstance()
       
-      console.log('📡 Enrolling device via UnifiedMTLSService')
+      console.log('[SIGNAL] Enrolling device via UnifiedMTLSService')
       
       // Perform enrollment
       const result = await mtlsService.ensureEnrolled()
@@ -178,7 +178,7 @@ export class CertificateValidator {
         throw new Error(result.error || 'Enrollment failed - no certificate received')
       }
 
-      console.log('✅ Automatic enrollment completed successfully')
+      console.log('[OK] Automatic enrollment completed successfully')
       console.log('� Platform:', result.platform)
 
       // Validate again to get updated status
@@ -191,7 +191,7 @@ export class CertificateValidator {
       return newStatus
 
     } catch (error: any) {
-      console.error('❌ Automatic enrollment failed:', error)
+      console.error('[ERROR] Automatic enrollment failed:', error)
       
       return {
         isValid: false,
@@ -215,11 +215,11 @@ export class CertificateValidator {
     const isTauriPlatform = isTauri()
     const platform = isTauriPlatform ? 'desktop' : Capacitor.getPlatform()
     
-    console.log(`🔍 [CertificateValidator.ensureValidCertificateAndConfig] Platform: ${platform}`)
+    console.log(`[SEARCH] [CertificateValidator.ensureValidCertificateAndConfig] Platform: ${platform}`)
     
     // Web platform: Skip mTLS but fetch provider config
     if (platform === 'web') {
-      console.log('🌐 [CertificateValidator] Web platform, skipping mTLS, fetching provider config...')
+      console.log('[WEB] [CertificateValidator] Web platform, skipping mTLS, fetching provider config...')
       
       const providerConfig = await cloudProviderConfig.getConfig()
       
@@ -234,19 +234,19 @@ export class CertificateValidator {
     }
 
     // Mobile/Desktop: Ensure certificate is valid first
-    console.log('🔐 [CertificateValidator] Ensuring certificate validity...')
+    console.log('[SECURE] [CertificateValidator] Ensuring certificate validity...')
     const certStatus = await this.ensureValidCertificate()
     
     if (!certStatus.isValid) {
       // Certificate enrollment failed, but still try to fetch provider config
-      console.warn('⚠️  Certificate validation/enrollment failed, fetching provider config anyway...')
+      console.warn('[WARNING]  Certificate validation/enrollment failed, fetching provider config anyway...')
     }
 
     // Fetch provider configuration after certificate is ready
-    console.log('📡 [CertificateValidator] Fetching provider configuration...')
+    console.log('[SIGNAL] [CertificateValidator] Fetching provider configuration...')
     const providerConfig = await cloudProviderConfig.getConfig()
 
-    console.log('✅ [CertificateValidator] Certificate and provider config ready')
+    console.log('[OK] [CertificateValidator] Certificate and provider config ready')
     
     return {
       certStatus,

@@ -1,7 +1,7 @@
 <template>
   <v-card class="ma-4 pa-4">
     <v-card-title class="text-h5">
-      🔐 Desktop mTLS Enrollment Test
+      [SECURE] Desktop mTLS Enrollment Test
     </v-card-title>
 
     <v-card-text>
@@ -10,7 +10,7 @@
         type="info"
         class="mb-4"
       >
-        ℹ️ This test is only for Desktop (Tauri). Current platform: {{ platform }}
+        [INFO] This test is only for Desktop (Tauri). Current platform: {{ platform }}
       </v-alert>
 
       <v-row v-if="deviceInfo">
@@ -48,7 +48,7 @@
         <v-col cols="12">
           <v-alert :type="enrollmentStatus.enrolled ? 'success' : 'info'" class="mb-4">
             <div class="text-h6 mb-2">
-              {{ enrollmentStatus.enrolled ? '✅ Enrolled' : 'ℹ️ Not Enrolled' }}
+              {{ enrollmentStatus.enrolled ? '[OK] Enrolled' : '[INFO] Not Enrolled' }}
             </div>
             <div v-if="enrollmentStatus.enrolled">
               <div>Device ID: {{ enrollmentStatus.device_id }}</div>
@@ -158,12 +158,12 @@ async function getDeviceInfo() {
   error.value = null
   
   try {
-    addLog('🔍 Getting device information...')
+    addLog('[SEARCH] Getting device information...')
     deviceInfo.value = await desktopEnrollmentService.getDeviceInfo()
-    addLog(`✅ Device info: ${deviceInfo.value.device_id}`)
+    addLog(`[OK] Device info: ${deviceInfo.value.device_id}`)
   } catch (err) {
     error.value = `Failed to get device info: ${err}`
-    addLog(`❌ Error: ${err}`)
+    addLog(`[ERROR] Error: ${err}`)
   } finally {
     loading.value = false
   }
@@ -174,12 +174,12 @@ async function checkStatus() {
   error.value = null
   
   try {
-    addLog('🔍 Checking enrollment status...')
+    addLog('[SEARCH] Checking enrollment status...')
     enrollmentStatus.value = await desktopEnrollmentService.checkEnrollmentStatus()
-    addLog(`✅ Status: ${enrollmentStatus.value.enrolled ? 'Enrolled' : 'Not enrolled'}`)
+    addLog(`[OK] Status: ${enrollmentStatus.value.enrolled ? 'Enrolled' : 'Not enrolled'}`)
   } catch (err) {
     error.value = `Failed to check status: ${err}`
-    addLog(`❌ Error: ${err}`)
+    addLog(`[ERROR] Error: ${err}`)
   } finally {
     loading.value = false
   }
@@ -190,20 +190,20 @@ async function enroll() {
   error.value = null
   
   try {
-    addLog('🚀 Starting enrollment...')
+    addLog('[LAUNCH] Starting enrollment...')
     const result = await desktopEnrollmentService.enrollDevice()
     
     if (result.success) {
-      addLog(`✅ Enrollment successful! Device ID: ${result.device_id}`)
+      addLog(`[OK] Enrollment successful! Device ID: ${result.device_id}`)
       enrollmentStatus.value = result
       await getDeviceInfo()
     } else {
       error.value = result.error || 'Enrollment failed'
-      addLog(`❌ Enrollment failed: ${error.value}`)
+      addLog(`[ERROR] Enrollment failed: ${error.value}`)
     }
   } catch (err) {
     error.value = `Enrollment error: ${err}`
-    addLog(`❌ Error: ${err}`)
+    addLog(`[ERROR] Error: ${err}`)
   } finally {
     loading.value = false
   }
@@ -214,14 +214,14 @@ async function unenroll() {
   error.value = null
   
   try {
-    addLog('🗑️  Unenrolling device...')
+    addLog('[DELETE]  Unenrolling device...')
     await desktopEnrollmentService.unenrollDevice()
-    addLog('✅ Device unenrolled successfully')
+    addLog('[OK] Device unenrolled successfully')
     enrollmentStatus.value = null
     await getDeviceInfo()
   } catch (err) {
     error.value = `Failed to unenroll: ${err}`
-    addLog(`❌ Error: ${err}`)
+    addLog(`[ERROR] Error: ${err}`)
   } finally {
     loading.value = false
   }

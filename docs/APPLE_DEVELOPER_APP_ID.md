@@ -10,7 +10,7 @@
 
 ---
 
-## 📝 Exact Values for Apuntador
+## [NOTE] Exact Values for Apuntador
 
 ### 1. Description
 ```
@@ -21,61 +21,61 @@ Apuntador - Professional Teleprompter
 ```
 io.apuntador.app
 ```
-**⚠️ IMPORTANT**: This Bundle ID must match exactly with your Xcode project.
+**[WARNING] IMPORTANT**: This Bundle ID must match exactly with your Xcode project.
 
 ### 3. Bundle ID Type
-- ✅ **Explicit** (recommended)
-- ❌ **Wildcard** (do not select)
+- [OK] **Explicit** (recommended)
+- [ERROR] **Wildcard** (do not select)
 
 ---
 
-## 🔧 Capabilities
+## [CONFIG] Capabilities
 
 ### Capabilities NEEDED for Apuntador:
 
-#### ✅ **App Groups** (Optional - for future expansions)
+#### [OK] **App Groups** (Optional - for future expansions)
 - **Reason**: Share data between extensions
 - **Configuration**: Create later if needed
 
-#### ✅ **Background Modes** (NOT needed currently)
+#### [OK] **Background Modes** (NOT needed currently)
 - **Reason**: Apuntador doesn't run in background
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **Game Center** (NOT needed)
+#### [OK] **Game Center** (NOT needed)
 - **Reason**: Not a game
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **HealthKit** (NOT needed)
+#### [OK] **HealthKit** (NOT needed)
 - **Reason**: Doesn't access health data
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **HomeKit** (NOT needed)
+#### [OK] **HomeKit** (NOT needed)
 - **Reason**: Doesn't control home devices
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **In-App Purchase** (NOT needed currently)
+#### [OK] **In-App Purchase** (NOT needed currently)
 - **Reason**: Apuntador is free without purchases
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **Personal VPN** (NOT needed)
+#### [OK] **Personal VPN** (NOT needed)
 - **Reason**: Doesn't require VPN
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **Push Notifications** (NOT needed currently)
+#### [OK] **Push Notifications** (NOT needed currently)
 - **Reason**: Apuntador works offline
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **SiriKit** (NOT needed currently)
+#### [OK] **SiriKit** (NOT needed currently)
 - **Reason**: No Siri integration
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
-#### ✅ **Wireless Accessory Configuration** (NOT needed)
+#### [OK] **Wireless Accessory Configuration** (NOT needed)
 - **Reason**: Doesn't configure accessories
-- **Action**: ❌ DO NOT select
+- **Action**: [ERROR] DO NOT select
 
 ---
 
-## 🎯 **Recommended Minimal Configuration**
+## [TARGET] **Recommended Minimal Configuration**
 
 ### For Apuntador's initial version:
 ```
@@ -93,7 +93,7 @@ Capabilities: NONE (leave everything unselected)
 
 ---
 
-## 📋 Step-by-Step Process
+## [LIST] Step-by-Step Process
 
 ### Step 1: Access Portal
 1. **Apple Developer Portal**: https://developer.apple.com/account/
@@ -121,7 +121,7 @@ Capabilities: NONE (leave everything unselected)
 
 ---
 
-## 🔄 After Creating the App ID
+## [REFRESH] After Creating the App ID
 
 ### In App Store Connect
 Now you can create the app in App Store Connect:
@@ -140,7 +140,7 @@ SKU: apuntador-ios-2025
 
 ---
 
-## 🛠️ Future Capabilities (Optional)
+## [TOOLS] Future Capabilities (Optional)
 
 If you want to add features in the future, you can edit the App ID:
 
@@ -158,7 +158,7 @@ If you want to add features in the future, you can edit the App ID:
 
 ---
 
-## ❗ Common Problems and Solutions
+## [IMPORTANT] Common Problems and Solutions
 
 ### "Bundle ID already exists"
 **Problem**: Someone already registered that Bundle ID
@@ -169,9 +169,9 @@ If you want to add features in the future, you can edit the App ID:
 ### "Invalid Bundle ID format"
 **Problem**: Incorrect format
 **Solution**: 
-- ✅ Correct: `io.apuntador.app`
-- ❌ Incorrect: `io.apuntador.app.` (trailing dot)
-- ❌ Incorrect: `Io.Apuntador.App` (uppercase)
+- [OK] Correct: `io.apuntador.app`
+- [ERROR] Incorrect: `io.apuntador.app.` (trailing dot)
+- [ERROR] Incorrect: `Io.Apuntador.App` (uppercase)
 
 ### "You need to be part of a team"
 **Problem**: You don't have Apple Developer Program
@@ -181,9 +181,9 @@ If you want to add features in the future, you can edit the App ID:
 
 ---
 
-## 📞 Executive Summary
+## [CALL] Executive Summary
 
-### ✅ **Use These Exact Values:**
+### [OK] **Use These Exact Values:**
 ```
 Description: Apuntador - Professional Teleprompter
 Bundle ID: io.apuntador.app  
@@ -191,8 +191,8 @@ Bundle ID Type: Explicit
 Capabilities: NONE (for now)
 ```
 
-### ⏱️ **Estimated Time**: 5-10 minutes
+### [TIMER] **Estimated Time**: 5-10 minutes
 ### 💰 **Cost**: Included in Apple Developer Program
-### 🔄 **Reversible**: Yes, capabilities can be added later
+### [REFRESH] **Reversible**: Yes, capabilities can be added later
 
-With this you'll have your App ID ready to create the app in App Store Connect! 🍎✨
+With this you'll have your App ID ready to create the app in App Store Connect! 🍎[FEATURE]

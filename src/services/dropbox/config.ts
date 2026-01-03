@@ -23,7 +23,7 @@ export const DROPBOX_CONFIG: OAuthConfig = {
   scope: 'files.metadata.read files.content.read files.content.write'
 }
 
-console.log('🔍 Dropbox Config (Backend Proxy Mode):')
+console.log('[SEARCH] Dropbox Config (Backend Proxy Mode):')
 console.log('  Backend URL:', getBackendUrl())
 console.log('  Redirect URI:', getOAuthRedirectUri())
-console.log('  Using Backend OAuth Proxy: ✅')
+console.log('  Using Backend OAuth Proxy: [OK]')

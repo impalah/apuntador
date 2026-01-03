@@ -1,22 +1,22 @@
 # 🔒 Security Guidelines for Android Development
 
-## ⚠️ Critical Security Files
+## [WARNING] Critical Security Files
 
 The following files contain sensitive information and must **NEVER** be committed to version control:
 
-### 🔑 Keystore Files
+### [KEY] Keystore Files
 
 - `*.keystore` - Contains private keys for APK signing
 - `*.jks` - Java KeyStore files
 - Location: `android/app/apuntador-release-key.keystore`
 
-### 🔐 Configuration Files
+### [SECURE] Configuration Files
 
 - `android/key.properties` - Contains keystore passwords
 - `keystore-base64.txt` - Temporary Base64 encoded keystore
 - `keystore.txt` - Any temporary keystore exports
 
-## ✅ Safe Development Practices
+## [OK] Safe Development Practices
 
 ### 1. Using Templates
 
@@ -54,21 +54,21 @@ keystore.txt
 
 ## 🚫 What NOT to Do
 
-- ❌ Never commit `*.keystore` files
-- ❌ Never commit `key.properties` with real passwords
-- ❌ Never share keystore passwords in chat/email
-- ❌ Never include keystore in Docker images
-- ❌ Never push temporary keystore files
+- [ERROR] Never commit `*.keystore` files
+- [ERROR] Never commit `key.properties` with real passwords
+- [ERROR] Never share keystore passwords in chat/email
+- [ERROR] Never include keystore in Docker images
+- [ERROR] Never push temporary keystore files
 
-## ✅ What TO Do
+## [OK] What TO Do
 
-- ✅ Use `key.properties.template` as a reference
-- ✅ Store keystore files in secure, backed-up locations
-- ✅ Use different passwords for development vs production
-- ✅ Generate Base64 for CI/CD using provided scripts
-- ✅ Delete temporary files after CI/CD setup
+- [OK] Use `key.properties.template` as a reference
+- [OK] Store keystore files in secure, backed-up locations
+- [OK] Use different passwords for development vs production
+- [OK] Generate Base64 for CI/CD using provided scripts
+- [OK] Delete temporary files after CI/CD setup
 
-## 🔧 CI/CD Security
+## [CONFIG] CI/CD Security
 
 For GitHub Actions, use encrypted secrets:
 
@@ -92,7 +92,7 @@ git filter-branch --force --index-filter \
   'git rm --cached --ignore-unmatch android/key.properties' \
   --prune-empty --tag-name-filter cat -- --all
 
-# Force push (⚠️ WARNING: Only do this on development repos)
+# Force push ([WARNING] WARNING: Only do this on development repos)
 git push --force-with-lease --all
 ```
 
@@ -109,7 +109,7 @@ git push --force-with-lease --all
 git log --patch --all -S "password" -- "*.properties" "*.keystore"
 ```
 
-## 📋 Security Checklist
+## [LIST] Security Checklist
 
 Before committing:
 
@@ -119,7 +119,7 @@ Before committing:
 - [ ] Review `.gitignore` covers all sensitive patterns
 - [ ] Test that ignored files stay ignored: `git status --ignored`
 
-## 🔍 Verification Commands
+## [SEARCH] Verification Commands
 
 ```bash
 # Check what files are tracked
@@ -132,4 +132,4 @@ git status --ignored | grep -E "\.(keystore|properties)$"
 git log --oneline -n 10 --name-only | grep -E "\.(keystore|properties)$"
 ```
 
-Remember: **Security is everyone's responsibility!** 🛡️
+Remember: **Security is everyone's responsibility!** [SHIELD]

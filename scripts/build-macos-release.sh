@@ -54,23 +54,23 @@ show_help() {
 
 # Función para logging con colores
 log_info() {
-    echo -e "${BLUE}ℹ️  $1${NC}"
+    echo -e "${BLUE}[INFO]  $1${NC}"
 }
 
 log_success() {
-    echo -e "${GREEN}✅ $1${NC}"
+    echo -e "${GREEN}[OK] $1${NC}"
 }
 
 log_warning() {
-    echo -e "${YELLOW}⚠️  $1${NC}"
+    echo -e "${YELLOW}[WARNING]  $1${NC}"
 }
 
 log_error() {
-    echo -e "${RED}❌ $1${NC}"
+    echo -e "${RED}[ERROR] $1${NC}"
 }
 
 log_step() {
-    echo -e "${PURPLE}🔄 $1${NC}"
+    echo -e "${PURPLE}[REFRESH] $1${NC}"
 }
 
 # Función para verificar prerequisitos
@@ -308,7 +308,7 @@ find_generated_files() {
 # Función para mostrar información del sistema
 show_system_info() {
     if [[ "$VERBOSE" == "true" ]]; then
-        echo -e "${CYAN}💻 Información del sistema:${NC}"
+        echo -e "${CYAN}[DESKTOP] Información del sistema:${NC}"
         echo -e "  macOS: $(sw_vers -productVersion)"
         echo -e "  Arquitectura: $(uname -m)"
         echo -e "  Node.js: $(node --version)"
@@ -396,15 +396,15 @@ main() {
     local end_time=$(date +%s)
     local duration=$((end_time - start_time))
     
-    echo -e "${GREEN}🎉 Build completado exitosamente!${NC}"
-    echo -e "${CYAN}⏱️  Tiempo total: ${duration}s${NC}"
+    echo -e "${GREEN}[SUCCESS] Build completado exitosamente!${NC}"
+    echo -e "${CYAN}[TIMER]  Tiempo total: ${duration}s${NC}"
     echo ""
-    echo -e "${YELLOW}📋 Configuración:${NC}"
+    echo -e "${YELLOW}[LIST] Configuración:${NC}"
     echo -e "  Tipo: $BUILD_TYPE"
     echo -e "  Arquitectura: $TARGET_ARCH"
     echo -e "  DMG: $GENERATE_DMG"
     echo ""
-    echo -e "${BLUE}🚀 ¡Listo para distribución!${NC}"
+    echo -e "${BLUE}[LAUNCH] ¡Listo para distribución!${NC}"
 }
 
 # Ejecutar script principal

@@ -94,9 +94,9 @@ export function useImmersiveMode() {
       }
 
       isImmersive.value = true
-      console.log('✅ Immersive mode enabled')
+      console.log('[OK] Immersive mode enabled')
     } catch (error) {
-      console.error('❌ Failed to enable immersive mode:', error)
+      console.error('[ERROR] Failed to enable immersive mode:', error)
     }
   }
 
@@ -118,9 +118,9 @@ export function useImmersiveMode() {
       }
 
       isImmersive.value = false
-      console.log('✅ Immersive mode disabled')
+      console.log('[OK] Immersive mode disabled')
     } catch (error) {
-      console.error('❌ Failed to disable immersive mode:', error)
+      console.error('[ERROR] Failed to disable immersive mode:', error)
     }
   }
 
@@ -147,7 +147,7 @@ export function useImmersiveMode() {
 
       await ImmersiveMode.setImmersiveMode({ enable })
 
-      console.log(`✅ Native immersive mode ${enable ? 'enabled' : 'disabled'}`)
+      console.log(`[OK] Native immersive mode ${enable ? 'enabled' : 'disabled'}`)
     } catch (error) {
       console.warn('Native immersive mode plugin not available, using fallback:', error)
       setImmersiveFallback(enable)

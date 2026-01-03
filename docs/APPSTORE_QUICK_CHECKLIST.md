@@ -1,6 +1,6 @@
 # App Store Submission Quick Checklist for Apuntador
 
-## ⚠️ Prerequisites (MUST complete first)
+## [WARNING] Prerequisites (MUST complete first)
 
 ### 1. Apple Developer Account
 - [ ] **Apple Developer Program membership** ($99/year) at https://developer.apple.com/programs/
@@ -22,7 +22,7 @@
 
 ---
 
-## 📱 Quick Build Process
+## [MOBILE] Quick Build Process
 
 ### 1. Prepare Build
 ```bash
@@ -42,11 +42,11 @@ make ios-appstore
 4. **Verify Bundle ID**: 
    - Verify "**Bundle Identifier**" shows `io.apuntador.app`
 5. **Enable Auto-signing**: 
-   - ✅ Check "**Automatically manage signing**"
+   - [OK] Check "**Automatically manage signing**"
 
 ### 3. Archive in Xcode  
 1. **Device selection**: 
-   - In top toolbar, click dropdown next to ▶️ button
+   - In top toolbar, click dropdown next to [PLAY] button
    - Select "**Any iOS Device (arm64)**" (NOT a simulator)
 2. **Archive**: 
    - Menu **Product** → **Archive** (signs automatically)
@@ -68,7 +68,7 @@ make ios-appstore
 
 ---
 
-## 📝 App Store Connect Configuration
+## [NOTE] App Store Connect Configuration
 
 ### Required Information
 ```
@@ -143,9 +143,9 @@ Create at: https://privacypolicytemplate.net/ or similar
 
 ---
 
-## ⚡ Build Methods
+## [FAST] Build Methods
 
-### Option A: GitHub Actions (Automated) ⭐
+### Option A: GitHub Actions (Automated) [STAR]
 ```bash
 # Setup secrets (one-time)
 npm run ios:setup-github
@@ -168,8 +168,8 @@ npm run ios:appstore
 
 | Method | Setup Time | Build Time | Automation | Team Friendly |
 |--------|------------|------------|------------|---------------|
-| **GitHub Actions** | 30-60 min | 15-25 min | 100% | ✅ Yes |
-| **Local Xcode** | 5 min | 5-10 min | Manual | ❌ No |
+| **GitHub Actions** | 30-60 min | 15-25 min | 100% | [OK] Yes |
+| **Local Xcode** | 5 min | 5-10 min | Manual | [ERROR] No |
 
 ---
 
@@ -205,7 +205,7 @@ Try archive again
 
 ---
 
-## ⏱️ Timeline Estimate
+## [TIMER] Timeline Estimate
 
 | Phase | Duration |
 |-------|----------|
@@ -218,7 +218,7 @@ Try archive again
 
 ---
 
-## 🎯 Ready to Submit?
+## [TARGET] Ready to Submit?
 
 ### Final Checklist
 - [ ] Apple Developer account active
@@ -240,10 +240,10 @@ Try archive again
 
 ---
 
-## 📞 Need Help?
+## [CALL] Need Help?
 
 - **Documentation**: `docs/APPSTORE_SUBMISSION.md` (complete guide)
 - **Apple Support**: https://developer.apple.com/support/
 - **Status Check**: App Store Connect app status page
 
-**Success!** Your app is now in the review queue! 🎉
+**Success!** Your app is now in the review queue! [SUCCESS]

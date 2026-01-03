@@ -8,7 +8,7 @@
           @click="goBack"
           class="mr-2"
         ></v-btn>
-        🔐 Device Enrollment Test (mTLS + HSM)
+        [SECURE] Device Enrollment Test (mTLS + HSM)
       </v-card-title>
       
       <v-card-text>

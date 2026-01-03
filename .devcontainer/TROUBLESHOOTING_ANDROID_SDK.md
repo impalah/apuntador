@@ -1,4 +1,4 @@
-# 🐛 Troubleshooting: Android SDK Installation Failures
+# [BUG] Troubleshooting: Android SDK Installation Failures
 
 ## Error: "Could not open '/lib64/ld-linux-x86-64.so.2'" al ejecutar `adb`
 
@@ -69,9 +69,9 @@ El error puede ser temporal debido a problemas de red o timeouts.
 
 El script actualizado ahora:
 
-- ✅ Reintenta la descarga hasta 3 veces
-- ✅ Espera 5 segundos entre reintentos
-- ✅ Continúa aunque falle algún componente
+- [OK] Reintenta la descarga hasta 3 veces
+- [OK] Espera 5 segundos entre reintentos
+- [OK] Continúa aunque falle algún componente
 
 ---
 
@@ -156,9 +156,9 @@ Si ninguna solución funciona, puedes desarrollar sin Android inicialmente:
 
 **Desarrollo sin Android SDK**:
 
-- ✅ Desarrollo web (Vue/Vite)
-- ✅ Desarrollo Tauri (Rust)
-- ⚠️ Sin builds Android (puedes añadirlo después)
+- [OK] Desarrollo web (Vue/Vite)
+- [OK] Desarrollo Tauri (Rust)
+- [WARNING] Sin builds Android (puedes añadirlo después)
 
 **Instalar Android SDK después** (dentro del container):
 
@@ -211,10 +211,10 @@ adb --version
 
 He actualizado el script on-create.sh para que:
 
-1. ✅ Verifique conectividad antes de descargar
-2. ✅ Reintente hasta 3 veces cada componente
-3. ✅ Continúe aunque falle (no bloquee la creación del container)
-4. ✅ Soporte la variable `SKIP_ANDROID=true`
+1. [OK] Verifique conectividad antes de descargar
+2. [OK] Reintente hasta 3 veces cada componente
+3. [OK] Continúe aunque falle (no bloquee la creación del container)
+4. [OK] Soporte la variable `SKIP_ANDROID=true`
 
 ### Alternativa: Desarrollo Web Primero
 

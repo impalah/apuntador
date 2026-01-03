@@ -1,138 +1,138 @@
-# 🎯 Apuntador Roadmap
+# [TARGET] Apuntador Roadmap
 
 This document outlines the current features and planned development roadmap for **Apuntador**, the professional mobile-first teleprompter application.
 
-## 📋 Version Overview
+## [LIST] Version Overview
 
 | Version | Status | Release Date | Focus |
 |---------|--------|--------------|-------|
-| **1.0** | ✅ Released | Q3 2025 | Core Features & Multi-Platform |
-| **1.1** | 🔄 In Progress | Q4 2025 | Multilanguage & Basic Integration |
-| **1.2** | 📋 Planned | Q1 2026 | Cloud Sync & Content Management |
-| **1.3** | 📋 Planned | Q2 2026 | Professional Features & Analytics |
+| **1.0** | [OK] Released | Q3 2025 | Core Features & Multi-Platform |
+| **1.1** | [REFRESH] In Progress | Q4 2025 | Multilanguage & Basic Integration |
+| **1.2** | [LIST] Planned | Q1 2026 | Cloud Sync & Content Management |
+| **1.3** | [LIST] Planned | Q2 2026 | Professional Features & Analytics |
 
 ---
 
-## 🚀 Version 1.0 - Core Features (Released)
+## [LAUNCH] Version 1.0 - Core Features (Released)
 
-**Status**: ✅ **Released** - October 2025
+**Status**: [OK] **Released** - October 2025
 
 ### Core Teleprompter Features
-- ✅ **Auto-scrolling** with adjustable speed (10-200 px/sec)
-- ✅ **Smooth 60fps scrolling** using `requestAnimationFrame`
-- ✅ **Highlight band** to focus on current reading position
+- [OK] **Auto-scrolling** with adjustable speed (10-200 px/sec)
+- [OK] **Smooth 60fps scrolling** using `requestAnimationFrame`
+- [OK] **Highlight band** to focus on current reading position
   - Configurable height (1-2 lines)
   - Adjustable vertical position
   - Customizable dimming intensity
-- ✅ **Professional mirror modes** for beam-splitter setups
+- [OK] **Professional mirror modes** for beam-splitter setups
   - Horizontal mirror (left-to-right)
   - Vertical mirror (top-to-bottom)
   - Combined mirroring (180° rotation)
 
 ### Multi-Platform Support
-- ✅ **Web Application** - Static hosting compatible
+- [OK] **Web Application** - Static hosting compatible
   - Vercel, Netlify, GitHub Pages, Firebase
   - Docker deployment support
   - Progressive Web App features
-- ✅ **Android Mobile App** (Capacitor)
+- [OK] **Android Mobile App** (Capacitor)
   - Automated APK builds via GitHub Actions
   - Google Play Store bundle optimization
   - Edge-to-edge immersive mode
   - Hardware back button handling
-- ✅ **Desktop Application** (Tauri)
+- [OK] **Desktop Application** (Tauri)
   - Windows, macOS, Linux support
   - Native window controls
   - Code signing for Windows
   - Fullscreen mode with native APIs
-- ✅ **iOS Mobile App** (Capacitor)
+- [OK] **iOS Mobile App** (Capacitor)
   - Automated package builds via GitHub Actions
   - Apple App Store bundle optimization
 
 
 ### User Interface & Experience
-- ✅ **Mobile-first responsive design** with Vuetify 3
-- ✅ **Touch-optimized controls**
+- [OK] **Mobile-first responsive design** with Vuetify 3
+- [OK] **Touch-optimized controls**
   - Single tap to show/hide toolbar
   - Swipe gestures for navigation
   - Press and hold for quick access
-- ✅ **Comprehensive keyboard shortcuts**
+- [OK] **Comprehensive keyboard shortcuts**
   - Space (play/pause), arrows (navigation)
   - Speed and font size controls
   - Mirror mode toggles
-- ✅ **Floating toolbar with auto-hide**
+- [OK] **Floating toolbar with auto-hide**
   - Minimal mode for small screens
   - Context-aware button placement
   - Professional fullscreen experience
 
 ### Content Management
-- ✅ **Markdown support** with rich formatting
+- [OK] **Markdown support** with rich formatting
   - `markdown-it` with plugins
   - Anchor links, superscript/subscript
   - Mark highlighting, footnotes
-- ✅ **Multiple import methods**
+- [OK] **Multiple import methods**
   - File picker (.md/.txt files)
   - Drag and drop interface
   - Built-in markdown editor with live preview
-- ✅ **Sample content** included for quick testing
+- [OK] **Sample content** included for quick testing
 
 ### Customization & Settings
-- ✅ **Comprehensive appearance settings**
+- [OK] **Comprehensive appearance settings**
   - Font family selection
   - Font size (16-200px range)
   - Line height adjustment (1.0-3.0x)
   - Custom colors (text/background)
-- ✅ **Performance optimization**
+- [OK] **Performance optimization**
   - Scroll speed limits and presets
   - Memory-efficient rendering
   - Battery-optimized animations
-- ✅ **Local data persistence**
+- [OK] **Local data persistence**
   - Settings stored in browser storage
   - Content auto-save
   - Privacy-focused (no external servers)
 
 ### Technical Excellence
-- ✅ **Modern tech stack**
+- [OK] **Modern tech stack**
   - Vue 3.4+ with Composition API
   - TypeScript 5.0+ for type safety
   - Vite 5.0+ for fast development
   - Pinia 2.1+ for state management
-- ✅ **Comprehensive testing**
+- [OK] **Comprehensive testing**
   - 100% unit test coverage (25/25 tests)
   - Cross-browser E2E testing (54/54 tests)
   - Performance monitoring
   - Accessibility compliance (WCAG 2.1 AA)
-- ✅ **Developer experience**
+- [OK] **Developer experience**
   - Complete TypeScript definitions
   - ESLint + Prettier configuration
   - API documentation generation
   - Cross-platform build scripts
 
 ### Performance Metrics (v1.0)
-- 📦 **Bundle Size**: ~200KB gzipped
-- ⚡ **First Contentful Paint**: <1.5s
-- 🎯 **Time to Interactive**: <2.0s
-- 💾 **Memory Usage**: <50MB sustained
-- 🖥️ **Browser Support**: Chrome 90+, Safari 14+, Firefox 88+, Edge 90+
+- [PACKAGE] **Bundle Size**: ~200KB gzipped
+- [FAST] **First Contentful Paint**: <1.5s
+- [TARGET] **Time to Interactive**: <2.0s
+- [SAVE] **Memory Usage**: <50MB sustained
+- [SERVER] **Browser Support**: Chrome 90+, Safari 14+, Firefox 88+, Edge 90+
 
 ---
 
-## 🌟 Version 1.1 - Multilanguage & Basic Integration (Q4 2025)
+## [STAR] Version 1.1 - Multilanguage & Basic Integration (Q4 2025)
 
-**Status**: 🔄 **In Progress** *(v1.1.23 - Multilanguage completed, cloud integration implemented, one drive pending, file formats pending)*
+**Status**: [REFRESH] **In Progress** *(v1.1.23 - Multilanguage completed, cloud integration implemented, one drive pending, file formats pending)*
 
 ### Multilanguage Support
-- ✅ **Complete multilanguage implementation** ✅ **COMPLETED**
-  - ✅ **New languages implemented**: Català (ca-ES), Galego (gl-ES), Português Brasil (pt-BR), Português Portugal (pt-PT), Français (fr-FR), Deutsch (de-DE), Italiano (it-IT)
-  - ✅ **Automatic browser detection** for all supported languages
-  - ✅ **Fallback system** with Spanish as default
-  - ✅ **Dynamic language switching** with persistence
+- [OK] **Complete multilanguage implementation** [OK] **COMPLETED**
+  - [OK] **New languages implemented**: Català (ca-ES), Galego (gl-ES), Português Brasil (pt-BR), Português Portugal (pt-PT), Français (fr-FR), Deutsch (de-DE), Italiano (it-IT)
+  - [OK] **Automatic browser detection** for all supported languages
+  - [OK] **Fallback system** with Spanish as default
+  - [OK] **Dynamic language switching** with persistence
   - [ ] **RTL support** for Hebrew, Arabic, and other RTL languages *(moved to v1.2)*
 
 ### Integration Capabilities
-- ✅ **Basic third-party integrations** 🔄 **COMPLETED**
+- [OK] **Basic third-party integrations** [REFRESH] **COMPLETED**
   - Google Drive, Dropbox for script files
   - **Technical requirements**: File API integration, cloud storage SDKs
-- [ ] **Extended third-party integrations** 🔄 **IN PROGRESS**
+- [ ] **Extended third-party integrations** [REFRESH] **IN PROGRESS**
   - OneDrive sync for script files
   - Import/export compatibility with common formats
   - **Technical requirements**: File API integration, cloud storage SDKs
@@ -141,7 +141,7 @@ This document outlines the current features and planned development roadmap for 
 
 ## 🤖 Version 1.2 - Cloud Sync & Enhanced Content Management (Q1 2026)
 
-**Status**: 📋 **Planned**
+**Status**: [LIST] **Planned**
 
 ### Cloud Sync & Storage
 - [ ] **Optional cloud storage integration**
@@ -178,7 +178,7 @@ This document outlines the current features and planned development roadmap for 
 
 ## 🎬 Version 1.3 - Professional Features & Analytics (Q2 2026)
 
-**Status**: 📋 **Planned**  
+**Status**: [LIST] **Planned**  
 *Introduces professional-grade features while maintaining client-only architecture*
 
 ### Professional Analytics (Local Storage)
@@ -325,7 +325,7 @@ This document outlines the current features and planned development roadmap for 
 
 ---
 
-## 🏗️ Architectural Evolution & Technical Requirements
+## [BUILD] Architectural Evolution & Technical Requirements
 
 ### Current Architecture (v1.0-1.3)
 - **Client-only application**: No backend services required
@@ -371,7 +371,7 @@ This document outlines the current features and planned development roadmap for 
 
 ---
 
-## 📊 Development Metrics & Goals
+## [STATS] Development Metrics & Goals
 
 ### Quality Standards (All Versions)
 - **Test Coverage**: ≥85% for all components
@@ -398,19 +398,19 @@ This document outlines the current features and planned development roadmap for 
 We welcome community input on our roadmap! Here's how you can contribute:
 
 ### Feature Requests
-- 💡 **[Open a Feature Request](https://github.com/impalah/apuntador/issues/new?template=feature_request.md)**
+- [IDEA] **[Open a Feature Request](https://github.com/impalah/apuntador/issues/new?template=feature_request.md)**
 - 🗳️ **[Vote on Existing Proposals](https://github.com/impalah/apuntador/discussions/categories/ideas)**
-- 💬 **[Join Roadmap Discussions](https://github.com/impalah/apuntador/discussions/categories/roadmap)**
+- [COMMENT] **[Join Roadmap Discussions](https://github.com/impalah/apuntador/discussions/categories/roadmap)**
 
 ### Development Participation
-- 🔧 **[Check "Help Wanted" Issues](https://github.com/impalah/apuntador/labels/help%20wanted)**
-- 🎯 **[Pick "Good First Issue" Tasks](https://github.com/impalah/apuntador/labels/good%20first%20issue)**
+- [CONFIG] **[Check "Help Wanted" Issues](https://github.com/impalah/apuntador/labels/help%20wanted)**
+- [TARGET] **[Pick "Good First Issue" Tasks](https://github.com/impalah/apuntador/labels/good%20first%20issue)**
 - 📖 **[Read Contributing Guidelines](./CONTRIBUTING.md)**
 
 ### Community Feedback
-- 📋 **User Research**: Participate in usability studies
-- 🧪 **Beta Testing**: Help test new features before release
-- 📝 **Documentation**: Improve guides and tutorials
+- [LIST] **User Research**: Participate in usability studies
+- [EXPERIMENT] **Beta Testing**: Help test new features before release
+- [NOTE] **Documentation**: Improve guides and tutorials
 
 ---
 
@@ -431,7 +431,7 @@ We welcome community input on our roadmap! Here's how you can contribute:
 - 📢 **[Release Notes](https://github.com/impalah/apuntador/releases)** - Detailed change logs
 - 🐦 **[Twitter Updates](https://twitter.com/apuntador)** - Quick announcements
 - 📧 **Newsletter** - Monthly development updates
-- 💬 **[Discord Community](https://discord.gg/apuntador)** - Real-time discussions
+- [COMMENT] **[Discord Community](https://discord.gg/apuntador)** - Real-time discussions
 
 ---
 
@@ -439,6 +439,6 @@ We welcome community input on our roadmap! Here's how you can contribute:
 
 **The roadmap is a living document that evolves with our community's needs**
 
-[🌟 Star the Project](https://github.com/impalah/apuntador) • [💬 Join Discussions](https://github.com/impalah/apuntador/discussions) • [🐛 Report Issues](https://github.com/impalah/apuntador/issues)
+[[STAR] Star the Project](https://github.com/impalah/apuntador) • [[COMMENT] Join Discussions](https://github.com/impalah/apuntador/discussions) • [[BUG] Report Issues](https://github.com/impalah/apuntador/issues)
 
 </div>
