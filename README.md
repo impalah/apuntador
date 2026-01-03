@@ -97,8 +97,9 @@ npm run android:bundle:release
 ```
 
 **Benefits of R8 Optimization:**
+
 - [PACKAGE] **Smaller app size** (~30-50% reduction)
-- [FAST] **Better performance** 
+- [FAST] **Better performance**
 - 🔒 **Code obfuscation** for security
 - [BUG] **Crash analysis** with mapping files
 
@@ -190,7 +191,8 @@ npm run ios:testflight
 ```
 
 **What happens during automation**:
-- [OK] **Builds iOS app** with GitHub Actions (macOS + Xcode)  
+
+- [OK] **Builds iOS app** with GitHub Actions (macOS + Xcode)
 - [OK] **Signs automatically** with your Apple certificates
 - [OK] **Uploads to TestFlight** without manual steps
 - [OK] **Ready for testing** in 8-12 minutes total
@@ -310,11 +312,13 @@ npm run preview
 The application includes a debug window that shows real-time information about scroll state, content dimensions, and playback status.
 
 **Debug window visibility:**
+
 - **Development mode**: Always visible when running `npm run dev`
 - **Production mode**: Hidden by default in `npm run build`
 - **Debug production**: Visible when using `npm run build:debug`
 
 **For Android debugging:**
+
 ```bash
 # Build with debug window enabled
 npm run build:debug
@@ -324,11 +328,11 @@ npx cap sync android
 npx cap run android
 ```
 
-**Manual environment control:**\n\n*Windows PowerShell:*\n```powershell\n# Force debug mode in any build\n$env:VITE_DEBUG_MODE=\"true\"; npm run build\n\n# Disable debug in development (rare case)\n$env:VITE_DEBUG_MODE=\"false\"; npm run dev\n```\n\n*Linux/macOS:*\n```bash\n# Force debug mode in any build\nVITE_DEBUG_MODE=true npm run build\n\n# Disable debug in development (rare case)\nVITE_DEBUG_MODE=false npm run dev\n```
+**Manual environment control:**\n\n*Windows PowerShell:*\n`powershell\n# Force debug mode in any build\n$env:VITE_DEBUG_MODE=\"true\"; npm run build\n\n# Disable debug in development (rare case)\n$env:VITE_DEBUG_MODE=\"false\"; npm run dev\n`\n\n*Linux/macOS:*\n`bash\n# Force debug mode in any build\nVITE_DEBUG_MODE=true npm run build\n\n# Disable debug in development (rare case)\nVITE_DEBUG_MODE=false npm run dev\n`
 
 ### Project Structure
 
-````
+```
 apuntador/
 ├── docs/                    # [DOCS] Complete documentation
 │   ├── .vitepress/         # VitePress configuration
@@ -350,11 +354,12 @@ apuntador/
 ├── vite.config.ts          # Build configuration
 └── typedoc.json           # API docs configuration
 
-````
+```
 
 ## [ARCHITECTURE] Technical Architecture
 
 ### Core Technologies
+
 - **Vue 3.4+** (Composition API + `<script setup>`)
 - **TypeScript 5.0+** (Full type safety)
 - **Vite 5.0+** (Fast development + optimized builds)
@@ -365,6 +370,7 @@ apuntador/
 - **Vitest + Playwright** (Comprehensive testing)
 
 ### Performance Metrics
+
 - **Bundle Size**: ~200KB gzipped
 - **First Contentful Paint**: <1.5s
 - **Time to Interactive**: <2.0s
@@ -373,22 +379,23 @@ apuntador/
 - **Scroll Performance**: Consistent 60fps
 
 ### Platform Compatibility Matrix
-| Platform | Version | Support | Native Features |
-|----------|---------|---------|-----------------|
+
+| Platform         | Version       | Support | Native Features        |
+| ---------------- | ------------- | ------- | ---------------------- | --------------- |
 | **Web Browsers** |
-| Chrome | 90+ | [OK] | PWA, fullscreen |
-| Safari | 14+ | [OK] | Touch optimized |
-| Firefox | 88+ | [OK] | Full support |
-| Edge | 90+ | [OK] | Full support |
-| **Mobile Apps** |
-| Android | 7.0+ (API 24) | [OK] | APK distribution |
-| iPhone | iOS 13+ | [OK] | Native performance |
-| iPad | iPadOS 13+ | [OK] | Multi-orientation |
+| Chrome           | 90+           | [OK]    | PWA, fullscreen        |
+| Safari           | 14+           | [OK]    | Touch optimized        |
+| Firefox          | 88+           | [OK]    | Full support           |
+| Edge             | 90+           | [OK]    | Full support           |
+| **Mobile Apps**  |
+| Android          | 7.0+ (API 24) | [OK]    | APK distribution       |
+| iPhone           | iOS 13+       | [OK]    | Native performance     |
+| iPad             | iPadOS 13+    | [OK]    | Multi-orientation      |
 | **Desktop Apps** |
-| macOS | 10.15+ | [OK] | Native window controls |
-| Windows | 10+ | [OK] | MSI installer |
-| Linux | Ubuntu 20.04+ | [OK] | AppImage/DEB |
-| Android Chrome | 90+ | [OK] | N/A | Touch optimized |
+| macOS            | 10.15+        | [OK]    | Native window controls |
+| Windows          | 10+           | [OK]    | MSI installer          |
+| Linux            | Ubuntu 20.04+ | [OK]    | AppImage/DEB           |
+| Android Chrome   | 90+           | [OK]    | N/A                    | Touch optimized |
 
 ## [PACKAGE] Requirements
 
@@ -412,7 +419,7 @@ pnpm install
 # Start development server
 npm run dev
 # Open http://localhost:3000 in your browser
-````
+```
 
 ### Development Workflow
 
@@ -715,15 +722,18 @@ MIT License - see [LICENSE](LICENSE) file for details.
 See our comprehensive **[Development Roadmap](./ROADMAP.md)** for detailed feature plans and release schedules.
 
 ### Current Version 1.0 [OK]
+
 Complete professional teleprompter with multi-platform support, advanced scrolling, mirror modes, and comprehensive customization.
 
 ### Upcoming Version 1.1 [REFRESH]
+
 - **Cloud Sync** - Optional cloud storage integration
-- **Collaboration** - Multi-user script editing  
+- **Collaboration** - Multi-user script editing
 - **Templates** - Pre-built script templates
 - **Analytics** - Reading performance insights
 
 ### Future Version 1.2 [LIST]
+
 - **Voice Control** - Hands-free operation
 - **AI Integration** - Script optimization suggestions
 

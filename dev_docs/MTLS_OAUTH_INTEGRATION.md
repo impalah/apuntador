@@ -51,11 +51,13 @@ This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token re
 Validates device certificates before OAuth requests.
 
 **Methods**:
+
 - `validate()`: Returns certificate status (valid, enrolled, expired, days remaining)
 - `needsRenewal()`: Checks if certificate needs renewal (<5 days)
 - `getStatusMessage()`: Returns user-friendly status message
 
 **Example**:
+
 ```typescript
 import { CertificateValidator } from '@/services/certificate/certificateValidator'
 
@@ -71,19 +73,21 @@ if (!status.isValid) {
 HTTP client that uses mTLS on Android and regular fetch on web.
 
 **Methods**:
+
 - `get(endpoint, headers)`: HTTP GET request
 - `post(endpoint, body, headers)`: HTTP POST request
 - `put(endpoint, body, headers)`: HTTP PUT request
 - `delete(endpoint, headers)`: HTTP DELETE request
 
 **Example**:
+
 ```typescript
 import { createBackendClient } from '@/services/http/mtlsHttpAdapter'
 
 const client = createBackendClient('http://192.168.1.78:8000')
 const response = await client.post('/oauth/token/dropbox', {
   code: 'AUTH_CODE',
-  code_verifier: 'VERIFIER'
+  code_verifier: 'VERIFIER',
 })
 ```
 
@@ -100,6 +104,7 @@ OAuth client with mTLS support for token operations.
 | `revokeToken()` | `/oauth/token/revoke/{provider}` | [OK] Yes | Revoke token (logout) |
 
 **Why different mTLS requirements?**
+
 - `authorize()` is called **before** the device is enrolled, so it can't require mTLS
 - Token operations happen **after** enrollment, so they require mTLS for security
 
@@ -108,6 +113,7 @@ OAuth client with mTLS support for token operations.
 Both `useDropboxStore` and `useCloudStore` now validate certificates before initiating OAuth.
 
 **Flow**:
+
 ```typescript
 // In useDropboxStore.ts or useCloudStore.ts
 const connect = async () => {
@@ -116,7 +122,7 @@ const connect = async () => {
   if (!certStatus.isValid) {
     throw new Error(`Certificate required: ${message}`)
   }
-  
+
   // STEP 2: Proceed with OAuth
   await dropboxService.connect()
 }
@@ -145,7 +151,7 @@ const connect = async () => {
 1. Open app on Samsung tablet
 2. Navigate to Settings → Cloud Storage
 3. Click "Connect Dropbox"
-4. **Expected**: 
+4. **Expected**:
    - Console shows: `[SECURE] Checking certificate status...`
    - Console shows: `[OK] Certificate validated successfully`
    - Console shows: `📅 Certificate expires in X days`
@@ -185,6 +191,7 @@ const connect = async () => {
 #### [OK] **Scenario 5: Google Drive OAuth**
 
 Same as Scenario 1, but with Google Drive:
+
 1. Settings → Cloud Storage → "Connect Google Drive"
 2. **Expected**: Same validation flow + mTLS token exchange
 
@@ -214,7 +221,8 @@ Enable detailed logging in console:
 
 **Cause**: Backend endpoint requires mTLS but client doesn't have certificate
 
-**Solution**: 
+**Solution**:
+
 1. Check enrollment status
 2. Verify certificate is not expired
 3. Check backend middleware configuration
@@ -224,6 +232,7 @@ Enable detailed logging in console:
 **Cause**: Device not enrolled or certificate was deleted
 
 **Solution**:
+
 1. Navigate to Device Enrollment Test page
 2. Click "Enroll Device"
 3. Verify enrollment completes successfully
@@ -233,6 +242,7 @@ Enable detailed logging in console:
 **Cause**: Certificate exists but is not whitelisted in backend
 
 **Solution**:
+
 1. Check backend logs for certificate serial number
 2. Verify certificate is in backend whitelist
 3. Re-enroll if necessary
@@ -241,14 +251,14 @@ Enable detailed logging in console:
 
 ### Endpoints Configuration
 
-| Endpoint | mTLS Required | Middleware |
-|----------|---------------|------------|
-| `/health/public` | [ERROR] No | Exempt in `exempt_paths` |
-| `/oauth/authorize/{provider}` | [ERROR] No | Exempt in `exempt_prefixes` |
-| `/oauth/token/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/refresh/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/revoke/{provider}` | [OK] Yes | Protected by `MTLSValidationMiddleware` |
-| `/device/enroll` | [ERROR] No | Exempt (initial enrollment) |
+| Endpoint                          | mTLS Required | Middleware                              |
+| --------------------------------- | ------------- | --------------------------------------- |
+| `/health/public`                  | [ERROR] No    | Exempt in `exempt_paths`                |
+| `/oauth/authorize/{provider}`     | [ERROR] No    | Exempt in `exempt_prefixes`             |
+| `/oauth/token/{provider}`         | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/refresh/{provider}` | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/revoke/{provider}`  | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
+| `/device/enroll`                  | [ERROR] No    | Exempt (initial enrollment)             |
 
 ### Backend Configuration
 
@@ -307,6 +317,7 @@ This is by design - mTLS is only for backend communication, not cloud provider A
 ## [NOTE] Summary
 
 **What was implemented**:
+
 - [OK] Certificate validation before OAuth
 - [OK] mTLS HTTP adapter for backend communication
 - [OK] Updated OAuth client with mTLS for token operations
@@ -314,6 +325,7 @@ This is by design - mTLS is only for backend communication, not cloud provider A
 - [OK] Error handling for invalid/expired certificates
 
 **What to test**:
+
 1. Enroll device
 2. Connect Dropbox/Google Drive
 3. Verify mTLS is used for token exchange
@@ -321,6 +333,7 @@ This is by design - mTLS is only for backend communication, not cloud provider A
 5. Test certificate expiry scenarios
 
 **Next steps** (optional enhancements):
+
 - Auto-redirect to enrollment page if certificate invalid
 - Certificate renewal reminder UI
 - Background certificate validation on app start

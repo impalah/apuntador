@@ -26,11 +26,11 @@ export const useCloudStore = defineStore('cloud', () => {
   const currentFolderName = ref<string>('') // Nombre de la carpeta actual
   const error = ref<string | null>(null)
   const providerConfig = ref<CloudProviderConfig | null>(null) // Backend provider config
-  
+
   // Provider-specific state
   const dropboxUserInfo = ref<{ name: string; email: string } | null>(null)
   const googleDriveUserInfo = ref<{ name: string; email: string } | null>(null)
-  
+
   // State to remember last cloud file
   const lastCloudPath = ref<string>('')
   const lastCloudFileName = ref<string>('')
@@ -42,7 +42,7 @@ export const useCloudStore = defineStore('cloud', () => {
   // Map of services
   const services: Record<CloudProviderId, CloudService> = {
     dropbox: dropboxService,
-    googledrive: googleDriveService
+    googledrive: googleDriveService,
   }
 
   // Computed
@@ -57,7 +57,7 @@ export const useCloudStore = defineStore('cloud', () => {
       id: providerId,
       name: providerId === 'dropbox' ? 'Dropbox' : 'Google Drive',
       isConnected: service.isConnected(),
-      userInfo: userInfo || undefined
+      userInfo: userInfo || undefined,
     }
   })
 
@@ -67,7 +67,7 @@ export const useCloudStore = defineStore('cloud', () => {
       hasActiveProvider: !!activeProvider.value,
       activeProviderId: activeProviderId.value,
       providerIsConnected: activeProvider.value?.isConnected,
-      result: connected
+      result: connected,
     })
     return connected
   })
@@ -78,14 +78,14 @@ export const useCloudStore = defineStore('cloud', () => {
         id: 'dropbox',
         name: 'Dropbox',
         isConnected: dropboxService.isConnected(),
-        userInfo: dropboxUserInfo.value || undefined
+        userInfo: dropboxUserInfo.value || undefined,
       },
       {
         id: 'googledrive',
         name: 'Google Drive',
         isConnected: googleDriveService.isConnected(),
-        userInfo: googleDriveUserInfo.value || undefined
-      }
+        userInfo: googleDriveUserInfo.value || undefined,
+      },
     ]
 
     // Si no hay configuración cargada, mostrar todos (fallback)
@@ -94,14 +94,14 @@ export const useCloudStore = defineStore('cloud', () => {
     }
 
     // Filtrar solo providers habilitados según configuración del backend
-    return allProviders.filter(provider => {
+    return allProviders.filter((provider) => {
       const config = providerConfig.value?.providers[provider.id]
       return config?.enabled ?? true // Default to enabled if config missing
     })
   })
 
   // Actions
-  
+
   /**
    * Inicializa el store cargando el proveedor activo guardado
    * y la configuración de providers del backend
@@ -119,16 +119,16 @@ export const useCloudStore = defineStore('cloud', () => {
 
     // STEP 2: Cargar proveedor activo del localStorage
     const savedProviderId = localStorage.getItem('cloud_active_provider') as CloudProviderId | null
-    
+
     if (savedProviderId && services[savedProviderId]) {
       activeProviderId.value = savedProviderId
-      
+
       // Inicializar servicio si tiene método initialize
       const service = services[savedProviderId]
       if (service.initialize) {
         await service.initialize()
       }
-      
+
       // Refrescar estado de conexión
       await refreshConnectionStatus()
     }
@@ -139,47 +139,46 @@ export const useCloudStore = defineStore('cloud', () => {
    */
   const setActiveProvider = async (providerId: CloudProviderId): Promise<void> => {
     console.log('[REFRESH] Store: Changing active provider to:', providerId)
-    
+
     // Si ya es el proveedor activo, no hacer nada
     if (activeProviderId.value === providerId) {
       console.log('[INFO] Store: Provider already active, skipping')
       return
     }
-    
+
     isConnecting.value = true
     error.value = null
 
     try {
       const service = services[providerId]
-      
+
       // Intentar restaurar sesión existente
       console.log('[SEARCH] Store: Checking for existing credentials...')
-      
+
       // Verificar si el servicio soporta restoreSession
       if (!service.restoreSession) {
         console.log('[WARNING] Store: Service does not support session restoration, starting OAuth')
         await connect(providerId)
         return
       }
-      
+
       const sessionRestored = await service.restoreSession()
-      
+
       if (sessionRestored) {
         // Ya hay credenciales válidas, solo cambiar el proveedor activo
         console.log('[OK] Store: Session restored successfully, switching provider')
         activeProviderId.value = providerId
         localStorage.setItem('cloud_active_provider', providerId)
-        
+
         // Cargar información del usuario
         await refreshConnectionStatus()
-        
+
         console.log('[SUCCESS] Store: Provider switched successfully without re-authentication')
       } else {
         // No hay credenciales o están expiradas, iniciar OAuth
         console.log('[WARNING] Store: No valid credentials found, starting OAuth flow')
         await connect(providerId)
       }
-      
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error switching cloud provider'
       console.error('[ERROR] Store: Error switching provider:', err)
@@ -194,25 +193,26 @@ export const useCloudStore = defineStore('cloud', () => {
    */
   const connect = async (providerId: CloudProviderId): Promise<void> => {
     if (isConnecting.value) return
-    
+
     isConnecting.value = true
     error.value = null
 
     try {
       // STEP 1: Ensure valid certificate AND fetch provider config
       console.log('[SECURE] Ensuring device has valid certificate and fetching provider config...')
-      const { certStatus, providerConfig } = await CertificateValidator.ensureValidCertificateAndConfig()
-      
+      const { certStatus, providerConfig } =
+        await CertificateValidator.ensureValidCertificateAndConfig()
+
       // Check if certificate is valid (for mobile/desktop)
       if (!certStatus.isValid) {
         const message = CertificateValidator.getStatusMessage(certStatus)
         console.error('[ERROR] Certificate validation/enrollment failed:', message)
         error.value = message
-        
+
         // Throw error to prevent OAuth flow
         throw new Error(`Certificate required: ${message}`)
       }
-      
+
       console.log('[OK] Certificate ready for OAuth')
       if (certStatus.daysUntilExpiry) {
         console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
@@ -234,38 +234,37 @@ export const useCloudStore = defineStore('cloud', () => {
       if (!service) {
         throw new Error(`Service not found for provider: ${providerId}`)
       }
-      
+
       // Detectar si estamos en Tauri
       const isTauri = await tauriService.isAvailable()
-      
+
       if (isTauri && (providerId === 'dropbox' || providerId === 'googledrive')) {
         // Flujo para Dropbox/Google Drive en Tauri usando backend proxy
         console.log(`[SERVER] Using Tauri OAuth flow for ${providerId} (via backend proxy)`)
-        
+
         // STEP 1: Start OAuth callback server
         console.log('[LAUNCH] Starting OAuth callback server...')
         await tauriService.startOAuthCallbackServer()
-        
+
         // STEP 2: Set up listener for oauth-callback event
         console.log('[LISTEN] Setting up OAuth callback listener...')
         const callbackPromise = tauriService.listenForOAuthCallback()
-        
+
         // STEP 3: Start OAuth flow (opens browser with backend URL)
         console.log('[WEB] Opening browser for OAuth (backend proxy)...')
         await service.connect() // This opens browser to backend URL
-        
+
         // STEP 4: Wait for callback from localhost:8080
         console.log('⏳ Waiting for OAuth callback from browser...')
         const callbackData = await callbackPromise
         console.log('[CALL] OAuth callback received:', callbackData)
-        
+
         // STEP 5: Exchange code for token via backend
         if ('handleOAuthCallback' in service && typeof service.handleOAuthCallback === 'function') {
           await service.handleOAuthCallback(callbackData.code, callbackData.state)
         } else {
           throw new Error(`Service ${providerId} does not support OAuth callback`)
         }
-        
       } else {
         // Flujo web estándar
         console.log('[WEB] Using web OAuth flow')
@@ -273,13 +272,12 @@ export const useCloudStore = defineStore('cloud', () => {
         // Connection completes in handleOAuthCallback
         return // No continuar aquí, el callback completará la conexión
       }
-      
+
       // Establecer como proveedor activo
       activeProviderId.value = providerId
       localStorage.setItem('cloud_active_provider', providerId)
-      
+
       await refreshConnectionStatus()
-      
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error connecting to cloud provider'
       console.error('Cloud connection error:', err)
@@ -291,10 +289,14 @@ export const useCloudStore = defineStore('cloud', () => {
   /**
    * Maneja el callback de OAuth
    */
-  const handleOAuthCallback = async (code: string, state: string, providerId?: CloudProviderId): Promise<void> => {
+  const handleOAuthCallback = async (
+    code: string,
+    state: string,
+    providerId?: CloudProviderId
+  ): Promise<void> => {
     // Si no se especifica proveedor, intentar detectarlo
     const targetProviderId = providerId || activeProviderId.value
-    
+
     if (!targetProviderId) {
       throw new Error('No provider specified for OAuth callback')
     }
@@ -304,15 +306,15 @@ export const useCloudStore = defineStore('cloud', () => {
 
     try {
       const service = services[targetProviderId]
-      
+
       if (service.handleOAuthCallback) {
         await service.handleOAuthCallback(code, state)
       }
-      
+
       // Establecer como proveedor activo
       activeProviderId.value = targetProviderId
       localStorage.setItem('cloud_active_provider', targetProviderId)
-      
+
       await refreshConnectionStatus()
     } catch (err) {
       console.error('OAuth callback error:', err)
@@ -337,7 +339,7 @@ export const useCloudStore = defineStore('cloud', () => {
     try {
       const providerId = activeProviderId.value
       const service = services[providerId]
-      
+
       if (clearCredentials) {
         // Borrar credenciales completamente (requiere re-autenticación)
         console.log(`🔴 Disconnecting and clearing credentials for ${providerId}`)
@@ -347,19 +349,18 @@ export const useCloudStore = defineStore('cloud', () => {
         console.log(`[PAUSE] Deactivating ${providerId} but keeping credentials`)
         // No llamar a service.disconnect() para mantener tokens en localStorage
       }
-      
+
       // Limpiar estado en memoria
       if (providerId === 'dropbox') {
         dropboxUserInfo.value = null
       } else {
         googleDriveUserInfo.value = null
       }
-      
+
       activeProviderId.value = null
       localStorage.removeItem('cloud_active_provider')
       currentFiles.value = []
       currentPath.value = ''
-      
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error disconnecting'
       console.error('Disconnect error:', err)
@@ -372,10 +373,10 @@ export const useCloudStore = defineStore('cloud', () => {
   const revokeProvider = async (providerId: CloudProviderId): Promise<void> => {
     try {
       console.log(`🔴 Revoking access for provider: ${providerId}`)
-      
+
       const service = services[providerId]
       await service.disconnect()
-      
+
       // Si era el proveedor activo, limpiarlo
       if (activeProviderId.value === providerId) {
         if (providerId === 'dropbox') {
@@ -383,13 +384,13 @@ export const useCloudStore = defineStore('cloud', () => {
         } else {
           googleDriveUserInfo.value = null
         }
-        
+
         activeProviderId.value = null
         localStorage.removeItem('cloud_active_provider')
         currentFiles.value = []
         currentPath.value = ''
       }
-      
+
       console.log(`[OK] Provider ${providerId} access revoked successfully`)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error revoking provider access'
@@ -406,10 +407,10 @@ export const useCloudStore = defineStore('cloud', () => {
 
     try {
       const service = services[activeProviderId.value]
-      
+
       if (service.isConnected()) {
         const userInfo = await service.getUserInfo()
-        
+
         if (activeProviderId.value === 'dropbox') {
           dropboxUserInfo.value = userInfo
         } else {
@@ -435,10 +436,10 @@ export const useCloudStore = defineStore('cloud', () => {
     try {
       const service = services[activeProviderId.value]
       const targetPath = path ?? currentPath.value
-      
+
       currentFiles.value = await service.listFiles(targetPath)
       currentPath.value = targetPath
-      
+
       // Actualizar el nombre de la carpeta
       if (targetPath === '' || targetPath === 'root') {
         currentFolderName.value = '' // Root no tiene nombre específico
@@ -447,7 +448,6 @@ export const useCloudStore = defineStore('cloud', () => {
       }
       // Si no se proporciona folderName y no es root, mantener el valor actual
       // (útil cuando se recarga la misma carpeta)
-      
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error loading files'
       console.error('Error loading files:', err)
@@ -480,7 +480,7 @@ export const useCloudStore = defineStore('cloud', () => {
       lastCloudPath.value = path
       // Use provided fileName or extract from path (for Dropbox compatibility)
       lastCloudFileName.value = fileName || path.split('/').pop() || ''
-      
+
       return await service.downloadFile(path)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error downloading file'
@@ -505,10 +505,10 @@ export const useCloudStore = defineStore('cloud', () => {
     try {
       const service = services[activeProviderId.value]
       const file = await service.uploadFile(path, content)
-      
+
       // Recargar archivos de la carpeta actual
       await loadFiles()
-      
+
       return file
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error uploading file'
@@ -533,7 +533,7 @@ export const useCloudStore = defineStore('cloud', () => {
     try {
       const service = services[activeProviderId.value]
       await service.deleteFile(fileId)
-      
+
       // Recargar archivos de la carpeta actual
       await loadFiles()
     } catch (err) {
@@ -559,12 +559,12 @@ export const useCloudStore = defineStore('cloud', () => {
     error,
     lastCloudPath,
     lastCloudFileName,
-    
+
     // Computed
     activeProvider,
     isConnected,
     availableProviders,
-    
+
     // Actions
     initialize,
     setActiveProvider,
