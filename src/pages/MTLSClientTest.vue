@@ -64,8 +64,8 @@
                   color="success"
                   variant="outlined"
                   @click="
-                    testUrl = 'https://apuntador.ngrok.app/health/public'
-                    testMethod = 'GET'
+                    testUrl = 'https://apuntador.ngrok.app/health/public';
+                    testMethod = 'GET';
                   "
                 >
                   Public Health (No mTLS)
@@ -75,8 +75,8 @@
                   color="warning"
                   variant="outlined"
                   @click="
-                    testUrl = 'https://apuntador.ngrok.app/health'
-                    testMethod = 'GET'
+                    testUrl = 'https://apuntador.ngrok.app/health';
+                    testMethod = 'GET';
                   "
                 >
                   Protected Health (mTLS)
@@ -191,7 +191,7 @@
                 :class="`log-${log.level}`"
                 style="margin-bottom: 4px"
               >
-                [{{ log.timestamp }}] {{ log.level.toUpperCase() }}: {{ log.message }}
+                {{ '[' + log.timestamp + '] ' + log.level.toUpperCase() + ': ' + log.message }}
               </div>
             </div>
           </v-card-text>
