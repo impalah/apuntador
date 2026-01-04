@@ -16,6 +16,11 @@ cd ..
 echo "Syncing Capacitor..."
 npx cap sync || echo "[WARNING]  Capacitor sync failed (expected if not yet configured)"
 
+# Install Playwright browsers and dependencies for e2e tests
+echo "Installing Playwright browsers and dependencies..."
+npx playwright install
+sudo npx playwright install-deps || echo "[WARNING]  Could not install Playwright system dependencies (sudo required)"
+
 echo "Post-create setup completed!"
 echo ""
 echo "Development environment ready!"

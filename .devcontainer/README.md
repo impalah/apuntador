@@ -27,6 +27,7 @@ This devcontainer provides a **complete and isolated development environment** f
 - **Tauri CLI** - Desktop app development (macOS, Windows, Linux)
 - **Ionic CLI & Capacitor** - Mobile app development
 - **CocoaPods** - iOS dependency management
+- **Playwright** - Browser automation for E2E testing (Chromium, Firefox, WebKit)
 
 ### Pre-installed Extensions (IN THE CONTAINER)
 
@@ -67,6 +68,7 @@ This devcontainer provides a **complete and isolated development environment** f
 - Automatic installation of all dependencies (npm, Cargo, Android SDK)
 - Pre-configured Android environment
 - Capacitor sync
+- Playwright browsers and system dependencies for E2E testing
 
 ## Prerequisites
 
