@@ -1,7 +1,7 @@
 # Script to generate Base64 of keystore for GitHub Secrets
 # Generate-Keystore-Base64.ps1
 
-Write-Host "[SECURE] Android Keystore Base64 Generator" -ForegroundColor Cyan
+Write-Host "Android Keystore Base64 Generator" -ForegroundColor Cyan
 Write-Host "=" * 50
 
 # Verify that keystore exists
@@ -14,11 +14,11 @@ if (-not (Test-Path $keystorePath)) {
     exit 1
 }
 
-Write-Host "[OK] Keystore found: $keystorePath" -ForegroundColor Green
+Write-Host "Keystore found: $keystorePath" -ForegroundColor Green
 
 # Generate Base64
 try {
-    Write-Host "[REFRESH] Generating Base64..." -ForegroundColor Yellow
+    Write-Host "Generating Base64..." -ForegroundColor Yellow
     
     $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($keystorePath))
     
@@ -26,11 +26,11 @@ try {
     $outputFile = "keystore-base64.txt"
     $base64 | Out-File -Encoding ascii $outputFile
     
-    Write-Host "[OK] Base64 generated successfully!" -ForegroundColor Green
+    Write-Host "Base64 generated successfully!" -ForegroundColor Green
     Write-Host "📁 File saved to: $outputFile" -ForegroundColor Cyan
     
     # Show information
-    Write-Host "`n[LIST] INFORMATION FOR GITHUB SECRETS:" -ForegroundColor Magenta
+    Write-Host "`nINFORMATION FOR GITHUB SECRETS:" -ForegroundColor Magenta
     Write-Host "=" * 40
     Write-Host "ANDROID_KEYSTORE_BASE64:" -ForegroundColor White
     Write-Host "  -> Copy the complete content of $outputFile" -ForegroundColor Gray
@@ -41,7 +41,7 @@ try {
     Write-Host "`nANDROID_KEY_PASSWORD:" -ForegroundColor White
     Write-Host "  -> apuntador123" -ForegroundColor Gray
     
-    Write-Host "`n[WEB] GITHUB CONFIGURATION:" -ForegroundColor Magenta
+    Write-Host "`nGITHUB CONFIGURATION:" -ForegroundColor Magenta
     Write-Host "1. Go to your repository on GitHub" -ForegroundColor White
     Write-Host "2. Settings -> Secrets and variables -> Actions" -ForegroundColor White
     Write-Host "3. New repository secret" -ForegroundColor White
@@ -52,7 +52,7 @@ try {
     Write-Host "   - Delete $outputFile after configuring GitHub" -ForegroundColor Red
     Write-Host "   - Secrets are case-sensitive" -ForegroundColor Yellow
     
-    Write-Host "`n[LAUNCH] Once the secrets are configured, the workflow" -ForegroundColor Green
+    Write-Host "`nOnce the secrets are configured, the workflow" -ForegroundColor Green
     Write-Host "   build-android-apk.yml will work automatically!" -ForegroundColor Green
     
 } catch {
@@ -60,4 +60,4 @@ try {
     exit 1
 }
 
-Write-Host "`n[FEATURE] Process completed!" -ForegroundColor Cyan
+Write-Host "`n Process completed!" -ForegroundColor Cyan

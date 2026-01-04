@@ -1,5 +1,5 @@
 # ====================================================================
-# [MOBILE] Android Bundle Builder Script (PowerShell)
+# Android Bundle Builder Script (PowerShell)
 # ====================================================================
 # 
 # Purpose: Build Android App Bundle (AAB) for Google Play Store

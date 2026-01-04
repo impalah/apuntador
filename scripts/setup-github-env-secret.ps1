@@ -1,7 +1,7 @@
 # Script para configurar el secret ENV_FILE en GitHub (Windows PowerShell)
 # Uso: .\scripts\setup-github-env-secret.ps1
 
-Write-Host "[CONFIG] Setup GitHub ENV_FILE Secret" -ForegroundColor Cyan
+Write-Host "Setup GitHub ENV_FILE Secret" -ForegroundColor Cyan
 Write-Host "================================" -ForegroundColor Cyan
 Write-Host ""
 
@@ -9,7 +9,7 @@ Write-Host ""
 if (-not (Test-Path ".env")) {
     Write-Host "[ERROR] Error: No se encontró el archivo .env" -ForegroundColor Red
     Write-Host ""
-    Write-Host "[LIST] Pasos para crear el .env:" -ForegroundColor Yellow
+    Write-Host "Pasos para crear el .env:" -ForegroundColor Yellow
     Write-Host "   1. Copy-Item .env.example .env"
     Write-Host "   2. Edita .env con tus credenciales reales"
     Write-Host "   3. Ejecuta este script nuevamente"
@@ -31,13 +31,13 @@ if (-not (Get-Command gh -ErrorAction SilentlyContinue)) {
 # Verificar autenticación
 $authStatus = gh auth status 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Host "[SECURE] No estás autenticado en GitHub CLI" -ForegroundColor Yellow
+    Write-Host "No estás autenticado en GitHub CLI" -ForegroundColor Yellow
     Write-Host "Ejecutando: gh auth login" -ForegroundColor Yellow
     Write-Host ""
     gh auth login
 }
 
-Write-Host "[LIST] Variables encontradas en .env:" -ForegroundColor Cyan
+Write-Host "Variables encontradas en .env:" -ForegroundColor Cyan
 Get-Content .env | Where-Object { $_ -match '^[^#]' } | ForEach-Object { 
     $varName = ($_ -split '=')[0]
     Write-Host "   ✓ $varName" -ForegroundColor Green
@@ -59,21 +59,21 @@ $envContent = Get-Content .env -Raw
 $envContent | gh secret set ENV_FILE
 
 if ($LASTEXITCODE -eq 0) {
-    Write-Host "[OK] Secret ENV_FILE creado/actualizado correctamente" -ForegroundColor Green
+    Write-Host "Secret ENV_FILE creado/actualizado correctamente" -ForegroundColor Green
     Write-Host ""
-    Write-Host "[LIST] Verificación:" -ForegroundColor Cyan
+    Write-Host "Verificación:" -ForegroundColor Cyan
     gh secret list | Select-String "ENV_FILE"
     Write-Host ""
     Write-Host "[SUCCESS] ¡Listo! Ahora los workflows de GitHub Actions podrán usar las variables de entorno." -ForegroundColor Green
     Write-Host ""
-    Write-Host "[SEARCH] Para verificar:" -ForegroundColor Cyan
+    Write-Host "Para verificar:" -ForegroundColor Cyan
     Write-Host "   1. Haz un commit y push"
     Write-Host "   2. Ve a la pestaña Actions en GitHub"
     Write-Host "   3. Observa el step 'Create .env file' en los logs"
 } else {
     Write-Host "[ERROR] Error al crear el secret" -ForegroundColor Red
     Write-Host ""
-    Write-Host "[SEARCH] Posibles causas:" -ForegroundColor Yellow
+    Write-Host "Posibles causas:" -ForegroundColor Yellow
     Write-Host "   - No tienes permisos de escritura en el repositorio"
     Write-Host "   - El repositorio es un fork"
     Write-Host "   - Problema de conectividad"

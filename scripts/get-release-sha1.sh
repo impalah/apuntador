@@ -32,7 +32,7 @@ if [ -z "$STORE_PASS" ]; then
     exit 1
 fi
 
-echo "[SEARCH] Obteniendo SHA-1..."
+echo "Obteniendo SHA-1..."
 echo ""
 
 # Ejecutar keytool
@@ -48,13 +48,13 @@ if [ -z "$SHA1" ]; then
 fi
 
 echo "=================================================="
-echo "[OK] SHA-1 Fingerprint (Release):"
+echo "SHA-1 Fingerprint (Release):"
 echo ""
 echo "    $SHA1"
 echo ""
 echo "=================================================="
 echo ""
-echo "[LIST] Próximos pasos:"
+echo "Próximos pasos:"
 echo ""
 echo "1. Ve a: https://console.cloud.google.com/apis/credentials"
 echo "2. Selecciona tu proyecto Apuntador"

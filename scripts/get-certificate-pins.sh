@@ -54,7 +54,7 @@ fi
 TMP_DIR=$(mktemp -d)
 trap "rm -rf $TMP_DIR" EXIT
 
-echo -e "${BLUE}[SIGNAL] Descargando pins del certificado desde el backend...${NC}"
+echo -e "${BLUE}Descargando pins del certificado desde el backend...${NC}"
 echo ""
 
 # Descargar pins desde el endpoint del backend
@@ -80,7 +80,7 @@ if [ "$SHA256_BASE64" == "null" ] || [ -z "$SHA256_BASE64" ]; then
 fi
 
 # Mostrar resultados
-echo -e "${GREEN}[OK] Certificate pins obtenidos exitosamente${NC}"
+echo -e "${GREEN}Certificate pins obtenidos exitosamente${NC}"
 echo ""
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${GREEN}  Pins SHA-256 del Certificado CA${NC}"

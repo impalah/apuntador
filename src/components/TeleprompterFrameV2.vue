@@ -14,7 +14,7 @@
     <!-- DEBUG INFO - Temporary for Android debugging -->
     <!-- Debug Info Window - Controlled by environment variables -->
     <div v-if="showDebug" class="debug-info">
-      <div class="debug-header">[TOOLS] DEBUG MODE</div>
+      <div class="debug-header">DEBUG MODE</div>
       <div class="debug-row">
         <span class="debug-label">Status:</span>
         <span :class="['debug-value', { playing: scrollState.isPlaying }]">

@@ -1,4 +1,4 @@
-# [LAUNCH] Quick Start - DevContainer Apuntador
+# Quick Start - DevContainer Apuntador
 
 ## [TIMER] 5 Minutos para Empezar
 
@@ -20,7 +20,7 @@ colima start --cpu 8 --memory 16 --disk 100 --vm-type vz --vz-rosetta
 # 4. Instalar extensión Dev Containers
 code --install-extension ms-vscode-remote.remote-containers
 
-# [OK] ¡Listo!
+# ¡Listo!
 ```
 
 ### (Opcional) Para Desarrollo iOS
@@ -55,6 +55,7 @@ code /Users/linus/projects/apuntador
 ```
 
 Cuando aparezca la notificación en VS Code, click en:
+
 ```
 "Reopen in Container"
 ```
@@ -76,9 +77,10 @@ Abrir en navegador: http://localhost:3000
 
 ---
 
-## [LIST] Comandos Rápidos
+## Comandos Rápidos
 
 ### Desarrollo Web
+
 ```bash
 npm run dev              # Dev server → http://localhost:3000
 npm run build            # Build producción
@@ -86,18 +88,21 @@ npm test                 # Tests
 ```
 
 ### Android
+
 ```bash
 npx cap sync android     # Sincronizar código
 cd android && ./gradlew assembleDebug    # Build APK
 ```
 
 ### Tauri Desktop
+
 ```bash
 npm run tauri dev        # Dev mode (headless en container)
 cargo build              # Build Rust
 ```
 
 ### iOS (requiere salir del container)
+
 ```bash
 # Cmd+Shift+P → "Dev Containers: Reopen Folder Locally"
 npx cap sync ios
@@ -106,7 +111,7 @@ npx cap open ios         # Abre Xcode
 
 ---
 
-## [FAST] Comandos de Colima (macOS)
+## Comandos de Colima (macOS)
 
 ```bash
 # Ver estado
@@ -125,9 +130,10 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## [REFRESH] Entrar/Salir del Container
+## Entrar/Salir del Container
 
 ### Entrar (abrir en container)
+
 ```bash
 # Método 1: Notificación
 # VS Code mostrará "Reopen in Container" → Click
@@ -137,18 +143,20 @@ colima start --cpu 8 --memory 16 --disk 100
 ```
 
 ### Salir (volver a macOS local)
+
 ```bash
 # Cmd+Shift+P → "Dev Containers: Reopen Folder Locally"
 ```
 
 ### Reconstruir (si cambias configuración)
+
 ```bash
 # Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
 ---
 
-## [DOCS] Documentación Completa
+## Documentación Completa
 
 - [SETUP_SUMMARY.md](SETUP_SUMMARY.md) - Resumen ejecutivo completo
 - [MACOS_SETUP.md](MACOS_SETUP.md) - Instalación detallada en macOS
@@ -158,21 +166,24 @@ colima start --cpu 8 --memory 16 --disk 100
 
 ---
 
-## [BUG] Problemas Comunes
+## Problemas Comunes
 
 ### "Cannot connect to Docker daemon"
+
 ```bash
 colima status           # Ver si está corriendo
 colima start            # Iniciarlo si está parado
 ```
 
 ### Container no inicia
+
 ```bash
 # Reconstruir
 # Cmd+Shift+P → "Dev Containers: Rebuild Container"
 ```
 
 ### Desarrollo muy lento
+
 ```bash
 # Aumentar recursos
 colima stop
@@ -180,6 +191,7 @@ colima start --cpu 8 --memory 16
 ```
 
 ### Puerto 3000 ocupado
+
 ```bash
 # Ver qué lo usa
 lsof -ti:3000
@@ -190,7 +202,7 @@ kill -9 $(lsof -ti:3000)
 
 ---
 
-## [OK] Checklist
+## Checklist
 
 - [ ] Colima instalado y corriendo (`colima status`)
 - [ ] VS Code instalado
@@ -202,27 +214,31 @@ kill -9 $(lsof -ti:3000)
 
 ---
 
-## [IDEA] Tips
+## Tips
 
 ### Tip 1: Salir del container antes de apagar el Mac
+
 ```bash
 # Cmd+Shift+P → "Reopen Folder Locally"
 # Luego: colima stop
 ```
 
 ### Tip 2: Ver uso de recursos
+
 ```bash
 docker stats            # CPU/memoria en tiempo real
 docker system df -v     # Espacio en disco
 ```
 
 ### Tip 3: Limpiar espacio
+
 ```bash
 docker system prune     # Eliminar recursos no usados
 docker volume prune     # Eliminar volúmenes no usados
 ```
 
 ### Tip 4: Múltiples proyectos
+
 ```bash
 # Abrir cada proyecto en su propia ventana de VS Code
 code /path/to/proyecto1
@@ -233,7 +249,7 @@ code /path/to/proyecto2
 
 ---
 
-## [TARGET] Siguiente Paso
+## Siguiente Paso
 
 ```bash
 # 1. Iniciar Colima (si no está corriendo)

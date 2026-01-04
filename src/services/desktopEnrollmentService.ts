@@ -3,7 +3,7 @@ import { BACKEND_OAUTH_URL } from '@/config/api'
 
 /**
  * Desktop Enrollment Service (Tauri)
- * 
+ *
  * Maneja el proceso de enrollment de dispositivos desktop (Windows/macOS/Linux)
  * usando Tauri y certificados almacenados en el Keychain del sistema.
  */
@@ -36,9 +36,9 @@ export class DesktopEnrollmentService {
    * Get device information
    */
   async getDeviceInfo(): Promise<DesktopDeviceInfo> {
-    console.log('[MOBILE] [Desktop Enrollment] Getting device info...')
+    console.log('[Desktop Enrollment] Getting device info...')
     const info = await invoke<DesktopDeviceInfo>('get_desktop_device_info')
-    console.log('[OK] Device info:', info)
+    console.log('Device info:', info)
     return info
   }
 
@@ -46,9 +46,9 @@ export class DesktopEnrollmentService {
    * Check if device is enrolled
    */
   async checkEnrollmentStatus(): Promise<DesktopEnrollmentResult> {
-    console.log('[SEARCH] [Desktop Enrollment] Checking enrollment status...')
+    console.log('[Desktop Enrollment] Checking enrollment status...')
     const status = await invoke<DesktopEnrollmentResult>('check_enrollment_status')
-    console.log('[OK] Enrollment status:', status)
+    console.log('Enrollment status:', status)
     return status
   }
 
@@ -56,7 +56,7 @@ export class DesktopEnrollmentService {
    * Enroll device with backend
    */
   async enrollDevice(): Promise<DesktopEnrollmentResult> {
-    console.log('[LAUNCH] [Desktop Enrollment] Starting enrollment...')
+    console.log('[Desktop Enrollment] Starting enrollment...')
     console.log('   Backend URL:', this.backendUrl)
 
     try {
@@ -71,7 +71,7 @@ export class DesktopEnrollmentService {
       })
 
       if (result.success) {
-        console.log('[OK] [Desktop Enrollment] Enrollment successful!')
+        console.log('[Desktop Enrollment] Enrollment successful!')
         console.log('   Device ID:', result.device_id)
         console.log('   Expires:', result.certificate_expires_at)
       } else {
@@ -89,7 +89,7 @@ export class DesktopEnrollmentService {
    * Force re-enrollment (renewal)
    */
   async forceReEnroll(): Promise<DesktopEnrollmentResult> {
-    console.log('[REFRESH] [Desktop Enrollment] Forcing re-enrollment...')
+    console.log('[Desktop Enrollment] Forcing re-enrollment...')
 
     // 1. Delete existing certificate
     await this.unenrollDevice()
@@ -102,23 +102,23 @@ export class DesktopEnrollmentService {
    * Unenroll device (delete certificate)
    */
   async unenrollDevice(): Promise<void> {
-    console.log('[DELETE]  [Desktop Enrollment] Unenrolling device...')
+    console.log(' [Desktop Enrollment] Unenrolling device...')
     await invoke('unenroll_desktop_device')
-    console.log('[OK] Device unenrolled')
+    console.log('Device unenrolled')
   }
 
   /**
    * Get certificate pins from backend
    */
   private async getCertificatePins(): Promise<string[]> {
-    console.log('[SECURE] [Desktop Enrollment] Fetching certificate pins...')
-    
+    console.log('[Desktop Enrollment] Fetching certificate pins...')
+
     // TEMPORAL: Usar pins hardcodeados para ngrok
     // TODO: El backend debería exponer un endpoint público para obtener pins
     // antes del enrollment (sin requerir certificado de cliente)
-    
+
     if (this.backendUrl.includes('ngrok.app')) {
-      console.log('[INFO]  Using hardcoded ngrok pins for testing')
+      console.log(' Using hardcoded ngrok pins for testing')
       return [
         'wexXiEAY/v67Xokb8oZpilJNMfon0OnTAB6vGdI94Mw=', // ngrok certificate pin
       ]
@@ -136,7 +136,7 @@ export class DesktopEnrollmentService {
       }
 
       const data = await response.json()
-      console.log('[OK] Certificate pins response:', data)
+      console.log('Certificate pins response:', data)
 
       // Extract base64 pins from response
       const pins: string[] = []
@@ -155,7 +155,7 @@ export class DesktopEnrollmentService {
     } catch (error) {
       console.error('[ERROR] Failed to get certificate pins:', error)
       console.warn('[WARNING]  Falling back to default pins')
-      
+
       // Fallback: usar pins de ngrok por defecto
       return ['wexXiEAY/v67Xokb8oZpilJNMfon0OnTAB6vGdI94Mw=']
     }
@@ -165,13 +165,13 @@ export class DesktopEnrollmentService {
    * Ensure device is enrolled (idempotent)
    */
   async ensureEnrolled(): Promise<DesktopEnrollmentResult> {
-    console.log('[SECURE] [Desktop Enrollment] Ensuring device is enrolled...')
+    console.log('[Desktop Enrollment] Ensuring device is enrolled...')
 
     // Check if already enrolled
     const status = await this.checkEnrollmentStatus()
 
     if (status.enrolled && !this.isCertificateExpiringSoon(status.certificate_expires_at)) {
-      console.log('[OK] Device already enrolled and certificate is valid')
+      console.log('Device already enrolled and certificate is valid')
       return status
     }
 
@@ -181,7 +181,7 @@ export class DesktopEnrollmentService {
     }
 
     // Not enrolled, enroll now
-    console.log('[INFO]  Device not enrolled, enrolling now...')
+    console.log(' Device not enrolled, enrolling now...')
     return await this.enrollDevice()
   }
 

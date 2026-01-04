@@ -86,7 +86,7 @@ case $option in
         if [ -n "$DEBUG_KEYSTORE" ]; then
             extract_sha1 "$DEBUG_KEYSTORE" "androiddebugkey" "android" "android"
             
-            echo "[LIST] Copia este SHA-1 y agrégalo en Google Cloud Console:"
+            echo "Copia este SHA-1 y agrégalo en Google Cloud Console:"
             echo "   → Tipo de aplicación: Android"
             echo "   → Nombre del paquete: io.apuntador.app"
             echo "   → SHA-1: (el valor de arriba)"
@@ -141,7 +141,7 @@ case $option in
         
         extract_sha1 "$RELEASE_KEYSTORE" "$RELEASE_ALIAS" "$RELEASE_STOREPASS" "$RELEASE_KEYPASS"
         
-        echo "[LIST] Copia este SHA-1 y agrégalo en Google Cloud Console:"
+        echo "Copia este SHA-1 y agrégalo en Google Cloud Console:"
         echo "   → Ve al cliente Android que creaste"
         echo "   → Click en 'Agregar huella digital'"
         echo "   → Pega el SHA-1 de arriba"

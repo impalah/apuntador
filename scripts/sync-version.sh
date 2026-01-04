@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================
-# [REFRESH] Version Sync Script (Bash)
+# Version Sync Script (Bash)
 # ====================================================================
 # 
 # Purpose: Sync version from package.json to Android build.gradle
@@ -24,11 +24,11 @@ print_error() {
 }
 
 print_success() {
-    echo -e "${GREEN}[OK] $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 print_info() {
-    echo -e "${CYAN}📖 $1${NC}"
+    echo -e "${CYAN}$1${NC}"
 }
 
 print_warning() {
@@ -37,7 +37,7 @@ print_warning() {
 
 # Show help
 show_help() {
-    echo -e "${CYAN}[REFRESH] Version Sync Script${NC}"
+    echo -e "${CYAN}Version Sync Script${NC}"
     echo ""
     echo -e "${YELLOW}Purpose: Synchronize version from package.json to Android build.gradle${NC}"
     echo ""
@@ -65,7 +65,7 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-echo -e "${CYAN}[REFRESH] Synchronizing version from package.json to Android...${NC}"
+echo -e "${CYAN}Synchronizing version from package.json to Android...${NC}"
 
 # Check if files exist
 if [[ ! -f "package.json" ]]; then

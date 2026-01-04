@@ -16,7 +16,7 @@ $androidSdkPaths = @(
 $sdkFound = $false
 foreach ($sdkPath in $androidSdkPaths) {
     if (Test-Path "$sdkPath\platform-tools\adb.exe") {
-        Write-Host "[OK] Android SDK found at: $sdkPath" -ForegroundColor Green
+        Write-Host "Android SDK found at: $sdkPath" -ForegroundColor Green
         $env:PATH += ";$sdkPath\platform-tools;$sdkPath\emulator"
         $env:ANDROID_HOME = $sdkPath
         $sdkFound = $true
@@ -37,10 +37,10 @@ function Test-Command($cmdname) {
 
 function Write-Status($message, $type = "INFO") {
     switch ($type) {
-        "OK" { Write-Host "[OK] $message" -ForegroundColor Green }
+        "OK" { Write-Host "$message" -ForegroundColor Green }
         "ERROR" { Write-Host "[ERROR] $message" -ForegroundColor Red }
         "WARN" { Write-Host "[WARN] $message" -ForegroundColor Yellow }
-        default { Write-Host "[INFO] $message" -ForegroundColor Cyan }
+        default { Write-Host "$message" -ForegroundColor Cyan }
     }
 }
 
@@ -134,12 +134,12 @@ Write-Host ""
 # Enhanced menu with quick options
 do {
     Write-Host "Quick Actions:"
-    Write-Host "1. [LAUNCH] Deploy to device/emulator (recommended if device connected)"
-    Write-Host "2. [MOBILE] Start Samsung Galaxy S22 emulator and deploy"
+    Write-Host "1. Deploy to device/emulator (recommended if device connected)"
+    Write-Host "2. Start Samsung Galaxy S22 emulator and deploy"
     Write-Host "3. [COMPUTER]  Open Android Studio for manual control"
-    Write-Host "4. [WEB] Open debug panel in browser"
-    Write-Host "5. [LIST] Monitor Android logs (logcat)"
-    Write-Host "6. [CONFIG] Advanced options..."
+    Write-Host "4. Open debug panel in browser"
+    Write-Host "5. Monitor Android logs (logcat)"
+    Write-Host "6. Advanced options..."
     Write-Host "7. [ERROR] Exit"
     Write-Host ""
     

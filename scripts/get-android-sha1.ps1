@@ -76,7 +76,7 @@ switch ($option) {
                 -KeyPass "android"
             
             if ($result) {
-                Write-Host "[LIST] Copia este SHA-1 y agrégalo en Google Cloud Console:" -ForegroundColor Yellow
+                Write-Host "Copia este SHA-1 y agrégalo en Google Cloud Console:" -ForegroundColor Yellow
                 Write-Host "   → Tipo de aplicación: Android"
                 Write-Host "   → Nombre del paquete: io.apuntador.app"
                 Write-Host "   → SHA-1: (el valor de arriba)"
@@ -157,7 +157,7 @@ switch ($option) {
             -KeyPass $keypassPlain
         
         if ($result) {
-            Write-Host "[LIST] Copia este SHA-1 y agrégalo en Google Cloud Console:" -ForegroundColor Yellow
+            Write-Host "Copia este SHA-1 y agrégalo en Google Cloud Console:" -ForegroundColor Yellow
             Write-Host "   → Ve al cliente Android que creaste"
             Write-Host "   → Click en 'Agregar huella digital'"
             Write-Host "   → Pega el SHA-1 de arriba"

@@ -12,7 +12,7 @@ async function getAndroidScreenInfo(): Promise<{
 }> {
   // For Android, we typically work with the primary display
   // Multi-screen support in Android is complex and device-dependent
-  
+
   // Basic detection - assume single screen for most mobile devices
   // Advanced multi-screen detection would require native Android APIs
   return {
@@ -67,7 +67,7 @@ export function useImmersiveMode() {
   onMounted(async () => {
     // Only supported on Android
     isSupported.value = Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android'
-    
+
     // Initialize screen info
     if (isSupported.value) {
       screenInfo.value = await getAndroidScreenInfo()
@@ -94,7 +94,7 @@ export function useImmersiveMode() {
       }
 
       isImmersive.value = true
-      console.log('[OK] Immersive mode enabled')
+      console.log('Immersive mode enabled')
     } catch (error) {
       console.error('[ERROR] Failed to enable immersive mode:', error)
     }
@@ -118,7 +118,7 @@ export function useImmersiveMode() {
       }
 
       isImmersive.value = false
-      console.log('[OK] Immersive mode disabled')
+      console.log('Immersive mode disabled')
     } catch (error) {
       console.error('[ERROR] Failed to disable immersive mode:', error)
     }
@@ -147,7 +147,7 @@ export function useImmersiveMode() {
 
       await ImmersiveMode.setImmersiveMode({ enable })
 
-      console.log(`[OK] Native immersive mode ${enable ? 'enabled' : 'disabled'}`)
+      console.log(`Native immersive mode ${enable ? 'enabled' : 'disabled'}`)
     } catch (error) {
       console.warn('Native immersive mode plugin not available, using fallback:', error)
       setImmersiveFallback(enable)

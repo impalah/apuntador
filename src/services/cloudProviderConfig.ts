@@ -58,7 +58,7 @@ export class CloudProviderConfigService {
    * Fetch provider configuration from backend
    */
   async fetchConfig(): Promise<CloudProviderConfig> {
-    console.log('[SEARCH] [CloudProviderConfig] Fetching provider configuration from backend...')
+    console.log('[CloudProviderConfig] Fetching provider configuration from backend...')
     console.log('   Backend URL:', BACKEND_URL)
     console.log('   API Key configured:', API_KEY ? 'Yes' : 'No')
 
@@ -68,7 +68,7 @@ export class CloudProviderConfigService {
       'Content-Type': 'application/json',
     }
 
-    console.log('[WEB] [CloudProviderConfig] Using direct fetch (bypassing adapter)')
+    console.log('[CloudProviderConfig] Using direct fetch (bypassing adapter)')
     console.log('   URL:', url)
     console.log('   Headers:', {
       ...headers,
@@ -81,7 +81,7 @@ export class CloudProviderConfigService {
         headers,
       })
 
-      console.log('[SIGNAL] [CloudProviderConfig] Response received:', {
+      console.log('[CloudProviderConfig] Response received:', {
         status: response.status,
         statusText: response.statusText,
         ok: response.ok,
@@ -103,7 +103,7 @@ export class CloudProviderConfigService {
 
       const config: CloudProviderConfig = await response.json()
 
-      console.log('[OK] [CloudProviderConfig] Configuration fetched successfully')
+      console.log('[CloudProviderConfig] Configuration fetched successfully')
       console.log(
         '   Enabled providers:',
         Object.keys(config.providers).filter((p) => config.providers[p]?.enabled)
@@ -144,14 +144,14 @@ export class CloudProviderConfigService {
   async getConfig(): Promise<CloudProviderConfig> {
     // Check memory cache first
     if (this.memoryCache && this.memoryCache.expiresAt > Date.now()) {
-      console.log('[PACKAGE] [CloudProviderConfig] Using memory cache')
+      console.log('[CloudProviderConfig] Using memory cache')
       return this.memoryCache.config
     }
 
     // Check localStorage cache
     const cached = this.loadFromCache()
     if (cached) {
-      console.log('[SAVE] [CloudProviderConfig] Using localStorage cache')
+      console.log('[CloudProviderConfig] Using localStorage cache')
       this.memoryCache = {
         config: cached,
         expiresAt: Date.now() + cached.cacheTtl * 1000,
@@ -160,7 +160,7 @@ export class CloudProviderConfigService {
     }
 
     // Fetch from backend
-    console.log('[WEB] [CloudProviderConfig] No valid cache, fetching from backend...')
+    console.log('[CloudProviderConfig] No valid cache, fetching from backend...')
     return await this.fetchConfig()
   }
 
@@ -199,7 +199,7 @@ export class CloudProviderConfigService {
    * Clear cache (force refresh on next request)
    */
   clearCache(): void {
-    console.log('[DELETE]  [CloudProviderConfig] Clearing cache')
+    console.log(' [CloudProviderConfig] Clearing cache')
     this.memoryCache = null
     try {
       localStorage.removeItem(STORAGE_KEY)
@@ -221,11 +221,7 @@ export class CloudProviderConfigService {
     try {
       const cached: CachedConfig = { config, expiresAt }
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cached))
-      console.log(
-        '[SAVE] [CloudProviderConfig] Saved to cache (expires in',
-        config.cacheTtl,
-        'seconds)'
-      )
+      console.log('[CloudProviderConfig] Saved to cache (expires in', config.cacheTtl, 'seconds)')
     } catch (error) {
       console.warn('Failed to save to localStorage:', error)
     }
@@ -245,7 +241,7 @@ export class CloudProviderConfigService {
 
       // Check expiration
       if (!ignoreExpiration && cached.expiresAt <= Date.now()) {
-        console.log('[TIME] [CloudProviderConfig] Cache expired')
+        console.log('[CloudProviderConfig] Cache expired')
         return null
       }
 

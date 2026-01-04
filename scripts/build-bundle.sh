@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ====================================================================
-# [MOBILE] Android Bundle Builder Script (Bash)
+# Android Bundle Builder Script (Bash)
 # ====================================================================
 # 
 # Purpose: Build Android App Bundle (AAB) for Google Play Store
@@ -32,11 +32,11 @@ NC='\033[0m' # No Color
 
 # Functions for colored output
 print_step() {
-    echo -e "${MAGENTA}[REFRESH] $1${NC}"
+    echo -e "${MAGENTA}$1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}[OK] $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 print_error() {
@@ -48,12 +48,12 @@ print_warning() {
 }
 
 print_info() {
-    echo -e "${CYAN}[INFO]  $1${NC}"
+    echo -e "${CYAN} $1${NC}"
 }
 
 # Show help
 show_help() {
-    echo -e "${CYAN}[MOBILE] Android Bundle Builder Script${NC}"
+    echo -e "${CYAN}Android Bundle Builder Script${NC}"
     echo ""
     echo -e "${YELLOW}Usage:${NC}"
     echo -e "  ${GREEN}./build-bundle.sh [BuildType] [Version]${NC}"
@@ -89,7 +89,7 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Script start
-print_info "[LAUNCH] Starting Android Bundle Build Process"
+print_info "Starting Android Bundle Build Process"
 print_info "Build Type: $BUILD_TYPE"
 if [[ -n "$VERSION" ]]; then
     print_info "Version: $VERSION"
@@ -234,7 +234,7 @@ EOF
 error_handler() {
     print_error "Build failed on line $1"
     echo ""
-    print_warning "[CONFIG] Troubleshooting tips:"
+    print_warning "Troubleshooting tips:"
     echo -e "  ${NC}1. Make sure you have Android SDK installed${NC}"
     echo -e "  ${NC}2. Verify Java JDK 17+ is installed${NC}"
     echo -e "  ${NC}3. Check that Capacitor is properly configured${NC}"

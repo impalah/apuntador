@@ -34,7 +34,7 @@ public class AndroidKeystoreManager {
     public AndroidKeystoreManager() throws Exception {
         keyStore = KeyStore.getInstance(KEYSTORE_PROVIDER);
         keyStore.load(null);
-        Log.d(TAG, "✅ AndroidKeystore initialized");
+        Log.d(TAG, "AndroidKeystore initialized");
     }
     
     /**
@@ -47,7 +47,7 @@ public class AndroidKeystoreManager {
     public KeyPair generateKeyPair(String alias, boolean useStrongBox) throws Exception {
         String fullAlias = KEY_ALIAS_PREFIX + alias;
         
-        Log.d(TAG, "🔐 Generating key pair in HSM...");
+        Log.d(TAG, "Generating key pair in HSM...");
         Log.d(TAG, "   Alias: " + fullAlias);
         Log.d(TAG, "   Use StrongBox: " + useStrongBox);
         Log.d(TAG, "   Key Size: " + KEY_SIZE);
@@ -80,7 +80,7 @@ public class AndroidKeystoreManager {
                 generator.initialize(builder.build());
                 KeyPair keyPair = generator.generateKeyPair();
                 
-                Log.d(TAG, "✅ Key pair generated in StrongBox (hardware chip)");
+                Log.d(TAG, "Key pair generated in StrongBox (hardware chip)");
                 logKeyInfo(fullAlias);
                 return keyPair;
                 
@@ -98,7 +98,7 @@ public class AndroidKeystoreManager {
         generator.initialize(builder.build());
         KeyPair keyPair = generator.generateKeyPair();
         
-        Log.d(TAG, "✅ Key pair generated in TEE (Trusted Execution Environment)");
+        Log.d(TAG, "Key pair generated in TEE (Trusted Execution Environment)");
         logKeyInfo(fullAlias);
         return keyPair;
     }

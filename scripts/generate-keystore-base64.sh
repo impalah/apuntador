@@ -13,7 +13,7 @@ WHITE='\033[1;37m'
 GRAY='\033[0;37m'
 NC='\033[0m' # No Color
 
-echo -e "${CYAN}[SECURE] Android Keystore Base64 Generator${NC}"
+echo -e "${CYAN}Android Keystore Base64 Generator${NC}"
 echo "=================================================="
 
 # Verify that keystore exists
@@ -26,10 +26,10 @@ if [ ! -f "$KEYSTORE_PATH" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}[OK] Keystore found: $KEYSTORE_PATH${NC}"
+echo -e "${GREEN}Keystore found: $KEYSTORE_PATH${NC}"
 
 # Generate Base64
-echo -e "${YELLOW}[REFRESH] Generating Base64...${NC}"
+echo -e "${YELLOW}Generating Base64...${NC}"
 
 if ! command -v base64 &> /dev/null; then
     echo -e "${RED}[ERROR] ERROR: base64 command not found${NC}"
@@ -42,11 +42,11 @@ OUTPUT_FILE="keystore-base64.txt"
 base64 -w 0 "$KEYSTORE_PATH" > "$OUTPUT_FILE"
 
 if [ $? -eq 0 ]; then
-    echo -e "${GREEN}[OK] Base64 generated successfully!${NC}"
+    echo -e "${GREEN}Base64 generated successfully!${NC}"
     echo -e "${CYAN}📁 File saved to: $OUTPUT_FILE${NC}"
     
     # Show information
-    echo -e "\n${MAGENTA}[LIST] INFORMATION FOR GITHUB SECRETS:${NC}"
+    echo -e "\n${MAGENTA}INFORMATION FOR GITHUB SECRETS:${NC}"
     echo "========================================"
     echo -e "${WHITE}ANDROID_KEYSTORE_BASE64:${NC}"
     echo -e "${GRAY}  -> Copy the complete content of $OUTPUT_FILE${NC}"
@@ -57,7 +57,7 @@ if [ $? -eq 0 ]; then
     echo -e "\n${WHITE}ANDROID_KEY_PASSWORD:${NC}"
     echo -e "${GRAY}  -> apuntador123${NC}"
     
-    echo -e "\n${MAGENTA}[WEB] GITHUB CONFIGURATION:${NC}"
+    echo -e "\n${MAGENTA}GITHUB CONFIGURATION:${NC}"
     echo -e "${WHITE}1. Go to your repository on GitHub${NC}"
     echo -e "${WHITE}2. Settings -> Secrets and variables -> Actions${NC}"
     echo -e "${WHITE}3. New repository secret${NC}"
@@ -68,7 +68,7 @@ if [ $? -eq 0 ]; then
     echo -e "${RED}   - Delete $OUTPUT_FILE after configuring GitHub${NC}"
     echo -e "${YELLOW}   - Secrets are case-sensitive${NC}"
     
-    echo -e "\n${GREEN}[LAUNCH] Once the secrets are configured, the workflow${NC}"
+    echo -e "\n${GREEN}Once the secrets are configured, the workflow${NC}"
     echo -e "${GREEN}   build-android-apk.yml will work automatically!${NC}"
     
 else
@@ -76,4 +76,4 @@ else
     exit 1
 fi
 
-echo -e "\n${CYAN}[FEATURE] Process completed!${NC}"
+echo -e "\n${CYAN}Process completed!${NC}"

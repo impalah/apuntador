@@ -330,7 +330,9 @@
               <!-- App Title and Subtitle -->
               <div class="mb-6">
                 <h2 class="text-h4 mb-2">{{ versionInfo.name }} - {{ t('settings.subtitle') }}</h2>
-                <p class="text-body-1 text-medium-emphasis">{{ t('settings.version') }}: {{ versionInfo.version }}</p>
+                <p class="text-body-1 text-medium-emphasis">
+                  {{ t('settings.version') }}: {{ versionInfo.version }}
+                </p>
               </div>
 
               <!-- Copyright -->
@@ -340,10 +342,10 @@
 
               <!-- Repository Link -->
               <div>
-                <v-btn 
-                  :href="versionInfo.repositoryUrl" 
-                  target="_blank" 
-                  variant="outlined" 
+                <v-btn
+                  :href="versionInfo.repositoryUrl"
+                  target="_blank"
+                  variant="outlined"
                   prepend-icon="mdi-github"
                 >
                   GitHub Repository
@@ -426,22 +428,28 @@ interface Props {
 }
 
 const props = withDefaults(defineProps<Props>(), {
-  initialTab: 'appearance'
+  initialTab: 'appearance',
 })
 
 // Watch for prop changes to update active tab
-watch(() => props.initialTab, (newTab) => {
-  if (newTab && props.modelValue) {
-    activeTab.value = newTab
+watch(
+  () => props.initialTab,
+  (newTab) => {
+    if (newTab && props.modelValue) {
+      activeTab.value = newTab
+    }
   }
-})
+)
 
 // Watch for dialog opening to set initial tab
-watch(() => props.modelValue, (isOpen) => {
-  if (isOpen && props.initialTab) {
-    activeTab.value = props.initialTab
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (isOpen && props.initialTab) {
+      activeTab.value = props.initialTab
+    }
   }
-})
+)
 
 // Emits
 const emit = defineEmits<{
@@ -525,7 +533,7 @@ const isNativePlatform = computed(() => Capacitor.isNativePlatform())
 // Check if running in Tauri (Desktop) - use the utility function
 const isTauriPlatform = computed(() => {
   const result = isTauri()
-  console.log('[SEARCH] isTauriPlatform check:', result)
+  console.log('isTauriPlatform check:', result)
   return result
 })
 

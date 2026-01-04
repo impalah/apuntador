@@ -26,7 +26,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
    * Guarda tokens de Google Drive en storage persistente
    */
   protected async saveTokens(accessToken: string, refreshToken?: string): Promise<void> {
-    console.log('[SAVE] GoogleDriveService: Saving tokens to storage...')
+    console.log('GoogleDriveService: Saving tokens to storage...')
 
     await storage.set(STORAGE_KEYS.GOOGLEDRIVE_TOKEN, accessToken)
 
@@ -36,7 +36,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
 
     // Verificar que se guardó
     const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
-    console.log('[OK] GoogleDriveService: Tokens saved and verified:', {
+    console.log('GoogleDriveService: Tokens saved and verified:', {
       saved: !!savedToken,
       matches: savedToken === accessToken,
     })
@@ -85,7 +85,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     // Verificar si hay token en memoria
     const result = !!this.accessToken
 
-    console.log('[SEARCH] GoogleDriveService isConnected():', {
+    console.log('GoogleDriveService isConnected():', {
       hasAccessToken: !!this.accessToken,
       result,
     })
@@ -97,14 +97,14 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
    * Inicializa el servicio con token guardado
    */
   async initialize(): Promise<void> {
-    console.log('[REFRESH] GoogleDriveService: Initializing...')
+    console.log('GoogleDriveService: Initializing...')
 
     const savedToken = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
     if (savedToken) {
       this.accessToken = savedToken
-      console.log('[OK] GoogleDriveService: Initialized with saved token')
+      console.log('GoogleDriveService: Initialized with saved token')
     } else {
-      console.log('[INFO] GoogleDriveService: No saved token found')
+      console.log('GoogleDriveService: No saved token found')
     }
   }
 
@@ -115,10 +115,10 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
     try {
       const token = await storage.get<string>(STORAGE_KEYS.GOOGLEDRIVE_TOKEN)
       console.log(
-        '[REFRESH] GoogleDriveService: Attempting to restore session with token:',
+        'GoogleDriveService: Attempting to restore session with token:',
         token ? 'PRESENT' : 'NONE'
       )
-      console.log('[SEARCH] GoogleDriveService: Storage inspection:', {
+      console.log('GoogleDriveService: Storage inspection:', {
         tokenKey: STORAGE_KEYS.GOOGLEDRIVE_TOKEN,
         tokenFound: !!token,
         tokenLength: token?.length || 0,
@@ -132,17 +132,17 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
       // Establecer token en memoria
       this.accessToken = token
 
-      console.log('[CONFIG] GoogleDriveService: Token set, testing validity...')
+      console.log('GoogleDriveService: Token set, testing validity...')
 
       // Verificar que el token funciona llamando a getUserInfo
-      console.log('[REFRESH] GoogleDriveService: Testing token with user info call...')
+      console.log('GoogleDriveService: Testing token with user info call...')
 
       // Small delay to ensure token is active on Google servers
       console.log('⏳ GoogleDriveService: Waiting 1 second for token to become active...')
       await new Promise((resolve) => setTimeout(resolve, 1000))
 
       await this.getUserInfo()
-      console.log('[OK] GoogleDriveService: Session restored successfully')
+      console.log('GoogleDriveService: Session restored successfully')
       return true
     } catch (error) {
       console.error('[ERROR] GoogleDriveService: Error restoring session:', error)
@@ -158,7 +158,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
         }
         // Para otros errores (red, temporales), mantener token
         else {
-          console.log('[WEB] GoogleDriveService: Temporary error, keeping token for retry...')
+          console.log('GoogleDriveService: Temporary error, keeping token for retry...')
         }
       } else {
         // Error desconocido, ser conservador y mantener token
@@ -347,7 +347,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
         throw new Error(`Failed to delete file: ${response.statusText}`)
       }
 
-      console.log('[OK] GoogleDrive Service: File deleted successfully')
+      console.log('GoogleDrive Service: File deleted successfully')
 
       // Mostrar mensaje de éxito
       this.successHandler.showCloudSuccess('delete')

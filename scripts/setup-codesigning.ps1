@@ -3,7 +3,7 @@
 # Script de configuración completa para certificados auto-firmados
 # Uso: .\scripts\setup-codesigning.ps1
 
-Write-Host "[SECURE] Configuración completa de certificados para Apuntador" -ForegroundColor Green
+Write-Host "Configuración completa de certificados para Apuntador" -ForegroundColor Green
 Write-Host ""
 
 # Verificar si estamos en PowerShell 5.1+ 
@@ -21,7 +21,7 @@ if (-not $isAdmin) {
     Write-Host ""
 }
 
-Write-Host "[LIST] PASOS DE CONFIGURACIÓN:" -ForegroundColor Blue
+Write-Host "PASOS DE CONFIGURACIÓN:" -ForegroundColor Blue
 Write-Host "1. Generar certificado auto-firmado" -ForegroundColor White
 Write-Host "2. Configurar GitHub Actions (opcional)" -ForegroundColor White
 Write-Host "3. Probar compilación local" -ForegroundColor White
@@ -35,7 +35,7 @@ if (Test-Path $createScript) {
     & $createScript
     
     if ($LASTEXITCODE -eq 0) {
-        Write-Host "[OK] Certificado generado exitosamente" -ForegroundColor Green
+        Write-Host "Certificado generado exitosamente" -ForegroundColor Green
     } else {
         Write-Host "[ERROR] Error generando certificado" -ForegroundColor Red
         exit 1
@@ -82,12 +82,12 @@ if (Test-Path $base64File) {
 Write-Host ""
 
 # Paso 3: Probar compilación
-Write-Host "[CONFIG] Paso 3: Probar compilación local" -ForegroundColor Cyan
+Write-Host "Paso 3: Probar compilación local" -ForegroundColor Cyan
 $response = Read-Host "¿Quieres probar la compilación con firma ahora? (y/n)"
 
 if ($response -eq 'y' -or $response -eq 'Y') {
     Write-Host ""
-    Write-Host "[LAUNCH] Iniciando compilación de prueba..." -ForegroundColor Yellow
+    Write-Host "Iniciando compilación de prueba..." -ForegroundColor Yellow
     
     $buildScript = ".\scripts\build-windows-signed.ps1"
     if (Test-Path $buildScript) {
@@ -106,9 +106,9 @@ if ($response -eq 'y' -or $response -eq 'Y') {
 }
 
 Write-Host ""
-Write-Host "[OK] CONFIGURACIÓN COMPLETADA" -ForegroundColor Green
+Write-Host "CONFIGURACIÓN COMPLETADA" -ForegroundColor Green
 Write-Host ""
-Write-Host "[NOTE] PRÓXIMOS PASOS:" -ForegroundColor Blue
+Write-Host "PRÓXIMOS PASOS:" -ForegroundColor Blue
 Write-Host "1. Configurar secrets en GitHub (si no lo hiciste)" -ForegroundColor White
 Write-Host "2. Hacer commit de los cambios en tauri.conf.json" -ForegroundColor White
 Write-Host "3. Probar el workflow de GitHub Actions" -ForegroundColor White
@@ -116,4 +116,4 @@ Write-Host "4. Distribuir aplicaciones firmadas" -ForegroundColor White
 Write-Host ""
 Write-Host "📚 Documentación completa: .\docs\SELF-SIGNED-CERTIFICATE.md" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "[TARGET] ¡Listo para distribución con certificado auto-firmado!" -ForegroundColor Green
+Write-Host "¡Listo para distribución con certificado auto-firmado!" -ForegroundColor Green

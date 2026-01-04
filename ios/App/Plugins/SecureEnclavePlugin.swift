@@ -72,7 +72,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             
             let publicKeyBase64 = publicKeyData.base64EncodedString()
             
-            CAPLog.print("✅ Key pair generated in Secure Enclave")
+            CAPLog.print("Key pair generated in Secure Enclave")
             CAPLog.print("   - Private key stored securely (never exported)")
             CAPLog.print("   - Public key size: \(publicKeyData.count) bytes")
             
@@ -85,7 +85,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             ])
             
         } catch {
-            CAPLog.print("❌ Failed to generate key pair: \(error.localizedDescription)")
+            CAPLog.print("Failed to generate key pair: \(error.localizedDescription)")
             call.reject("Failed to generate key pair", error.localizedDescription)
         }
     }
@@ -121,7 +121,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             
             let csrBase64 = csr.base64EncodedString()
             
-            CAPLog.print("✅ CSR generated successfully")
+            CAPLog.print("CSR generated successfully")
             CAPLog.print("   - CN: \(commonName)")
             CAPLog.print("   - CSR size: \(csr.count) bytes")
             
@@ -132,7 +132,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             ])
             
         } catch {
-            CAPLog.print("❌ Failed to generate CSR: \(error.localizedDescription)")
+            CAPLog.print("Failed to generate CSR: \(error.localizedDescription)")
             call.reject("Failed to generate CSR", error.localizedDescription)
         }
     }
@@ -158,7 +158,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             // Guardar nuevo certificado en Keychain
             try saveCertificate(certificateData)
             
-            CAPLog.print("✅ Certificate stored in Keychain")
+            CAPLog.print("Certificate stored in Keychain")
             CAPLog.print("   - Size: \(certificateData.count) bytes")
             
             call.resolve([
@@ -167,7 +167,7 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             ])
             
         } catch {
-            CAPLog.print("❌ Failed to store certificate: \(error.localizedDescription)")
+            CAPLog.print("Failed to store certificate: \(error.localizedDescription)")
             call.reject("Failed to store certificate", error.localizedDescription)
         }
     }
@@ -220,10 +220,10 @@ public class ApuntadorSecureEnclavePlugin: CAPPlugin, CAPBridgedPlugin {
             try deleteKeyPair()
             try deleteCertificate()
             
-            CAPLog.print("✅ All keys and certificates deleted")
+            CAPLog.print("All keys and certificates deleted")
             call.resolve(["success": true])
         } catch {
-            CAPLog.print("❌ Failed to delete: \(error.localizedDescription)")
+            CAPLog.print("Failed to delete: \(error.localizedDescription)")
             call.reject("Failed to delete", error.localizedDescription)
         }
     }

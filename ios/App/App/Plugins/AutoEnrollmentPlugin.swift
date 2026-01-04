@@ -54,11 +54,11 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
         
         Task {
             do {
-                CAPLog.print("🔐 [Auto-Enrollment] Starting enrollment process...")
+                CAPLog.print("[Auto-Enrollment] Starting enrollment process...")
                 
                 // 1. Verificar si ya está enrolled
                 if hasCertificateStored() {
-                    CAPLog.print("✅ [Auto-Enrollment] Already enrolled")
+                    CAPLog.print("[Auto-Enrollment] Already enrolled")
                     call.resolve([
                         "success": true,
                         "alreadyEnrolled": true,
@@ -110,7 +110,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 
                 guard httpResponse.statusCode == 200 else {
                     let errorMessage = String(data: responseData, encoding: .utf8) ?? "Unknown error"
-                    CAPLog.print("❌ [Auto-Enrollment] Backend error: \(errorMessage)")
+                    CAPLog.print("[Auto-Enrollment] Backend error: \(errorMessage)")
                     throw EnrollmentError.backendError(errorMessage)
                 }
                 
@@ -129,7 +129,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 
                 try storeCertificate(certificateData)
                 
-                CAPLog.print("✅ [Auto-Enrollment] Enrollment completed successfully!")
+                CAPLog.print("[Auto-Enrollment] Enrollment completed successfully!")
                 CAPLog.print("   - Certificate stored in Keychain")
                 CAPLog.print("   - Private key secured in Secure Enclave")
                 
@@ -141,7 +141,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 ])
                 
             } catch {
-                CAPLog.print("❌ [Auto-Enrollment] Failed: \(error.localizedDescription)")
+                CAPLog.print("[Auto-Enrollment] Failed: \(error.localizedDescription)")
                 call.reject("Enrollment failed", error.localizedDescription)
             }
         }

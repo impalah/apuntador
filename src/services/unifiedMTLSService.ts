@@ -1,12 +1,12 @@
 /**
  * Cliente mTLS unificado para todas las plataformas
- * 
+ *
  * Detecta automáticamente la plataforma y usa el servicio apropiado:
  * - Android: Android Keystore (TEE/StrongBox)
  * - iOS: Secure Enclave
  * - Desktop: macOS Keychain, Windows Certificate Store, Linux encrypted file
  * - Web: OAuth sin mTLS
- * 
+ *
  * Proporciona una interfaz unificada para el auto-enrollment
  * independientemente de la plataforma.
  */
@@ -40,7 +40,7 @@ export interface MTLSEnrollmentResult {
 
 /**
  * Servicio unificado de mTLS para todas las plataformas
- * 
+ *
  * Proporciona una API consistente independientemente de si la app
  * se ejecuta en Android, iOS, Desktop o Web.
  */
@@ -49,7 +49,7 @@ export class UnifiedMTLSService {
 
   private constructor() {
     const platform = this.getPlatform()
-    console.log(`[SECURE] [Unified mTLS] Initialized for platform: ${platform}`)
+    console.log(`[Unified mTLS] Initialized for platform: ${platform}`)
   }
 
   public static getInstance(): UnifiedMTLSService {
@@ -79,7 +79,7 @@ export class UnifiedMTLSService {
     const platform = Capacitor.getPlatform()
     if (platform === 'android') return 'android'
     if (platform === 'ios') return 'ios'
-    
+
     // Default to web
     return 'web'
   }
@@ -109,12 +109,12 @@ export class UnifiedMTLSService {
     if (platform === 'android') {
       const info = await DeviceEnrollment.getDeviceInfo()
       const status = await DeviceEnrollment.checkEnrollmentStatus()
-      
+
       let hsmType: 'Android Keystore' | 'Secure Enclave' | 'macOS Keychain' | 'None' = 'None'
       if (info.hasStrongBox || info.hasTEE) {
         hsmType = 'Android Keystore'
       }
-      
+
       return {
         platform: 'android',
         enrolled: status.isEnrolled,
@@ -139,7 +139,7 @@ export class UnifiedMTLSService {
       // Desktop (Tauri)
       const desktopStatus = await desktopEnrollmentService.checkEnrollmentStatus()
       const deviceInfo = await desktopEnrollmentService.getDeviceInfo()
-      
+
       return {
         platform: 'desktop',
         enrolled: desktopStatus.enrolled,
@@ -162,7 +162,7 @@ export class UnifiedMTLSService {
 
   /**
    * Realiza auto-enrollment si es necesario (idempotente y thread-safe)
-   * 
+   *
    * Esta es la función principal que debes llamar al inicializar la app.
    * Se encarga de:
    * 1. Detectar la plataforma
@@ -173,13 +173,13 @@ export class UnifiedMTLSService {
   public async ensureEnrolled(): Promise<MTLSEnrollmentResult> {
     const platform = this.getPlatform()
 
-    console.log(`[SECURE] [Unified mTLS] Ensuring enrollment for platform: ${platform}`)
+    console.log(`[Unified mTLS] Ensuring enrollment for platform: ${platform}`)
 
     if (platform === 'android') {
       // Usar la API de producción desplegada en AWS
-      const backendUrl = 
-        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV || 
-        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD || 
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
+        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
         BACKEND_OAUTH_URL
 
       const result = await DeviceEnrollment.enrollDevice({
@@ -218,7 +218,7 @@ export class UnifiedMTLSService {
       }
     } else {
       // Web no requiere enrollment
-      console.log('[INFO]  [Unified mTLS] Web platform does not require enrollment')
+      console.log(' [Unified mTLS] Web platform does not require enrollment')
       return {
         success: true,
         enrolled: false,
@@ -229,7 +229,7 @@ export class UnifiedMTLSService {
 
   /**
    * Fuerza un re-enrollment (renovación de certificado)
-   * 
+   *
    * Útil cuando:
    * - El certificado ha expirado
    * - Hay problemas con el certificado actual
@@ -238,15 +238,15 @@ export class UnifiedMTLSService {
   public async forceReEnroll(): Promise<MTLSEnrollmentResult> {
     const platform = this.getPlatform()
 
-    console.log(`[REFRESH] [Unified mTLS] Forcing re-enrollment for platform: ${platform}`)
+    console.log(`[Unified mTLS] Forcing re-enrollment for platform: ${platform}`)
 
     if (platform === 'android') {
       // Para Android, primero unenroll y luego enroll de nuevo
       await DeviceEnrollment.unenrollDevice()
 
-      const backendUrl = 
-        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV || 
-        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD || 
+      const backendUrl =
+        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
+        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
         BACKEND_OAUTH_URL
 
       const result = await DeviceEnrollment.enrollDevice({
@@ -281,7 +281,7 @@ export class UnifiedMTLSService {
         error: result.error,
       }
     } else {
-      console.log('[INFO]  [Unified mTLS] Web platform does not support re-enrollment')
+      console.log(' [Unified mTLS] Web platform does not support re-enrollment')
       return {
         success: false,
         enrolled: false,
@@ -297,7 +297,7 @@ export class UnifiedMTLSService {
   public async deleteAllCredentials(): Promise<void> {
     const platform = this.getPlatform()
 
-    console.log(`[DELETE]  [Unified mTLS] Deleting credentials for platform: ${platform}`)
+    console.log(` [Unified mTLS] Deleting credentials for platform: ${platform}`)
 
     if (platform === 'android') {
       await DeviceEnrollment.unenrollDevice()
@@ -306,7 +306,7 @@ export class UnifiedMTLSService {
     } else if (platform === 'desktop') {
       await desktopEnrollmentService.unenrollDevice()
     } else {
-      console.log('[INFO]  [Unified mTLS] Web platform has no credentials to delete')
+      console.log(' [Unified mTLS] Web platform has no credentials to delete')
     }
   }
 
@@ -331,22 +331,22 @@ export const unifiedMTLSService = UnifiedMTLSService.getInstance()
 
 /**
  * Hook de Vue para usar el servicio mTLS unificado
- * 
+ *
  * @example
  * ```typescript
  * import { useUnifiedMTLS } from '@/services/unifiedMTLSService'
- * 
+ *
  * export default {
  *   setup() {
  *     const { ensureEnrolled, checkStatus, platform, supportsHSM } = useUnifiedMTLS()
- *     
+ *
  *     onMounted(async () => {
  *       console.log('Platform:', platform.value)
  *       console.log('Supports HSM:', supportsHSM.value)
- *       
+ *
  *       const result = await ensureEnrolled()
  *       if (result.success) {
- *         console.log('[OK] mTLS ready')
+ *         console.log('mTLS ready')
  *       }
  *     })
  *   }

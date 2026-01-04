@@ -94,7 +94,7 @@ jobs:
             exit 1
           fi
 
-          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
+          echo "Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
@@ -105,7 +105,7 @@ jobs:
             exit 1
           fi
 
-          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
+          echo "Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -119,7 +119,7 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist/
 
-          echo "[OK] Web build ready for Capacitor"
+          echo "Web build ready for Capacitor"
 
       - name: Setup Android environment
         run: |
@@ -131,7 +131,7 @@ jobs:
           VERSION_CODE: ${{ github.event.inputs.versionCode }}
           VERSION_NAME: ${{ github.event.inputs.release_tag }}
         run: |
-          echo "[REFRESH] Updating Android version..."
+          echo "Updating Android version..."
           echo "  versionCode: ${VERSION_CODE}"
           echo "  versionName: ${VERSION_NAME}"
 
@@ -143,10 +143,10 @@ jobs:
           sed -i "s/versionName \"[^\"]*\"/versionName \"${VERSION_NAME}\"/" android/app/build.gradle
 
           # Verify the changes
-          echo "[LIST] Updated build.gradle content:"
+          echo "Updated build.gradle content:"
           grep -A 5 -B 5 "versionCode\|versionName" android/app/build.gradle
 
-          echo "[OK] Android version updated successfully"
+          echo "Android version updated successfully"
 
       - name: Decode and create keystore
         if: ${{ github.event.inputs.buildType == 'release' }}
@@ -182,7 +182,7 @@ jobs:
 
           if [ -f "$ORIGINAL_APK" ]; then
             mv "$ORIGINAL_APK" "$NEW_APK"
-            echo "[OK] Renamed APK to: $(basename "$NEW_APK")"
+            echo "Renamed APK to: $(basename "$NEW_APK")"
           else
             echo "[ERROR] Original APK file not found: $ORIGINAL_APK"
             exit 1
@@ -200,7 +200,7 @@ jobs:
 
           if [ -f "$ORIGINAL_APK" ]; then
             mv "$ORIGINAL_APK" "$NEW_APK"
-            echo "[OK] Renamed APK to: $(basename "$NEW_APK")"
+            echo "Renamed APK to: $(basename "$NEW_APK")"
           else
             echo "[ERROR] Original APK file not found: $ORIGINAL_APK"
             exit 1
@@ -221,7 +221,7 @@ jobs:
           DEBUG_APK="android/app/build/outputs/apk/debug/apuntador-debug-${{ github.event.inputs.release_tag }}.apk"
 
           if [ -f "$RELEASE_APK" ]; then
-            echo "[OK] Release APK found: $(basename "$RELEASE_APK")"
+            echo "Release APK found: $(basename "$RELEASE_APK")"
             ls -la "$RELEASE_APK"
           else
             echo "[ERROR] Release APK not found: $RELEASE_APK"
@@ -230,7 +230,7 @@ jobs:
           fi
 
           if [ -f "$DEBUG_APK" ]; then
-            echo "[OK] Debug APK found: $(basename "$DEBUG_APK")"
+            echo "Debug APK found: $(basename "$DEBUG_APK")"
             ls -la "$DEBUG_APK"
           else
             echo "[ERROR] Debug APK not found: $DEBUG_APK"
@@ -286,7 +286,7 @@ jobs:
             --acl public-read \
             --metadata "version=${VERSION},type=android-apk,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          echo "[OK] APK uploaded successfully"
+          echo "APK uploaded successfully"
 
       - name: Update versions.json
         if: ${{ github.event.inputs.buildType == 'release' }}
@@ -298,13 +298,13 @@ jobs:
 
           echo "[DOWN]  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
-            echo "[OK] Downloaded existing versions.json"
+            echo "Downloaded existing versions.json"
           else
             echo "[WARNING]  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
 
-          echo "[NOTE] Updating versions.json..."
+          echo "Updating versions.json..."
           sudo apt-get update && sudo apt-get install -y jq
 
           jq --arg filename "${TARGET_FILENAME}" \
@@ -313,7 +313,7 @@ jobs:
 
           mv versions.json.tmp versions.json
 
-          echo "[OK] Updated versions.json:"
+          echo "Updated versions.json:"
           cat versions.json
 
           echo "[UP]  Uploading updated versions.json..."
@@ -322,5 +322,5 @@ jobs:
             --content-type "application/json" \
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
-          echo "[OK] versions.json updated successfully"
+          echo "versions.json updated successfully"
           echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"

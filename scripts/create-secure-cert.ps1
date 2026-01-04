@@ -5,7 +5,7 @@ param(
     [switch]$Interactive
 )
 
-Write-Host "[SECURE] Creating certificate for code signing..." -ForegroundColor Green
+Write-Host "Creating certificate for code signing..." -ForegroundColor Green
 
 # Manejar la password de forma segura
 if ($Interactive) {
@@ -40,7 +40,7 @@ try {
     $cert = New-SelfSignedCertificate @CertParams
     
     if ($cert) {
-        Write-Host "[OK] Certificate created successfully" -ForegroundColor Green
+        Write-Host "Certificate created successfully" -ForegroundColor Green
         Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
         Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
         Write-Host "   Valid Until: $($cert.NotAfter)" -ForegroundColor White
@@ -52,18 +52,18 @@ try {
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $CertPassword | Out-Null
         
         if (Test-Path $pfxPath) {
-            Write-Host "[OK] PFX exported: $pfxPath" -ForegroundColor Green
+            Write-Host "PFX exported: $pfxPath" -ForegroundColor Green
             
             $fileSize = (Get-Item $pfxPath).Length
             Write-Host "   Size: $([math]::Round($fileSize / 1KB, 2)) KB" -ForegroundColor White
             Write-Host ""
             
-            Write-Host "[REFRESH] Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
+            Write-Host "Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
             $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
             $base64Path = Join-Path $OutputDir "certificate-base64.txt"
             $base64 | Out-File -FilePath $base64Path -Encoding UTF8
             
-            Write-Host "[OK] Base64 generated: $base64Path" -ForegroundColor Green
+            Write-Host "Base64 generated: $base64Path" -ForegroundColor Green
             Write-Host "   Password: $passwordText" -ForegroundColor White
             Write-Host ""
             
@@ -88,12 +88,12 @@ WINDOWS_CERTIFICATE_PASSWORD: [the password used]
             
             $infoPath = Join-Path $OutputDir "certificate-info.txt"
             $certInfo | Out-File -FilePath $infoPath -Encoding UTF8
-            Write-Host "[LIST] Certificate info saved: $infoPath" -ForegroundColor Cyan
+            Write-Host "Certificate info saved: $infoPath" -ForegroundColor Cyan
             
             Write-Host ""
             Write-Host "[SUCCESS] CERTIFICATE CREATED SUCCESSFULLY!" -ForegroundColor Green
             Write-Host ""
-            Write-Host "[NOTE] Next Steps:" -ForegroundColor Blue
+            Write-Host "Next Steps:" -ForegroundColor Blue
             Write-Host "1. Copy content of '$base64Path'" -ForegroundColor White
             Write-Host "2. Go to GitHub → Settings → Secrets → Actions" -ForegroundColor White
             Write-Host "3. Add these secrets:" -ForegroundColor White
@@ -119,4 +119,4 @@ WINDOWS_CERTIFICATE_PASSWORD: [the password used]
 }
 
 Write-Host ""
-Write-Host "🔒 Self-signed certificate ready for Tauri code signing!" -ForegroundColor Green
+Write-Host "Self-signed certificate ready for Tauri code signing!" -ForegroundColor Green

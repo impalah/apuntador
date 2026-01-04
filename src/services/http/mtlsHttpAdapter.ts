@@ -1,6 +1,6 @@
 /**
  * mTLS HTTP Adapter
- * 
+ *
  * Provides HTTP client that uses mTLS for backend communication
  * on Android and iOS, and regular fetch on web.
  */
@@ -48,16 +48,14 @@ export class MTLSHttpAdapter {
     // Prepare body
     let body: string | undefined
     if (options.body) {
-      body = typeof options.body === 'string' 
-        ? options.body 
-        : JSON.stringify(options.body)
+      body = typeof options.body === 'string' ? options.body : JSON.stringify(options.body)
     }
 
     try {
       if (platform === 'android') {
         // Use mTLS client on Android
-        console.log(`[MOBILE] Android mTLS Request: ${options.method || 'GET'} ${url}`)
-        
+        console.log(`Android mTLS Request: ${options.method || 'GET'} ${url}`)
+
         const result = await this.makeAndroidRequest(url, {
           method: options.method || 'GET',
           headers,
@@ -65,11 +63,10 @@ export class MTLSHttpAdapter {
         })
 
         return result
-
       } else if (platform === 'ios') {
         // Use mTLS HTTP plugin on iOS (bypasses WebView fetch restrictions)
-        console.log(`[MOBILE] iOS mTLS Request: ${options.method || 'GET'} ${url}`)
-        
+        console.log(`iOS mTLS Request: ${options.method || 'GET'} ${url}`)
+
         const result = await this.makeIOSRequest(url, {
           method: options.method || 'GET',
           headers,
@@ -77,11 +74,10 @@ export class MTLSHttpAdapter {
         })
 
         return result
-
       } else {
         // Use regular fetch on web
-        console.log(`[WEB] Web Fetch Request: ${options.method || 'GET'} ${url}`)
-        
+        console.log(`Web Fetch Request: ${options.method || 'GET'} ${url}`)
+
         const response = await fetch(url, {
           method: options.method || 'GET',
           headers,
@@ -155,7 +151,6 @@ export class MTLSHttpAdapter {
         status: result.statusCode,
         data,
       }
-
     } catch (error: any) {
       console.error('Android mTLS request error:', error)
       throw error
@@ -175,8 +170,8 @@ export class MTLSHttpAdapter {
     }
   ): Promise<HttpResponse<T>> {
     try {
-      console.log(`[MOBILE] iOS HTTP Request: ${options.method} ${url}`)
-      
+      console.log(`iOS HTTP Request: ${options.method} ${url}`)
+
       const result = await CapacitorHttp.request({
         url,
         method: options.method,
@@ -184,9 +179,9 @@ export class MTLSHttpAdapter {
         data: options.body,
       })
 
-      console.log('[MOBILE] iOS HTTP Response:', {
+      console.log('iOS HTTP Response:', {
         status: result.status,
-        dataLength: result.data ? String(result.data).length : 0
+        dataLength: result.data ? String(result.data).length : 0,
       })
 
       return {
@@ -194,7 +189,6 @@ export class MTLSHttpAdapter {
         data: result.data as T,
         headers: result.headers,
       }
-
     } catch (error: any) {
       console.error('iOS HTTP request error:', error)
       throw error
@@ -224,7 +218,10 @@ export class MTLSHttpAdapter {
     return this.request<T>(endpoint, { method: 'PUT', body, headers })
   }
 
-  async delete<T = any>(endpoint: string, headers?: Record<string, string>): Promise<HttpResponse<T>> {
+  async delete<T = any>(
+    endpoint: string,
+    headers?: Record<string, string>
+  ): Promise<HttpResponse<T>> {
     return this.request<T>(endpoint, { method: 'DELETE', headers })
   }
 }
@@ -233,9 +230,9 @@ export class MTLSHttpAdapter {
  * Create HTTP client for backend communication
  */
 export function createBackendClient(baseUrl?: string): MTLSHttpAdapter {
-  const url = 
-    baseUrl || 
-    import.meta.env.VITE_BACKEND_URL || 
+  const url =
+    baseUrl ||
+    import.meta.env.VITE_BACKEND_URL ||
     import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
     import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
     BACKEND_OAUTH_URL

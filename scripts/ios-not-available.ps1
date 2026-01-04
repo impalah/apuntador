@@ -1,7 +1,7 @@
 # iOS Development Warning for Windows
 # This script informs Windows users that iOS development requires macOS
 
-Write-Host "🍎 iOS Development Requirements" -ForegroundColor Blue
+Write-Host "iOS Development Requirements" -ForegroundColor Blue
 Write-Host "================================" -ForegroundColor Blue
 Write-Host ""
 Write-Host "[ERROR] iOS development is only available on macOS" -ForegroundColor Red

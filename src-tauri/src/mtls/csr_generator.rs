@@ -39,7 +39,7 @@ pub fn generate_csr(device_id: &str, platform: &str) -> Result<(String, String),
     let cert = Certificate::from_params(params)?;
     let csr_pem = cert.serialize_request_pem()?;
 
-    println!("[OK] CSR generated successfully");
+    println!("CSR generated successfully");
     println!("   Device ID: {}", device_id);
     println!("   Platform: {}", platform);
     println!("   CSR length: {} bytes", csr_pem.len());
@@ -75,7 +75,7 @@ pub fn get_device_id() -> Result<String, String> {
 fn get_device_id_macos() -> Result<String, String> {
     use std::process::Command;
 
-    println!("[SEARCH] Getting macOS device ID (IOPlatformUUID)...");
+    println!("Getting macOS device ID (IOPlatformUUID)...");
 
     let output = Command::new("ioreg")
         .args(&["-rd1", "-c", "IOPlatformExpertDevice"])
@@ -93,7 +93,7 @@ fn get_device_id_macos() -> Result<String, String> {
             // The UUID should be in the last quoted section
             if let Some(uuid) = parts.iter().rev().find(|s| s.contains('-') && s.len() == 36) {
                 let uuid = uuid.trim();
-                println!("[OK] macOS Device ID: {}", uuid);
+                println!("macOS Device ID: {}", uuid);
                 return Ok(uuid.to_string());
             }
         }
@@ -113,13 +113,13 @@ fn get_device_id_windows() -> Result<String, String> {
 #[cfg(target_os = "linux")]
 fn get_device_id_linux() -> Result<String, String> {
     // Read /etc/machine-id or /var/lib/dbus/machine-id
-    println!("[SEARCH] Getting Linux device ID (machine-id)...");
+    println!("Getting Linux device ID (machine-id)...");
 
     std::fs::read_to_string("/etc/machine-id")
         .or_else(|_| std::fs::read_to_string("/var/lib/dbus/machine-id"))
         .map(|s| {
             let id = s.trim().to_string();
-            println!("[OK] Linux Device ID: {}", id);
+            println!("Linux Device ID: {}", id);
             id
         })
         .map_err(|e| format!("Failed to read machine-id: {}", e))

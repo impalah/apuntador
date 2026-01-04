@@ -76,12 +76,12 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "[NOTE] Creating .env file from secrets..."
+          echo "Creating .env file from secrets..."
           cat > .env << 'EOF'
           ${{ secrets.ENV_FILE }}
           EOF
-          echo "[OK] .env file created successfully"
-          echo "[LIST] Variables configured (masked):"
+          echo ".env file created successfully"
+          echo "Variables configured (masked):"
           grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
 
       - name: npm build
@@ -162,20 +162,20 @@ jobs:
           body: |
             ## Apuntador Web v${{ steps.version.outputs.version }}
 
-            ### [PACKAGE] Web Application Release
+            ### Web Application Release
             This release contains the built web application ready for deployment.
 
             **Branch**: `${{ steps.branch_suffix.outputs.branch_name }}` (${{ steps.branch_suffix.outputs.branch_type }})
             **Base Version**: ${{ steps.version.outputs.base_version }}
             **Release Tag**: ${{ steps.version.outputs.version }}
 
-            ### [LAUNCH] Deployment Options
+            ### Deployment Options
             - **Static Hosting**: Extract the ZIP to any web server or CDN
             - **Cloud Deployment**: Use the `deploy-release` workflow with:
               - Release tag: `${{ steps.version.outputs.version }}`
               - Environment: `dev` / `pre` / `pro`
 
-            ### [MOBILE] To Create Native Packages
+            ### To Create Native Packages
             Use the available build workflows with this release tag: `${{ steps.version.outputs.version }}`
 
             **Available Workflows:**
@@ -186,7 +186,7 @@ jobs:
             - `build-linux-desktop` - Linux AppImage/DEB
             - `build-ios-appstore` - iOS App Store
 
-            ### [CONFIG] Installation
+            ### Installation
             Extract the ZIP file and serve from any web server or static hosting service.
           files: |
             ${{ steps.version.outputs.version }}.zip

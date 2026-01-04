@@ -1,15 +1,15 @@
 #!/bin/bash
 # Script to test Desktop enrollment on macOS
 
-echo "[LAUNCH] Testing Desktop mTLS Enrollment"
+echo "Testing Desktop mTLS Enrollment"
 echo "=================================="
 echo ""
 
 # 1. Iniciar backend en segundo plano (si no está corriendo)
-echo "[SIGNAL] Checking if backend is running..."
+echo "Checking if backend is running..."
 if ! curl -s http://localhost:8000/health > /dev/null 2>&1; then
     if curl -s https://apuntador.ngrok.app/health > /dev/null 2>&1; then
-        echo "[OK] Backend is running on ngrok"
+        echo "Backend is running on ngrok"
         BACKEND_URL="https://apuntador.ngrok.app"
     else
         echo "[ERROR] Backend is not running. Please start it first:"
@@ -18,12 +18,12 @@ if ! curl -s http://localhost:8000/health > /dev/null 2>&1; then
         exit 1
     fi
 else
-    echo "[OK] Backend is running on localhost"
+    echo "Backend is running on localhost"
     BACKEND_URL="http://localhost:8000"
 fi
 
 echo ""
-echo "[MOBILE] Device Information:"
+echo "Device Information:"
 ioreg -rd1 -c IOPlatformExpertDevice | grep IOPlatformUUID || echo "Could not get UUID"
 sw_vers
 echo ""
@@ -33,7 +33,7 @@ echo "🔨 Building Tauri app..."
 npm run tauri build --debug
 
 echo ""
-echo "[LAUNCH] Launching Tauri app..."
+echo "Launching Tauri app..."
 echo "   The app will attempt to enroll automatically"
 echo "   Check the console logs for enrollment status"
 echo ""

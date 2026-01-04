@@ -14,7 +14,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
   const currentFiles = ref<CloudFile[]>([])
   const currentPath = ref<string>('')
   const error = ref<string | null>(null)
-  
+
   // State to remember last cloud file
   const lastCloudPath = ref<string>('')
   const lastCloudFileName = ref<string>('')
@@ -27,73 +27,72 @@ export const useDropboxStore = defineStore('dropbox', () => {
     id: 'dropbox',
     name: 'Dropbox',
     isConnected: isConnected.value,
-    userInfo: userInfo.value || undefined
+    userInfo: userInfo.value || undefined,
   }))
 
   // Actions
   const connect = async (): Promise<void> => {
-    console.log('[LAUNCH] [DropboxStore] Connect called')
+    console.log('[DropboxStore] Connect called')
     if (isConnecting.value) {
       console.log('[WARNING] [DropboxStore] Already connecting, skipping')
       return
     }
-    
+
     isConnecting.value = true
     error.value = null
 
     try {
       // STEP 1: Ensure valid certificate (auto-enroll if needed)
-      console.log('[SECURE] [DropboxStore] Ensuring device has valid certificate...')
+      console.log('[DropboxStore] Ensuring device has valid certificate...')
       const certStatus = await CertificateValidator.ensureValidCertificate()
-      
-      console.log('[LIST] [DropboxStore] Certificate status:', certStatus)
-      
+
+      console.log('[DropboxStore] Certificate status:', certStatus)
+
       if (!certStatus.isValid) {
         const message = CertificateValidator.getStatusMessage(certStatus)
         console.error('[ERROR] [DropboxStore] Certificate validation/enrollment failed:', message)
         error.value = message
-        
+
         // Throw error to prevent OAuth flow
         throw new Error(`Certificate required: ${message}`)
       }
-      
-      console.log('[OK] Certificate ready for OAuth')
+
+      console.log('Certificate ready for OAuth')
       if (certStatus.daysUntilExpiry) {
-        console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
+        console.log(`Certificate valid for ${certStatus.daysUntilExpiry} more days`)
       }
 
       // STEP 2: Proceed with OAuth flow
       // Detect if we are in Tauri
       const isTauri = await tauriService.isAvailable()
-      
+
       if (isTauri) {
-        console.log('[SERVER] Using Tauri OAuth flow via Backend Proxy')
-        
+        console.log('Using Tauri OAuth flow via Backend Proxy')
+
         // STEP 1: Start OAuth callback server
-        console.log('[LAUNCH] Starting OAuth callback server...')
+        console.log('Starting OAuth callback server...')
         await tauriService.startOAuthCallbackServer()
-        
+
         // STEP 2: Set up listener for oauth-callback event
         console.log('[LISTEN] Setting up OAuth callback listener...')
         const callbackPromise = tauriService.listenForOAuthCallback()
-        
+
         // STEP 3: Start OAuth flow (opens browser with backend URL)
-        console.log('[WEB] Opening browser for OAuth (backend proxy)...')
+        console.log('Opening browser for OAuth (backend proxy)...')
         await dropboxService.connect() // This opens browser to backend URL
-        
+
         // STEP 4: Wait for callback from localhost:8080
         console.log('⏳ Waiting for OAuth callback from browser...')
         const callbackData = await callbackPromise
         console.log('[CALL] OAuth callback received:', callbackData)
-        
+
         // STEP 5: Exchange code for token via backend
         await dropboxService.handleOAuthCallback(callbackData.code, callbackData.state)
-        
+
         // STEP 6: Refresh connection status
         await refreshConnectionStatus()
-        
       } else {
-        console.log('[WEB] Using web OAuth flow via Backend Proxy')
+        console.log('Using web OAuth flow via Backend Proxy')
         await dropboxService.connect()
         // Connection completes in handleOAuthCallback
       }
@@ -114,9 +113,9 @@ export const useDropboxStore = defineStore('dropbox', () => {
     try {
       console.log('[CALL] Store: Calling dropboxService.handleOAuthCallback...')
       await dropboxService.handleOAuthCallback(code, state)
-      console.log('[OK] Store: Service callback completed, refreshing status...')
+      console.log('Store: Service callback completed, refreshing status...')
       await refreshConnectionStatus()
-      console.log('[OK] Store: All done successfully!')
+      console.log('Store: All done successfully!')
     } catch (err) {
       console.error('[ERROR] Store: OAuth callback error:', err)
       error.value = err instanceof Error ? err.message : 'Error completing Dropbox authentication'
@@ -132,13 +131,13 @@ export const useDropboxStore = defineStore('dropbox', () => {
     try {
       console.log('[CALL] [Store] Calling dropboxService.disconnect()...')
       await dropboxService.disconnect()
-      console.log('[OK] [Store] Service disconnect completed')
+      console.log('[Store] Service disconnect completed')
       isConnected.value = false
       userInfo.value = null
       currentFiles.value = []
       currentPath.value = ''
       error.value = null
-      console.log('[OK] [Store] Disconnect successful, state cleared')
+      console.log('[Store] Disconnect successful, state cleared')
     } catch (err) {
       console.error('[ERROR] [Store] Disconnect error:', err)
       error.value = err instanceof Error ? err.message : 'Error disconnecting from Dropbox'
@@ -146,21 +145,21 @@ export const useDropboxStore = defineStore('dropbox', () => {
     }
   }
 
-    const refreshConnectionStatus = async () => {
-    console.log('[REFRESH] Store: Refreshing connection status...')
+  const refreshConnectionStatus = async () => {
+    console.log('Store: Refreshing connection status...')
     try {
       const isSessionRestored = await dropboxService.restoreSession()
-      console.log('[STATS] Store: Connection status result:', isSessionRestored)
-      
+      console.log('Store: Connection status result:', isSessionRestored)
+
       if (isSessionRestored) {
         // Obtener info del usuario para confirmar conexión
         const userData = await dropboxService.getUserInfo()
         console.log('👤 Store: User info retrieved:', userData?.name || 'Unknown')
-        
+
         isConnected.value = true
         userInfo.value = userData
         error.value = null
-        console.log('[OK] Store: Status updated - CONNECTED')
+        console.log('Store: Status updated - CONNECTED')
       } else {
         isConnected.value = false
         userInfo.value = null
@@ -181,19 +180,19 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
     try {
       error.value = null
-      
+
       // Si no se especifica path, usar la última ruta guardada o raíz
       const targetPath = path ?? lastCloudPath.value ?? ''
-      
+
       // Detectar si estamos en Tauri
       const isTauri = await tauriService.isAvailable()
       let files: CloudFile[]
-      
+
       if (isTauri) {
-        console.log('[SERVER] Using Tauri list files')
+        console.log('Using Tauri list files')
         const token = await dropboxService.getAccessToken()
         const rawFiles = await tauriService.listDropboxFiles(token, targetPath)
-        
+
         // Convertir respuesta de Tauri a CloudFile[]
         files = rawFiles.map((file: any) => ({
           id: file.id || file.path_lower,
@@ -201,13 +200,13 @@ export const useDropboxStore = defineStore('dropbox', () => {
           path: file.path_display || file.path_lower,
           size: file.size || 0,
           modified: new Date(file.server_modified || Date.now()),
-          isFolder: file['.tag'] === 'folder'
+          isFolder: file['.tag'] === 'folder',
         }))
       } else {
-        console.log('[WEB] Using web list files')
+        console.log('Using web list files')
         files = await dropboxService.listFiles(targetPath)
       }
-      
+
       currentFiles.value = files
       currentPath.value = targetPath
     } catch (err) {
@@ -224,25 +223,25 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
     try {
       error.value = null
-      
+
       // Detectar si estamos en Tauri
       const isTauri = await tauriService.isAvailable()
       let content: string
-      
+
       if (isTauri) {
-        console.log('[SERVER] Using Tauri download')
+        console.log('Using Tauri download')
         const token = await dropboxService.getAccessToken()
         const fileData = await tauriService.downloadDropboxFile(token, filePath)
         content = fileData.content
       } else {
-        console.log('[WEB] Using web download')
+        console.log('Using web download')
         content = await dropboxService.downloadFile(filePath)
       }
-      
+
       // Save last opened cloud file info
       const fileName = filePath.substring(filePath.lastIndexOf('/') + 1)
       await saveLastCloudFile(filePath, fileName)
-      
+
       return content
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error downloading file'
@@ -258,16 +257,16 @@ export const useDropboxStore = defineStore('dropbox', () => {
 
     try {
       error.value = null
-      
+
       // Detect if we are in Tauri
       const isTauri = await tauriService.isAvailable()
       let file: CloudFile
-      
+
       if (isTauri) {
-        console.log('[SERVER] Using Tauri upload')
+        console.log('Using Tauri upload')
         const token = await dropboxService.getAccessToken()
         const result = await tauriService.uploadDropboxFile(token, path, content)
-        
+
         // Convert Tauri response to CloudFile
         file = {
           id: result.id || path,
@@ -275,19 +274,19 @@ export const useDropboxStore = defineStore('dropbox', () => {
           path: result.path_display || path,
           size: content.length,
           modified: new Date(result.server_modified || Date.now()),
-          isFolder: false
+          isFolder: false,
         }
       } else {
-        console.log('[WEB] Using web upload')
+        console.log('Using web upload')
         file = await dropboxService.uploadFile(path, content)
       }
-      
+
       // Actualizar lista de archivos si estamos en la misma carpeta
       const fileDir = path.substring(0, path.lastIndexOf('/'))
       if (fileDir === currentPath.value) {
         await loadFiles(currentPath.value)
       }
-      
+
       return file
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error uploading file'
@@ -304,7 +303,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
     try {
       error.value = null
       await dropboxService.deleteFile(filePath)
-      
+
       // Actualizar lista de archivos
       await loadFiles(currentPath.value)
     } catch (err) {
@@ -333,7 +332,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
   const saveLastCloudFile = async (filePath: string, fileName: string): Promise<void> => {
     lastCloudPath.value = filePath.substring(0, filePath.lastIndexOf('/')) || ''
     lastCloudFileName.value = fileName
-    
+
     // Persistir en localStorage
     try {
       localStorage.setItem('apuntador:dropbox:lastPath', lastCloudPath.value)
@@ -347,7 +346,7 @@ export const useDropboxStore = defineStore('dropbox', () => {
     try {
       const savedPath = localStorage.getItem('apuntador:dropbox:lastPath')
       const savedFileName = localStorage.getItem('apuntador:dropbox:lastFileName')
-      
+
       if (savedPath !== null) {
         lastCloudPath.value = savedPath
       }
@@ -400,6 +399,6 @@ export const useDropboxStore = defineStore('dropbox', () => {
     // Funciones para recordar último archivo cloud
     saveLastCloudFile,
     getLastCloudPath,
-    getLastCloudFileName
+    getLastCloudFileName,
   }
 })

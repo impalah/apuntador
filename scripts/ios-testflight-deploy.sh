@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🍎 iOS TestFlight Build & Upload"
+echo "iOS TestFlight Build & Upload"
 echo "==============================="
 echo ""
 
@@ -29,10 +29,10 @@ fi
 
 # Get current version from package.json
 CURRENT_VERSION=$(node -p "require('./package.json').version")
-echo -e "${BLUE}[MOBILE] Current version: $CURRENT_VERSION${NC}"
+echo -e "${BLUE}Current version: $CURRENT_VERSION${NC}"
 
 # Get last iOS build number from GitHub Actions
-echo "[SEARCH] Checking last build number..."
+echo "Checking last build number..."
 LAST_BUILD=$(gh run list --workflow="build-ios-appstore.yml" --limit=1 --json displayTitle | jq -r '.[0].displayTitle' | grep -o 'versionCode: [0-9]*' | cut -d' ' -f2 || echo "35")
 
 if [ "$LAST_BUILD" = "null" ] || [ -z "$LAST_BUILD" ]; then
@@ -44,7 +44,7 @@ echo -e "${BLUE}[UP] Next build number: $NEXT_BUILD${NC}"
 echo ""
 
 # Ask for confirmation
-echo "[LAUNCH] Ready to build and upload to TestFlight:"
+echo "Ready to build and upload to TestFlight:"
 echo "   Version: $CURRENT_VERSION"
 echo "   Build: $NEXT_BUILD"
 echo "   Upload: YES"
@@ -57,7 +57,7 @@ if [[ ! $REPLY =~ ^[Yy]$ ]]; then
 fi
 
 echo ""
-echo "[REFRESH] Starting GitHub Actions workflow..."
+echo "Starting GitHub Actions workflow..."
 
 # Trigger the workflow
 gh workflow run build-ios-appstore.yml \
@@ -66,12 +66,12 @@ gh workflow run build-ios-appstore.yml \
     --field upload_to_testflight=true \
     --field logLevel="info"
 
-echo -e "${GREEN}[OK] Workflow started successfully!${NC}"
+echo -e "${GREEN}Workflow started successfully!${NC}"
 echo ""
 
 # Wait a moment then show status
 sleep 3
-echo "[STATS] Workflow status:"
+echo "Workflow status:"
 gh run list --workflow="build-ios-appstore.yml" --limit=1
 
 echo ""

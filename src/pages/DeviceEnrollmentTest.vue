@@ -2,15 +2,10 @@
   <v-container>
     <v-card class="mx-auto" max-width="800">
       <v-card-title class="text-h5 d-flex align-center">
-        <v-btn
-          icon="mdi-arrow-left"
-          variant="text"
-          @click="goBack"
-          class="mr-2"
-        ></v-btn>
-        [SECURE] Device Enrollment Test (mTLS + HSM)
+        <v-btn icon="mdi-arrow-left" variant="text" @click="goBack" class="mr-2"></v-btn>
+        Device Enrollment Test (mTLS + HSM)
       </v-card-title>
-      
+
       <v-card-text>
         <!-- Device Info Section -->
         <v-card class="mb-4" variant="tonal" color="primary">
@@ -20,25 +15,24 @@
               <div class="mb-2"><strong>Device ID:</strong> {{ deviceInfo.deviceId }}</div>
               <div class="mb-2"><strong>Manufacturer:</strong> {{ deviceInfo.manufacturer }}</div>
               <div class="mb-2"><strong>Model:</strong> {{ deviceInfo.model }}</div>
-              <div class="mb-2"><strong>Android Version:</strong> {{ deviceInfo.androidVersion }}</div>
+              <div class="mb-2">
+                <strong>Android Version:</strong> {{ deviceInfo.androidVersion }}
+              </div>
               <div class="mb-2"><strong>API Level:</strong> {{ deviceInfo.apiLevel }}</div>
-              <v-chip 
-                :color="deviceInfo.hasStrongBox ? 'success' : 'warning'" 
-                size="small" 
+              <v-chip
+                :color="deviceInfo.hasStrongBox ? 'success' : 'warning'"
+                size="small"
                 class="mr-2"
               >
                 StrongBox: {{ deviceInfo.hasStrongBox ? '✓' : '✗' }}
               </v-chip>
-              <v-chip 
-                :color="deviceInfo.hasTEE ? 'success' : 'warning'" 
-                size="small"
-              >
+              <v-chip :color="deviceInfo.hasTEE ? 'success' : 'warning'" size="small">
                 TEE: {{ deviceInfo.hasTEE ? '✓' : '✗' }}
               </v-chip>
             </div>
-            <v-btn 
-              v-else 
-              @click="loadDeviceInfo" 
+            <v-btn
+              v-else
+              @click="loadDeviceInfo"
               :loading="loadingDeviceInfo"
               color="primary"
               block
@@ -54,31 +48,34 @@
           <v-card-text>
             <div v-if="enrollmentStatus">
               <div class="mb-2">
-                <strong>Enrolled:</strong> 
-                <v-chip 
-                  :color="enrollmentStatus.isEnrolled ? 'success' : 'error'" 
-                  size="small"
-                >
+                <strong>Enrolled:</strong>
+                <v-chip :color="enrollmentStatus.isEnrolled ? 'success' : 'error'" size="small">
                   {{ enrollmentStatus.isEnrolled ? 'YES' : 'NO' }}
                 </v-chip>
               </div>
               <div v-if="enrollmentStatus.isEnrolled">
-                <div class="mb-2"><strong>Certificate Serial:</strong> {{ enrollmentStatus.certificateSerial }}</div>
-                <div class="mb-2"><strong>Certificate Subject:</strong> {{ enrollmentStatus.certificateSubject }}</div>
-                <div class="mb-2"><strong>Expires At:</strong> {{ enrollmentStatus.certificateExpiry }}</div>
                 <div class="mb-2">
-                  <strong>Days Remaining:</strong> 
-                  <v-chip 
-                    :color="enrollmentStatus.daysRemaining > 5 ? 'success' : 'warning'" 
+                  <strong>Certificate Serial:</strong> {{ enrollmentStatus.certificateSerial }}
+                </div>
+                <div class="mb-2">
+                  <strong>Certificate Subject:</strong> {{ enrollmentStatus.certificateSubject }}
+                </div>
+                <div class="mb-2">
+                  <strong>Expires At:</strong> {{ enrollmentStatus.certificateExpiry }}
+                </div>
+                <div class="mb-2">
+                  <strong>Days Remaining:</strong>
+                  <v-chip
+                    :color="enrollmentStatus.daysRemaining > 5 ? 'success' : 'warning'"
                     size="small"
                   >
                     {{ enrollmentStatus.daysRemaining }} days
                   </v-chip>
                 </div>
                 <div class="mb-2">
-                  <strong>Needs Renewal:</strong> 
-                  <v-chip 
-                    :color="enrollmentStatus.needsRenewal ? 'warning' : 'success'" 
+                  <strong>Needs Renewal:</strong>
+                  <v-chip
+                    :color="enrollmentStatus.needsRenewal ? 'warning' : 'success'"
                     size="small"
                   >
                     {{ enrollmentStatus.needsRenewal ? 'YES' : 'NO' }}
@@ -86,9 +83,9 @@
                 </div>
               </div>
             </div>
-            <v-btn 
-              v-else 
-              @click="checkEnrollmentStatus" 
+            <v-btn
+              v-else
+              @click="checkEnrollmentStatus"
               :loading="checkingStatus"
               color="primary"
               block
@@ -142,30 +139,22 @@
           <v-card-title>
             Logs
             <v-spacer></v-spacer>
-            <v-btn 
-              @click="logs = []" 
-              size="small" 
-              variant="text"
-              icon="mdi-delete"
-            ></v-btn>
+            <v-btn @click="logs = []" size="small" variant="text" icon="mdi-delete"></v-btn>
           </v-card-title>
           <v-card-text>
-            <div 
-              v-if="logs.length === 0" 
-              class="text-center text-grey"
-            >
-              No logs yet
-            </div>
-            <div v-else style="max-height: 300px; overflow-y: auto;">
-              <div 
-                v-for="(log, index) in logs" 
+            <div v-if="logs.length === 0" class="text-center text-grey">No logs yet</div>
+            <div v-else style="max-height: 300px; overflow-y: auto">
+              <div
+                v-for="(log, index) in logs"
                 :key="index"
                 :class="['log-entry', `log-${log.type}`]"
                 class="mb-2 pa-2 rounded"
               >
                 <div class="text-caption text-grey">{{ log.timestamp }}</div>
                 <div>{{ log.message }}</div>
-                <pre v-if="log.data" class="text-caption mt-1">{{ JSON.stringify(log.data, null, 2) }}</pre>
+                <pre v-if="log.data" class="text-caption mt-1">{{
+                  JSON.stringify(log.data, null, 2)
+                }}</pre>
               </div>
             </div>
           </v-card-text>
@@ -285,12 +274,12 @@ async function enrollDevice() {
     } else if (platform === 'ios') {
       addLog('info', 'Step 1/5: Generating key pair in Secure Enclave...')
     }
-    
+
     const result = await unifiedMTLSService.ensureEnrolled()
-    
+
     if (result.success) {
       addLog('success', 'Device enrolled successfully!', result)
-      
+
       if (result.alreadyEnrolled) {
         addLog('info', `Device was already enrolled`)
       } else {
@@ -299,7 +288,7 @@ async function enrollDevice() {
           addLog('info', `Certificate size: ${result.certificateSize} bytes`)
         }
       }
-      
+
       // Reload status
       await checkEnrollmentStatus()
     } else {
@@ -323,7 +312,7 @@ async function unenrollDevice() {
     addLog('info', 'Unenrolling device...')
     await unifiedMTLSService.deleteAllCredentials()
     addLog('success', 'Device unenrolled successfully')
-    
+
     // Clear status
     enrollmentStatus.value = null
     await checkEnrollmentStatus()
@@ -337,7 +326,7 @@ async function unenrollDevice() {
 // Lifecycle
 onMounted(async () => {
   addLog('info', 'Device Enrollment Test Page loaded')
-  
+
   if (Capacitor.isNativePlatform()) {
     addLog('info', `Platform: ${Capacitor.getPlatform()}`)
     await loadDeviceInfo()
@@ -356,21 +345,21 @@ onMounted(async () => {
 
 .log-info {
   background-color: rgba(33, 150, 243, 0.1);
-  border-left: 3px solid #2196F3;
+  border-left: 3px solid #2196f3;
 }
 
 .log-success {
   background-color: rgba(76, 175, 80, 0.1);
-  border-left: 3px solid #4CAF50;
+  border-left: 3px solid #4caf50;
 }
 
 .log-error {
   background-color: rgba(244, 67, 54, 0.1);
-  border-left: 3px solid #F44336;
+  border-left: 3px solid #f44336;
 }
 
 .log-warning {
   background-color: rgba(255, 152, 0, 0.1);
-  border-left: 3px solid #FF9800;
+  border-left: 3px solid #ff9800;
 }
 </style>

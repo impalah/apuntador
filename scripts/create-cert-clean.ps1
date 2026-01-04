@@ -9,7 +9,7 @@ param(
     [string]$OutputDir = "certificates"
 )
 
-Write-Host "[SECURE] Generando certificado auto-firmado para Tauri..." -ForegroundColor Green
+Write-Host "Generando certificado auto-firmado para Tauri..." -ForegroundColor Green
 Write-Host ""
 
 # Crear directorio para certificados si no existe
@@ -37,7 +37,7 @@ try {
     $cert = New-SelfSignedCertificate @CertParams
     
     if ($cert) {
-        Write-Host "[OK] Certificado generado exitosamente" -ForegroundColor Green
+        Write-Host "Certificado generado exitosamente" -ForegroundColor Green
         Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
         Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
         Write-Host "   Valid Until: $($cert.NotAfter)" -ForegroundColor White
@@ -51,7 +51,7 @@ try {
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password | Out-Null
         
         if (Test-Path $pfxPath) {
-            Write-Host "[OK] Certificado PFX exportado: $pfxPath" -ForegroundColor Green
+            Write-Host "Certificado PFX exportado: $pfxPath" -ForegroundColor Green
             
             # Mostrar el tamaño del archivo
             $fileSize = (Get-Item $pfxPath).Length
@@ -59,11 +59,11 @@ try {
             Write-Host ""
             
             # Generar Base64 para GitHub Actions
-            Write-Host "[REFRESH] Generando Base64 para GitHub Actions..." -ForegroundColor Yellow
+            Write-Host "Generando Base64 para GitHub Actions..." -ForegroundColor Yellow
             $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
             $base64Path = Join-Path $OutputDir "certificate-base64.txt"
             $base64 | Out-File -FilePath $base64Path -Encoding UTF8
-            Write-Host "[OK] Base64 generado: $base64Path" -ForegroundColor Green
+            Write-Host "Base64 generado: $base64Path" -ForegroundColor Green
             Write-Host ""
             
             # Crear archivo con información del certificado
@@ -83,11 +83,11 @@ Generado: $(Get-Date)
             
             $infoPath = Join-Path $OutputDir "certificate-info.txt"
             $certInfo | Out-File -FilePath $infoPath -Encoding UTF8
-            Write-Host "[LIST] Información guardada en: $infoPath" -ForegroundColor Cyan
+            Write-Host "Información guardada en: $infoPath" -ForegroundColor Cyan
             
             Write-Host "[SUCCESS] CERTIFICADO CREADO EXITOSAMENTE!" -ForegroundColor Green
             Write-Host ""
-            Write-Host "[NOTE] PRÓXIMOS PASOS:" -ForegroundColor Blue
+            Write-Host "PRÓXIMOS PASOS:" -ForegroundColor Blue
             Write-Host "1. Copia el contenido de '$base64Path'" -ForegroundColor White
             Write-Host "2. Ve a GitHub → Settings → Secrets and variables → Actions" -ForegroundColor White
             Write-Host "3. Agrega estos secrets:" -ForegroundColor White
@@ -113,4 +113,4 @@ Generado: $(Get-Date)
 }
 
 Write-Host ""
-Write-Host "🔒 Certificado auto-firmado listo para usar con Tauri" -ForegroundColor Green
+Write-Host "Certificado auto-firmado listo para usar con Tauri" -ForegroundColor Green

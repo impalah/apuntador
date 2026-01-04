@@ -15,7 +15,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [OK] adb found
+echo adb found
 
 REM Check if emulator is available
 where emulator >nul 2>nul
@@ -25,7 +25,7 @@ if %ERRORLEVEL% neq 0 (
     exit /b 1
 )
 
-echo [OK] emulator found
+echo emulator found
 
 REM List available AVDs
 echo.

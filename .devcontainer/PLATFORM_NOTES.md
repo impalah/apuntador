@@ -2,31 +2,33 @@
 
 Este documento explica las capacidades y limitaciones del devcontainer para cada plataforma objetivo.
 
-## [WEB] Matriz de Compatibilidad
+## Matriz de Compatibilidad
 
-| Plataforma | Desarrollo en Container | Build en Container | Notas |
-|------------|------------------------|-------------------|-------|
-| **Web** | [OK] Completo | [OK] Completo | Vite dev server, builds, tests |
-| **Android** | [OK] Completo | [OK] Parcial | Desarrollo completo, builds APK/AAB. No emulador gráfico |
-| **Tauri Desktop (Linux)** | [OK] Completo | [OK] Completo | Build nativo para Linux |
-| **Tauri Desktop (Windows)** | [OK] Desarrollo | [ERROR] No | Cross-compile limitado, mejor en Windows nativo |
-| **Tauri Desktop (macOS)** | [OK] Desarrollo | [ERROR] No | Cross-compile no soportado, requiere macOS nativo |
-| **iOS** | [WARNING] Limitado | [ERROR] No | Solo sync de Capacitor, builds requieren macOS + Xcode |
+| Plataforma                  | Desarrollo en Container | Build en Container | Notas                                                    |
+| --------------------------- | ----------------------- | ------------------ | -------------------------------------------------------- |
+| **Web**                     | Completo                | Completo           | Vite dev server, builds, tests                           |
+| **Android**                 | Completo                | Parcial            | Desarrollo completo, builds APK/AAB. No emulador gráfico |
+| **Tauri Desktop (Linux)**   | Completo                | Completo           | Build nativo para Linux                                  |
+| **Tauri Desktop (Windows)** | Desarrollo              | [ERROR] No         | Cross-compile limitado, mejor en Windows nativo          |
+| **Tauri Desktop (macOS)**   | Desarrollo              | [ERROR] No         | Cross-compile no soportado, requiere macOS nativo        |
+| **iOS**                     | [WARNING] Limitado      | [ERROR] No         | Solo sync de Capacitor, builds requieren macOS + Xcode   |
 
 ---
 
-## [MOBILE] Desarrollo por Plataforma
+## Desarrollo por Plataforma
 
-### [OK] Web (Completamente Soportado)
+### Web (Completamente Soportado)
 
 **En el container puedes**:
-- [OK] Desarrollo con Vite dev server
-- [OK] Hot reload completo
-- [OK] Builds de producción
-- [OK] Tests (Vitest + Playwright)
-- [OK] Linting y formateo
+
+- Desarrollo con Vite dev server
+- Hot reload completo
+- Builds de producción
+- Tests (Vitest + Playwright)
+- Linting y formateo
 
 **Comandos**:
+
 ```bash
 npm run dev              # Dev server en puerto 3000
 npm run build            # Build de producción
@@ -37,17 +39,19 @@ npm run test:e2e         # Tests E2E
 
 ---
 
-### [OK] Android (Completamente Soportado)
+### Android (Completamente Soportado)
 
 **En el container puedes**:
-- [OK] Sincronizar código con Capacitor (`npx cap sync android`)
-- [OK] Compilar APKs de debug
-- [OK] Compilar APKs/AABs de release
-- [OK] Ejecutar Gradle tasks
+
+- Sincronizar código con Capacitor (`npx cap sync android`)
+- Compilar APKs de debug
+- Compilar APKs/AABs de release
+- Ejecutar Gradle tasks
 - [ERROR] Usar Android Emulator con GUI (requiere X11 forwarding complejo)
 - [ERROR] Usar Android Studio GUI (mejor en host)
 
 **Comandos**:
+
 ```bash
 # Sincronizar cambios
 npx cap sync android
@@ -67,12 +71,14 @@ cd android
 ```
 
 **Para desarrollo visual/debugging**:
+
 1. Sincronizar en el container: `npx cap sync android`
 2. Salir del container: Cmd+Shift+P → "Dev Containers: Reopen Folder Locally"
 3. Abrir Android Studio en macOS: `npx cap open android`
 4. Desarrollar/debuggear en Android Studio nativo
 
 **Workflow híbrido recomendado**:
+
 ```bash
 # En container: cambios de código + sync
 npm run dev               # Desarrollo web
@@ -88,8 +94,9 @@ npx cap open android      # Abrir proyecto
 ### [WARNING] iOS (Limitado - Requiere macOS)
 
 **En el container puedes**:
-- [OK] Sincronizar código con Capacitor (`npx cap sync ios`)
-- [OK] Preparar el proyecto iOS
+
+- Sincronizar código con Capacitor (`npx cap sync ios`)
+- Preparar el proyecto iOS
 - [ERROR] Compilar apps iOS (requiere Xcode)
 - [ERROR] Firmar apps iOS
 - [ERROR] Ejecutar en simulador iOS
@@ -98,6 +105,7 @@ npx cap open android      # Abrir proyecto
 **Por qué**: Xcode y las herramientas de iOS solo funcionan en macOS.
 
 **Comandos en container**:
+
 ```bash
 # Solo sync - preparar proyecto iOS
 npx cap sync ios
@@ -106,24 +114,27 @@ npx cap sync ios
 **Desarrollo iOS - Workflow Completo**:
 
 1. **Desarrollar código en el container**:
+
    ```bash
    # En container
    npm run dev              # Desarrollo web/componentes
    ```
 
 2. **Salir del container para builds iOS**:
+
    ```bash
    # Cmd+Shift+P → "Dev Containers: Reopen Folder Locally"
    ```
 
 3. **En macOS nativo - Sync y build**:
+
    ```bash
    # Asegurarse que Node.js está instalado en el host
    npx cap sync ios
-   
+
    # Abrir en Xcode
    npx cap open ios
-   
+
    # O usar Ionic CLI
    ionic capacitor build ios
    ionic capacitor run ios
@@ -134,22 +145,25 @@ npx cap sync ios
    - Seleccionar dispositivo/simulador
    - Build & Run
 
-**Recomendación**: 
+**Recomendación**:
+
 - Desarrollar lógica y UI en el container (web)
 - Testear periódicamente en iOS nativo
 - Hacer builds finales en macOS nativo
 
 ---
 
-### [OK] Tauri Desktop - Linux (Completamente Soportado)
+### Tauri Desktop - Linux (Completamente Soportado)
 
 **En el container puedes**:
-- [OK] Desarrollo completo con `cargo tauri dev`
-- [OK] Compilar binarios Linux
-- [OK] Tests de Rust
-- [OK] Builds de producción para Linux
+
+- Desarrollo completo con `cargo tauri dev`
+- Compilar binarios Linux
+- Tests de Rust
+- Builds de producción para Linux
 
 **Comandos**:
+
 ```bash
 npm run tauri dev        # Dev mode (headless - sin GUI)
 npm run tauri build      # Build de producción para Linux
@@ -163,11 +177,13 @@ cargo clippy             # Linting
 ```
 
 **Limitación GUI**:
+
 - El container es headless (sin interfaz gráfica)
 - `tauri dev` ejecuta el backend pero no muestra ventana
 - Para ver la UI, necesitas X11 forwarding (complejo) o desarrollar en macOS nativo
 
 **Workaround para testing**:
+
 ```bash
 # En container: Build del backend
 cargo build
@@ -181,8 +197,9 @@ npm run tauri dev
 ### [WARNING] Tauri Desktop - macOS/Windows (Desarrollo Limitado)
 
 **En el container puedes**:
-- [OK] Desarrollar código Rust
-- [OK] Compilar Rust para Linux
+
+- Desarrollar código Rust
+- Compilar Rust para Linux
 - [WARNING] Cross-compilar para macOS (muy limitado)
 - [ERROR] Cross-compilar para Windows
 - [ERROR] Generar instaladores (.dmg, .msi, .exe)
@@ -191,6 +208,7 @@ npm run tauri dev
 **Por qué**: Tauri requiere las SDK nativas de cada plataforma para builds completos.
 
 **Desarrollo de la parte Rust**:
+
 ```bash
 # En container: desarrollar lógica Rust
 cd src-tauri
@@ -202,6 +220,7 @@ cargo clippy
 **Builds específicos de plataforma**:
 
 **macOS (.app, .dmg)**:
+
 ```bash
 # Debe hacerse en macOS nativo
 npm run tauri build -- --target aarch64-apple-darwin  # Apple Silicon
@@ -209,19 +228,21 @@ npm run tauri build -- --target x86_64-apple-darwin   # Intel Mac
 ```
 
 **Windows (.exe, .msi)**:
+
 ```bash
 # Debe hacerse en Windows nativo o GitHub Actions
 npm run tauri build -- --target x86_64-pc-windows-msvc
 ```
 
 **Linux (en container funciona)**:
+
 ```bash
 npm run tauri build -- --target x86_64-unknown-linux-gnu
 ```
 
 ---
 
-## [TARGET] Workflows Recomendados
+## Workflows Recomendados
 
 ### Workflow 1: Desarrollo Web Principal (80% del tiempo)
 
@@ -255,6 +276,7 @@ npm run tauri dev        # Backend Rust (headless)
 ### Workflow 3: Builds Multi-Plataforma
 
 **En container**:
+
 ```bash
 # Web
 npm run build            # Output: dist/
@@ -268,6 +290,7 @@ npm run tauri build      # Output: src-tauri/target/release/
 ```
 
 **En macOS nativo**:
+
 ```bash
 # iOS
 npx cap sync ios
@@ -278,17 +301,19 @@ npm run tauri build      # .app, .dmg
 ```
 
 **En Windows nativo o CI**:
+
 ```bash
 # Windows (Tauri)
 npm run tauri build      # .exe, .msi
 ```
 
 **En GitHub Actions** (recomendado para Windows):
+
 - Ver [.github/workflows/](.github/workflows/) para pipelines CI/CD
 
 ---
 
-## [CONFIG] Configuración para Desarrollo Híbrido
+## Configuración para Desarrollo Híbrido
 
 ### Estrategia A: Container para todo excepto iOS/macOS
 
@@ -315,7 +340,7 @@ npx cap open ios
 
 ---
 
-## [STATS] Resumen de Comandos por Plataforma
+## Resumen de Comandos por Plataforma
 
 ### En Container (Linux)
 
@@ -366,7 +391,7 @@ npm run tauri build      # .exe/.msi
 
 ---
 
-## [LAUNCH] Setup Inicial Recomendado
+## Setup Inicial Recomendado
 
 ### 1. Preparar macOS (una vez)
 
@@ -408,7 +433,7 @@ npx cap sync android     # Android sincroniza
 
 ---
 
-## [IDEA] Tips Pro
+## Tips Pro
 
 ### Sincronización Rápida entre Container y Nativo
 
@@ -424,12 +449,14 @@ npx cap sync ios         # Si usas iOS
 ### Evitar Reinstalar Dependencias
 
 Los volúmenes `node_modules` y `src-tauri/target` persisten entre sesiones:
+
 - No necesitas `npm install` cada vez que abres el container
 - Builds de Rust son incrementales (más rápidas después de la primera)
 
 ### Desarrollo Solo Frontend
 
 Si trabajas principalmente en Vue/componentes:
+
 ```bash
 # En container
 npm run dev

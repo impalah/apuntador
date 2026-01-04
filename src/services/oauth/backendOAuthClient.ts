@@ -1,10 +1,10 @@
 /**
  * Backend OAuth Client
- * 
+ *
  * Cliente para conectar con apuntador-backend OAuth proxy.
  * Maneja el flujo OAuth 2.0 + PKCE a través del backend.
  * Usa mTLS en Android para solicitar tokens.
- * 
+ *
  * Flujo:
  * 1. POST /oauth/authorize/{provider} → Obtiene authorization_url y state firmado
  * 2. Redirect al authorization_url
@@ -45,9 +45,9 @@ export class BackendOAuthClient {
   constructor(config: BackendOAuthConfig) {
     this.config = config
     this.httpClient = createBackendClient(config.backendUrl)
-    console.log(`[CONFIG] BackendOAuthClient: Initialized for ${config.provider}`, {
+    console.log(`BackendOAuthClient: Initialized for ${config.provider}`, {
       backendUrl: config.backendUrl,
-      redirectUri: config.redirectUri
+      redirectUri: config.redirectUri,
     })
   }
 
@@ -67,32 +67,32 @@ export class BackendOAuthClient {
    * Inicia el flujo OAuth obteniendo la URL de autorización del backend
    * IMPORTANTE: En Desktop y Mobile, este endpoint REQUIERE mTLS
    * porque el dispositivo debe estar enrolled antes de hacer OAuth.
-   * 
+   *
    * - Desktop (Tauri): Usa comando `backend_oauth_authorize` con mTLS
    * - Mobile (Android): Usa CapacitorHttp que maneja mTLS automáticamente
    */
   async authorize(): Promise<AuthorizeResponse> {
-    console.log(`[LAUNCH] BackendOAuthClient: Starting OAuth flow for ${this.config.provider}`)
+    console.log(`BackendOAuthClient: Starting OAuth flow for ${this.config.provider}`)
     console.log(`[LINK] BackendOAuthClient: Backend URL: ${this.config.backendUrl}`)
 
     try {
       // Generar code verifier para PKCE
       this.codeVerifier = this.generateCodeVerifier()
-      console.log(`[SECURE] BackendOAuthClient: Generated code_verifier`)
+      console.log(`BackendOAuthClient: Generated code_verifier`)
 
       // Desktop (Tauri): Usar comando Rust con mTLS
       if (isTauri()) {
-        console.log(`[SERVER] BackendOAuthClient: Using Tauri mTLS command`)
-        
+        console.log(`BackendOAuthClient: Using Tauri mTLS command`)
+
         const result = await tauriService.backendOAuthAuthorize(
           this.config.provider,
           this.codeVerifier,
           this.config.redirectUri
         )
 
-        console.log(`[OK] BackendOAuthClient: Authorization URL received from Tauri`, {
+        console.log(`BackendOAuthClient: Authorization URL received from Tauri`, {
           url: result.authorization_url.substring(0, 100) + '...',
-          hasState: !!result.state
+          hasState: !!result.state,
         })
 
         // Guardar code_verifier para usar en el callback
@@ -104,7 +104,7 @@ export class BackendOAuthClient {
 
       // Mobile (Android): Usar CapacitorHttp con mTLS nativo
       const authUrl = `${this.config.backendUrl}/oauth/authorize/${this.config.provider}`
-      console.log(`[SIGNAL] BackendOAuthClient: Calling: ${authUrl}`)
+      console.log(`BackendOAuthClient: Calling: ${authUrl}`)
 
       // IMPORTANTE: Usar CapacitorHttp en lugar de fetch
       // fetch tiene problemas con Mixed Content en Android WebView
@@ -112,42 +112,45 @@ export class BackendOAuthClient {
       const response = await CapacitorHttp.post({
         url: authUrl,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         },
         data: {
           code_verifier: this.codeVerifier,
           redirect_uri: this.config.redirectUri,
-          state: null // Optional: client-side state
-        }
+          state: null, // Optional: client-side state
+        },
       })
 
       console.log(`[DOWNLOAD] BackendOAuthClient: Response status: ${response.status}`)
 
       if (response.status !== 200) {
-        const errorData = typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
-        throw new Error(
-          `Backend authorization failed: ${response.status} - ${errorData}`
-        )
+        const errorData =
+          typeof response.data === 'string' ? response.data : JSON.stringify(response.data)
+        throw new Error(`Backend authorization failed: ${response.status} - ${errorData}`)
       }
 
       const data: AuthorizeResponse = response.data
-      
-      console.log(`[OK] BackendOAuthClient: Authorization URL received`, {
+
+      console.log(`BackendOAuthClient: Authorization URL received`, {
         url: data.authorization_url.substring(0, 100) + '...',
-        hasState: !!data.state
+        hasState: !!data.state,
       })
 
       // Guardar code_verifier para usar en el callback
       localStorage.setItem(`${this.config.provider}_code_verifier`, this.codeVerifier)
-      
+
       // Guardar provider para detectarlo en el callback
       localStorage.setItem('oauth_current_provider', this.config.provider)
 
       return data
     } catch (error) {
       console.error(`[ERROR] BackendOAuthClient: Authorization failed:`, error)
-      console.error(`[ERROR] BackendOAuthClient: Error type: ${error instanceof TypeError ? 'TypeError' : typeof error}`)
-      console.error(`[ERROR] BackendOAuthClient: Error message: ${error instanceof Error ? error.message : String(error)}`)
+      console.error(
+        `[ERROR] BackendOAuthClient: Error type: ${error instanceof TypeError ? 'TypeError' : typeof error}`
+      )
+      console.error(
+        `[ERROR] BackendOAuthClient: Error message: ${error instanceof Error ? error.message : String(error)}`
+      )
       console.error(`[ERROR] BackendOAuthClient: Backend URL was: ${this.config.backendUrl}`)
       throw error
     }
@@ -156,12 +159,12 @@ export class BackendOAuthClient {
   /**
    * Completa el flujo OAuth intercambiando el código por tokens
    * IMPORTANTE: Este endpoint REQUIERE mTLS
-   * 
+   *
    * - Desktop (Tauri): Usa comando `backend_oauth_token_exchange` con mTLS
    * - Mobile (Android): Usa httpClient (CapacitorHttp) con mTLS nativo
    */
   async handleCallback(code: string, state: string): Promise<OAuthTokens> {
-    console.log(`[SECURE] BackendOAuthClient: Handling OAuth callback for ${this.config.provider}`)
+    console.log(`BackendOAuthClient: Handling OAuth callback for ${this.config.provider}`)
 
     try {
       // Recuperar code_verifier del localStorage
@@ -171,14 +174,14 @@ export class BackendOAuthClient {
       }
 
       console.log(`[KEY] BackendOAuthClient: Code verifier retrieved from storage`)
-      console.log(`🔒 BackendOAuthClient: Using mTLS for token exchange`)
+      console.log(`BackendOAuthClient: Using mTLS for token exchange`)
 
       let tokens: OAuthTokens
 
       // Desktop (Tauri): Usar comando Rust con mTLS
       if (isTauri()) {
-        console.log(`[SERVER] BackendOAuthClient: Using Tauri mTLS command for token exchange`)
-        
+        console.log(`BackendOAuthClient: Using Tauri mTLS command for token exchange`)
+
         const result = await tauriService.backendOAuthTokenExchange(
           this.config.provider,
           code,
@@ -188,11 +191,11 @@ export class BackendOAuthClient {
 
         tokens = result
 
-        console.log(`[OK] BackendOAuthClient: Tokens received from Tauri`, {
+        console.log(`BackendOAuthClient: Tokens received from Tauri`, {
           hasAccessToken: !!tokens.access_token,
           hasRefreshToken: !!tokens.refresh_token,
           expiresIn: tokens.expires_in,
-          tokenType: tokens.token_type
+          tokenType: tokens.token_type,
         })
       } else {
         // Mobile (Android): Usar httpClient con mTLS nativo
@@ -201,23 +204,21 @@ export class BackendOAuthClient {
           {
             code: code,
             code_verifier: codeVerifier,
-            state: state
+            state: state,
           }
         )
 
         if (response.status !== 200) {
-          throw new Error(
-            `Token exchange failed: ${response.status}`
-          )
+          throw new Error(`Token exchange failed: ${response.status}`)
         }
 
         tokens = response.data
 
-        console.log(`[OK] BackendOAuthClient: Tokens received`, {
+        console.log(`BackendOAuthClient: Tokens received`, {
           hasAccessToken: !!tokens.access_token,
           hasRefreshToken: !!tokens.refresh_token,
           expiresIn: tokens.expires_in,
-          tokenType: tokens.token_type
+          tokenType: tokens.token_type,
         })
       }
 
@@ -238,28 +239,26 @@ export class BackendOAuthClient {
    * NOTA: Este endpoint SÍ requiere mTLS
    */
   async refreshToken(refreshToken: string): Promise<OAuthTokens> {
-    console.log(`[REFRESH] BackendOAuthClient: Refreshing token for ${this.config.provider}`)
+    console.log(`BackendOAuthClient: Refreshing token for ${this.config.provider}`)
 
     try {
-      console.log(`🔒 BackendOAuthClient: Using mTLS for token refresh`)
+      console.log(`BackendOAuthClient: Using mTLS for token refresh`)
 
       const response = await this.httpClient.post<OAuthTokens>(
         `/oauth/token/refresh/${this.config.provider}`,
         {
-          refresh_token: refreshToken
+          refresh_token: refreshToken,
         }
       )
 
       if (response.status !== 200) {
-        throw new Error(
-          `Token refresh failed: ${response.status}`
-        )
+        throw new Error(`Token refresh failed: ${response.status}`)
       }
 
       const tokens = response.data
 
-      console.log(`[OK] BackendOAuthClient: Token refreshed`, {
-        expiresIn: tokens.expires_in
+      console.log(`BackendOAuthClient: Token refreshed`, {
+        expiresIn: tokens.expires_in,
       })
 
       return tokens
@@ -277,20 +276,17 @@ export class BackendOAuthClient {
     console.log(`🚫 BackendOAuthClient: Revoking token for ${this.config.provider}`)
 
     try {
-      console.log(`🔒 BackendOAuthClient: Using mTLS for token revocation`)
+      console.log(`BackendOAuthClient: Using mTLS for token revocation`)
 
-      const response = await this.httpClient.post(
-        `/oauth/revoke/${this.config.provider}`,
-        {
-          token: token
-        }
-      )
+      const response = await this.httpClient.post(`/oauth/revoke/${this.config.provider}`, {
+        token: token,
+      })
 
       if (response.status !== 200) {
         console.warn(`[WARNING] Token revocation failed: ${response.status}`)
         // No lanzar error, el token puede estar ya inválido
       } else {
-        console.log(`[OK] BackendOAuthClient: Token revoked successfully`)
+        console.log(`BackendOAuthClient: Token revoked successfully`)
       }
     } catch (error) {
       console.error(`[ERROR] BackendOAuthClient: Revoke failed:`, error)

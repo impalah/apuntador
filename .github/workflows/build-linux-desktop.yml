@@ -128,7 +128,7 @@ jobs:
             exit 1
           fi
 
-          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
+          echo "Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
@@ -139,7 +139,7 @@ jobs:
             exit 1
           fi
 
-          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
+          echo "Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -155,12 +155,12 @@ jobs:
 
       - name: Create .env file
         run: |
-          echo "[NOTE] Creating .env file from secrets..."
+          echo "Creating .env file from secrets..."
           cat > .env << 'EOF'
           ${{ secrets.ENV_FILE }}
           EOF
-          echo "[OK] .env file created successfully"
-          echo "[LIST] Variables configured (masked):"
+          echo ".env file created successfully"
+          echo "Variables configured (masked):"
           grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
 
       - name: Verify environment
@@ -212,7 +212,7 @@ jobs:
           # Copy binary
           if [ -f "$TARGET_DIR/apuntador" ]; then
             cp "$TARGET_DIR/apuntador" artifacts/apuntador-linux-${{ inputs.buildTarget }}
-            echo "[OK] Copied binary"
+            echo "Copied binary"
           else
             echo "[ERROR] Binary not found at $TARGET_DIR/apuntador"
           fi
@@ -222,7 +222,7 @@ jobs:
             # DEB package
             if find "$BUNDLE_DIR" -name "*.deb" | head -1; then
               find "$BUNDLE_DIR" -name "*.deb" -exec cp {} artifacts/ \;
-              echo "[OK] Copied DEB package"
+              echo "Copied DEB package"
             else
               echo "[WARNING] DEB package not found"
             fi
@@ -230,7 +230,7 @@ jobs:
             # RPM package
             if find "$BUNDLE_DIR" -name "*.rpm" | head -1; then
               find "$BUNDLE_DIR" -name "*.rpm" -exec cp {} artifacts/ \;
-              echo "[OK] Copied RPM package"
+              echo "Copied RPM package"
             else
               echo "[WARNING] RPM package not found"
             fi
@@ -238,7 +238,7 @@ jobs:
             # AppImage
             if find "$BUNDLE_DIR" -name "*.AppImage" | head -1; then
               find "$BUNDLE_DIR" -name "*.AppImage" -exec cp {} artifacts/ \;
-              echo "[OK] Copied AppImage"
+              echo "Copied AppImage"
             else
               echo "[WARNING] AppImage not found"
             fi
@@ -270,7 +270,7 @@ jobs:
 
       - name: Display build summary
         run: |
-          echo "## 🐧 Linux Build Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## Linux Build Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Build Configuration:**" >> $GITHUB_STEP_SUMMARY
           echo "- Target: \`${{ inputs.buildTarget }}\`" >> $GITHUB_STEP_SUMMARY
@@ -313,21 +313,21 @@ jobs:
             NEW_DEB="Apuntador_${VERSION}_amd64.deb"
             mv "$DEB_FILE" "$NEW_DEB"
             echo "DEB_FILENAME=$NEW_DEB" >> $GITHUB_ENV
-            echo "[OK] Renamed DEB: $NEW_DEB"
+            echo "Renamed DEB: $NEW_DEB"
           fi
 
           if [ -n "$RPM_FILE" ]; then
             NEW_RPM="Apuntador-${VERSION}-1.x86_64.rpm"
             mv "$RPM_FILE" "$NEW_RPM"
             echo "RPM_FILENAME=$NEW_RPM" >> $GITHUB_ENV
-            echo "[OK] Renamed RPM: $NEW_RPM"
+            echo "Renamed RPM: $NEW_RPM"
           fi
 
           if [ -n "$APPIMAGE_FILE" ]; then
             NEW_APPIMAGE="Apuntador_${VERSION}_amd64.AppImage"
             mv "$APPIMAGE_FILE" "$NEW_APPIMAGE"
             echo "APPIMAGE_FILENAME=$NEW_APPIMAGE" >> $GITHUB_ENV
-            echo "[OK] Renamed AppImage: $NEW_APPIMAGE"
+            echo "Renamed AppImage: $NEW_APPIMAGE"
           fi
 
           ls -la
@@ -348,7 +348,7 @@ jobs:
             aws s3 cp "$DEB_FILENAME" "s3://${S3_BUCKET}/downloads/${DEB_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-deb,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "[OK] DEB uploaded"
+            echo "DEB uploaded"
           fi
 
           # Upload RPM
@@ -357,7 +357,7 @@ jobs:
             aws s3 cp "$RPM_FILENAME" "s3://${S3_BUCKET}/downloads/${RPM_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-rpm,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "[OK] RPM uploaded"
+            echo "RPM uploaded"
           fi
 
           # Upload AppImage
@@ -366,7 +366,7 @@ jobs:
             aws s3 cp "$APPIMAGE_FILENAME" "s3://${S3_BUCKET}/downloads/${APPIMAGE_FILENAME}" \
               --acl public-read \
               --metadata "version=${VERSION},type=linux-appimage,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo "[OK] AppImage uploaded"
+            echo "AppImage uploaded"
           fi
 
       - name: Update versions.json for Linux packages
@@ -376,13 +376,13 @@ jobs:
         run: |
           echo "[DOWN]  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
-            echo "[OK] Downloaded existing versions.json"
+            echo "Downloaded existing versions.json"
           else
             echo "[WARNING]  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
 
-          echo "[NOTE] Updating versions.json with Linux packages..."
+          echo "Updating versions.json with Linux packages..."
 
           # Update all three Linux package types
           jq_updated=false
@@ -405,7 +405,7 @@ jobs:
           fi
 
           if [ "$jq_updated" = true ]; then
-            echo "[OK] Updated versions.json:"
+            echo "Updated versions.json:"
             cat versions.json
             
             echo "[UP]  Uploading updated versions.json..."
@@ -414,7 +414,7 @@ jobs:
               --content-type "application/json" \
               --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
             
-            echo "[OK] versions.json updated successfully"
+            echo "versions.json updated successfully"
             echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
           else
             echo "[WARNING]  No Linux packages to update in versions.json"
@@ -493,7 +493,7 @@ jobs:
             exit 1
           fi
 
-          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
+          echo "Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
@@ -504,7 +504,7 @@ jobs:
             exit 1
           fi
 
-          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
+          echo "Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -522,15 +522,15 @@ jobs:
         env:
           RELEASE_TAG: ${{ inputs.releaseTag }}
         run: |
-          echo "[NOTE] Updating version in Cargo.toml to ${RELEASE_TAG}"
+          echo "Updating version in Cargo.toml to ${RELEASE_TAG}"
 
           CARGO_PATH="src-tauri/Cargo.toml"
 
           # Update version using sed (GNU sed)
           sed -i "s/^version = \"[^\"]*\"/version = \"${RELEASE_TAG}\"/" "$CARGO_PATH"
 
-          echo "[OK] Version updated successfully"
-          echo "[LIST] Verifying version:"
+          echo "Version updated successfully"
+          echo "Verifying version:"
           grep '^version = ' "$CARGO_PATH" | head -1
 
       - name: Build Tauri application

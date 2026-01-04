@@ -38,11 +38,11 @@ struct EnrollmentResponse {
 
 /// Check if device is already enrolled
 pub async fn check_enrollment_status() -> Result<EnrollmentResult, String> {
-    println!("[SEARCH] Checking enrollment status...");
+    println!("Checking enrollment status...");
 
     match CertificateStore::retrieve() {
         Ok(cert) => {
-            println!("[OK] Device is enrolled");
+            println!("Device is enrolled");
             println!("   Device ID: {}", cert.device_id);
             println!("   Expires: {}", cert.expires_at);
 
@@ -71,7 +71,7 @@ pub async fn check_enrollment_status() -> Result<EnrollmentResult, String> {
             })
         }
         Err(_) => {
-            println!("[INFO]  Device is not enrolled");
+            println!(" Device is not enrolled");
             Ok(EnrollmentResult {
                 success: true,
                 enrolled: false,
@@ -86,7 +86,7 @@ pub async fn check_enrollment_status() -> Result<EnrollmentResult, String> {
 
 /// Enroll device with backend
 pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> Result<EnrollmentResult, String> {
-    println!("[LAUNCH] Starting device enrollment...");
+    println!("Starting device enrollment...");
     println!("   Backend URL: {}", backend_url);
 
     // 1. Check if already enrolled
@@ -94,7 +94,7 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
     if status.enrolled {
         let cert_expires = status.certificate_expires_at.clone().unwrap_or_default();
         if !check_if_expired(&cert_expires)? {
-            println!("[OK] Device already enrolled and certificate is valid");
+            println!("Device already enrolled and certificate is valid");
             return Ok(status);
         }
     }
@@ -105,7 +105,7 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
     let device_model = get_device_model();
     let os_version = get_os_version();
 
-    println!("[MOBILE] Device Information:");
+    println!("Device Information:");
     println!("   Device ID: {}", device_id);
     println!("   Platform: {}", platform);
     println!("   Model: {}", device_model);
@@ -156,7 +156,7 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
         .await
         .map_err(|e| format!("Failed to parse enrollment response: {}", e))?;
 
-    println!("[OK] Enrollment successful!");
+    println!("Enrollment successful!");
     println!("   Serial: {}", enrollment_response.serial);
     println!("   Issued: {}", enrollment_response.issued_at);
     println!("   Expires: {}", enrollment_response.expires_at);
@@ -174,7 +174,7 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
     CertificateStore::store(&stored_cert)
         .map_err(|e| format!("Failed to store certificate: {}", e))?;
 
-    println!("[OK] Certificate stored securely");
+    println!("Certificate stored securely");
 
     Ok(EnrollmentResult {
         success: true,
@@ -188,9 +188,9 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
 
 /// Delete enrollment (for testing/debugging)
 pub async fn unenroll_device() -> Result<(), String> {
-    println!("[DELETE]  Unenrolling device...");
+    println!(" Unenrolling device...");
     CertificateStore::delete()?;
-    println!("[OK] Device unenrolled successfully");
+    println!("Device unenrolled successfully");
     Ok(())
 }
 

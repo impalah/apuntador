@@ -5,12 +5,7 @@
     </v-card-subtitle>
 
     <!-- Active Provider Info -->
-    <v-card
-      v-if="cloudStore.activeProvider"
-      class="mb-6"
-      variant="tonal"
-      color="primary"
-    >
+    <v-card v-if="cloudStore.activeProvider" class="mb-6" variant="tonal" color="primary">
       <v-card-text>
         <div class="d-flex align-center">
           <v-icon size="large" class="me-3">
@@ -23,16 +18,14 @@
             <div class="text-body-2">
               {{ cloudStore.activeProvider.name }}
             </div>
-            <div v-if="cloudStore.activeProvider.userInfo" class="text-caption text-medium-emphasis">
+            <div
+              v-if="cloudStore.activeProvider.userInfo"
+              class="text-caption text-medium-emphasis"
+            >
               {{ cloudStore.activeProvider.userInfo.email }}
             </div>
           </div>
-          <v-btn
-            variant="text"
-            color="error"
-            @click="onDisconnect"
-            :loading="isDisconnecting"
-          >
+          <v-btn variant="text" color="error" @click="onDisconnect" :loading="isDisconnecting">
             {{ t('cloud.disconnect') }}
           </v-btn>
         </div>
@@ -45,12 +38,7 @@
     </div>
 
     <v-row>
-      <v-col
-        v-for="provider in cloudStore.availableProviders"
-        :key="provider.id"
-        cols="12"
-        md="6"
-      >
+      <v-col v-for="provider in cloudStore.availableProviders" :key="provider.id" cols="12" md="6">
         <v-card
           :variant="provider.isConnected ? 'tonal' : 'outlined'"
           :color="provider.isConnected ? 'success' : undefined"
@@ -67,15 +55,12 @@
                   {{ getProviderIcon(provider.id) }}
                 </v-icon>
               </v-avatar>
-              
+
               <div class="flex-grow-1">
                 <div class="text-subtitle-1 font-weight-medium">
                   {{ provider.name }}
                 </div>
-                <div
-                  v-if="provider.isConnected"
-                  class="text-caption text-success"
-                >
+                <div v-if="provider.isConnected" class="text-caption text-success">
                   <v-icon size="small" class="me-1">mdi-check-circle</v-icon>
                   {{ t('cloud.connected') }}
                 </div>
@@ -96,7 +81,11 @@
               block
               class="mt-4"
               :loading="isConnecting && connectingProviderId === provider.id"
-              :disabled="isConnecting || isDisconnecting || (provider.isConnected && cloudStore.activeProviderId === provider.id)"
+              :disabled="
+                isConnecting ||
+                isDisconnecting ||
+                (provider.isConnected && cloudStore.activeProviderId === provider.id)
+              "
               @click="onConnect(provider.id)"
             >
               <v-icon v-if="cloudStore.activeProviderId === provider.id" start>
@@ -106,11 +95,11 @@
                 cloudStore.activeProviderId === provider.id
                   ? t('cloud.activeProvider')
                   : provider.isConnected
-                  ? t('cloud.setAsActive')
-                  : t('cloud.connect')
+                    ? t('cloud.setAsActive')
+                    : t('cloud.connect')
               }}
             </v-btn>
-            
+
             <!-- Botón para revocar acceso (solo si está conectado pero no es el activo) -->
             <v-btn
               v-if="provider.isConnected && cloudStore.activeProviderId !== provider.id"
@@ -163,7 +152,7 @@ const isRevokingProvider = ref<CloudProviderId | null>(null)
 function getProviderIcon(providerId: CloudProviderId): string {
   const icons: Record<CloudProviderId, string> = {
     dropbox: 'mdi-dropbox',
-    googledrive: 'mdi-google-drive'
+    googledrive: 'mdi-google-drive',
   }
   return icons[providerId] || 'mdi-cloud'
 }
@@ -171,15 +160,15 @@ function getProviderIcon(providerId: CloudProviderId): string {
 async function onConnect(providerId: CloudProviderId) {
   isConnecting.value = true
   connectingProviderId.value = providerId
-  
+
   try {
     // Obtener información del proveedor
-    const provider = cloudStore.availableProviders.find(p => p.id === providerId)
-    
+    const provider = cloudStore.availableProviders.find((p) => p.id === providerId)
+
     // Si el proveedor ya está conectado, solo cambiar el activo
     // Si no está conectado, iniciar flujo OAuth
     if (provider?.isConnected && cloudStore.activeProviderId !== providerId) {
-      console.log(`[REFRESH] Provider ${providerId} already connected, switching active provider...`)
+      console.log(`Provider ${providerId} already connected, switching active provider...`)
       await cloudStore.setActiveProvider(providerId)
     } else {
       console.log(`[LINK] Provider ${providerId} not connected, starting OAuth flow...`)
@@ -195,20 +184,20 @@ async function onConnect(providerId: CloudProviderId) {
 
 async function onDisconnect() {
   console.log('🔴 [CloudProviderSelector] Disconnect button clicked')
-  
+
   // TODO: Fix confirm dialog in Tauri
   // if (!confirm(t('cloud.disconnectConfirm'))) {
   //   console.log('🔴 [CloudProviderSelector] Disconnect cancelled by user')
   //   return
   // }
-  
+
   console.log('🔴 [CloudProviderSelector] Starting disconnect (keeping credentials)...')
   isDisconnecting.value = true
-  
+
   try {
     // Desconectar sin borrar credenciales (por defecto clearCredentials=false)
     await cloudStore.disconnect()
-    console.log('[OK] [CloudProviderSelector] Disconnect successful, credentials preserved')
+    console.log('[CloudProviderSelector] Disconnect successful, credentials preserved')
   } catch (error) {
     console.error('[ERROR] [CloudProviderSelector] Error disconnecting:', error)
   } finally {
@@ -218,12 +207,12 @@ async function onDisconnect() {
 
 async function onRevokeProvider(providerId: CloudProviderId) {
   console.log('🔴 [CloudProviderSelector] Revoke access button clicked for:', providerId)
-  
+
   isRevokingProvider.value = providerId
-  
+
   try {
     await cloudStore.revokeProvider(providerId)
-    console.log('[OK] [CloudProviderSelector] Provider access revoked successfully')
+    console.log('[CloudProviderSelector] Provider access revoked successfully')
   } catch (error) {
     console.error('[ERROR] [CloudProviderSelector] Error revoking provider:', error)
   } finally {

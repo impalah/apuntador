@@ -67,7 +67,7 @@ jobs:
             exit 1
           fi
 
-          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
+          echo "Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
@@ -78,7 +78,7 @@ jobs:
             exit 1
           fi
 
-          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
+          echo "Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -92,14 +92,14 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist/
 
-          echo "[OK] Web build ready for Capacitor"
+          echo "Web build ready for Capacitor"
 
       - name: Update iOS version in project
         env:
           VERSION_CODE: ${{ github.event.inputs.versionCode }}
           VERSION_NAME: ${{ github.event.inputs.release_tag }}
         run: |
-          echo "[REFRESH] Updating iOS version..."
+          echo "Updating iOS version..."
           echo "  Build Number: ${VERSION_CODE}"
           echo "  Version: ${VERSION_NAME}"
 
@@ -107,7 +107,7 @@ jobs:
           sed -i '' "s/CURRENT_PROJECT_VERSION = [0-9]*/CURRENT_PROJECT_VERSION = ${VERSION_CODE}/" ios/App/App.xcodeproj/project.pbxproj
           sed -i '' "s/MARKETING_VERSION = [^;]*/MARKETING_VERSION = ${VERSION_NAME}/" ios/App/App.xcodeproj/project.pbxproj
 
-          echo "[OK] Updated iOS version numbers"
+          echo "Updated iOS version numbers"
 
       - name: Setup iOS signing
         env:
@@ -116,7 +116,7 @@ jobs:
           IOS_PROVISIONING_PROFILE_BASE64: ${{ secrets.IOS_PROVISIONING_PROFILE_BASE64 }}
           KEYCHAIN_PASSWORD: ${{ secrets.KEYCHAIN_PASSWORD }}
         run: |
-          echo "[SECURE] Setting up iOS code signing..."
+          echo "Setting up iOS code signing..."
 
           # Create keychain
           security create-keychain -p "$KEYCHAIN_PASSWORD" build.keychain
@@ -133,58 +133,58 @@ jobs:
           mkdir -p ~/Library/MobileDevice/Provisioning\ Profiles
           echo "$IOS_PROVISIONING_PROFILE_BASE64" | base64 --decode > ~/Library/MobileDevice/Provisioning\ Profiles/Apuntador\ App\ Store\ Distribution.mobileprovision
 
-          echo "[OK] iOS signing configured"
+          echo "iOS signing configured"
 
       - name: Prepare iOS project
         run: |
-          echo "[MOBILE] Preparing iOS project..."
+          echo "Preparing iOS project..."
           npx cap copy ios
           npx cap sync ios
 
       - name: Install CocoaPods dependencies
         run: |
-          echo "[LAUNCH] Installing CocoaPods dependencies..."
+          echo "Installing CocoaPods dependencies..."
           cd ios/App
           pod install --repo-update
           cd ../..
 
       - name: Debug iOS Project Configuration
         run: |
-          echo "[SEARCH] Debugging iOS project configuration..."
+          echo "Debugging iOS project configuration..."
           cd ios/App
 
           # Check project settings
-          echo "[MOBILE] Project deployment target:"
+          echo "Project deployment target:"
           grep -A5 -B5 "IPHONEOS_DEPLOYMENT_TARGET" App.xcodeproj/project.pbxproj | head -20
 
-          echo "[LIST] Scheme configuration:"
+          echo "Scheme configuration:"
           xcodebuild -workspace App.xcworkspace -list
 
-          echo "[LIST] Available destinations (full):"
+          echo "Available destinations (full):"
           xcodebuild -workspace App.xcworkspace -scheme App -showdestinations
 
       - name: Fix iOS Scheme Configuration
         run: |
-          echo "[CONFIG] Fixing iOS scheme configuration for archiving..."
+          echo "Fixing iOS scheme configuration for archiving..."
           cd ios/App
 
           # Get the actual target UUID from project.pbxproj
-          echo "[SEARCH] Finding App target UUID..."
+          echo "Finding App target UUID..."
           APP_TARGET_UUID=$(grep -A1 'targets = (' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
-          echo "[TARGET] App target UUID: ${APP_TARGET_UUID}"
+          echo "App target UUID: ${APP_TARGET_UUID}"
 
           if [ -z "$APP_TARGET_UUID" ]; then
             echo "[ERROR] Could not find App target UUID, using alternative method..."
             APP_TARGET_UUID=$(grep -E '\/\* App \*\/ = \{' App.xcodeproj/project.pbxproj | grep -o '[A-F0-9]\{24\}' | head -1)
-            echo "[REFRESH] Alternative UUID: ${APP_TARGET_UUID}"
+            echo "Alternative UUID: ${APP_TARGET_UUID}"
           fi
 
           # Check if scheme exists and is configured for archiving
-          echo "[LIST] Creating scheme directory..."
+          echo "Creating scheme directory..."
           mkdir -p App.xcodeproj/xcshareddata/xcschemes
 
           # Create a proper scheme file with correct UUID
-          echo "[TOOLS] Creating scheme with correct target UUID..."
+          echo "Creating scheme with correct target UUID..."
           cat > App.xcodeproj/xcshareddata/xcschemes/App.xcscheme << EOF
           <?xml version="1.0" encoding="UTF-8"?>
           <Scheme
@@ -217,15 +217,15 @@ jobs:
           </Scheme>
           EOF
 
-          echo "[OK] Scheme created with target UUID: \${APP_TARGET_UUID}"
+          echo "Scheme created with target UUID: \${APP_TARGET_UUID}"
 
       - name: Build and Archive iOS app
         run: |
-          echo "🏗️ Building iOS app for App Store..."
+          echo "Building iOS app for App Store..."
           cd ios/App
 
           # Simple archive approach - let Xcode handle destinations
-          echo "[PACKAGE] Creating archive with simplified approach..."
+          echo "Creating archive with simplified approach..."
           xcodebuild archive \
             -workspace App.xcworkspace \
             -scheme App \
@@ -237,11 +237,11 @@ jobs:
             SKIP_INSTALL=NO \
             BUILD_LIBRARY_FOR_DISTRIBUTION=NO
 
-          echo "[OK] Archive created successfully"
+          echo "Archive created successfully"
 
       - name: Export IPA for App Store
         run: |
-          echo "[PACKAGE] Exporting IPA for App Store..."
+          echo "Exporting IPA for App Store..."
 
           # Create export options plist
           cat > ExportOptions.plist << EOF
@@ -272,7 +272,7 @@ jobs:
           # Rename IPA
           mv export/App.ipa "export/Apuntador-${{ github.event.inputs.release_tag }}-${{ github.event.inputs.versionCode }}.ipa"
 
-          echo "[OK] IPA exported successfully"
+          echo "IPA exported successfully"
           ls -la export/
 
       - name: Upload to TestFlight (Optional)
@@ -282,12 +282,12 @@ jobs:
           APP_STORE_CONNECT_API_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_API_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_BASE64 }}
         run: |
-          echo "[LAUNCH] Uploading to TestFlight..."
+          echo "Uploading to TestFlight..."
 
           # Check if API key secrets are available
           if [ -z "$APP_STORE_CONNECT_API_KEY_ID" ] || [ -z "$APP_STORE_CONNECT_API_ISSUER_ID" ] || [ -z "$APP_STORE_CONNECT_API_KEY_BASE64" ]; then
             echo "[WARNING] App Store Connect API Key secrets not configured"
-            echo "[MOBILE] Manual upload required:"
+            echo "Manual upload required:"
             echo "  1. Download IPA from GitHub Actions artifacts"
             echo "  2. Use Xcode Organizer or Transporter app to upload"
             echo "  3. Or configure API Key secrets for automatic upload"
@@ -305,7 +305,7 @@ jobs:
             --apiKey "$APP_STORE_CONNECT_API_KEY_ID" \
             --apiIssuer "$APP_STORE_CONNECT_API_ISSUER_ID"
 
-          echo "[OK] Upload to TestFlight completed"
+          echo "Upload to TestFlight completed"
 
       - name: Upload IPA as artifact
         uses: actions/upload-artifact@v4
@@ -316,7 +316,7 @@ jobs:
 
       - name: Create Release Notes
         run: |
-          echo "[NOTE] Creating release notes..."
+          echo "Creating release notes..."
           cat > ios-release-notes.md << EOF
           # iOS Build - Apuntador v${{ github.event.inputs.release_tag }}
 
@@ -332,9 +332,9 @@ jobs:
           - **Archive**: App.xcarchive
 
           ## Next Steps
-          $( [ "${{ github.event.inputs.upload_to_testflight }}" == "true" ] && echo "- [OK] **Uploaded to TestFlight automatically**" || echo "- [MOBILE] **Manual upload**: Download IPA and upload via Xcode or Transporter" )
-          - [LIST] **App Store Connect**: Complete app information and submit for review
-          - [EXPERIMENT] **TestFlight**: Test with internal/external testers
+          $( [ "${{ github.event.inputs.upload_to_testflight }}" == "true" ] && echo "- **Uploaded to TestFlight automatically**" || echo "- **Manual upload**: Download IPA and upload via Xcode or Transporter" )
+          - **App Store Connect**: Complete app information and submit for review
+          - **TestFlight**: Test with internal/external testers
 
           ## Technical Details
           - **Bundle ID**: io.apuntador.app
@@ -345,7 +345,7 @@ jobs:
 
           EOF
 
-          echo "[OK] Release notes created"
+          echo "Release notes created"
 
       - name: Upload Release Notes
         uses: actions/upload-artifact@v4
@@ -358,21 +358,21 @@ jobs:
         run: |
           echo "[SUCCESS] iOS build completed successfully!"
           echo ""
-          echo "[MOBILE] **Generated Files:**"
+          echo "**Generated Files:**"
           echo "  - IPA: Apuntador-${{ github.event.inputs.release_tag }}-${{ github.event.inputs.versionCode }}.ipa"
           echo "  - Archive: App.xcarchive"
           echo "  - Release Notes: ios-release-notes.md"
           echo ""
-          echo "[LIST] **Next Steps:**"
+          echo "**Next Steps:**"
           if [ "${{ github.event.inputs.upload_to_testflight }}" == "true" ]; then
-            echo "  - [OK] Uploaded to TestFlight automatically"
-            echo "  - [SEARCH] Check App Store Connect for processing status"
+            echo "  - Uploaded to TestFlight automatically"
+            echo "  - Check App Store Connect for processing status"
           else
             echo "  - [DOWNLOAD] Download IPA from GitHub Actions artifacts"
-            echo "  - [MOBILE] Upload manually via Xcode or Transporter app"
+            echo "  - Upload manually via Xcode or Transporter app"
           fi
-          echo "  - [NOTE] Complete app metadata in App Store Connect"
-          echo "  - [LAUNCH] Submit for App Store review"
+          echo "  - Complete app metadata in App Store Connect"
+          echo "  - Submit for App Store review"
           echo ""
           echo "[LINK] **Links:**"
           echo "  - App Store Connect: https://appstoreconnect.apple.com"

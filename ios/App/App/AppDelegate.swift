@@ -29,7 +29,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     private func setupWebViewBridge() {
         // Buscar el CAPBridgeViewController en la jerarquía de vistas
         guard let rootVC = window?.rootViewController else {
-            print("❌ [AppDelegate] No root view controller")
+            print("[AppDelegate] No root view controller")
             return
         }
         
@@ -46,17 +46,17 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     
     private func setupBridgeForViewController(_ bridgeVC: CAPBridgeViewController) {
         guard let webView = bridgeVC.webView else {
-            print("❌ [AppDelegate] WebView not found in bridge view controller")
+            print("[AppDelegate] WebView not found in bridge view controller")
             return
         }
         
-        // print("✅ [AppDelegate] WebView found, registering message handler")
+        // print("[AppDelegate] WebView found, registering message handler")
         
         // Crear y registrar el bridge
         secureEnclaveBridge = SecureEnclaveWebBridge()
         webView.configuration.userContentController.add(secureEnclaveBridge!, name: "secureEnclave")
         
-        // print("✅ [AppDelegate] SecureEnclave message handler registered")
+        // print("[AppDelegate] SecureEnclave message handler registered")
     }
     
     /**
@@ -69,7 +69,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = ApuntadorAutoEnrollmentPlugin.self
         _ = MTLSHttp.self
         
-        // print("✅ [AppDelegate] Custom plugins registration initialized")
+        // print("[AppDelegate] Custom plugins registration initialized")
         // print("ℹ️  Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
     }
 

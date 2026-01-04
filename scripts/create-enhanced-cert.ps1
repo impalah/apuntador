@@ -8,7 +8,7 @@ param(
 
 if ($Verbose) { $VerbosePreference = "Continue" }
 
-Write-Host "[SECURE] Creating certificate for code signing..." -ForegroundColor Green
+Write-Host "Creating certificate for code signing..." -ForegroundColor Green
 
 # Validate and handle password securely
 if ($Interactive) {
@@ -60,7 +60,7 @@ try {
     $cert = New-SelfSignedCertificate @CertParams
     
     if ($cert) {
-        Write-Host "[OK] Certificate created successfully" -ForegroundColor Green
+        Write-Host "Certificate created successfully" -ForegroundColor Green
         Write-Host "   Thumbprint: $($cert.Thumbprint)" -ForegroundColor White
         Write-Host "   Subject: $($cert.Subject)" -ForegroundColor White
         Write-Host "   Valid Until: $($cert.NotAfter)" -ForegroundColor White
@@ -74,16 +74,16 @@ try {
         
         if (Test-Path $pfxPath) {
             $fileSize = (Get-Item $pfxPath).Length
-            Write-Host "[OK] PFX exported: $pfxPath" -ForegroundColor Green
+            Write-Host "PFX exported: $pfxPath" -ForegroundColor Green
             Write-Host "   Size: $([math]::Round($fileSize / 1KB, 2)) KB" -ForegroundColor White
             Write-Verbose "PFX file size: $fileSize bytes"
             
-            Write-Host "[REFRESH] Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
+            Write-Host "Generating Base64 for GitHub Actions..." -ForegroundColor Yellow
             $base64 = [Convert]::ToBase64String([IO.File]::ReadAllBytes($pfxPath))
             $base64Path = Join-Path $OutputDir "certificate-base64.txt"
             $base64 | Out-File -FilePath $base64Path -Encoding UTF8
             
-            Write-Host "[OK] Base64 generated: $base64Path" -ForegroundColor Green
+            Write-Host "Base64 generated: $base64Path" -ForegroundColor Green
             Write-Host "   Password: $passwordDisplay" -ForegroundColor White
             Write-Verbose "Base64 length: $($base64.Length) characters"
             
@@ -120,12 +120,12 @@ Usage Examples:
             
             $infoPath = Join-Path $OutputDir "certificate-info.txt"
             $infoContent | Out-File -FilePath $infoPath -Encoding UTF8
-            Write-Host "[LIST] Info saved: $infoPath" -ForegroundColor Cyan
+            Write-Host "Info saved: $infoPath" -ForegroundColor Cyan
             
             Write-Host ""
             Write-Host "[SUCCESS] SUCCESS: Certificate ready for code signing!" -ForegroundColor Green
             Write-Host ""
-            Write-Host "[NOTE] Next Steps:" -ForegroundColor Blue
+            Write-Host "Next Steps:" -ForegroundColor Blue
             Write-Host "1. Copy content of certificate-base64.txt to GitHub secret WINDOWS_CERTIFICATE" -ForegroundColor White
             Write-Host "2. Add password to GitHub secret WINDOWS_CERTIFICATE_PASSWORD" -ForegroundColor White
             Write-Host "3. Run a build to test code signing" -ForegroundColor White
@@ -149,4 +149,4 @@ Usage Examples:
 }
 
 Write-Host ""
-Write-Host "🔒 Self-signed certificate ready for Tauri!" -ForegroundColor Green
+Write-Host "Self-signed certificate ready for Tauri!" -ForegroundColor Green

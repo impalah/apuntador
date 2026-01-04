@@ -86,7 +86,7 @@ public class CSRGenerator {
                        Base64.encodeToString(csrBytes, Base64.NO_WRAP) +
                        "\n-----END CERTIFICATE REQUEST-----";
         
-        Log.d(TAG, "✅ CSR generated successfully");
+        Log.d(TAG, "CSR generated successfully");
         Log.d(TAG, "   Length: " + csrPem.length() + " chars");
         
         return csrPem;
@@ -115,11 +115,11 @@ public class CSRGenerator {
                     .build(csr.getSubjectPublicKeyInfo())
             );
             
-            Log.d(TAG, "✅ CSR verification: " + (valid ? "VALID" : "INVALID"));
+            Log.d(TAG, "CSR verification: " + (valid ? "VALID" : "INVALID"));
             return valid;
             
         } catch (Exception e) {
-            Log.e(TAG, "❌ CSR verification failed: " + e.getMessage());
+            Log.e(TAG, "CSR verification failed: " + e.getMessage());
             return false;
         }
     }

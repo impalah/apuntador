@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[SECURE] iOS GitHub Actions Setup Helper"
+echo "iOS GitHub Actions Setup Helper"
 echo "This script helps generate base64 values for GitHub Secrets"
 echo ""
 
@@ -22,17 +22,17 @@ encode_file() {
     fi
     
     echo ""
-    echo "[NOTE] $description"
+    echo "$description"
     echo "File: $file_path"
     echo "Base64 (copy this to GitHub Secrets):"
     echo "----------------------------------------"
     base64 -i "$file_path"
     echo "----------------------------------------"
-    echo "[OK] Copied to clipboard"
+    echo "Copied to clipboard"
     base64 -i "$file_path" | pbcopy
 }
 
-echo "🍎 Apple Developer Certificate & Profile Setup"
+echo "Apple Developer Certificate & Profile Setup"
 echo ""
 echo "Required files for GitHub Actions iOS build:"
 echo "1. Distribution Certificate (.p12)"
@@ -53,7 +53,7 @@ if [ -n "$cert_path" ] && [ -f "$cert_path" ]; then
     read -s cert_password
     echo "Password length: ${#cert_password} characters"
     if [ ${#cert_password} -gt 0 ]; then
-        echo "[OK] Remember to add this password as IOS_CERTIFICATE_PASSWORD in GitHub"
+        echo "Remember to add this password as IOS_CERTIFICATE_PASSWORD in GitHub"
     fi
 else
     echo "⏭️  Skipping certificate (file not found)"
@@ -101,14 +101,14 @@ echo "Enter your Team ID (or press Enter to skip):"
 read -r team_id
 
 if [ ${#team_id} -eq 10 ]; then
-    echo "[OK] Team ID: $team_id"
+    echo "Team ID: $team_id"
     echo "Use this for IOS_TEAM_ID secret"
 elif [ -n "$team_id" ]; then
     echo "[WARNING]  Team ID should be 10 characters. You entered: $team_id (${#team_id} chars)"
 fi
 
 echo ""
-echo "[LIST] SUMMARY OF GITHUB SECRETS TO CREATE:"
+echo "SUMMARY OF GITHUB SECRETS TO CREATE:"
 echo "======================================="
 echo ""
 echo "Required secrets:"
@@ -123,11 +123,11 @@ echo "- APP_STORE_CONNECT_API_KEY_ID (Key ID from filename)"
 echo "- APP_STORE_CONNECT_API_ISSUER_ID (from App Store Connect)"
 echo "- APP_STORE_CONNECT_API_KEY_BASE64 (generated above)"
 echo ""
-echo "📖 Full setup guide: docs/IOS_GITHUB_ACTIONS.md"
+echo "Full setup guide: docs/IOS_GITHUB_ACTIONS.md"
 echo ""
-echo "[LAUNCH] Next steps:"
+echo "Next steps:"
 echo "1. Add all secrets to GitHub: Settings → Secrets and variables → Actions"
 echo "2. Test the workflow: Actions → 'Build iOS App Store Package'"
 echo "3. Check the build output and artifacts"
 echo ""
-echo "[OK] Setup helper completed!"
+echo "Setup helper completed!"

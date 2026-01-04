@@ -4,11 +4,12 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ## Scripts
 
-### [CONFIG] on-create.sh
+### on-create.sh
 
 **When it runs**: Automatically when the container is first created.
 
 **What it does**:
+
 - Sets up directory permissions
 - Installs Android SDK (Platform 34, Build Tools, NDK 26)
 - Configures Android environment variables
@@ -23,11 +24,12 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ---
 
-### [PACKAGE] post-create.sh
+### post-create.sh
 
 **When it runs**: After `on-create.sh` completes.
 
 **What it does**:
+
 - Runs `npm install` to install Node.js dependencies
 - Runs `cargo fetch` to pre-download Rust dependencies
 - Syncs Capacitor (if configured)
@@ -39,11 +41,12 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 
 ---
 
-### [OK] verify-setup.sh
+### verify-setup.sh
 
 **When it runs**: Manually, when you want to verify the setup.
 
 **What it does**:
+
 - Checks that all required tools are installed and accessible:
   - Node.js, npm, npx
   - Rust, Cargo, Rustup
@@ -55,6 +58,7 @@ This directory contains automated setup scripts for the Apuntador devcontainer.
 - Displays a summary report with pass/fail counts
 
 **How to run**:
+
 ```bash
 # Inside the devcontainer
 ./.devcontainer/scripts/verify-setup.sh
@@ -65,7 +69,8 @@ bash /workspaces/apuntador/.devcontainer/scripts/verify-setup.sh
 
 **Duration**: ~5 seconds
 
-**Use case**: 
+**Use case**:
+
 - After first container creation to verify everything installed correctly
 - After making changes to the devcontainer configuration
 - When troubleshooting issues
@@ -130,6 +135,7 @@ cargo install cargo-edit       # Manage Cargo.toml dependencies
 **Problem**: Download timeout or disk space issues.
 
 **Solution**:
+
 ```bash
 # Increase disk space allocated to Colima/Docker
 colima stop
@@ -144,6 +150,7 @@ colima start --cpu 8 --memory 16 --disk 120
 **Problem**: Network issues or corrupted cache.
 
 **Solution**:
+
 ```bash
 # Inside container
 rm -rf node_modules
@@ -156,6 +163,7 @@ npm install
 **Problem**: Some tools not found in PATH.
 
 **Solution**:
+
 ```bash
 # Reload shell configuration
 source ~/.bashrc
@@ -171,6 +179,7 @@ source ~/.zshrc
 **Problem**: Scripts may not have execute permissions.
 
 **Solution**:
+
 ```bash
 # From host (macOS)
 chmod +x .devcontainer/scripts/*.sh
@@ -205,6 +214,7 @@ bash /workspaces/apuntador/.devcontainer/scripts/verify-setup.sh
 Script output is visible in the VS Code terminal during container creation.
 
 To see logs later:
+
 - **Docker logs**: `docker logs <container_id>`
 - **Colima logs**: `colima logs`
 - **Container terminal**: Open terminal in VS Code after creation completes
@@ -216,6 +226,7 @@ To see logs later:
 ### When to Rebuild
 
 Rebuild the container if you:
+
 - Change `devcontainer.json` (features, mounts, settings)
 - Change `on-create.sh` or `post-create.sh`
 - Want to start with a clean slate
@@ -226,6 +237,7 @@ Rebuild the container if you:
 ### When NOT to Rebuild
 
 Don't rebuild if you only:
+
 - Changed source code
 - Installed npm packages (use `npm install` instead)
 - Installed Rust crates (use `cargo add` instead)
@@ -235,6 +247,7 @@ Rebuilding recreates the entire container, which takes ~10 minutes.
 ### Saving Time
 
 To speed up rebuilds:
+
 - Keep volumes persistent (default configuration)
 - Use Docker layer caching (automatic)
 - Don't change on-create.sh unless necessary

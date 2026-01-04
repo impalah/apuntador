@@ -14,13 +14,13 @@ export function isTauri(): boolean {
     // The most reliable way is to check if window.__TAURI_INTERNALS__ exists
     const hasTauriInternals = '__TAURI_INTERNALS__' in window
     const hasTauriMetadata = '__TAURI_METADATA__' in window
-    
-    // console.log('[SEARCH] Tauri detection:', { 
+
+    // console.log('Tauri detection:', {
     //   hasTauriInternals,
     //   hasTauriMetadata,
     //   windowKeys: Object.keys(window).filter(k => k.includes('TAURI'))
     // })
-    
+
     return hasTauriInternals || hasTauriMetadata
   } catch {
     return false
@@ -40,11 +40,11 @@ async function getDesktopScreenInfo(): Promise<{
   try {
     // Dynamic import to avoid loading Tauri APIs in web mode
     const { getCurrentWindow } = await import('@tauri-apps/api/window')
-    
+
     // Try to get monitor information
     let currentMonitor: any = null
     let allMonitors: any[] = []
-    
+
     try {
       // Try to get current monitor (API may vary by Tauri version)
       const window = getCurrentWindow()
@@ -56,7 +56,7 @@ async function getDesktopScreenInfo(): Promise<{
     } catch (error) {
       console.warn('currentMonitor API not available:', error)
     }
-    
+
     try {
       // Try to get all available monitors
       const { availableMonitors } = await import('@tauri-apps/api/window')
@@ -69,7 +69,7 @@ async function getDesktopScreenInfo(): Promise<{
 
     const screenCount = allMonitors.length || 1
     const isMultiScreen = screenCount > 1
-    
+
     // Check if current monitor is primary (first monitor in array or has position 0,0)
     let isPrimary = true
     if (currentMonitor) {
@@ -130,7 +130,7 @@ export function useTauri() {
       await updateFullscreenState()
 
       isReady.value = true
-      console.log('[OK] Tauri initialized successfully')
+      console.log('Tauri initialized successfully')
     } catch (error) {
       console.warn('Failed to initialize Tauri:', error)
       isReady.value = true
@@ -160,7 +160,7 @@ export function useTauri() {
         console.log('Close requested')
       })
 
-      console.log('[OK] Window listeners set up successfully')
+      console.log('Window listeners set up successfully')
     } catch (error) {
       console.warn('Failed to set up window listeners:', error)
     }
@@ -214,7 +214,7 @@ export function useTauri() {
       // Try using our custom Rust command first (more reliable)
       const { invoke } = await import('@tauri-apps/api/core')
       await invoke('minimize_window')
-      console.log('[OK] Window minimized via Rust command')
+      console.log('Window minimized via Rust command')
     } catch (error) {
       console.warn('Rust command failed, trying API fallback:', error)
       // Fallback to Tauri API
@@ -222,7 +222,7 @@ export function useTauri() {
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
         const window = getCurrentWindow()
         await window.minimize()
-        console.log('[OK] Window minimized via API')
+        console.log('Window minimized via API')
       } catch (apiError) {
         console.error('Failed to minimize window:', apiError)
       }
@@ -236,7 +236,7 @@ export function useTauri() {
       // Try using our custom Rust command first (more reliable)
       const { invoke } = await import('@tauri-apps/api/core')
       const newState = await invoke<boolean>('maximize_window')
-      console.log('[OK] Window maximize toggled via Rust command')
+      console.log('Window maximize toggled via Rust command')
       return newState
     } catch (error) {
       console.warn('Rust command failed, trying API fallback:', error)
@@ -250,7 +250,7 @@ export function useTauri() {
         } else {
           await window.maximize()
         }
-        console.log('[OK] Window maximize toggled via API')
+        console.log('Window maximize toggled via API')
         return !isMaximized
       } catch (apiError) {
         console.error('Failed to toggle maximize:', apiError)
@@ -266,7 +266,7 @@ export function useTauri() {
       // Try using our custom Rust command first (more reliable)
       const { invoke } = await import('@tauri-apps/api/core')
       await invoke('close_window')
-      console.log('[OK] Window closed via Rust command')
+      console.log('Window closed via Rust command')
     } catch (error) {
       console.warn('Rust command failed, trying API fallback:', error)
       // Fallback to Tauri API
@@ -274,7 +274,7 @@ export function useTauri() {
         const { getCurrentWindow } = await import('@tauri-apps/api/window')
         const window = getCurrentWindow()
         await window.close()
-        console.log('[OK] Window closed via API')
+        console.log('Window closed via API')
       } catch (apiError) {
         console.error('Failed to close window:', apiError)
       }

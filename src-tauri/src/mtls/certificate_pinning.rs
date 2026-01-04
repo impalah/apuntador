@@ -64,14 +64,14 @@ impl CertificatePinner {
             .map(Self::calculate_fingerprint)
             .collect();
 
-        println!("[SECURE] Certificate Pinning Verification:");
+        println!("Certificate Pinning Verification:");
         println!("   Expected pins: {:?}", self.pins);
         println!("   Received fingerprints: {:?}", fingerprints);
 
         // Check if any cert in chain matches any of our pins
         for fingerprint in &fingerprints {
             if self.pins.contains(fingerprint) {
-                println!("[OK] Certificate pinning: MATCH found");
+                println!("Certificate pinning: MATCH found");
                 return Ok(());
             }
         }

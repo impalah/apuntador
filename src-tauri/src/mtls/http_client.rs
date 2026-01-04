@@ -5,7 +5,7 @@ use reqwest::{Client, Identity};
 
 /// Create an HTTP client with certificate pinning
 pub fn create_pinned_client(pins: Vec<String>) -> Result<Client, String> {
-    println!("[SECURE] Creating HTTP client with certificate pinning...");
+    println!("Creating HTTP client with certificate pinning...");
     println!("   Pins: {:?}", pins);
 
     // For now, use reqwest with default TLS
@@ -15,7 +15,7 @@ pub fn create_pinned_client(pins: Vec<String>) -> Result<Client, String> {
         .build()
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
-    println!("[OK] HTTP client created with pinning");
+    println!("HTTP client created with pinning");
     Ok(client)
 }
 
@@ -26,7 +26,7 @@ pub fn create_mtls_client(
     cert: &StoredCertificate,
     pins: Vec<String>,
 ) -> Result<Client, String> {
-    println!("[SECURE] Creating mTLS HTTP client...");
+    println!("Creating mTLS HTTP client...");
     println!("   Device ID: {}", cert.device_id);
     println!("   Pins: {:?}", pins);
 
@@ -47,7 +47,7 @@ pub fn create_mtls_client(
         .build()
         .map_err(|e| format!("Failed to create mTLS client: {}", e))?;
 
-    println!("[OK] mTLS HTTP client created successfully");
+    println!("mTLS HTTP client created successfully");
     Ok(client)
 }
 

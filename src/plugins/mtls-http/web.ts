@@ -12,7 +12,7 @@ import type { MTLSHttpPlugin, MTLSHttpRequestOptions, MTLSHttpResponse } from '.
  */
 export class MTLSHttpWeb extends WebPlugin implements MTLSHttpPlugin {
   async request(options: MTLSHttpRequestOptions): Promise<MTLSHttpResponse> {
-    console.log('[WEB] [MTLSHttp Web] Using fetch() - certificate pinning not available in browser')
+    console.log('[MTLSHttp Web] Using fetch() - certificate pinning not available in browser')
 
     const { url, method = 'GET', headers = {}, body } = options
 

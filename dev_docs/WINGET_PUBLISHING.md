@@ -2,7 +2,7 @@
 
 Esta guía explica cómo publicar y actualizar Apuntador en el repositorio oficial de Winget ([microsoft/winget-pkgs](https://github.com/microsoft/winget-pkgs)).
 
-## [LIST] Tabla de Contenidos
+## Tabla de Contenidos
 
 1. [Prerequisitos](#prerequisitos)
 2. [Primera Publicación](#primera-publicación)
@@ -16,19 +16,23 @@ Esta guía explica cómo publicar y actualizar Apuntador en el repositorio ofici
 ## Prerequisitos
 
 ### Cuenta de GitHub
-- [OK] Cuenta de GitHub activa
-- [OK] Two-factor authentication (2FA) habilitada
+
+- Cuenta de GitHub activa
+- Two-factor authentication (2FA) habilitada
 
 ### Herramientas Locales (Opcional)
+
 ```powershell
 # Instalar wingetcreate (automatiza el proceso)
 winget install Microsoft.WingetCreate
 ```
 
 ### Información Necesaria
+
 Los manifests se generan automáticamente por el workflow `build-windows-desktop.yml`, pero necesitas:
-- [OK] Versión del release (ej: `1.1.76`)
-- [OK] URL pública del MSI (ej: `https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi`)
+
+- Versión del release (ej: `1.1.76`)
+- URL pública del MSI (ej: `https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi`)
 
 ---
 
@@ -130,20 +134,22 @@ git push origin main
    New package: Apuntador.Apuntador version 1.1.76
    ```
 5. Descripción:
+
    ```markdown
    ## Apuntador - Professional Teleprompter
-   
+
    First submission of Apuntador to Winget.
-   
+
    - Open source teleprompter application
    - Built with Tauri v2
    - MIT License
    - Homepage: https://apuntador.io
    - GitHub: https://github.com/impalah/apuntador
-   
+
    ---
-   
+
    **Checklist:**
+
    - [x] CLA signed at https://cla.opensource.microsoft.com/microsoft/winget-pkgs
    - [x] No linked issue (new package submission)
    - [x] No other open PRs for this package (verified)
@@ -151,6 +157,7 @@ git push origin main
    - [x] Manifests generated from official Tauri build
    - [x] Conforms to schema 1.6.0
    ```
+
 6. Haz clic en **Create pull request**
 
 ### Paso 5.1: Firmar el CLA (Solo Primera Vez)
@@ -160,7 +167,7 @@ Cuando crees el PR, un bot te pedirá firmar el **Contributor License Agreement 
 1. El bot comentará en tu PR con un enlace
 2. Haz clic en el enlace: https://cla.opensource.microsoft.com/microsoft/winget-pkgs
 3. Firma con tu cuenta de GitHub
-4. El bot actualizará el PR automáticamente como "[OK] CLA signed"
+4. El bot actualizará el PR automáticamente como "CLA signed"
 
 **Importante:** Solo necesitas hacer esto **una vez**. Futuras contribuciones no requerirán firmar de nuevo.
 
@@ -169,29 +176,35 @@ Cuando crees el PR, un bot te pedirá firmar el **Contributor License Agreement 
 Microsoft tiene bots que validan automáticamente:
 
 **Validaciones que se ejecutan (~2-5 minutos):**
-- [OK] Formato YAML correcto
-- [OK] SHA256 del MSI coincide
-- [OK] URL del instalador es accesible
-- [OK] ProductCode es válido
-- [OK] Versión sigue formato semántico
+
+- Formato YAML correcto
+- SHA256 del MSI coincide
+- URL del instalador es accesible
+- ProductCode es válido
+- Versión sigue formato semántico
 
 **Posibles resultados:**
 
-#### [OK] Success (Todo OK)
+#### Success (Todo OK)
+
 ```
 ✓ Azure Pipelines — All checks passed
 ✓ Validation - PASS
 ```
+
 → El PR será **aprobado y mergeado automáticamente** en 24-48h
 
 #### [ERROR] Failure (Hay errores)
+
 ```
 ✗ Azure Pipelines — Checks failed
 ✗ Validation - FAILED
 ```
+
 → Revisa los logs de error y corrige
 
 **Errores comunes:**
+
 - **SHA256 mismatch**: El hash no coincide → Regenera manifests
 - **URL not accessible**: El MSI no está público → Verifica permisos S3
 - **Invalid YAML**: Formato incorrecto → Revisa indentación
@@ -203,8 +216,9 @@ Microsoft tiene bots que validan automáticamente:
 
 **Notificación:**
 Recibirás un email cuando el PR sea mergeado:
+
 ```
-[OK] Your pull request has been merged!
+Your pull request has been merged!
    Apuntador.Apuntador is now available in Winget.
 ```
 
@@ -284,19 +298,21 @@ git push origin main
 ### Paso 4: Aprobación (Más Rápida)
 
 Las actualizaciones suelen ser **auto-aprobadas en pocas horas** si:
-- [OK] Las validaciones pasan
-- [OK] Solo cambia la versión
-- [OK] El publisher es el mismo
+
+- Las validaciones pasan
+- Solo cambia la versión
+- El publisher es el mismo
 
 ---
 
 ## Automatización con el Workflow
 
 El workflow `build-windows-desktop.yml` **genera automáticamente** los manifests con:
-- [OK] SHA256 calculado del MSI real
-- [OK] ProductCode extraído del MSI
-- [OK] URLs correctas según el environment
-- [OK] Versión desde el `release_tag`
+
+- SHA256 calculado del MSI real
+- ProductCode extraído del MSI
+- URLs correctas según el environment
+- Versión desde el `release_tag`
 
 ### Qué hace automáticamente:
 
@@ -312,7 +328,7 @@ Generate Winget Manifests:
 
 1. ⏬ Descargar artefacto `winget-manifests-X.X.X`
 2. 📤 Subirlo al repositorio microsoft/winget-pkgs
-3. [REFRESH] Crear Pull Request
+3. Crear Pull Request
 
 **Tiempo total:** ~5 minutos por release
 
@@ -325,6 +341,7 @@ Generate Winget Manifests:
 **Causa:** El hash en el manifest no coincide con el MSI descargado.
 
 **Solución:**
+
 ```powershell
 # Descargar el MSI público
 Invoke-WebRequest -Uri "https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi" -OutFile "temp.msi"
@@ -341,6 +358,7 @@ InstallerSha256: <NUEVO_HASH>
 **Causa:** El MSI no es público o la URL es incorrecta.
 
 **Solución:**
+
 1. Verifica que el archivo existe:
    ```
    https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi
@@ -353,11 +371,13 @@ InstallerSha256: <NUEVO_HASH>
 **Causa:** El GUID no tiene el formato correcto.
 
 **Formato válido:**
+
 ```yaml
 ProductCode: '{12345678-1234-1234-1234-123456789012}'
 ```
 
 **Solución:**
+
 ```powershell
 # Extraer ProductCode correcto del MSI
 $installer = New-Object -ComObject WindowsInstaller.Installer
@@ -374,6 +394,7 @@ Write-Host $productCode
 **Causa:** Indentación o sintaxis incorrecta.
 
 **Solución:**
+
 - Usar **espacios**, NO tabs
 - Verificar indentación (2 espacios por nivel)
 - Validar en: https://www.yamllint.com/
@@ -381,11 +402,13 @@ Write-Host $productCode
 ### PR Rechazado por Revisión Manual
 
 **Causas comunes:**
+
 - 🚫 Primera publicación de publisher desconocido
 - 🚫 URL sospechosa o dominio nuevo
 - 🚫 Licencia no clara
 
 **Solución:**
+
 - Responde en el PR con información adicional
 - Enlace al repositorio GitHub
 - Verificación de identidad del publisher
@@ -415,7 +438,7 @@ winget uninstall Apuntador.Apuntador
 ```html
 <!-- Añadir a apuntador.io -->
 <a href="ms-appinstaller:?source=winget&package=Apuntador.Apuntador">
-  [LAUNCH] Instalar Apuntador con un clic
+  Instalar Apuntador con un clic
 </a>
 ```
 
@@ -425,19 +448,24 @@ Prueba el botón en Windows 10/11.
 
 Actualiza `README.md` y la web con:
 
-```markdown
+````markdown
 ## Instalación en Windows
 
 ### Opción 1: Winget (Recomendado)
+
 ```powershell
 winget install Apuntador.Apuntador
 ```
+````
 
 ### Opción 2: Instalación con un clic
-[[LAUNCH] Instalar Apuntador](ms-appinstaller:?source=winget&package=Apuntador.Apuntador)
+
+[Instalar Apuntador](ms-appinstaller:?source=winget&package=Apuntador.Apuntador)
 
 ### Opción 3: Descarga Manual
-[[PACKAGE] Descargar MSI](https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi)
+
+[Descargar MSI](https://apuntador.io/downloads/apuntador-1.1.76-windows-x64-installer.msi)
+
 ```
 
 ---
@@ -488,3 +516,4 @@ winget install Apuntador.Apuntador
 
 **Problemas con Apuntador:**
 - GitHub Issues: https://github.com/impalah/apuntador/issues
+```

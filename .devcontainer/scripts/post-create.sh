@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[PACKAGE] Installing project dependencies..."
+echo "Installing project dependencies..."
 
 # Install Node.js dependencies
 npm install
@@ -13,12 +13,12 @@ cargo fetch
 cd ..
 
 # Sync Capacitor
-echo "[FAST] Syncing Capacitor..."
+echo "Syncing Capacitor..."
 npx cap sync || echo "[WARNING]  Capacitor sync failed (expected if not yet configured)"
 
-echo "[OK] Post-create setup completed!"
+echo "Post-create setup completed!"
 echo ""
-echo "[LAUNCH] Development environment ready!"
+echo "Development environment ready!"
 echo ""
 echo "Available commands:"
 echo "  npm run dev              - Start Vite dev server"

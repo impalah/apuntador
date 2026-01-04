@@ -5,7 +5,7 @@
 
 set -e
 
-echo "[SEARCH] Detecting connected iOS devices..."
+echo "Detecting connected iOS devices..."
 
 # Check if xctrace is available (preferred method for real UDID)
 if command -v xcrun xctrace >/dev/null 2>&1; then
@@ -13,7 +13,7 @@ if command -v xcrun xctrace >/dev/null 2>&1; then
     DEVICE_LIST=$(xcrun xctrace list devices 2>/dev/null | grep -E "iPhone|iPad" | grep -v Simulator || echo "")
     
     if [ -n "$DEVICE_LIST" ]; then
-        echo "[MOBILE] Found iOS devices:"
+        echo "Found iOS devices:"
         echo "$DEVICE_LIST"
         
         # Extract first real UDID (format: 00008XXX-XXXXXXXXXXXX)
@@ -21,12 +21,12 @@ if command -v xcrun xctrace >/dev/null 2>&1; then
         
         if [ -n "$UDID" ]; then
             echo ""
-            echo "[OK] Real device UDID: $UDID"
+            echo "Real device UDID: $UDID"
             echo ""
-            echo "[LIST] Copy this UDID and register it at:"
+            echo "Copy this UDID and register it at:"
             echo "https://developer.apple.com/account/resources/devices/add/"
             echo ""
-            echo "[REFRESH] After registration, go back to Xcode:"
+            echo "After registration, go back to Xcode:"
             echo "   Preferences → Accounts → [Your Apple ID] → Download Manual Profiles"
         fi
     else
@@ -38,13 +38,13 @@ elif command -v xcrun devicectl >/dev/null 2>&1; then
     DEVICE_LIST=$(xcrun devicectl list devices 2>/dev/null || echo "")
     
     if echo "$DEVICE_LIST" | grep -q "iPhone\|iPad"; then
-        echo "[MOBILE] Found iOS devices:"
+        echo "Found iOS devices:"
         echo "$DEVICE_LIST" | grep -E "iPhone|iPad" | head -5
         
         echo ""
         echo "[WARNING]  Note: devicectl may show internal IDs, not real UDIDs"
-        echo "[SEARCH] For real UDID, try: xcrun xctrace list devices"
-        echo "[MOBILE] Or use: Xcode → Window → Devices and Simulators"
+        echo "For real UDID, try: xcrun xctrace list devices"
+        echo "Or use: Xcode → Window → Devices and Simulators"
     else
         echo "[ERROR] No iOS devices detected via devicectl"
     fi
@@ -56,16 +56,16 @@ else
         DEVICE_LIST=$(instruments -s devices 2>/dev/null | grep -v "Simulator" || echo "")
         
         if echo "$DEVICE_LIST" | grep -q "iPhone\|iPad"; then
-            echo "[MOBILE] Found iOS devices:"
+            echo "Found iOS devices:"
             echo "$DEVICE_LIST" | grep -E "iPhone|iPad"
             
             UDID=$(echo "$DEVICE_LIST" | grep -E "iPhone|iPad" | head -1 | grep -oE '\[[A-F0-9-]{36}\]' | tr -d '[]')
             
             if [ -n "$UDID" ]; then
                 echo ""
-                echo "[OK] First device UDID: $UDID"
+                echo "First device UDID: $UDID"
                 echo ""
-                echo "[LIST] Copy this UDID and register it at:"
+                echo "Copy this UDID and register it at:"
                 echo "https://developer.apple.com/account/resources/devices/add/"
             fi
         else
@@ -83,13 +83,13 @@ if [ -z "$UDID" ]; then
     echo "2. Unlock device and trust this computer when prompted"
     echo "3. Run this script again"
     echo ""
-    echo "[MOBILE] Alternative: Open Xcode → Window → Devices and Simulators"
+    echo "Alternative: Open Xcode → Window → Devices and Simulators"
     echo "   Your device should appear there with its UDID"
     echo ""
-    echo "[WEB] Manual registration:"
+    echo "Manual registration:"
     echo "   https://developer.apple.com/account/resources/devices/list"
 fi
 
 echo ""
-echo "📖 For complete troubleshooting guide:"
+echo "For complete troubleshooting guide:"
 echo "   docs/IOS_SIGNING_ERRORS.md"

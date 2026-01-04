@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[BUILD]  Construyendo Apuntador para macOS..."
+echo " Construyendo Apuntador para macOS..."
 
 # 1. Limpiar builds anteriores
 echo "[CLEANUP] Limpiando builds anteriores..."
@@ -18,20 +18,20 @@ echo "🦀 Construyendo backend Rust..."
 cargo build --manifest-path src-tauri/Cargo.toml --release
 
 # 4. Crear estructura de app
-echo "[PACKAGE] Creando estructura de aplicación..."
+echo "Creando estructura de aplicación..."
 mkdir -p "/tmp/Apuntador.app/Contents/MacOS"
 mkdir -p "/tmp/Apuntador.app/Contents/Resources"
 
 # 5. Copiar binario
-echo "[SAVE] Copiando ejecutable..."
+echo "Copiando ejecutable..."
 cp src-tauri/target/release/apuntador "/tmp/Apuntador.app/Contents/MacOS/"
 
 # 6. Copiar recursos web
-echo "[WEB] Copiando recursos web..."
+echo "Copiando recursos web..."
 cp -R dist/* "/tmp/Apuntador.app/Contents/Resources/"
 
 # 7. Crear Info.plist
-echo "[FILE] Creando Info.plist..."
+echo "Creando Info.plist..."
 cat > "/tmp/Apuntador.app/Contents/Info.plist" << 'EOF'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -77,6 +77,6 @@ echo "[INSTALL] Instalando aplicación..."
 rm -rf "/Applications/Apuntador.app"
 cp -R "/tmp/Apuntador.app" "/Applications/"
 
-echo "[OK] ¡Apuntador construido e instalado exitosamente!"
-echo "[LAUNCH] Abriendo aplicación..."
+echo "¡Apuntador construido e instalado exitosamente!"
+echo "Abriendo aplicación..."
 open "/Applications/Apuntador.app"

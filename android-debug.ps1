@@ -12,10 +12,10 @@ function Test-Command($cmdname) {
 
 function Write-Status($message, $type = "INFO") {
     switch ($type) {
-        "OK" { Write-Host "[OK] $message" -ForegroundColor Green }
+        "OK" { Write-Host "$message" -ForegroundColor Green }
         "ERROR" { Write-Host "[ERROR] $message" -ForegroundColor Red }
         "WARN" { Write-Host "[WARN] $message" -ForegroundColor Yellow }
-        default { Write-Host "[INFO] $message" -ForegroundColor Cyan }
+        default { Write-Host "$message" -ForegroundColor Cyan }
     }
 }
 

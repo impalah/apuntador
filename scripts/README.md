@@ -1,4 +1,4 @@
-# [MOBILE] Build Scripts
+# Build Scripts
 
 This directory contains scripts for building Android App Bundles (AAB) locally.
 
@@ -13,7 +13,7 @@ This directory contains scripts for building Android App Bundles (AAB) locally.
 | `sync-version.ps1`   | Windows PowerShell | Sync version from package.json |
 | `sync-version.sh`    | Linux/macOS Bash   | Sync version from package.json |
 
-## [LAUNCH] Quick Start
+## Quick Start
 
 ### Windows (PowerShell)
 
@@ -59,18 +59,18 @@ chmod +x scripts/*.sh
 source scripts/set-android-env.sh
 ```
 
-## [LIST] Prerequisites
+## Prerequisites
 
 Before running these scripts, make sure you have:
 
-- [OK] **Node.js 20+** installed
-- [OK] **Java JDK 17+** installed
-- [OK] **Android SDK** configured
-- [OK] **Capacitor CLI** installed (`npm install -g @capacitor/cli`)
-- [OK] **Keystore configured** (for release builds)
-- [OK] **jq** (for Linux/macOS version sync script): `brew install jq` or `sudo apt install jq`
+- **Node.js 20+** installed
+- **Java JDK 17+** installed
+- **Android SDK** configured
+- **Capacitor CLI** installed (`npm install -g @capacitor/cli`)
+- **Keystore configured** (for release builds)
+- **jq** (for Linux/macOS version sync script): `brew install jq` or `sudo apt install jq`
 
-## [REFRESH] Version Synchronization
+## Version Synchronization
 
 Keep your package.json and Android versions in sync:
 
@@ -88,7 +88,7 @@ Keep your package.json and Android versions in sync:
 
 This automatically updates `android/app/build.gradle` with the version from `package.json`.
 
-## [SECURE] Keystore Setup
+## Keystore Setup
 
 For release builds, you need a keystore file. Use the setup script:
 
@@ -118,7 +118,7 @@ Built bundles will be placed in:
 - `android/app/build/outputs/bundle/debug/apuntador.aab` (debug)
 - Root directory: `apuntador-[version]-[buildtype].aab`
 
-## [BUG] Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -138,11 +138,11 @@ Built bundles will be placed in:
    - Clean build: `cd android && .\gradlew clean`
    - Check error messages in console
 
-## [DOCS] Related Documentation
+## Related Documentation
 
 - [Android Bundle Guide](../docs/ANDROID_BUNDLE_GUIDE.md) - Complete guide
 - [GitHub Actions Workflow](../.github/workflows/build-android-bundle.yml) - CI/CD automation
 
 ---
 
-**[TARGET] Ready to build your Android App Bundle for Google Play Store!**
+**Ready to build your Android App Bundle for Google Play Store!**

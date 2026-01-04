@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-echo "[CONFIG] Setting up Apuntador development environment..."
+echo "Setting up Apuntador development environment..."
 
 # Fix permissions
 sudo chown -R node:node /workspaces/apuntador
@@ -13,18 +13,18 @@ sudo chown -R node:node /workspaces/apuntador/node_modules
 sudo chown -R node:node /workspaces/apuntador/src-tauri/target
 
 # Test network connectivity
-echo "[WEB] Testing network connectivity..."
+echo "Testing network connectivity..."
 if ! ping -c 1 google.com > /dev/null 2>&1; then
     echo "[WARNING]  Warning: No internet connectivity detected. Some installations may fail."
 fi
 
 # Install Android SDK and NDK
-echo "[MOBILE] Installing Android SDK and tools..."
+echo "Installing Android SDK and tools..."
 
 # Detect architecture and enable amd64 if on ARM
 ARCH=$(dpkg --print-architecture)
 if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
-    echo "[CONFIG] ARM64 detected - enabling amd64 compatibility for Android SDK..."
+    echo "ARM64 detected - enabling amd64 compatibility for Android SDK..."
     sudo dpkg --add-architecture amd64 || true
 fi
 
@@ -43,7 +43,7 @@ sudo apt-get install -y \
 
 # Install amd64 dependencies if on ARM (required for Android SDK tools)
 if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
-    echo "[PACKAGE] Installing amd64 libraries for Android SDK compatibility..."
+    echo "Installing amd64 libraries for Android SDK compatibility..."
     sudo apt-get install -y \
         libc6:amd64 \
         libstdc++6:amd64 \
@@ -81,11 +81,11 @@ export PATH=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/pla
 # Only configure Android if not skipped
 if [ "${SKIP_ANDROID}" != "true" ]; then
     # Accept Android licenses
-    echo "[NOTE] Accepting Android licenses..."
+    echo "Accepting Android licenses..."
     yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
     # Install Android SDK components with retries and error handling
-    echo "[PACKAGE] Installing Android SDK components..."
+    echo "Installing Android SDK components..."
 
     # Function to install SDK package with retries
     install_sdk_package() {
@@ -141,16 +141,16 @@ echo "🦀 Installing Tauri CLI..."
 cargo install tauri-cli --version "^2.0" || echo "Tauri CLI already installed or failed"
 
 # Install iOS build tools (CocoaPods) - requires Ruby
-echo "🍎 Installing iOS build tools..."
+echo "Installing iOS build tools..."
 sudo apt-get install -y ruby-full
 sudo gem install cocoapods || echo "CocoaPods installation failed (expected in Linux container)"
 
 # Install Ionic CLI globally
-echo "[FAST] Installing Ionic CLI..."
+echo "Installing Ionic CLI..."
 npm install -g @ionic/cli
 
 # Install Capacitor CLI globally
-echo "[FAST] Installing Capacitor CLI..."
+echo "Installing Capacitor CLI..."
 npm install -g @capacitor/cli
 
-echo "[OK] On-create setup completed!"
+echo "On-create setup completed!"

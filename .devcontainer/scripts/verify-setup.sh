@@ -5,7 +5,7 @@
 # Don't exit on errors - we want to see all verification results
 set +e
 
-echo "[SEARCH] Verifying DevContainer Setup for Apuntador..."
+echo "Verifying DevContainer Setup for Apuntador..."
 echo ""
 
 # Color codes
@@ -170,7 +170,7 @@ echo "========================================="
 echo ""
 
 if [ $FAIL -eq 0 ]; then
-    echo -e "${GREEN}[OK] All checks passed!${NC}"
+    echo -e "${GREEN}All checks passed!${NC}"
     echo ""
     echo "You can now:"
     echo "  npm run dev              # Start Vite dev server"

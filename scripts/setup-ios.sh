@@ -5,7 +5,7 @@
 
 set -e
 
-echo "🍎 Configurando Apuntador para iOS..."
+echo "Configurando Apuntador para iOS..."
 
 # Colores para output
 RED='\033[0;31m'
@@ -16,11 +16,11 @@ NC='\033[0m' # No Color
 
 # Función para imprimir mensajes con color
 print_status() {
-    echo -e "${BLUE}[INFO]  $1${NC}"
+    echo -e "${BLUE} $1${NC}"
 }
 
 print_success() {
-    echo -e "${GREEN}[OK] $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 print_warning() {

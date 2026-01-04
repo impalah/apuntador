@@ -2,17 +2,17 @@
 
 Este documento explica la configuración de almacenamiento del proyecto Apuntador y cómo gestionar `node_modules` y compilaciones de Rust.
 
-## [PACKAGE] Configuración Actual: Bind Mounts (Compartidos)
+## Configuración Actual: Bind Mounts (Compartidos)
 
 **Actualizado**: Desde diciembre 2025, el proyecto usa **bind mounts** en lugar de volúmenes Docker aislados.
 
 ### Qué significa esto:
 
-- [OK] `node_modules` y `src-tauri/target` están **compartidos** entre el host (tu Mac) y el contenedor
-- [OK] Un solo directorio, accesible desde ambos lados
-- [OK] Ahorra 10-20GB de espacio en disco
-- [OK] Xcode puede acceder directamente a `node_modules` para builds de iOS
-- [OK] Cambios visibles inmediatamente en host y contenedor
+- `node_modules` y `src-tauri/target` están **compartidos** entre el host (tu Mac) y el contenedor
+- Un solo directorio, accesible desde ambos lados
+- Ahorra 10-20GB de espacio en disco
+- Xcode puede acceder directamente a `node_modules` para builds de iOS
+- Cambios visibles inmediatamente en host y contenedor
 
 ### Ubicación de los Directorios:
 
@@ -31,7 +31,7 @@ Este documento explica la configuración de almacenamiento del proyecto Apuntado
 
 ---
 
-## [REFRESH] Migración desde Volúmenes Docker Antiguos
+## Migración desde Volúmenes Docker Antiguos
 
 Si estás actualizando desde una configuración anterior que usaba volúmenes Docker, ejecuta el script de migración:
 
@@ -47,26 +47,30 @@ bash .devcontainer/scripts/migrate-to-bind-mounts.sh
 ```
 
 Este script:
+
 1. Copia `node_modules` del volumen Docker al host
 2. Copia `src-tauri/target` del volumen Docker al host
 3. Opcionalmente elimina los volúmenes viejos para liberar espacio
 
 **Luego reconstruye el contenedor:**
+
 - VS Code: `Cmd+Shift+P` → "Dev Containers: Rebuild Container"
 
 ---
 
-## 🍎 Desarrollo iOS: Ahora Más Simple
+## Desarrollo iOS: Ahora Más Simple
 
 Con bind mounts, ya **NO necesitas** instalar `node_modules` por separado en el host.
 
 **Antes (con volúmenes Docker):**
+
 ```bash
 # Tenías que hacer esto en el host:
 npm install  # [ERROR] Ya no es necesario
 ```
 
 **Ahora (con bind mounts):**
+
 ```bash
 # El contenedor instala node_modules
 # que automáticamente aparece en el host
@@ -74,6 +78,7 @@ npm install  # [ERROR] Ya no es necesario
 ```
 
 **Workflow de iOS:**
+
 ```bash
 # 1. En el devcontainer (o desde el host, es lo mismo):
 npm run build && npx cap sync ios
@@ -86,24 +91,25 @@ open ios/App/App.xcworkspace
 
 ---
 
-## [FAST] Rendimiento: Bind Mounts vs Volúmenes
+## Rendimiento: Bind Mounts vs Volúmenes
 
 ### Trade-offs:
 
-| Aspecto              | Volúmenes Docker     | Bind Mounts (Actual) |
-| -------------------- | -------------------- | -------------------- |
-| Velocidad en Linux   | Rápido [FAST]            | Rápido [FAST]            |
-| Velocidad en macOS   | Rápido [FAST]            | Un poco más lento 🐌 |
-| Espacio en disco     | Doble (2x) [ERROR]        | Simple (1x) [OK]       |
-| Acceso desde host    | No [ERROR]                | Sí [OK]                |
-| iOS development      | Complicado [WARNING]        | Simple [OK]            |
-| Android development  | Excelente [OK]         | Excelente [OK]         |
+| Aspecto             | Volúmenes Docker     | Bind Mounts (Actual) |
+| ------------------- | -------------------- | -------------------- |
+| Velocidad en Linux  | Rápido               | Rápido               |
+| Velocidad en macOS  | Rápido               | Un poco más lento 🐌 |
+| Espacio en disco    | Doble (2x) [ERROR]   | Simple (1x)          |
+| Acceso desde host   | No [ERROR]           | Sí                   |
+| iOS development     | Complicado [WARNING] | Simple               |
+| Android development | Excelente            | Excelente            |
 
 ### Impacto Real:
 
 En macOS, las operaciones de npm/cargo pueden ser **10-20% más lentas** con bind mounts debido a la capa de virtualización de archivos de Docker.
 
 **¿Vale la pena?** Sí, porque:
+
 - Ahorras 10-20GB de espacio
 - Desarrollo iOS es mucho más simple
 - La diferencia de velocidad es tolerable (~2-3 segundos en `npm install`)
@@ -123,11 +129,11 @@ Si prefieres la velocidad máxima sobre el ahorro de espacio, puedes volver a us
   // ...
   "mounts": [
     "source=${localEnv:HOME}${localEnv:USERPROFILE}/.ssh,target=/home/node/.ssh,type=bind,consistency=cached",
-    
+
     // Descomentar estas líneas:
     "source=apuntador-node-modules,target=/workspaces/apuntador/node_modules,type=volume",
-    "source=apuntador-rust-target,target=/workspaces/apuntador/src-tauri/target,type=volume"
-  ]
+    "source=apuntador-rust-target,target=/workspaces/apuntador/src-tauri/target,type=volume",
+  ],
 }
 ```
 
@@ -147,7 +153,7 @@ npm install
 
 ---
 
-## [SEARCH] Ver Volúmenes Actuales
+## Ver Volúmenes Actuales
 
 ```bash
 # Listar todos los volúmenes
@@ -163,7 +169,7 @@ docker system df -v
 
 ---
 
-## [DELETE] Limpiar Volúmenes (Liberar Espacio)
+## Limpiar Volúmenes (Liberar Espacio)
 
 ### Eliminar volúmenes específicos del proyecto
 
@@ -195,7 +201,7 @@ docker volume prune -f
 
 ---
 
-## [SAVE] Mapear a Disco Externo
+## Mapear a Disco Externo
 
 Si quieres usar un disco externo para `src-tauri/target` (ahorra espacio en SSD interno):
 
@@ -227,31 +233,34 @@ Edita `.devcontainer/devcontainer.json`:
 
 ---
 
-## [TARGET] Recomendaciones
+## Recomendaciones
 
 ### Para la mayoría de usuarios:
 
-[OK] **Usar bind mounts** (configuración actual)
+**Usar bind mounts** (configuración actual)
+
 - Ahorro de espacio
 - Simplicidad para iOS
 - Rendimiento aceptable
 
 ### Para usuarios con espacio ilimitado y prioridad en velocidad:
 
-[OK] **Usar volúmenes Docker**
+**Usar volúmenes Docker**
+
 - Máximo rendimiento
 - Requiere instalación dual de node_modules para iOS
 
 ### Para usuarios con SSDs pequeños:
 
-[OK] **Bind mounts + disco externo para Rust**
+**Bind mounts + disco externo para Rust**
+
 - Mejor de ambos mundos
 - `node_modules` en SSD (~1GB)
 - `target` en disco externo (~10-20GB)
 
 ---
 
-## [DOCS] Referencias
+## Referencias
 
 - [Docker Volumes Documentation](https://docs.docker.com/storage/volumes/)
 - [Bind Mounts Documentation](https://docs.docker.com/storage/bind-mounts/)

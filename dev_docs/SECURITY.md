@@ -1,4 +1,4 @@
-# 🔒 Security Guidelines for Android Development
+# Security Guidelines for Android Development
 
 ## [WARNING] Critical Security Files
 
@@ -10,13 +10,13 @@ The following files contain sensitive information and must **NEVER** be committe
 - `*.jks` - Java KeyStore files
 - Location: `android/app/apuntador-release-key.keystore`
 
-### [SECURE] Configuration Files
+### Configuration Files
 
 - `android/key.properties` - Contains keystore passwords
 - `keystore-base64.txt` - Temporary Base64 encoded keystore
 - `keystore.txt` - Any temporary keystore exports
 
-## [OK] Safe Development Practices
+## Safe Development Practices
 
 ### 1. Using Templates
 
@@ -60,15 +60,15 @@ keystore.txt
 - [ERROR] Never include keystore in Docker images
 - [ERROR] Never push temporary keystore files
 
-## [OK] What TO Do
+## What TO Do
 
-- [OK] Use `key.properties.template` as a reference
-- [OK] Store keystore files in secure, backed-up locations
-- [OK] Use different passwords for development vs production
-- [OK] Generate Base64 for CI/CD using provided scripts
-- [OK] Delete temporary files after CI/CD setup
+- Use `key.properties.template` as a reference
+- Store keystore files in secure, backed-up locations
+- Use different passwords for development vs production
+- Generate Base64 for CI/CD using provided scripts
+- Delete temporary files after CI/CD setup
 
-## [CONFIG] CI/CD Security
+## CI/CD Security
 
 For GitHub Actions, use encrypted secrets:
 
@@ -109,7 +109,7 @@ git push --force-with-lease --all
 git log --patch --all -S "password" -- "*.properties" "*.keystore"
 ```
 
-## [LIST] Security Checklist
+## Security Checklist
 
 Before committing:
 
@@ -119,7 +119,7 @@ Before committing:
 - [ ] Review `.gitignore` covers all sensitive patterns
 - [ ] Test that ignored files stay ignored: `git status --ignored`
 
-## [SEARCH] Verification Commands
+## Verification Commands
 
 ```bash
 # Check what files are tracked

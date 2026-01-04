@@ -208,7 +208,7 @@ class MTLSHTTPClient: NSObject {
             SecIdentityCopyCertificate(identity, &cert)
             
             if let cert = cert, CFEqual(cert, targetCertificate) {
-                print("✅ [mTLS] Found matching identity")
+                print("[mTLS] Found matching identity")
                 return identity
             }
         }
@@ -242,7 +242,7 @@ extension MTLSHTTPClient: URLSessionDelegate {
         
         // Intentar crear el identity con certificado + clave privada
         guard let identity = createIdentity() else {
-            print("❌ [mTLS] No se pudo crear identity (certificado o clave privada no encontrados)")
+            print("[mTLS] No se pudo crear identity (certificado o clave privada no encontrados)")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
@@ -254,7 +254,7 @@ extension MTLSHTTPClient: URLSessionDelegate {
             persistence: .forSession
         )
         
-        print("✅ [mTLS] Autenticación de cliente con certificado")
+        print("[mTLS] Autenticación de cliente con certificado")
         completionHandler(.useCredential, credential)
     }
     
@@ -338,18 +338,18 @@ extension MTLSHTTPClient: URLSessionDelegate {
         
         // Si no hay pins configurados para este host, rechazar
         if expectedPins.isEmpty {
-            print("[MTLSHTTPClient] ❌ No certificate pins configured for host: \(host)")
+            print("[MTLSHTTPClient] No certificate pins configured for host: \(host)")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
         
         // Verificar si el hash coincide con alguno de los pins esperados
         if expectedPins.contains(sha256Base64) {
-            print("[MTLSHTTPClient] ✅ Certificate pin validated successfully for host: \(host)")
+            print("[MTLSHTTPClient] Certificate pin validated successfully for host: \(host)")
             let credential = URLCredential(trust: serverTrust)
             completionHandler(.useCredential, credential)
         } else {
-            print("[MTLSHTTPClient] ❌ Certificate pin validation FAILED for host: \(host)")
+            print("[MTLSHTTPClient] Certificate pin validation FAILED for host: \(host)")
             print("[MTLSHTTPClient] Expected one of: \(expectedPins)")
             print("[MTLSHTTPClient] Got: \(sha256Base64)")
             completionHandler(.cancelAuthenticationChallenge, nil)

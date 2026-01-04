@@ -1,10 +1,10 @@
-# [BUG] App Debugging Guide - Physical Devices
+# App Debugging Guide - Physical Devices
 
 This guide covers how to debug **Apuntador** on physical Android and iOS devices using wireless debugging and USB connections.
 
 ---
 
-## [MOBILE] Android Debugging
+## Android Debugging
 
 ### Prerequisites
 
@@ -14,7 +14,7 @@ This guide covers how to debug **Apuntador** on physical Android and iOS devices
 
 ---
 
-## [CONFIG] Android: Wireless Debugging Setup
+## Android: Wireless Debugging Setup
 
 ### Step 1: Enable Developer Mode on Your Android Device
 
@@ -31,8 +31,8 @@ This guide covers how to debug **Apuntador** on physical Android and iOS devices
 2. Find and open **Developer options** (now visible)
 3. Enable the **Developer options** toggle
 4. Find and enable:
-   - [OK] **USB debugging**
-   - [OK] **Wireless debugging** (or "Wireless ADB")
+   - **USB debugging**
+   - **Wireless debugging** (or "Wireless ADB")
 
 ### Step 3: Pair Your Device (First Time Only)
 
@@ -92,7 +92,7 @@ adb devices -l
 
 ---
 
-## [LAUNCH] Building and Installing on Android
+## Building and Installing on Android
 
 ### Quick Build & Install
 
@@ -133,7 +133,7 @@ adb shell am start -n io.apuntador.app/.MainActivity
 
 ---
 
-## [REFRESH] Daily Development Workflow
+## Daily Development Workflow
 
 ### Reconnecting After Reboot
 
@@ -163,22 +163,22 @@ if ! adb devices | grep -q "192.168.0.137"; then
     adb connect 192.168.0.137:44113
 fi
 
-echo "[BUILD]  Building web app..."
+echo " Building web app..."
 npm run build
 
-echo "[FAST] Syncing Capacitor..."
+echo "Syncing Capacitor..."
 npx cap sync android
 
-echo "[PACKAGE] Building APK..."
+echo "Building APK..."
 cd android && ./gradlew assembleDebug && cd ..
 
 echo "[INSTALL] Installing on device..."
 adb install -r android/app/build/outputs/apk/debug/app-debug.apk
 
-echo "[LAUNCH] Launching app..."
+echo "Launching app..."
 adb shell am start -n io.apuntador.app/.MainActivity
 
-echo "[OK] Deployment complete!"
+echo "Deployment complete!"
 ```
 
 Make it executable:
@@ -190,7 +190,7 @@ chmod +x quick-android-deploy.sh
 
 ---
 
-## [STATS] Debugging & Monitoring
+## Debugging & Monitoring
 
 ### View Logs in Real-Time
 
@@ -278,7 +278,7 @@ adb connect <DEVICE_IP>:5555
 
 ---
 
-## 🍎 iOS Debugging
+## iOS Debugging
 
 ### Prerequisites
 
@@ -295,7 +295,7 @@ Since iOS development requires macOS and Xcode, you'll use a **hybrid approach**
 - **DevContainer (Linux)**: Build web assets
 - **macOS Host**: Run Xcode and deploy to device
 
-[OK] **Good News**: The devcontainer uses **bind mounts** (shared directories), so `node_modules` is automatically accessible from both the container and your Mac. No special setup needed!
+**Good News**: The devcontainer uses **bind mounts** (shared directories), so `node_modules` is automatically accessible from both the container and your Mac. No special setup needed!
 
 **How it works:**
 
@@ -311,7 +311,7 @@ When you run `npm install` in the devcontainer, the files appear on your Mac aut
 
 ---
 
-## [LAUNCH] Building and Installing on iOS
+## Building and Installing on iOS
 
 ### Step 1: Build Web Assets (In DevContainer)
 
@@ -393,7 +393,7 @@ If the app doesn't launch and shows "Untrusted Developer":
 
 ---
 
-## [BUG] Debugging on iOS
+## Debugging on iOS
 
 ### Option 1: Safari Web Inspector (Recommended)
 
@@ -409,7 +409,7 @@ The most powerful debugging option for Capacitor apps.
    - Open **Safari**
    - If you don't see "Develop" in the menu bar:
      - Safari > Settings > Advanced
-     - Check [OK] **Show Develop menu in menu bar**
+     - Check **Show Develop menu in menu bar**
 
 **Debugging:**
 
@@ -463,7 +463,7 @@ For Swift/Objective-C native code debugging:
 
 ---
 
-## [REFRESH] Daily iOS Development Workflow
+## Daily iOS Development Workflow
 
 ### Quick Iteration Cycle
 
@@ -524,7 +524,7 @@ For faster development without rebuilding each time:
 
 ---
 
-## [STATS] Monitoring & Debugging Tools
+## Monitoring & Debugging Tools
 
 ### View Device Logs
 
@@ -560,7 +560,7 @@ Use Safari Web Inspector's **Network** tab:
 
 ---
 
-## [TOOLS] Useful Xcode Shortcuts
+## Useful Xcode Shortcuts
 
 ```bash
 Cmd + R          # Build and Run
@@ -586,7 +586,7 @@ Cmd + Shift + 2  # Show Breakpoint Navigator
 1. Connect iPad via USB initially
 2. In Xcode: **Window > Devices and Simulators**
 3. Select your iPad
-4. Check [OK] **Connect via network**
+4. Check **Connect via network**
 5. Disconnect USB cable
 6. iPad will appear in device menu with a network icon
 7. Select and run as normal
@@ -595,7 +595,7 @@ Cmd + Shift + 2  # Show Breakpoint Navigator
 
 ---
 
-## [CONFIG] Quick Development Script (iOS)
+## Quick Development Script (iOS)
 
 Create a script for rapid iterations:
 
@@ -603,16 +603,16 @@ Create a script for rapid iterations:
 #!/bin/bash
 # quick-ios-deploy.sh
 
-echo "[BUILD]  Building web app..."
+echo " Building web app..."
 npm run build
 
-echo "[FAST] Syncing Capacitor..."
+echo "Syncing Capacitor..."
 npx cap sync ios
 
-echo "[MOBILE] Opening Xcode..."
+echo "Opening Xcode..."
 open ios/App/App.xcworkspace
 
-echo "[OK] Ready! Press [PLAY] in Xcode to run on iPad"
+echo "Ready! Press [PLAY] in Xcode to run on iPad"
 ```
 
 Make executable:
@@ -624,7 +624,7 @@ chmod +x quick-ios-deploy.sh
 
 ---
 
-## [BUG] Troubleshooting
+## Troubleshooting
 
 ### Android Device Not Found
 
@@ -822,7 +822,7 @@ Common causes:
 
 ---
 
-## [DOCS] Related Documentation
+## Related Documentation
 
 - [BUILD-ANDROID.md](BUILD-ANDROID.md) - Complete Android build guide
 - [BUILD-iOS.md](BUILD-iOS.md) - iOS build guide
@@ -831,7 +831,7 @@ Common causes:
 
 ---
 
-## [TARGET] Quick Reference
+## Quick Reference
 
 ### First-Time Setup (Android WiFi)
 
@@ -928,7 +928,7 @@ idevicesyslog | grep -i apuntador
 
 ---
 
-## [SERVER] Desktop Debugging (Tauri)
+## Desktop Debugging (Tauri)
 
 ### Prerequisites
 
@@ -951,7 +951,7 @@ The devcontainer (Linux) cannot create macOS binaries even though it has Rust in
 
 ---
 
-## [TOOLS] macOS: Setup for Tauri Development
+## macOS: Setup for Tauri Development
 
 ### Step 1: Install Xcode Command Line Tools
 
@@ -1047,10 +1047,10 @@ cargo install tauri-cli
 
 ```bash
 # Check all tools
-which rustc && echo "[OK] Rust installed"
-which cargo && echo "[OK] Cargo installed"
-xcode-select -p && echo "[OK] Xcode tools installed"
-which node && echo "[OK] Node.js installed"
+which rustc && echo "Rust installed"
+which cargo && echo "Cargo installed"
+xcode-select -p && echo "Xcode tools installed"
+which node && echo "Node.js installed"
 
 # Check for required dependencies
 brew list | grep -E "pkg-config|openssl" || brew install pkg-config openssl
@@ -1058,7 +1058,7 @@ brew list | grep -E "pkg-config|openssl" || brew install pkg-config openssl
 
 ---
 
-## [LAUNCH] Building Tauri Desktop App on macOS
+## Building Tauri Desktop App on macOS
 
 ### Development Mode (Hot Reload)
 
@@ -1125,7 +1125,7 @@ npm run tauri:build:mac-debug
 
 ---
 
-## [BUG] Debugging Desktop App
+## Debugging Desktop App
 
 ### Console Logs
 
@@ -1190,7 +1190,7 @@ debug = true
 
 ---
 
-## [CONFIG] Troubleshooting Tauri on macOS
+## Troubleshooting Tauri on macOS
 
 ### "xcrun: error: unable to find utility"
 
@@ -1298,7 +1298,7 @@ Cannot find module '@tauri-apps/cli-darwin-arm64'
 
 **[ERROR] Don't do this**: Running `npm install` on your Mac will break the devcontainer by replacing Linux binaries with macOS binaries.
 
-**[OK] Solution: Install Tauri CLI via Cargo**
+**Solution: Install Tauri CLI via Cargo**
 
 Instead of using npm's Tauri CLI, install it globally via Cargo (Rust's package manager):
 
@@ -1393,7 +1393,7 @@ cargo tauri build --target x86_64-apple-darwin
 
 ---
 
-## [STATS] Workflow: DevContainer + Mac Tauri
+## Workflow: DevContainer + Mac Tauri
 
 ### Recommended Setup
 
@@ -1422,9 +1422,9 @@ cargo tauri dev
 
 **Solution**:
 
-- [OK] **Build in devcontainer** - npm/Vite work correctly with Linux binaries
-- [OK] **Run Tauri on Mac** - Uses the pre-built `dist/` folder
-- [OK] **No conflicts** - Each environment uses what it needs
+- **Build in devcontainer** - npm/Vite work correctly with Linux binaries
+- **Run Tauri on Mac** - Uses the pre-built `dist/` folder
+- **No conflicts** - Each environment uses what it needs
 
 ### Development Mode (Hot Reload)
 
@@ -1481,7 +1481,7 @@ cargo tauri build --target universal-apple-darwin
 
 ---
 
-## [TARGET] Quick Reference - Desktop
+## Quick Reference - Desktop
 
 ### First-Time Setup (macOS)
 

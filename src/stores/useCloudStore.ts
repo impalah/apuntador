@@ -63,7 +63,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
   const isConnected = computed(() => {
     const connected = activeProvider.value?.isConnected || false
-    console.log('[SEARCH] CloudStore isConnected computed:', {
+    console.log('CloudStore isConnected computed:', {
       hasActiveProvider: !!activeProvider.value,
       activeProviderId: activeProviderId.value,
       providerIsConnected: activeProvider.value?.isConnected,
@@ -109,9 +109,9 @@ export const useCloudStore = defineStore('cloud', () => {
   const initialize = async (): Promise<void> => {
     // STEP 1: Cargar configuración de providers del backend
     try {
-      console.log('[SEARCH] [CloudStore] Loading provider configuration from backend...')
+      console.log('[CloudStore] Loading provider configuration from backend...')
       providerConfig.value = await cloudProviderConfig.getConfig()
-      console.log('[OK] [CloudStore] Provider configuration loaded:', providerConfig.value)
+      console.log('[CloudStore] Provider configuration loaded:', providerConfig.value)
     } catch (error) {
       console.error('[ERROR] [CloudStore] Failed to load provider configuration:', error)
       // Continue without config (all providers will be shown by default)
@@ -138,11 +138,11 @@ export const useCloudStore = defineStore('cloud', () => {
    * Cambia el proveedor activo sin re-autenticar si ya hay credenciales
    */
   const setActiveProvider = async (providerId: CloudProviderId): Promise<void> => {
-    console.log('[REFRESH] Store: Changing active provider to:', providerId)
+    console.log('Store: Changing active provider to:', providerId)
 
     // Si ya es el proveedor activo, no hacer nada
     if (activeProviderId.value === providerId) {
-      console.log('[INFO] Store: Provider already active, skipping')
+      console.log('Store: Provider already active, skipping')
       return
     }
 
@@ -153,7 +153,7 @@ export const useCloudStore = defineStore('cloud', () => {
       const service = services[providerId]
 
       // Intentar restaurar sesión existente
-      console.log('[SEARCH] Store: Checking for existing credentials...')
+      console.log('Store: Checking for existing credentials...')
 
       // Verificar si el servicio soporta restoreSession
       if (!service.restoreSession) {
@@ -166,7 +166,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
       if (sessionRestored) {
         // Ya hay credenciales válidas, solo cambiar el proveedor activo
-        console.log('[OK] Store: Session restored successfully, switching provider')
+        console.log('Store: Session restored successfully, switching provider')
         activeProviderId.value = providerId
         localStorage.setItem('cloud_active_provider', providerId)
 
@@ -199,7 +199,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
     try {
       // STEP 1: Ensure valid certificate AND fetch provider config
-      console.log('[SECURE] Ensuring device has valid certificate and fetching provider config...')
+      console.log('Ensuring device has valid certificate and fetching provider config...')
       const { certStatus, providerConfig } =
         await CertificateValidator.ensureValidCertificateAndConfig()
 
@@ -213,9 +213,9 @@ export const useCloudStore = defineStore('cloud', () => {
         throw new Error(`Certificate required: ${message}`)
       }
 
-      console.log('[OK] Certificate ready for OAuth')
+      console.log('Certificate ready for OAuth')
       if (certStatus.daysUntilExpiry) {
-        console.log(`📅 Certificate valid for ${certStatus.daysUntilExpiry} more days`)
+        console.log(`Certificate valid for ${certStatus.daysUntilExpiry} more days`)
       }
 
       // STEP 2: Validate provider is enabled
@@ -227,7 +227,7 @@ export const useCloudStore = defineStore('cloud', () => {
         throw new Error(message)
       }
 
-      console.log(`[OK] Provider ${providerId} is enabled`)
+      console.log(`Provider ${providerId} is enabled`)
 
       // STEP 3: Proceed with OAuth flow
       const service = services[providerId]
@@ -240,10 +240,10 @@ export const useCloudStore = defineStore('cloud', () => {
 
       if (isTauri && (providerId === 'dropbox' || providerId === 'googledrive')) {
         // Flujo para Dropbox/Google Drive en Tauri usando backend proxy
-        console.log(`[SERVER] Using Tauri OAuth flow for ${providerId} (via backend proxy)`)
+        console.log(`Using Tauri OAuth flow for ${providerId} (via backend proxy)`)
 
         // STEP 1: Start OAuth callback server
-        console.log('[LAUNCH] Starting OAuth callback server...')
+        console.log('Starting OAuth callback server...')
         await tauriService.startOAuthCallbackServer()
 
         // STEP 2: Set up listener for oauth-callback event
@@ -251,7 +251,7 @@ export const useCloudStore = defineStore('cloud', () => {
         const callbackPromise = tauriService.listenForOAuthCallback()
 
         // STEP 3: Start OAuth flow (opens browser with backend URL)
-        console.log('[WEB] Opening browser for OAuth (backend proxy)...')
+        console.log('Opening browser for OAuth (backend proxy)...')
         await service.connect() // This opens browser to backend URL
 
         // STEP 4: Wait for callback from localhost:8080
@@ -267,7 +267,7 @@ export const useCloudStore = defineStore('cloud', () => {
         }
       } else {
         // Flujo web estándar
-        console.log('[WEB] Using web OAuth flow')
+        console.log('Using web OAuth flow')
         await service.connect()
         // Connection completes in handleOAuthCallback
         return // No continuar aquí, el callback completará la conexión
@@ -391,7 +391,7 @@ export const useCloudStore = defineStore('cloud', () => {
         currentPath.value = ''
       }
 
-      console.log(`[OK] Provider ${providerId} access revoked successfully`)
+      console.log(`Provider ${providerId} access revoked successfully`)
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error revoking provider access'
       console.error('Revoke provider error:', err)

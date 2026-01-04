@@ -1,19 +1,19 @@
 /**
  * Version utility for Apuntador
- * 
+ *
  * This file provides access to the application version.
  * The version is automatically synchronized with package.json during build/dev.
- * 
- * [FEATURE] AUTO-SYNCED: This file is automatically updated by the vite-plugin-version-sync plugin
+ *
+ * AUTO-SYNCED: This file is automatically updated by the vite-plugin-version-sync plugin
  */
 
 /**
  * Current application version - Automatically updated from package.json
  * @see package.json version field
  * @see config/vite-plugin-version-sync.ts for sync implementation
- * CURRENT PACKAGE.JSON VERSION: 1.1.98
+ * CURRENT PACKAGE.JSON VERSION: 1.1.100
  */
-export const APP_VERSION = '1.1.98'
+export const APP_VERSION = '1.1.100'
 
 /**
  * Application name

@@ -198,7 +198,7 @@ class MTLSHTTPClient: NSObject {
             SecIdentityCopyCertificate(identity, &cert)
             
             if let cert = cert, CFEqual(cert, targetCertificate) {
-                print("✅ [mTLS] Found matching identity")
+                print("[mTLS] Found matching identity")
                 return identity
             }
         }
@@ -232,7 +232,7 @@ extension MTLSHTTPClient: URLSessionDelegate {
         
         // Intentar crear el identity con certificado + clave privada
         guard let identity = createIdentity() else {
-            print("❌ [mTLS] No se pudo crear identity (certificado o clave privada no encontrados)")
+            print("[mTLS] No se pudo crear identity (certificado o clave privada no encontrados)")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
@@ -244,7 +244,7 @@ extension MTLSHTTPClient: URLSessionDelegate {
             persistence: .forSession
         )
         
-        print("✅ [mTLS] Autenticación de cliente con certificado")
+        print("[mTLS] Autenticación de cliente con certificado")
         completionHandler(.useCredential, credential)
     }
     

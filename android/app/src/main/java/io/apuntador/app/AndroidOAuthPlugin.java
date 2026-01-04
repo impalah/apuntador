@@ -52,12 +52,12 @@ public class AndroidOAuthPlugin extends Plugin {
             return;
         }
 
-        Log.d(TAG, "🚀 Starting OAuth authorization for provider: " + provider);
+        Log.d(TAG, "Starting OAuth authorization for provider: " + provider);
 
         try {
             // 1. Generar code_verifier seguro
             String codeVerifier = generateCodeVerifier();
-            Log.d(TAG, "🔐 Generated code_verifier (length: " + codeVerifier.length() + ")");
+            Log.d(TAG, "Generated code_verifier (length: " + codeVerifier.length() + ")");
 
             // 2. Hacer request al backend
             String authUrl = backendUrl + "/oauth/authorize/" + provider;
@@ -73,7 +73,7 @@ public class AndroidOAuthPlugin extends Plugin {
             String authorizationUrl = response.getString("authorization_url");
             String state = response.getString("state");
 
-            Log.d(TAG, "✅ Received authorization URL from backend");
+            Log.d(TAG, "Received authorization URL from backend");
 
             // 3. Guardar code_verifier y state en SharedPreferences
             getContext().getSharedPreferences("oauth_prefs", 0)
@@ -99,7 +99,7 @@ public class AndroidOAuthPlugin extends Plugin {
             call.resolve(result);
 
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error in authorize: " + e.getMessage(), e);
+            Log.e(TAG, "Error in authorize: " + e.getMessage(), e);
             call.reject("OAuth authorization failed: " + e.getMessage());
         }
     }
@@ -142,7 +142,7 @@ public class AndroidOAuthPlugin extends Plugin {
                 return;
             }
 
-            Log.d(TAG, "✅ State verified successfully");
+            Log.d(TAG, "State verified successfully");
 
             // 3. Hacer request al backend
             String tokenUrl = backendUrl + "/oauth/token/" + provider;
@@ -169,7 +169,7 @@ public class AndroidOAuthPlugin extends Plugin {
                     .remove("oauth_current_provider")
                     .apply();
 
-            Log.d(TAG, "🧹 Cleaned up OAuth state");
+            Log.d(TAG, "Cleaned up OAuth state");
 
             // 5. Retornar tokens
             JSObject result = new JSObject();
@@ -180,10 +180,10 @@ public class AndroidOAuthPlugin extends Plugin {
             result.put("expires_in", expiresIn);
             call.resolve(result);
 
-            Log.d(TAG, "✅ Token exchange completed successfully");
+            Log.d(TAG, "Token exchange completed successfully");
 
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error in exchangeToken: " + e.getMessage(), e);
+            Log.e(TAG, "Error in exchangeToken: " + e.getMessage(), e);
             call.reject("Token exchange failed: " + e.getMessage());
         }
     }
@@ -222,10 +222,10 @@ public class AndroidOAuthPlugin extends Plugin {
             result.put("expires_in", expiresIn);
             call.resolve(result);
 
-            Log.d(TAG, "✅ Token refresh completed successfully");
+            Log.d(TAG, "Token refresh completed successfully");
 
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error in refreshToken: " + e.getMessage(), e);
+            Log.e(TAG, "Error in refreshToken: " + e.getMessage(), e);
             call.reject("Token refresh failed: " + e.getMessage());
         }
     }
@@ -259,10 +259,10 @@ public class AndroidOAuthPlugin extends Plugin {
             result.put("success", true);
             call.resolve(result);
 
-            Log.d(TAG, "✅ Token revoked successfully");
+            Log.d(TAG, "Token revoked successfully");
 
         } catch (Exception e) {
-            Log.e(TAG, "❌ Error in revokeToken: " + e.getMessage(), e);
+            Log.e(TAG, "Error in revokeToken: " + e.getMessage(), e);
             call.reject("Token revocation failed: " + e.getMessage());
         }
     }

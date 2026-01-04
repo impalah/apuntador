@@ -4,7 +4,7 @@
 
 set -e
 
-echo "[MOBILE] Manual Android SDK Installation"
+echo "Manual Android SDK Installation"
 echo ""
 
 # Set variables
@@ -35,7 +35,7 @@ if ! wget -q --show-progress https://dl.google.com/android/repository/commandlin
 fi
 
 # Extract
-echo "[PACKAGE] Extracting..."
+echo "Extracting..."
 unzip -q /tmp/cmdline-tools.zip -d /tmp/cmdline-tools
 mv /tmp/cmdline-tools/cmdline-tools ${ANDROID_SDK_ROOT}/cmdline-tools/latest
 rm /tmp/cmdline-tools.zip
@@ -46,11 +46,11 @@ export ANDROID_HOME=${ANDROID_SDK_ROOT}
 export PATH=${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin:${ANDROID_SDK_ROOT}/platform-tools:${ANDROID_SDK_ROOT}/emulator:${PATH}
 
 # Accept licenses
-echo "[NOTE] Accepting licenses..."
+echo "Accepting licenses..."
 yes | ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --licenses || true
 
 # Install SDK packages
-echo "[PACKAGE] Installing SDK packages..."
+echo "Installing SDK packages..."
 echo ""
 
 packages=(
@@ -72,7 +72,7 @@ for package in "${packages[@]}"; do
 done
 
 # Update environment files
-echo "[CONFIG] Updating environment files..."
+echo "Updating environment files..."
 
 # Add to bashrc if not already there
 if ! grep -q "ANDROID_SDK_ROOT" /home/node/.bashrc; then
@@ -97,7 +97,7 @@ if [ -f /home/node/.zshrc ] && ! grep -q "ANDROID_SDK_ROOT" /home/node/.zshrc; t
 fi
 
 echo ""
-echo "[OK] Android SDK installation completed!"
+echo "Android SDK installation completed!"
 echo ""
 echo "Installed components:"
 ls -1 ${ANDROID_SDK_ROOT}

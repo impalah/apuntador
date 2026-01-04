@@ -54,17 +54,17 @@ jobs:
 
       - name: List downloaded artifacts
         run: |
-          echo "[PACKAGE] Downloaded artifacts:"
+          echo "Downloaded artifacts:"
           ls -lah artifacts/
-          
+
           # Find the DMG file
           DMG_FILE=$(find artifacts -name "*.dmg" | head -1)
           if [ -z "$DMG_FILE" ]; then
             echo "[ERROR] No DMG file found in artifacts"
             exit 1
           fi
-          
-          echo "[OK] Found DMG: $DMG_FILE"
+
+          echo "Found DMG: $DMG_FILE"
           echo "DMG_PATH=$DMG_FILE" >> $GITHUB_ENV
 
       - name: Check notarization status
@@ -74,20 +74,20 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SUBMISSION_ID: ${{ inputs.submission_id }}
         run: |
-          echo "[SEARCH] Checking notarization status..."
-          echo "[LIST] Submission ID: $SUBMISSION_ID"
-          
+          echo "Checking notarization status..."
+          echo "Submission ID: $SUBMISSION_ID"
+
           STATUS_OUTPUT=$(xcrun notarytool info "$SUBMISSION_ID" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
             2>&1)
-          
+
           echo "$STATUS_OUTPUT"
-          
+
           # Extract status
           STATUS=$(echo "$STATUS_OUTPUT" | grep "status:" | awk '{print $2}')
-          
+
           if [ "$STATUS" != "Accepted" ]; then
             echo ""
             echo "[ERROR] ERROR: Notarization not accepted yet"
@@ -106,11 +106,11 @@ jobs:
             fi
             exit 1
           fi
-          
+
           echo ""
-          echo "[OK] Notarization status: Accepted"
+          echo "Notarization status: Accepted"
           echo "Ready to staple!"
-          
+
           # Wait a bit for CloudKit to sync the ticket
           echo ""
           echo "⏳ Waiting 30 seconds for ticket to sync to CloudKit..."
@@ -123,18 +123,18 @@ jobs:
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
           SUBMISSION_ID: ${{ inputs.submission_id }}
         run: |
-          echo "[SEARCH] Checking if notarization ticket is available..."
+          echo "Checking if notarization ticket is available..."
           DMG_PATH="${{ env.DMG_PATH }}"
-          
+
           # Try to get ticket info
           echo "Checking ticket status with notarytool..."
           xcrun notarytool info "$SUBMISSION_ID" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID"
-          
+
           echo ""
-          echo "[OK] Ticket information retrieved successfully"
+          echo "Ticket information retrieved successfully"
 
       - name: Mount DMG and staple ticket
         shell: bash
@@ -145,13 +145,13 @@ jobs:
           SUBMISSION_ID: ${{ inputs.submission_id }}
         run: |
           set +e  # Don't exit immediately on error so we can capture it
-          
+
           echo "📀 Preparing DMG for stapling..."
           DMG_PATH="${{ env.DMG_PATH }}"
-          
+
           echo "Original DMG: $DMG_PATH"
           ls -lh "$DMG_PATH"
-          
+
           # Verify hdiutil is available
           echo ""
           echo "Checking hdiutil availability..."
@@ -159,72 +159,72 @@ jobs:
             echo "[ERROR] hdiutil command not found!"
             exit 1
           fi
-          
+
           # Convert DMG to read-write format
           echo ""
-          echo "[REFRESH] Converting DMG to read-write format..."
+          echo "Converting DMG to read-write format..."
           DMG_RW="${DMG_PATH%.dmg}-rw.dmg"
           hdiutil convert "$DMG_PATH" -format UDRW -o "$DMG_RW"
-          
+
           if [ $? -ne 0 ]; then
             echo "[ERROR] Failed to convert DMG to read-write"
             exit 1
           fi
-          
-          echo "[OK] Converted to: $DMG_RW"
+
+          echo "Converted to: $DMG_RW"
           ls -lh "$DMG_RW"
-          
+
           # Mount the read-write DMG (auto-accept license)
           echo ""
           echo "📀 Mounting read-write DMG (auto-accepting license)..."
           MOUNT_OUTPUT=$(echo "Y" | hdiutil attach "$DMG_RW" -nobrowse 2>&1)
           MOUNT_EXIT=$?
-          
+
           echo "Exit code: $MOUNT_EXIT"
-          
+
           if [ $MOUNT_EXIT -ne 0 ]; then
             echo "[ERROR] Failed to mount DMG"
             echo "$MOUNT_OUTPUT"
             exit 1
           fi
-          
+
           # Find the mounted volume
           VOLUME_PATH=$(echo "$MOUNT_OUTPUT" | grep "/Volumes" | awk '{print $NF}')
-          
+
           if [ -z "$VOLUME_PATH" ]; then
             VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
           fi
-          
+
           if [ -z "$VOLUME_PATH" ]; then
             echo "[ERROR] Failed to find mounted volume"
             exit 1
           fi
-          
-          echo "[OK] Mounted at: $VOLUME_PATH"
-          
+
+          echo "Mounted at: $VOLUME_PATH"
+
           # Find the .app bundle
           echo ""
-          echo "[SEARCH] Searching for .app bundle..."
+          echo "Searching for .app bundle..."
           ls -la "$VOLUME_PATH"
-          
+
           APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d -maxdepth 2 | head -1)
-          
+
           if [ -z "$APP_PATH" ]; then
             echo "[ERROR] No .app bundle found in DMG"
             hdiutil detach "$VOLUME_PATH" || true
             exit 1
           fi
-          
-          echo "[OK] Found app: $APP_PATH"
-          
+
+          echo "Found app: $APP_PATH"
+
           # Extensive diagnostics before stapling
           echo ""
-          echo "[SEARCH] === DIAGNOSTIC INFORMATION ==="
+          echo "=== DIAGNOSTIC INFORMATION ==="
           echo ""
-          
+
           echo "1️⃣ App bundle signature info:"
           codesign -dvvv "$APP_PATH" 2>&1 | head -20
-          
+
           echo ""
           echo "2️⃣ App bundle executable hash:"
           EXECUTABLE="$APP_PATH/Contents/MacOS/Apuntador"
@@ -235,19 +235,19 @@ jobs:
             echo "[WARNING]  Executable not found at expected path"
             find "$APP_PATH/Contents/MacOS" -type f
           fi
-          
+
           echo ""
           echo "3️⃣ Check if app is already notarized:"
           spctl -a -vv "$APP_PATH" 2>&1 || echo "Not notarized or rejected"
-          
+
           echo ""
           echo "4️⃣ Check for existing stapled ticket:"
           xcrun stapler validate "$APP_PATH" 2>&1 || echo "No ticket stapled yet (expected)"
-          
+
           echo ""
           echo "5️⃣ Notarization submission details:"
           echo "Submission ID: $SUBMISSION_ID"
-          
+
           echo ""
           echo "6️⃣ Try to get notarization log:"
           xcrun notarytool log "$SUBMISSION_ID" \
@@ -255,25 +255,25 @@ jobs:
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
             /tmp/notarization.log 2>&1 || echo "Could not retrieve log"
-          
+
           if [ -f /tmp/notarization.log ]; then
             echo ""
             echo "7️⃣ Notarization log contents:"
             cat /tmp/notarization.log
           fi
-          
+
           echo ""
           echo "=== END DIAGNOSTICS ==="
           echo ""
-          
+
           # Staple the notarization ticket with retries
           echo ""
           echo "[PIN] Stapling notarization ticket..."
-          
+
           MAX_RETRIES=3
           RETRY_DELAY=30
           STAPLE_EXIT=1
-          
+
           for i in $(seq 1 $MAX_RETRIES); do
             echo "Attempt $i/$MAX_RETRIES..."
             
@@ -281,7 +281,7 @@ jobs:
             STAPLE_EXIT=$?
             
             if [ $STAPLE_EXIT -eq 0 ]; then
-              echo "[OK] Stapling successful!"
+              echo "Stapling successful!"
               break
             fi
             
@@ -299,89 +299,89 @@ jobs:
               break
             fi
           done
-          
+
           if [ $STAPLE_EXIT -ne 0 ]; then
             echo "[ERROR] Failed to staple ticket after $MAX_RETRIES attempts"
             hdiutil detach "$VOLUME_PATH" || true
             exit 1
           fi
-          
+
           # Verify stapling
           echo ""
-          echo "[OK] Verifying stapled ticket..."
+          echo "Verifying stapled ticket..."
           xcrun stapler validate "$APP_PATH"
           VALIDATE_EXIT=$?
-          
+
           if [ $VALIDATE_EXIT -ne 0 ]; then
             echo "[ERROR] Failed to validate stapled ticket"
             hdiutil detach "$VOLUME_PATH" || true
             exit 1
           fi
-          
+
           echo ""
-          echo "[OK] Ticket stapled successfully!"
-          
+          echo "Ticket stapled successfully!"
+
           # Unmount the read-write DMG
           echo ""
           echo "📤 Unmounting DMG..."
           hdiutil detach "$VOLUME_PATH"
-          
+
           if [ $? -ne 0 ]; then
             echo "[ERROR] Failed to unmount DMG"
             exit 1
           fi
-          
+
           # Convert back to compressed format
           echo ""
           echo "🗜️  Converting DMG back to compressed format..."
           DMG_FINAL="${DMG_PATH%.dmg}-notarized.dmg"
           hdiutil convert "$DMG_RW" -format UDZO -o "$DMG_FINAL"
-          
+
           if [ $? -ne 0 ]; then
             echo "[ERROR] Failed to convert DMG to compressed format"
             exit 1
           fi
-          
+
           # Replace original DMG with notarized version
           mv "$DMG_FINAL" "$DMG_PATH"
           rm -f "$DMG_RW"
-          
-          echo "[OK] DMG updated with stapled ticket"
+
+          echo "DMG updated with stapled ticket"
           ls -lh "$DMG_PATH"
 
       - name: Verify DMG signature and notarization
         run: |
-          echo "[SEARCH] Final verification of DMG..."
+          echo "Final verification of DMG..."
           DMG_PATH="${{ env.DMG_PATH }}"
-          
+
           # Mount again to verify (auto-accept license)
           echo "Mounting DMG for verification..."
           echo "Y" | hdiutil attach "$DMG_PATH" -nobrowse
-          
+
           VOLUME_PATH=$(hdiutil info | grep "/Volumes/Apuntador" | head -1 | awk '{print $NF}')
           if [ -z "$VOLUME_PATH" ]; then
             VOLUME_PATH=$(ls -d /Volumes/Apuntador* 2>/dev/null | head -1)
           fi
-          
+
           APP_PATH=$(find "$VOLUME_PATH" -name "*.app" -type d -maxdepth 2 | head -1)
-          
+
           echo "App path: $APP_PATH"
           echo ""
           echo "Verifying code signature..."
           codesign --verify --deep --strict --verbose=2 "$APP_PATH"
-          
+
           echo ""
           echo "Verifying stapled notarization ticket..."
           xcrun stapler validate "$APP_PATH"
-          
+
           echo ""
           echo "Checking Gatekeeper assessment..."
           spctl -a -vv "$APP_PATH"
-          
+
           hdiutil detach "$VOLUME_PATH"
-          
+
           echo ""
-          echo "[OK] All verifications passed!"
+          echo "All verifications passed!"
 
       - name: Configure AWS credentials for apuntador.io
         uses: aws-actions/configure-aws-credentials@v4
@@ -397,16 +397,16 @@ jobs:
         run: |
           DMG_PATH="${{ env.DMG_PATH }}"
           DMG_FILENAME=$(basename "$DMG_PATH")
-          
+
           echo "[UP]  Uploading notarized DMG to apuntador.io..."
           echo "   Source: $DMG_PATH"
           echo "   Destination: s3://${S3_BUCKET}/downloads/$DMG_FILENAME"
-          
+
           aws s3 cp "$DMG_PATH" "s3://${S3_BUCKET}/downloads/$DMG_FILENAME" \
             --acl public-read \
             --metadata "version=${VERSION},type=macos-dmg,notarized=true,uploaded=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          
-          echo "[OK] DMG uploaded successfully"
+
+          echo "DMG uploaded successfully"
 
       - name: Update versions.json
         env:
@@ -415,31 +415,31 @@ jobs:
         run: |
           DMG_PATH="${{ env.DMG_PATH }}"
           DMG_FILENAME=$(basename "$DMG_PATH")
-          
+
           echo "[DOWN]  Downloading current versions.json..."
           if aws s3 cp "s3://${S3_BUCKET}/downloads/versions.json" versions.json 2>/dev/null; then
-            echo "[OK] Downloaded existing versions.json"
+            echo "Downloaded existing versions.json"
           else
             echo "[WARNING]  versions.json not found, creating new one"
             echo '{}' > versions.json
           fi
-          
-          echo "[NOTE] Updating versions.json..."
-          
+
+          echo "Updating versions.json..."
+
           # Update using jq (macOS has it pre-installed)
           jq --arg filename "$DMG_FILENAME" '.["macos-dmg"] = $filename' versions.json > versions.json.tmp
           mv versions.json.tmp versions.json
-          
-          echo "[OK] Updated versions.json:"
+
+          echo "Updated versions.json:"
           cat versions.json
-          
+
           echo "[UP]  Uploading updated versions.json..."
           aws s3 cp versions.json "s3://${S3_BUCKET}/downloads/versions.json" \
             --acl public-read \
             --content-type "application/json" \
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-          
-          echo "[OK] versions.json updated successfully"
+
+          echo "versions.json updated successfully"
           echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
 
       - name: Upload stapled DMG as artifact
@@ -456,11 +456,11 @@ jobs:
           echo "[SUCCESS] PROCESO COMPLETADO EXITOSAMENTE"
           echo "════════════════════════════════════════════════════════════════"
           echo ""
-          echo "[OK] DMG notarizado y con ticket grapado"
-          echo "[OK] Subido a apuntador.io S3"
-          echo "[OK] versions.json actualizado"
+          echo "DMG notarizado y con ticket grapado"
+          echo "Subido a apuntador.io S3"
+          echo "versions.json actualizado"
           echo ""
-          echo "[PACKAGE] Archivo: $(basename ${{ env.DMG_PATH }})"
+          echo "Archivo: $(basename ${{ env.DMG_PATH }})"
           echo "[LINK] URL público: https://${{ vars.APUNTADOR_IO_S3_BUCKET }}.s3.amazonaws.com/downloads/$(basename ${{ env.DMG_PATH }})"
           echo ""
           echo "Los usuarios ahora pueden descargar e instalar sin advertencias."

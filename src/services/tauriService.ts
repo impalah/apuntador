@@ -46,7 +46,7 @@ export class TauriService {
     try {
       const { invoke } = await import('@tauri-apps/api/core')
       await invoke('start_oauth_callback_server')
-      console.log('[OK] OAuth callback server started on localhost:8080')
+      console.log('OAuth callback server started on localhost:8080')
     } catch (error) {
       console.error('Error starting OAuth callback server:', error)
       throw error
@@ -127,9 +127,9 @@ export class TauriService {
   async listDropboxFiles(accessToken: string, path?: string): Promise<any[]> {
     try {
       const { invoke } = await import('@tauri-apps/api/core')
-      return await invoke('list_dropbox_files', { 
-        accessToken, 
-        path: path || '' 
+      return await invoke('list_dropbox_files', {
+        accessToken,
+        path: path || '',
       })
     } catch (error) {
       console.error('Error listing Dropbox files:', error)
@@ -140,9 +140,9 @@ export class TauriService {
   async downloadDropboxFile(accessToken: string, path: string): Promise<TauriDropboxFile> {
     try {
       const { invoke } = await import('@tauri-apps/api/core')
-      return await invoke('download_dropbox_file', { 
-        accessToken, 
-        path 
+      return await invoke('download_dropbox_file', {
+        accessToken,
+        path,
       })
     } catch (error) {
       console.error('Error downloading Dropbox file:', error)
@@ -153,10 +153,10 @@ export class TauriService {
   async uploadDropboxFile(accessToken: string, path: string, content: string): Promise<any> {
     try {
       const { invoke } = await import('@tauri-apps/api/core')
-      return await invoke('upload_dropbox_file', { 
-        accessToken, 
-        path, 
-        content 
+      return await invoke('upload_dropbox_file', {
+        accessToken,
+        path,
+        content,
       })
     } catch (error) {
       console.error('Error uploading Dropbox file:', error)
@@ -166,12 +166,12 @@ export class TauriService {
 
   async listenForOAuthCallback(): Promise<{ code: string; state: string }> {
     console.log('[LISTEN] TauriService: Setting up listener for oauth-callback')
-    
+
     this.stopOAuthListener() // Clean up previous listener
-    
+
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        console.log('[TIME] TauriService: OAuth timeout after 5 minutes')
+        console.log('TauriService: OAuth timeout after 5 minutes')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
       }, 300000) // 5 minutes timeout
@@ -187,11 +187,11 @@ export class TauriService {
             resolve(event.payload)
           })
         })
-        .then(unlistenFn => {
+        .then((unlistenFn) => {
           this.oauthCallbackListener = unlistenFn
-          console.log('[OK] TauriService: oauth-callback listener configured')
+          console.log('TauriService: oauth-callback listener configured')
         })
-        .catch(error => {
+        .catch((error) => {
           console.error('[ERROR] TauriService: Error setting up listener:', error)
           clearTimeout(timeout)
           reject(error)
@@ -227,25 +227,25 @@ export class TauriService {
   }
 
   async testEventEmit(): Promise<void> {
-    console.log('[EXPERIMENT] Testing event emission...')
-    
+    console.log('Testing event emission...')
+
     try {
       const { listen } = await import('@tauri-apps/api/event')
       const { invoke } = await import('@tauri-apps/api/core')
-      
+
       // Set up test listener
       const unlisten = await listen('test-event', (event: any) => {
-        console.log('[OK] Test event received:', event.payload)
+        console.log('Test event received:', event.payload)
       })
-      
+
       // Emit test event
       try {
         const result = await invoke('test_event_emit')
-        console.log('[LAUNCH] Test emit result:', result)
+        console.log('Test emit result:', result)
       } catch (error) {
         console.error('[ERROR] Test emit failed:', error)
       }
-      
+
       // Clean up listener after 2 seconds
       setTimeout(() => {
         unlisten()

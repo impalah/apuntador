@@ -3,7 +3,7 @@
     <v-card>
       <v-card-title class="text-h5 d-flex align-center">
         <v-btn icon="mdi-arrow-left" variant="text" class="mr-2" @click="goBack" />
-        [SECURE] mTLS Client Test
+        mTLS Client Test
       </v-card-title>
 
       <v-card-text>
@@ -13,12 +13,12 @@
 
         <!-- mTLS Status -->
         <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1"> [STATS] mTLS Client Status </v-card-title>
+          <v-card-title class="text-subtitle-1"> mTLS Client Status </v-card-title>
           <v-card-text>
             <v-row dense>
               <v-col cols="12">
                 <v-chip :color="clientStatus.isReady ? 'success' : 'error'" label class="mb-2">
-                  {{ clientStatus.isReady ? '[OK] Ready' : '[ERROR] Not Ready' }}
+                  {{ clientStatus.isReady ? 'Ready' : '[ERROR] Not Ready' }}
                 </v-chip>
               </v-col>
 
@@ -26,15 +26,15 @@
                 <v-list density="compact">
                   <v-list-item>
                     <v-list-item-title>Subject:</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      clientStatus.certificateInfo.subject
-                    }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ clientStatus.certificateInfo.subject }}
+                    </v-list-item-subtitle>
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>Expires:</v-list-item-title>
-                    <v-list-item-subtitle>{{
-                      clientStatus.certificateInfo.notAfter
-                    }}</v-list-item-subtitle>
+                    <v-list-item-subtitle>
+                      {{ clientStatus.certificateInfo.notAfter }}
+                    </v-list-item-subtitle>
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>Serial:</v-list-item-title>
@@ -47,14 +47,14 @@
             </v-row>
 
             <v-btn color="primary" variant="outlined" block class="mt-2" @click="checkStatus">
-              [REFRESH] Refresh Status
+              Refresh Status
             </v-btn>
           </v-card-text>
         </v-card>
 
         <!-- Test Endpoint -->
         <v-card variant="outlined" class="mb-4">
-          <v-card-title class="text-subtitle-1"> [EXPERIMENT] Test mTLS Request </v-card-title>
+          <v-card-title class="text-subtitle-1"> Test mTLS Request </v-card-title>
           <v-card-text>
             <!-- Quick Test Buttons -->
             <div class="mb-3">
@@ -63,10 +63,7 @@
                   size="small"
                   color="success"
                   variant="outlined"
-                  @click="
-                    testUrl = 'https://apuntador.ngrok.app/health/public';
-                    testMethod = 'GET';
-                  "
+                  @click="setPublicHealthTest"
                 >
                   Public Health (No mTLS)
                 </v-chip>
@@ -74,10 +71,7 @@
                   size="small"
                   color="warning"
                   variant="outlined"
-                  @click="
-                    testUrl = 'https://apuntador.ngrok.app/health';
-                    testMethod = 'GET';
-                  "
+                  @click="setProtectedHealthTest"
                 >
                   Protected Health (mTLS)
                 </v-chip>
@@ -116,7 +110,7 @@
               block
               @click="testRequest"
             >
-              [LAUNCH] Send Request
+              Send Request
             </v-btn>
 
             <v-card v-if="testResponse" variant="tonal" class="mt-4">
@@ -176,7 +170,7 @@
         <!-- Logs -->
         <v-card variant="outlined">
           <v-card-title class="text-subtitle-1">
-            [NOTE] Logs
+            Logs
             <v-spacer />
             <v-btn size="small" variant="text" icon="mdi-delete" @click="clearLogs" />
           </v-card-title>
@@ -254,6 +248,16 @@ function addLog(level: 'info' | 'success' | 'error', message: string) {
 
 function clearLogs() {
   logs.value = []
+}
+
+function setPublicHealthTest() {
+  testUrl.value = 'https://apuntador.ngrok.app/health/public'
+  testMethod.value = 'GET'
+}
+
+function setProtectedHealthTest() {
+  testUrl.value = 'https://apuntador.ngrok.app/health'
+  testMethod.value = 'GET'
 }
 
 async function checkStatus() {

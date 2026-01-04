@@ -27,7 +27,7 @@ CLEAN_BUILD="false"
 
 # Función para mostrar ayuda
 show_help() {
-    echo -e "${CYAN}🍎 Apuntador macOS Build Script${NC}"
+    echo -e "${CYAN}Apuntador macOS Build Script${NC}"
     echo ""
     echo "Uso: $0 [OPCIONES]"
     echo ""
@@ -54,11 +54,11 @@ show_help() {
 
 # Función para logging con colores
 log_info() {
-    echo -e "${BLUE}[INFO]  $1${NC}"
+    echo -e "${BLUE} $1${NC}"
 }
 
 log_success() {
-    echo -e "${GREEN}[OK] $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 log_warning() {
@@ -70,7 +70,7 @@ log_error() {
 }
 
 log_step() {
-    echo -e "${PURPLE}[REFRESH] $1${NC}"
+    echo -e "${PURPLE}$1${NC}"
 }
 
 # Función para verificar prerequisitos
@@ -282,7 +282,7 @@ find_generated_files() {
     local app_bundle=$(find "$build_path" -name "*.app" 2>/dev/null | head -1)
     if [[ -n "$app_bundle" ]]; then
         local app_size=$(du -sh "$app_bundle" | cut -f1)
-        echo -e "  🍎 App Bundle: ${GREEN}$(basename "$app_bundle")${NC} ($app_size)"
+        echo -e "  App Bundle: ${GREEN}$(basename "$app_bundle")${NC} ($app_size)"
         echo -e "     📍 $app_bundle"
     else
         log_warning "No se encontró .app bundle"
@@ -378,7 +378,7 @@ esac
 
 # Script principal
 main() {
-    echo -e "${PURPLE}🍎 Apuntador macOS Build Script${NC}"
+    echo -e "${PURPLE}Apuntador macOS Build Script${NC}"
     echo -e "${CYAN}================================${NC}"
     echo ""
     
@@ -399,12 +399,12 @@ main() {
     echo -e "${GREEN}[SUCCESS] Build completado exitosamente!${NC}"
     echo -e "${CYAN}[TIMER]  Tiempo total: ${duration}s${NC}"
     echo ""
-    echo -e "${YELLOW}[LIST] Configuración:${NC}"
+    echo -e "${YELLOW}Configuración:${NC}"
     echo -e "  Tipo: $BUILD_TYPE"
     echo -e "  Arquitectura: $TARGET_ARCH"
     echo -e "  DMG: $GENERATE_DMG"
     echo ""
-    echo -e "${BLUE}[LAUNCH] ¡Listo para distribución!${NC}"
+    echo -e "${BLUE}¡Listo para distribución!${NC}"
 }
 
 # Ejecutar script principal

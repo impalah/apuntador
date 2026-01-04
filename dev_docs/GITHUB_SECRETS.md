@@ -61,13 +61,13 @@ Repository → Settings → Secrets and variables → Actions → New repository
 
 Once all secrets are configured, the workflow should:
 
-1. [OK] Activate automatically on push to `main` or on tags `v*`
-2. [OK] Set up Android environment with Java 17
-3. [OK] Decode and create keystore temporarily
-4. [OK] Build signed APK
-5. [OK] Upload APK as artifact
-6. [OK] Create automatic release for tags
-7. [OK] Clean up keystore at the end
+1. Activate automatically on push to `main` or on tags `v*`
+2. Set up Android environment with Java 17
+3. Decode and create keystore temporarily
+4. Build signed APK
+5. Upload APK as artifact
+6. Create automatic release for tags
+7. Clean up keystore at the end
 
 ## Manual Workflow Usage
 
@@ -97,10 +97,10 @@ git push origin v1.0.0
 
 ## Security
 
-- [OK] Secrets are encrypted and only accessible during execution
-- [OK] Keystore is automatically deleted when workflow finishes
-- [OK] Keys never appear in logs
-- [OK] Only collaborators with permissions can modify secrets
+- Secrets are encrypted and only accessible during execution
+- Keystore is automatically deleted when workflow finishes
+- Keys never appear in logs
+- Only collaborators with permissions can modify secrets
 
 ## Troubleshooting
 

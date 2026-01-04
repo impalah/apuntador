@@ -5,7 +5,7 @@
 
 set -e
 
-echo "[SEARCH] Verificación de Configuración para Firma de Código macOS"
+echo "Verificación de Configuración para Firma de Código macOS"
 echo "============================================================"
 echo ""
 
@@ -17,7 +17,7 @@ NC='\033[0m' # No Color
 
 # Función para mostrar OK
 ok() {
-    echo -e "${GREEN}[OK] $1${NC}"
+    echo -e "${GREEN}$1${NC}"
 }
 
 # Función para mostrar ERROR
@@ -81,7 +81,7 @@ if [ "$CERT_OK" = true ]; then
     if [ -n "$TEAM_ID" ]; then
         ok "Team ID encontrado: $TEAM_ID"
         echo ""
-        echo "   [LIST] Copia este valor para el secret APPLE_TEAM_ID en GitHub:"
+        echo "   Copia este valor para el secret APPLE_TEAM_ID en GitHub:"
         echo "   $TEAM_ID"
     else
         warn "No se pudo extraer el Team ID automáticamente"
@@ -150,7 +150,7 @@ echo ""
 
 # 8. Resumen
 echo "============================================================"
-echo "[STATS] Resumen de Verificación"
+echo "Resumen de Verificación"
 echo "============================================================"
 echo ""
 
@@ -174,6 +174,6 @@ fi
 
 echo ""
 echo "============================================================"
-echo "📖 Siguiente paso:"
+echo "Siguiente paso:"
 echo "   Lee la guía completa en: docs/MACOS_CODE_SIGNING.md"
 echo "============================================================"

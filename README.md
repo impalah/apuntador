@@ -4,7 +4,7 @@ A professional mobile-first teleprompter web application built with Vue 3, TypeS
 
 ![Apuntador Demo](./docs/demo.gif) <!-- Placeholder for demo GIF -->
 
-## [FEATURE] Features
+## Features
 
 - **Auto-scrolling** with adjustable speed
 - **Highlight band** to focus on current lines
@@ -12,7 +12,7 @@ A professional mobile-first teleprompter web application built with Vue 3, TypeS
 - **Mirror modes** for professional setups
 - **Markdown support** for rich formatting
 
-## [LAUNCH] Deployment Options
+## Deployment Options
 
 ### Web Application
 
@@ -25,11 +25,11 @@ npm run build
 
 **Supported Platforms:**
 
-- [OK] **Vercel** - Zero-config with automatic HTTPS
-- [OK] **Netlify** - Git integration with CDN
-- [OK] **GitHub Pages** - Free for public repos
-- [OK] **Firebase Hosting** - Google Cloud integration
-- [OK] **AWS S3 + CloudFront** - Enterprise scaling
+- **Vercel** - Zero-config with automatic HTTPS
+- **Netlify** - Git integration with CDN
+- **GitHub Pages** - Free for public repos
+- **Firebase Hosting** - Google Cloud integration
+- **AWS S3 + CloudFront** - Enterprise scaling
 
 #### Docker Deployment
 
@@ -72,9 +72,9 @@ git push origin v1.0.0
 
 This will:
 
-- [OK] Build a signed APK automatically
-- [OK] Create a GitHub release
-- [OK] Upload the APK as a downloadable asset
+- Build a signed APK automatically
+- Create a GitHub release
+- Upload the APK as a downloadable asset
 
 #### Manual Build (Advanced)
 
@@ -98,10 +98,10 @@ npm run android:bundle:release
 
 **Benefits of R8 Optimization:**
 
-- [PACKAGE] **Smaller app size** (~30-50% reduction)
-- [FAST] **Better performance**
-- 🔒 **Code obfuscation** for security
-- [BUG] **Crash analysis** with mapping files
+- **Smaller app size** (~30-50% reduction)
+- **Better performance**
+- **Code obfuscation** for security
+- **Crash analysis** with mapping files
 
 See [**ANDROID_BUILD.md**](./ANDROID_BUILD.md) for detailed Android setup and build instructions.
 
@@ -178,7 +178,7 @@ make ios-icons               # Generate icons & splash
 
 #### TestFlight Automation (Recommended)
 
-**Status**: [OK] **Manual Xcode ➔ TestFlight upload SUCCESSFUL!**
+**Status**: **Manual Xcode ➔ TestFlight upload SUCCESSFUL!**
 
 Automate iOS builds and TestFlight uploads with GitHub Actions:
 
@@ -192,17 +192,17 @@ npm run ios:testflight
 
 **What happens during automation**:
 
-- [OK] **Builds iOS app** with GitHub Actions (macOS + Xcode)
-- [OK] **Signs automatically** with your Apple certificates
-- [OK] **Uploads to TestFlight** without manual steps
-- [OK] **Ready for testing** in 8-12 minutes total
+- **Builds iOS app** with GitHub Actions (macOS + Xcode)
+- **Signs automatically** with your Apple certificates
+- **Uploads to TestFlight** without manual steps
+- **Ready for testing** in 8-12 minutes total
 
-**📖 Complete Guide**: [iOS TestFlight Automation Summary](docs/IOS_TESTFLIGHT_AUTOMATION_SUMMARY.md)
+**Complete Guide**: [iOS TestFlight Automation Summary](docs/IOS_TESTFLIGHT_AUTOMATION_SUMMARY.md)
 
 #### Distribution Options
 
 - **Development**: Direct install via Xcode
-- **TestFlight**: [OK] **Automated via GitHub Actions** (recommended)
+- **TestFlight**: **Automated via GitHub Actions** (recommended)
 - **App Store**: Full distribution (requires review)
 
 See [**IOS_GITHUB_ACTIONS_AUTOMATION.md**](./docs/IOS_GITHUB_ACTIONS_AUTOMATION.md) for complete automation setup and [**IOS_QUICK_START.md**](./docs/IOS_QUICK_START.md) for manual development.
@@ -244,7 +244,7 @@ npm run tauri:build:mac   # macOS
 - **Native window controls** (minimize, maximize, close)
 - **Fullscreen toggle** with native APIs
 - **Always on top** mode for professional setups
-- **🔒 Security**: DevTools disabled in production builds
+- **Security**: DevTools disabled in production builds
 
 #### Code Signing (Windows)
 
@@ -277,7 +277,7 @@ See [**GITHUB_SECRETS.md**](./GITHUB_SECRETS.md) for Android APK build secrets c
 See [**SCRIPTS_REFERENCE.md**](./SCRIPTS_REFERENCE.md) for cross-platform build scripts documentation.  
 See [**SECURITY.md**](./SECURITY.md) for security guidelines and sensitive file handling.
 
-## [TOOLS] Development
+## Development
 
 ### Prerequisites Check
 
@@ -334,21 +334,21 @@ npx cap run android
 
 ```
 apuntador/
-├── docs/                    # [DOCS] Complete documentation
+├── docs/                    # Complete documentation
 │   ├── .vitepress/         # VitePress configuration
 │   ├── api/                # Auto-generated API docs
 │   ├── architecture/       # System design
 │   ├── deployment/         # Hosting guides
 │   └── guide/              # User documentation
 ├── src/
-│   ├── app/                # [LAUNCH] Application core
+│   ├── app/                # Application core
 │   ├── components/         # [STYLE] Vue components
 │   ├── stores/             # [STORE] Pinia state management
-│   ├── utils/              # [CONFIG] Utility functions
-│   ├── types/              # [NOTE] TypeScript definitions
+│   ├── utils/              # Utility functions
+│   ├── types/              # TypeScript definitions
 │   └── styles/             # 💅 Global styles
 ├── tests/
-│   ├── unit/               # [FAST] Unit tests (Vitest)
+│   ├── unit/               # Unit tests (Vitest)
 │   └── e2e/                # [MASK] E2E tests (Playwright)
 ├── playwright.config.ts    # E2E configuration
 ├── vite.config.ts          # Build configuration
@@ -356,7 +356,7 @@ apuntador/
 
 ```
 
-## [ARCHITECTURE] Technical Architecture
+## Technical Architecture
 
 ### Core Technologies
 
@@ -383,28 +383,28 @@ apuntador/
 | Platform         | Version       | Support | Native Features        |
 | ---------------- | ------------- | ------- | ---------------------- | --------------- |
 | **Web Browsers** |
-| Chrome           | 90+           | [OK]    | PWA, fullscreen        |
-| Safari           | 14+           | [OK]    | Touch optimized        |
-| Firefox          | 88+           | [OK]    | Full support           |
-| Edge             | 90+           | [OK]    | Full support           |
+| Chrome           | 90+           |         | PWA, fullscreen        |
+| Safari           | 14+           |         | Touch optimized        |
+| Firefox          | 88+           |         | Full support           |
+| Edge             | 90+           |         | Full support           |
 | **Mobile Apps**  |
-| Android          | 7.0+ (API 24) | [OK]    | APK distribution       |
-| iPhone           | iOS 13+       | [OK]    | Native performance     |
-| iPad             | iPadOS 13+    | [OK]    | Multi-orientation      |
+| Android          | 7.0+ (API 24) |         | APK distribution       |
+| iPhone           | iOS 13+       |         | Native performance     |
+| iPad             | iPadOS 13+    |         | Multi-orientation      |
 | **Desktop Apps** |
-| macOS            | 10.15+        | [OK]    | Native window controls |
-| Windows          | 10+           | [OK]    | MSI installer          |
-| Linux            | Ubuntu 20.04+ | [OK]    | AppImage/DEB           |
-| Android Chrome   | 90+           | [OK]    | N/A                    | Touch optimized |
+| macOS            | 10.15+        |         | Native window controls |
+| Windows          | 10+           |         | MSI installer          |
+| Linux            | Ubuntu 20.04+ |         | AppImage/DEB           |
+| Android Chrome   | 90+           |         | N/A                    | Touch optimized |
 
-## [PACKAGE] Requirements
+## Requirements
 
 - **Node.js** 20+ (LTS recommended)
 - **npm** 9+ or **pnpm** 8+
 - Modern browser with ES2020+ support
 - 2GB+ RAM for development
 
-## [LAUNCH] Quick Start
+## Quick Start
 
 ```bash
 # Clone the repository
@@ -584,7 +584,7 @@ All settings and content are stored locally in your browser:
 
 **Privacy**: No data is sent to external servers. Use "Clear All Data" in settings to reset.
 
-## [EXPERIMENT] Testing Strategy
+## Testing Strategy
 
 ### Test Coverage
 
@@ -627,7 +627,7 @@ tests/e2e/
 - **Performance**: Lighthouse scores >90
 - **Security**: No known vulnerabilities
 
-## [DOCS] Documentation
+## Documentation
 
 ### Available Documentation
 
@@ -646,7 +646,7 @@ npm run docs:build    # Build static documentation
 npm run docs:serve    # Build and serve documentation
 ```
 
-## [BUILD] Architecture Deep Dive
+## Architecture Deep Dive
 
 ### Component Hierarchy
 
@@ -703,21 +703,21 @@ graph LR
 - **Mobile browsers** iOS Safari 14+, Chrome 90+
 - **Desktop browsers** Chrome 90+, Firefox 88+, Safari 14+, Edge 90+
 
-## [IDEA] Contributing
+## Contributing
 
 We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md) for details.
 
-## [FILE] License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ## 🆘 Support & Community
 
-- 📖 **[Complete Documentation](./docs/)** - Comprehensive guides and API reference
-- [BUG] **[Issue Tracker](https://github.com/impalah/apuntador/issues)** - Bug reports and feature requests
-- [COMMENT] **[Discussions](https://github.com/impalah/apuntador/discussions)** - Community support and ideas
+- **[Complete Documentation](./docs/)** - Comprehensive guides and API reference
+- **[Issue Tracker](https://github.com/impalah/apuntador/issues)** - Bug reports and feature requests
+- **[Discussions](https://github.com/impalah/apuntador/discussions)** - Community support and ideas
 
-## [TARGET] Roadmap
+## Roadmap
 
 See our comprehensive **[Development Roadmap](./ROADMAP.md)** for detailed feature plans and release schedules.
 
@@ -725,14 +725,14 @@ See our comprehensive **[Development Roadmap](./ROADMAP.md)** for detailed featu
 
 Complete professional teleprompter with multi-platform support, advanced scrolling, mirror modes, and comprehensive customization.
 
-### Upcoming Version 1.1 [REFRESH]
+### Upcoming Version 1.1
 
 - **Cloud Sync** - Optional cloud storage integration
 - **Collaboration** - Multi-user script editing
 - **Templates** - Pre-built script templates
 - **Analytics** - Reading performance insights
 
-### Future Version 1.2 [LIST]
+### Future Version 1.2
 
 - **Voice Control** - Hands-free operation
 - **AI Integration** - Script optimization suggestions
@@ -743,8 +743,8 @@ Complete professional teleprompter with multi-platform support, advanced scrolli
 
 <div align="center">
 
-**Made with [HEART] for content creators, presenters, and public speakers**
+**Made with love for content creators, presenters, and public speakers**
 
-[[STAR] Star on GitHub](https://github.com/impalah/apuntador) • [📖 Read the Docs](./docs/) • [[LAUNCH] Try Live Demo](https://app.apuntador.io)
+[Star on GitHub](https://github.com/impalah/apuntador) • [Read the Docs](./docs/) • [Try Live Demo](https://app.apuntador.io)
 
 </div>

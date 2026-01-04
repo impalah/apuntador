@@ -1,16 +1,10 @@
 <template>
   <v-card class="ma-4 pa-4">
-    <v-card-title class="text-h5">
-      [SECURE] Desktop mTLS Enrollment Test
-    </v-card-title>
+    <v-card-title class="text-h5"> Desktop mTLS Enrollment Test </v-card-title>
 
     <v-card-text>
-      <v-alert
-        v-if="platform !== 'desktop'"
-        type="info"
-        class="mb-4"
-      >
-        [INFO] This test is only for Desktop (Tauri). Current platform: {{ platform }}
+      <v-alert v-if="platform !== 'desktop'" type="info" class="mb-4">
+        This test is only for Desktop (Tauri). Current platform: {{ platform }}
       </v-alert>
 
       <v-row v-if="deviceInfo">
@@ -48,7 +42,7 @@
         <v-col cols="12">
           <v-alert :type="enrollmentStatus.enrolled ? 'success' : 'info'" class="mb-4">
             <div class="text-h6 mb-2">
-              {{ enrollmentStatus.enrolled ? '[OK] Enrolled' : '[INFO] Not Enrolled' }}
+              {{ enrollmentStatus.enrolled ? 'Enrolled' : 'Not Enrolled' }}
             </div>
             <div v-if="enrollmentStatus.enrolled">
               <div>Device ID: {{ enrollmentStatus.device_id }}</div>
@@ -74,11 +68,7 @@
             <v-card-title>Console Log</v-card-title>
             <v-card-text>
               <v-list density="compact" class="log-list">
-                <v-list-item
-                  v-for="(entry, index) in log"
-                  :key="index"
-                  class="log-entry"
-                >
+                <v-list-item v-for="(entry, index) in log" :key="index" class="log-entry">
                   <v-list-item-title class="font-monospace text-caption">
                     {{ entry }}
                   </v-list-item-title>
@@ -91,41 +81,12 @@
     </v-card-text>
 
     <v-card-actions>
-      <v-btn
-        color="primary"
-        :loading="loading"
-        @click="getDeviceInfo"
-      >
-        Get Device Info
-      </v-btn>
-      <v-btn
-        color="info"
-        :loading="loading"
-        @click="checkStatus"
-      >
-        Check Status
-      </v-btn>
-      <v-btn
-        color="success"
-        :loading="loading"
-        @click="enroll"
-      >
-        Enroll Device
-      </v-btn>
-      <v-btn
-        color="error"
-        :loading="loading"
-        @click="unenroll"
-      >
-        Unenroll
-      </v-btn>
+      <v-btn color="primary" :loading="loading" @click="getDeviceInfo"> Get Device Info </v-btn>
+      <v-btn color="info" :loading="loading" @click="checkStatus"> Check Status </v-btn>
+      <v-btn color="success" :loading="loading" @click="enroll"> Enroll Device </v-btn>
+      <v-btn color="error" :loading="loading" @click="unenroll"> Unenroll </v-btn>
       <v-spacer />
-      <v-btn
-        variant="text"
-        @click="clearLog"
-      >
-        Clear Log
-      </v-btn>
+      <v-btn variant="text" @click="clearLog"> Clear Log </v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -134,7 +95,10 @@
 import { ref, onMounted } from 'vue'
 import { unifiedMTLSService } from '@/services/unifiedMTLSService'
 import { desktopEnrollmentService } from '@/services/desktopEnrollmentService'
-import type { DesktopDeviceInfo, DesktopEnrollmentResult } from '@/services/desktopEnrollmentService'
+import type {
+  DesktopDeviceInfo,
+  DesktopEnrollmentResult,
+} from '@/services/desktopEnrollmentService'
 
 const platform = ref(unifiedMTLSService.getPlatform())
 const deviceInfo = ref<DesktopDeviceInfo | null>(null)
@@ -156,11 +120,11 @@ function clearLog() {
 async function getDeviceInfo() {
   loading.value = true
   error.value = null
-  
+
   try {
-    addLog('[SEARCH] Getting device information...')
+    addLog('Getting device information...')
     deviceInfo.value = await desktopEnrollmentService.getDeviceInfo()
-    addLog(`[OK] Device info: ${deviceInfo.value.device_id}`)
+    addLog(`Device info: ${deviceInfo.value.device_id}`)
   } catch (err) {
     error.value = `Failed to get device info: ${err}`
     addLog(`[ERROR] Error: ${err}`)
@@ -172,11 +136,11 @@ async function getDeviceInfo() {
 async function checkStatus() {
   loading.value = true
   error.value = null
-  
+
   try {
-    addLog('[SEARCH] Checking enrollment status...')
+    addLog('Checking enrollment status...')
     enrollmentStatus.value = await desktopEnrollmentService.checkEnrollmentStatus()
-    addLog(`[OK] Status: ${enrollmentStatus.value.enrolled ? 'Enrolled' : 'Not enrolled'}`)
+    addLog(`Status: ${enrollmentStatus.value.enrolled ? 'Enrolled' : 'Not enrolled'}`)
   } catch (err) {
     error.value = `Failed to check status: ${err}`
     addLog(`[ERROR] Error: ${err}`)
@@ -188,13 +152,13 @@ async function checkStatus() {
 async function enroll() {
   loading.value = true
   error.value = null
-  
+
   try {
-    addLog('[LAUNCH] Starting enrollment...')
+    addLog('Starting enrollment...')
     const result = await desktopEnrollmentService.enrollDevice()
-    
+
     if (result.success) {
-      addLog(`[OK] Enrollment successful! Device ID: ${result.device_id}`)
+      addLog(`Enrollment successful! Device ID: ${result.device_id}`)
       enrollmentStatus.value = result
       await getDeviceInfo()
     } else {
@@ -212,11 +176,11 @@ async function enroll() {
 async function unenroll() {
   loading.value = true
   error.value = null
-  
+
   try {
-    addLog('[DELETE]  Unenrolling device...')
+    addLog(' Unenrolling device...')
     await desktopEnrollmentService.unenrollDevice()
-    addLog('[OK] Device unenrolled successfully')
+    addLog('Device unenrolled successfully')
     enrollmentStatus.value = null
     await getDeviceInfo()
   } catch (err) {

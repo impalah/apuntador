@@ -54,11 +54,11 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
         
         Task {
             do {
-                CAPLog.print("🔐 [Auto-Enrollment] Starting enrollment process...")
+                CAPLog.print("[Auto-Enrollment] Starting enrollment process...")
                 
                 // 1. Verificar si ya está enrolled
                 if hasCertificateStored() {
-                    CAPLog.print("✅ [Auto-Enrollment] Already enrolled")
+                    CAPLog.print("[Auto-Enrollment] Already enrolled")
                     call.resolve([
                         "success": true,
                         "alreadyEnrolled": true,
@@ -103,7 +103,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 let enrollmentUrl = "\(backendUrl)/device/enroll"
                 
                 // Usar MTLSHTTPClient con Certificate Pinning (sin certificado de cliente)
-                CAPLog.print("🔐 [Auto-Enrollment] Using Certificate Pinning for enrollment")
+                CAPLog.print("[Auto-Enrollment] Using Certificate Pinning for enrollment")
                 let (responseData, httpResponse) = try await sendEnrollmentRequestWithPinning(
                     url: enrollmentUrl,
                     data: enrollmentData
@@ -111,7 +111,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 
                 guard httpResponse.statusCode == 200 else {
                     let errorMessage = String(data: responseData, encoding: .utf8) ?? "Unknown error"
-                    CAPLog.print("❌ [Auto-Enrollment] Backend error: \(errorMessage)")
+                    CAPLog.print("[Auto-Enrollment] Backend error: \(errorMessage)")
                     throw EnrollmentError.backendError(errorMessage)
                 }
                 
@@ -130,7 +130,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 
                 try storeCertificate(certificateData)
                 
-                CAPLog.print("✅ [Auto-Enrollment] Enrollment completed successfully!")
+                CAPLog.print("[Auto-Enrollment] Enrollment completed successfully!")
                 CAPLog.print("   - Certificate stored in Keychain")
                 CAPLog.print("   - Private key secured in Secure Enclave")
                 
@@ -142,7 +142,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 ])
                 
             } catch {
-                CAPLog.print("❌ [Auto-Enrollment] Failed: \(error.localizedDescription)")
+                CAPLog.print("[Auto-Enrollment] Failed: \(error.localizedDescription)")
                 call.reject("Enrollment failed", error.localizedDescription)
             }
         }
@@ -226,7 +226,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
             throw EnrollmentError.invalidResponse
         }
         
-        CAPLog.print("✅ [Auto-Enrollment] Certificate pinning validation passed")
+        CAPLog.print("[Auto-Enrollment] Certificate pinning validation passed")
         
         return (responseData, httpResponse)
     }

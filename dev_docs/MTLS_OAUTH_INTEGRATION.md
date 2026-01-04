@@ -1,10 +1,10 @@
 # mTLS OAuth Integration - Implementation Guide
 
-## [LIST] Overview
+## Overview
 
 This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token requests to cloud storage providers (Dropbox and Google Drive). The certificate validation ensures that devices are properly enrolled before requesting OAuth tokens.
 
-## [TARGET] Implementation Details
+## Implementation Details
 
 ### Architecture
 
@@ -22,7 +22,7 @@ This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token re
                             ↓
                 ┌───────────┴───────────┐
                 │                       │
-        [ERROR] NOT VALID           [OK] VALID
+        [ERROR] NOT VALID           VALID
                 │                       │
           Throw Error            Proceed with OAuth
      "Certificate required"              ↓
@@ -99,9 +99,9 @@ OAuth client with mTLS support for token operations.
 | Method | Endpoint | mTLS Required | Description |
 |--------|----------|---------------|-------------|
 | `authorize()` | `/oauth/authorize/{provider}` | [ERROR] No | Get authorization URL (public) |
-| `handleCallback()` | `/oauth/token/{provider}` | [OK] Yes | Exchange code for tokens |
-| `refreshToken()` | `/oauth/token/refresh/{provider}` | [OK] Yes | Refresh expired token |
-| `revokeToken()` | `/oauth/token/revoke/{provider}` | [OK] Yes | Revoke token (logout) |
+| `handleCallback()` | `/oauth/token/{provider}` | Yes | Exchange code for tokens |
+| `refreshToken()` | `/oauth/token/refresh/{provider}` | Yes | Refresh expired token |
+| `revokeToken()` | `/oauth/token/revoke/{provider}` | Yes | Revoke token (logout) |
 
 **Why different mTLS requirements?**
 
@@ -128,13 +128,13 @@ const connect = async () => {
 }
 ```
 
-## [EXPERIMENT] Testing Guide
+## Testing Guide
 
 ### Prerequisites
 
 1. **Device must be enrolled** with valid certificate
    - Navigate to: Settings → "Device Enrollment Test"
-   - Click "[SECURE] Enroll Device"
+   - Click "Enroll Device"
    - Verify certificate appears with expiry date
 
 2. **Backend must be running**:
@@ -146,21 +146,21 @@ const connect = async () => {
 
 ### Test Scenarios
 
-#### [OK] **Scenario 1: Valid Certificate + Dropbox OAuth**
+#### **Scenario 1: Valid Certificate + Dropbox OAuth**
 
 1. Open app on Samsung tablet
 2. Navigate to Settings → Cloud Storage
 3. Click "Connect Dropbox"
 4. **Expected**:
-   - Console shows: `[SECURE] Checking certificate status...`
-   - Console shows: `[OK] Certificate validated successfully`
-   - Console shows: `📅 Certificate expires in X days`
+   - Console shows: `Checking certificate status...`
+   - Console shows: `Certificate validated successfully`
+   - Console shows: `Certificate expires in X days`
    - Browser opens with Dropbox authorization page
 
 5. Authorize Dropbox
 6. **Expected**:
-   - Console shows: `🔒 Using mTLS for token exchange`
-   - Console shows: `[OK] Tokens received`
+   - Console shows: `Using mTLS for token exchange`
+   - Console shows: `Tokens received`
    - Dropbox connected successfully
 
 #### [ERROR] **Scenario 2: No Certificate (Not Enrolled)**
@@ -188,7 +188,7 @@ const connect = async () => {
    - Error: "Certificate expires in 3 days (renewal recommended)"
    - OAuth flow DOES NOT start
 
-#### [OK] **Scenario 5: Google Drive OAuth**
+#### **Scenario 5: Google Drive OAuth**
 
 Same as Scenario 1, but with Google Drive:
 
@@ -201,18 +201,18 @@ Enable detailed logging in console:
 
 ```typescript
 // Certificate validation
-[SECURE] Checking certificate status before OAuth...
-[OK] Certificate validated successfully
-📅 Certificate expires in 25 days
+Checking certificate status before OAuth...
+Certificate validated successfully
+Certificate expires in 25 days
 
 // OAuth flow
-[WEB] Using web OAuth flow
+Using web OAuth flow
 [LINK] Authorization URL received from backend
 
 // Token exchange (with mTLS)
-🔒 Using mTLS for token exchange
+Using mTLS for token exchange
 [KEY] Tokens received
-[OK] Token refreshed
+Token refreshed
 ```
 
 ### Common Issues & Solutions
@@ -247,7 +247,7 @@ Enable detailed logging in console:
 2. Verify certificate is in backend whitelist
 3. Re-enroll if necessary
 
-## [STATS] Backend Requirements
+## Backend Requirements
 
 ### Endpoints Configuration
 
@@ -255,9 +255,9 @@ Enable detailed logging in console:
 | --------------------------------- | ------------- | --------------------------------------- |
 | `/health/public`                  | [ERROR] No    | Exempt in `exempt_paths`                |
 | `/oauth/authorize/{provider}`     | [ERROR] No    | Exempt in `exempt_prefixes`             |
-| `/oauth/token/{provider}`         | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/refresh/{provider}` | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
-| `/oauth/token/revoke/{provider}`  | [OK] Yes      | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/{provider}`         | Yes           | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/refresh/{provider}` | Yes           | Protected by `MTLSValidationMiddleware` |
+| `/oauth/token/revoke/{provider}`  | Yes           | Protected by `MTLSValidationMiddleware` |
 | `/device/enroll`                  | [ERROR] No    | Exempt (initial enrollment)             |
 
 ### Backend Configuration
@@ -289,7 +289,7 @@ self.exempt_exact = {
 
 **Important**: The `/oauth/` prefix is in `exempt_prefixes`, BUT individual token endpoints check for mTLS in the client. The authorization endpoint is truly public, while token operations use mTLS.
 
-## [SECURE] Security Considerations
+## Security Considerations
 
 ### Why This Architecture?
 
@@ -299,11 +299,11 @@ self.exempt_exact = {
 
 ### Security Benefits
 
-- [OK] Only enrolled devices can get OAuth tokens
-- [OK] Certificate expiry forces periodic re-enrollment
-- [OK] Expired/revoked certificates cannot get new tokens
-- [OK] Backend validates device identity for sensitive operations
-- [OK] OAuth tokens are scoped to cloud provider APIs only
+- Only enrolled devices can get OAuth tokens
+- Certificate expiry forces periodic re-enrollment
+- Expired/revoked certificates cannot get new tokens
+- Backend validates device identity for sensitive operations
+- OAuth tokens are scoped to cloud provider APIs only
 
 ### What's NOT Protected by mTLS
 
@@ -314,15 +314,15 @@ self.exempt_exact = {
 
 This is by design - mTLS is only for backend communication, not cloud provider APIs.
 
-## [NOTE] Summary
+## Summary
 
 **What was implemented**:
 
-- [OK] Certificate validation before OAuth
-- [OK] mTLS HTTP adapter for backend communication
-- [OK] Updated OAuth client with mTLS for token operations
-- [OK] Store integration with certificate checks
-- [OK] Error handling for invalid/expired certificates
+- Certificate validation before OAuth
+- mTLS HTTP adapter for backend communication
+- Updated OAuth client with mTLS for token operations
+- Store integration with certificate checks
+- Error handling for invalid/expired certificates
 
 **What to test**:
 

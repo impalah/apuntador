@@ -1,6 +1,6 @@
 /**
  * Vite plugin to auto-sync version from package.json to src/utils/version.ts
- * 
+ *
  * This plugin automatically updates the APP_VERSION constant in src/utils/version.ts
  * with the version from package.json during build and dev processes.
  */
@@ -22,14 +22,14 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
   const {
     packageJsonPath = './package.json',
     versionFilePath = './src/utils/version.ts',
-    updateInDev = true
+    updateInDev = true,
   } = options
 
   let hasUpdated = false
 
   return {
     name: 'version-sync',
-    
+
     buildStart() {
       updateVersionFile()
       hasUpdated = true
@@ -42,19 +42,19 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
           updateVersionFile()
           hasUpdated = true
         }
-        
+
         // Watch package.json for changes during dev
         server.watcher.add(packageJsonPath)
         server.watcher.on('change', (path) => {
           if (path.endsWith('package.json')) {
             updateVersionFile()
             server.ws.send({
-              type: 'full-reload'
+              type: 'full-reload',
             })
           }
         })
       }
-    }
+    },
   }
 
   function updateVersionFile() {
@@ -87,9 +87,8 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
       // Write updated file only if content changed
       if (finalContent !== currentContent) {
         writeFileSync(versionFileFull, finalContent, 'utf-8')
-        console.log(`[FEATURE] Version synced: ${version} → src/utils/version.ts`)
+        console.log(`Version synced: ${version} → src/utils/version.ts`)
       }
-
     } catch (error) {
       console.error('[ERROR] Error syncing version:', error)
     }

@@ -9,6 +9,7 @@ Google OAuth requiere `client_secret` para aplicaciones web/desktop, pero este s
 ### Configuración Actual
 
 Apuntador usa:
+
 - **Tipo de cliente**: "Aplicación de escritorio" en Google Cloud Console
 - **Flujo OAuth**: Authorization Code Flow + PKCE
 - **Client Secret**: Almacenado en variables de entorno (`.env` local, GitHub Secrets para CI/CD)
@@ -38,6 +39,7 @@ En aplicaciones distribuidas (SPA, móvil, desktop):
 Esta es una **inconsistencia en la implementación de Google OAuth**:
 
 - La [documentación oficial](https://developers.google.com/identity/protocols/oauth2/native-app) dice:
+
   > `client_secret`: **Opcional**... no se aplica a Android, iOS o Chrome
 
 - Pero en la **práctica** (2025), Google API rechaza requests sin `client_secret` para tipo "Aplicación de escritorio" con error:
@@ -84,17 +86,20 @@ A pesar de la limitación, el riesgo es **aceptable** por:
 **Riesgo Bajo** porque:
 
 [ERROR] **Atacante NO puede**:
+
 - Acceder a cuentas de otros usuarios sin su consentimiento
 - Reutilizar authorization codes interceptados (PKCE lo previene)
 - Escalar más allá de las cuotas de API de Google
 - Obtener datos sin autorización explícita del usuario
 
-[OK] **Atacante PUEDE** (pero con impacto limitado):
+**Atacante PUEDE** (pero con impacto limitado):
+
 - Extraer el `client_secret` del código
 - Hacer requests a Google Drive API bajo tu proyecto
 - Consumir tu cuota de API (hasta límites de Google)
 
 **Impacto**: Si el secret es comprometido, el atacante podría:
+
 - Hacer spam de requests OAuth (limitado por cuotas)
 - Consumir tu quota de API gratuita
 - **NO** puede acceder a datos de usuarios sin su autorización
@@ -104,29 +109,33 @@ A pesar de la limitación, el riesgo es **aceptable** por:
 ### Opción 1: Backend OAuth Proxy (Recomendado para Producción)
 
 **Arquitectura**:
+
 ```
 Usuario → Apuntador (SPA) → Backend Proxy → Google OAuth
                               └─ client_secret aquí (seguro)
 ```
 
 **Ventajas**:
-- [OK] `client_secret` protegido servidor-side
-- [OK] Control total sobre el flujo OAuth
-- [OK] Posibilidad de agregar rate limiting adicional
-- [OK] Auditoría centralizada de accesos
+
+- `client_secret` protegido servidor-side
+- Control total sobre el flujo OAuth
+- Posibilidad de agregar rate limiting adicional
+- Auditoría centralizada de accesos
 
 **Desventajas**:
+
 - [ERROR] Requiere infraestructura de servidor
 - [ERROR] Costos de hosting y mantenimiento
 - [ERROR] Complejidad adicional en deployment
 - [ERROR] Punto único de fallo
 
 **Implementación**:
+
 ```typescript
 // Backend (Node.js/Express)
 app.post('/oauth/token', async (req, res) => {
   const { code, code_verifier } = req.body
-  
+
   const response = await fetch('https://oauth2.googleapis.com/token', {
     method: 'POST',
     body: new URLSearchParams({
@@ -135,10 +144,10 @@ app.post('/oauth/token', async (req, res) => {
       code,
       code_verifier,
       grant_type: 'authorization_code',
-      redirect_uri: 'https://app.apuntador.io/oauth-callback'
-    })
+      redirect_uri: 'https://app.apuntador.io/oauth-callback',
+    }),
   })
-  
+
   res.json(await response.json())
 })
 ```
@@ -148,12 +157,14 @@ app.post('/oauth/token', async (req, res) => {
 **Usar**: [Sign In With Google](https://developers.google.com/identity/gsi/web/guides/overview)
 
 **Ventajas**:
-- [OK] No requiere `client_secret`
-- [OK] Flujo simplificado y optimizado
-- [OK] Mejor UX con UI de Google
-- [OK] Mantenido oficialmente por Google
+
+- No requiere `client_secret`
+- Flujo simplificado y optimizado
+- Mejor UX con UI de Google
+- Mantenido oficialmente por Google
 
 **Desventajas**:
+
 - [ERROR] Menos control sobre el flujo OAuth
 - [ERROR] Limitado a web (no funciona en Capacitor/Tauri sin adaptación)
 - [ERROR] Requiere reescribir la integración actual
@@ -163,11 +174,13 @@ app.post('/oauth/token', async (req, res) => {
 **Crear clientes específicos** tipo "Android" / "iOS" en Google Cloud Console.
 
 **Ventajas**:
-- [OK] **NO requieren** `client_secret` (confirmado por docs oficiales)
-- [OK] Más seguro para apps nativas
-- [OK] Validación de firma de app
+
+- **NO requieren** `client_secret` (confirmado por docs oficiales)
+- Más seguro para apps nativas
+- Validación de firma de app
 
 **Desventajas**:
+
 - [ERROR] No funciona para web (SPA)
 - [ERROR] Requiere configuraciones separadas por plataforma
 - [ERROR] Package name / Bundle ID deben coincidir exactamente
@@ -175,19 +188,25 @@ app.post('/oauth/token', async (req, res) => {
 ## Recomendación Final
 
 ### Para Desarrollo y Uso Personal
-[OK] **Configuración actual es suficiente**:
+
+**Configuración actual es suficiente**:
+
 - Client secret en `.env` local
 - OAuth 2.0 + PKCE
 - Riesgo bajo y mitigado
 
 ### Para Distribución Pública Limitada (< 100 usuarios)
-[OK] **Configuración actual con monitoreo**:
+
+**Configuración actual con monitoreo**:
+
 - Client secret en GitHub Secrets para builds automatizados
 - Monitorear cuotas en Google Cloud Console
 - Documentar limitaciones claramente
 
 ### Para Producción/Distribución Masiva
+
 [WARNING] **Considerar implementar Backend OAuth Proxy**:
+
 - Protección completa del client_secret
 - Control y auditoría centralizados
 - Mejor experiencia de usuario (sin rate limits visibles)
@@ -209,6 +228,7 @@ Monitorea el uso de tu proyecto:
 ### Alertas Recomendadas
 
 Configura alertas si:
+
 - Requests exceden 10,000/día (uso anormal)
 - Tasa de errores > 5%
 - Cuota alcanza 80% del límite

@@ -15,8 +15,8 @@ public class MTLSHttp: CAPPlugin, CAPBridgedPlugin {
     public let jsName = "MTLSHttp"
     
     override public func load() {
-        CAPLog.print("🔐 [MTLSHttp] Plugin loaded and registered")
-        CAPLog.print("🔐 [MTLSHttp] identifier=\(identifier), jsName=\(jsName)")
+        CAPLog.print("[MTLSHttp] Plugin loaded and registered")
+        CAPLog.print("[MTLSHttp] identifier=\(identifier), jsName=\(jsName)")
     }
     
     public let pluginMethods: [CAPPluginMethod] = [
@@ -53,8 +53,8 @@ public class MTLSHttp: CAPPlugin, CAPBridgedPlugin {
         let useMTLS = call.getBool("useMTLS") ?? false
         
         CAPLog.print("🌐 [MTLSHTTPPlugin] Request: \(method) \(urlString)")
-        CAPLog.print("🔐 [MTLSHTTPPlugin] Certificate Pinning: ENABLED")
-        CAPLog.print("🔐 [MTLSHTTPPlugin] Client Certificate (mTLS): \(useMTLS ? "ENABLED" : "DISABLED")")
+        CAPLog.print("[MTLSHTTPPlugin] Certificate Pinning: ENABLED")
+        CAPLog.print("[MTLSHTTPPlugin] Client Certificate (mTLS): \(useMTLS ? "ENABLED" : "DISABLED")")
         
         // Crear cliente HTTP (con o sin certificado de cliente)
         if useMTLS {
@@ -108,7 +108,7 @@ public class MTLSHttp: CAPPlugin, CAPBridgedPlugin {
                     return
                 }
                 
-                CAPLog.print("✅ [MTLSHTTPPlugin] Response: \(httpResponse.statusCode)")
+                CAPLog.print("[MTLSHTTPPlugin] Response: \(httpResponse.statusCode)")
                 
                 // Convertir headers a diccionario
                 var responseHeaders: [String: String] = [:]
@@ -127,7 +127,7 @@ public class MTLSHttp: CAPPlugin, CAPBridgedPlugin {
                     "data": responseBody
                 ])
             } catch {
-                CAPLog.print("❌ [MTLSHTTPPlugin] Request failed: \(error.localizedDescription)")
+                CAPLog.print("[MTLSHTTPPlugin] Request failed: \(error.localizedDescription)")
                 call.reject("Request failed: \(error.localizedDescription)")
             }
         }

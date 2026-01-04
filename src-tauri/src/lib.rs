@@ -174,12 +174,12 @@ fn generate_state() -> String {
 /// Open URL in system default browser
 #[tauri::command]
 async fn open_url(url: String) -> Result<(), String> {
-  println!("[WEB] Opening URL in system browser: {}", url);
+  println!("Opening URL in system browser: {}", url);
   
   tauri_plugin_opener::open_url(&url, None::<&str>)
     .map_err(|e| format!("Failed to open URL: {}", e))?;
   
-  println!("[OK] Browser opened successfully");
+  println!("Browser opened successfully");
   Ok(())
 }
 
@@ -189,9 +189,9 @@ async fn start_oauth_callback_server(
   app_handle: tauri::AppHandle,
   oauth_state: State<'_, OAuthState>,
 ) -> Result<(), String> {
-  println!("[LAUNCH] Starting OAuth callback server on localhost:8080...");
+  println!("Starting OAuth callback server on localhost:8080...");
   start_oauth_server(app_handle.clone(), oauth_state.clone()).await?;
-  println!("[OK] OAuth callback server started successfully");
+  println!("OAuth callback server started successfully");
   Ok(())
 }
 
@@ -204,7 +204,7 @@ async fn backend_oauth_authorize(
 ) -> Result<serde_json::Value, String> {
   use crate::mtls::certificate_storage::CertificateStore;
   
-  println!("[SECURE] [Backend OAuth] Requesting authorization URL from backend with mTLS");
+  println!("[Backend OAuth] Requesting authorization URL from backend with mTLS");
   println!("   Provider: {}", provider);
   println!("   Redirect URI: {}", redirect_uri);
   
@@ -212,7 +212,7 @@ async fn backend_oauth_authorize(
   let stored_cert = CertificateStore::retrieve()
     .map_err(|e| format!("Failed to retrieve certificate: {}", e))?;
   
-  println!("[OK] Certificate loaded from Keychain");
+  println!("Certificate loaded from Keychain");
   
   // 2. URL-encode certificate for X-Client-Cert header
   let cert_for_header = stored_cert.certificate_pem.replace("\n", "%0A");
@@ -223,13 +223,13 @@ async fn backend_oauth_authorize(
     .build()
     .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
   
-  println!("[OK] HTTP client created");
+  println!("HTTP client created");
   
   // 4. Make request to backend with certificate in header
   let backend_url = env!("BACKEND_OAUTH_URL"); // From build.rs
   let url = format!("{}/oauth/authorize/{}", backend_url, provider);
   
-  println!("[SIGNAL] Making request to: {}", url);
+  println!("Making request to: {}", url);
   
   let response = client
     .post(&url)
@@ -254,7 +254,7 @@ async fn backend_oauth_authorize(
   let data: serde_json::Value = response.json().await
     .map_err(|e| format!("Failed to parse response: {}", e))?;
   
-  println!("[OK] Authorization URL received from backend");
+  println!("Authorization URL received from backend");
   Ok(data)
 }
 
@@ -267,7 +267,7 @@ async fn backend_oauth_token_exchange(
   code_verifier: String,
   state: String,
 ) -> Result<serde_json::Value, String> {
-  println!("[REFRESH] Backend OAuth token exchange for provider: {}", provider);
+  println!("Backend OAuth token exchange for provider: {}", provider);
 
   // Get backend URL from environment (injected at compile time)
   let backend_url = env!("BACKEND_OAUTH_URL");
@@ -279,7 +279,7 @@ async fn backend_oauth_token_exchange(
 
   // URL-encode certificate for X-Client-Cert header (replace newlines with %0A)
   let cert_for_header = stored_cert.certificate_pem.replace("\n", "%0A");
-  println!("[LIST] Certificate prepared for header (length: {})", cert_for_header.len());
+  println!("Certificate prepared for header (length: {})", cert_for_header.len());
 
   // Create simple HTTP client (no mTLS in transport, we send cert in header)
   let client = reqwest::Client::builder()
@@ -289,7 +289,7 @@ async fn backend_oauth_token_exchange(
 
   // Call backend token exchange endpoint
   let exchange_url = format!("{}/oauth/token/{}", backend_url, provider);
-  println!("[SIGNAL] Calling backend token exchange: {}", exchange_url);
+  println!("Calling backend token exchange: {}", exchange_url);
 
   // Create JSON request body
   let mut body = serde_json::Map::new();
@@ -311,7 +311,7 @@ async fn backend_oauth_token_exchange(
   let body = response.text().await
     .map_err(|e| format!("Failed to read response body: {}", e))?;
 
-  println!("[FILE] Response body (first 500 chars): {}", &body.chars().take(500).collect::<String>());
+  println!("Response body (first 500 chars): {}", &body.chars().take(500).collect::<String>());
 
   if !status.is_success() {
     return Err(format!("Backend returned error: {} - {}", status, body));
@@ -321,7 +321,7 @@ async fn backend_oauth_token_exchange(
   let data: serde_json::Value = serde_json::from_str(&body)
     .map_err(|e| format!("Failed to parse JSON response: {} - Body was: {}", e, body))?;
 
-  println!("[OK] Token exchange successful");
+  println!("Token exchange successful");
   Ok(data)
 }
 
@@ -345,9 +345,9 @@ async fn start_dropbox_oauth(
   }
   
   // Start local server if not already running
-  println!("[LAUNCH] Starting OAuth server on localhost:8080...");
+  println!("Starting OAuth server on localhost:8080...");
   start_oauth_server(app_handle.clone(), oauth_state.clone()).await?;
-  println!("[OK] OAuth server started successfully");
+  println!("OAuth server started successfully");
   
   // Build authorization URL
   let client_id = env!("DROPBOX_CLIENT_ID", "DROPBOX_CLIENT_ID not set in build.rs");
@@ -377,27 +377,27 @@ async fn exchange_oauth_code(
   state: String,
   oauth_state: State<'_, OAuthState>,
 ) -> Result<OAuthResponse, String> {
-  println!("[REFRESH] Starting code-to-token exchange...");
-  println!("[NOTE] Code: {}", code);
-  println!("[NOTE] State: {}", state);
+  println!("Starting code-to-token exchange...");
+  println!("Code: {}", code);
+  println!("State: {}", state);
   
   // Retrieve code_verifier
   let code_verifier = {
     let mut pending = oauth_state.pending_requests.lock().unwrap();
-    println!("[SEARCH] Pending requests count: {}", pending.len());
+    println!("Pending requests count: {}", pending.len());
     pending.remove(&state)
       .map(|req| {
-        println!("[OK] Found code_verifier for state: {}", state);
+        println!("Found code_verifier for state: {}", state);
         req.code_verifier
       })
       .ok_or_else(|| {
         println!("[ERROR] No code_verifier found for state: {}", state);
-        println!("[SEARCH] Available states: {:?}", pending.keys().collect::<Vec<_>>());
+        println!("Available states: {:?}", pending.keys().collect::<Vec<_>>());
         "Invalid state parameter".to_string()
       })?
   };
   
-  println!("[SECURE] Code verifier retrieved, length: {}", code_verifier.len());
+  println!("Code verifier retrieved, length: {}", code_verifier.len());
   
   // Exchange code for token
   let client_id = env!("DROPBOX_CLIENT_ID", "DROPBOX_CLIENT_ID not set in build.rs");
@@ -417,7 +417,7 @@ async fn exchange_oauth_code(
   
   println!("[CALL] Making token exchange request to Dropbox...");
   println!("[LINK] URL: {}", dropbox_token_url);
-  println!("[LIST] Params: {:?}", params);
+  println!("Params: {:?}", params);
   
   let response = client
     .post(dropbox_token_url)
@@ -446,9 +446,9 @@ async fn exchange_oauth_code(
       e.to_string()
     })?;
   
-  println!("[PACKAGE] Token response received:");
-  println!("[STATS] Response keys: {:?}", token_response.as_object().map(|obj| obj.keys().collect::<Vec<_>>()));
-  println!("[FILE] Full response: {}", serde_json::to_string_pretty(&token_response).unwrap_or_else(|_| "Failed to serialize".to_string()));
+  println!("Token response received:");
+  println!("Response keys: {:?}", token_response.as_object().map(|obj| obj.keys().collect::<Vec<_>>()));
+  println!("Full response: {}", serde_json::to_string_pretty(&token_response).unwrap_or_else(|_| "Failed to serialize".to_string()));
   
   let access_token = token_response["access_token"]
     .as_str()
@@ -457,7 +457,7 @@ async fn exchange_oauth_code(
       "No access token in response".to_string()
     })?;
   
-  println!("[OK] Access token extracted successfully, length: {}", access_token.len());
+  println!("Access token extracted successfully, length: {}", access_token.len());
   println!("[KEY] Token preview: {}...", &access_token[..access_token.len().min(20)]);
   
   Ok(OAuthResponse {
@@ -587,7 +587,7 @@ async fn start_oauth_server(
   {
     let server_handle = oauth_state.server_handle.lock().unwrap();
     if server_handle.is_some() {
-      println!("[FAST] OAuth server already running");
+      println!("OAuth server already running");
       return Ok(()); // Already running
     }
   }
@@ -598,7 +598,7 @@ async fn start_oauth_server(
     let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
     println!("[LINK] Attempting to bind to {}", addr);
     let listener = TcpListener::bind(addr).await.unwrap();
-    println!("[TARGET] OAuth server listening on {}", addr);
+    println!("OAuth server listening on {}", addr);
     
     loop {
       let (stream, _) = listener.accept().await.unwrap();
@@ -620,8 +620,8 @@ async fn start_oauth_server(
                   let params: std::collections::HashMap<String, String> = url.query_pairs().into_owned().collect();
                   
                   if let (Some(code), Some(state)) = (params.get("code"), params.get("state")) {
-                    println!("[OK] Valid OAuth callback - emitting event to frontend");
-                    println!("[SIGNAL] Code: {}, State: {}", code, state);
+                    println!("Valid OAuth callback - emitting event to frontend");
+                    println!("Code: {}, State: {}", code, state);
                     
                     // Emit event to frontend - using emit for main window
                     let emit_result = app_handle.emit("oauth-callback", serde_json::json!({
@@ -630,7 +630,7 @@ async fn start_oauth_server(
                     }));
                     
                     match emit_result {
-                      Ok(_) => println!("[OK] oauth-callback event emitted successfully"),
+                      Ok(_) => println!("oauth-callback event emitted successfully"),
                       Err(e) => println!("[ERROR] Error emitting event: {}", e),
                     }
                     
@@ -1006,7 +1006,7 @@ fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
   
   match result {
     Ok(_) => {
-      println!("[OK] Test: Event emitted correctly");
+      println!("Test: Event emitted correctly");
       Ok("Event emitted successfully".to_string())
     },
     Err(e) => {
@@ -1021,7 +1021,7 @@ fn test_event_emit(app_handle: tauri::AppHandle) -> Result<String, String> {
 /// Check device enrollment status
 #[tauri::command]
 async fn check_enrollment_status() -> Result<enrollment::EnrollmentResult, String> {
-  println!("[SEARCH] [Tauri Command] check_enrollment_status called");
+  println!("[Tauri Command] check_enrollment_status called");
   enrollment::check_enrollment_status().await
 }
 
@@ -1031,7 +1031,7 @@ async fn enroll_desktop_device(
   backend_url: String,
   certificate_pins: Vec<String>,
 ) -> Result<enrollment::EnrollmentResult, String> {
-  println!("[LAUNCH] [Tauri Command] enroll_desktop_device called");
+  println!("[Tauri Command] enroll_desktop_device called");
   println!("   Backend URL: {}", backend_url);
   println!("   Certificate Pins: {:?}", certificate_pins);
   
@@ -1041,14 +1041,14 @@ async fn enroll_desktop_device(
 /// Unenroll device (delete certificate)
 #[tauri::command]
 async fn unenroll_desktop_device() -> Result<(), String> {
-  println!("[DELETE]  [Tauri Command] unenroll_desktop_device called");
+  println!(" [Tauri Command] unenroll_desktop_device called");
   enrollment::unenroll_device().await
 }
 
 /// Get device information
 #[tauri::command]
 fn get_desktop_device_info() -> Result<serde_json::Value, String> {
-  println!("[MOBILE] [Tauri Command] get_desktop_device_info called");
+  println!("[Tauri Command] get_desktop_device_info called");
   
   let device_id = mtls::csr_generator::get_device_id()?;
   let platform = mtls::csr_generator::get_platform();
@@ -1126,7 +1126,7 @@ pub fn run() {
       #[cfg(debug_assertions)]
       if let tauri::WindowEvent::CloseRequested { .. } = event {
         println!("🔴 Close requested for window: {}", window.label());
-        println!("[CONFIG] Debug mode: Destroying window");
+        println!("Debug mode: Destroying window");
         // In debug mode, destroy the window immediately
         let _ = window.destroy();
         return;
@@ -1143,7 +1143,7 @@ pub fn run() {
       
       match event {
         tauri::WindowEvent::Destroyed => {
-          println!("[DELETE]  Window destroyed: {}", window.label());
+          println!(" Window destroyed: {}", window.label());
         }
         tauri::WindowEvent::ThemeChanged(_) => {
           // Detectar cambios de fullscreen a través de cambios en decoraciones

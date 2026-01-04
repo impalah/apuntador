@@ -2,17 +2,17 @@
 
 Este documento describe qué necesitas instalar en tu macOS local para desarrollar con el proyecto Apuntador.
 
-## [LIST] Resumen
+## Resumen
 
 El **devcontainer maneja la mayoría de las dependencias**, pero hay algunas herramientas que necesitas en tu macOS local:
 
-### [OK] Obligatorio (para usar el devcontainer)
+### Obligatorio (para usar el devcontainer)
 
 1. **Docker Runtime** (Colima o Docker Desktop)
 2. **Visual Studio Code**
 3. **Extensión Dev Containers** para VS Code
 
-### 🍎 Opcional (para desarrollo nativo iOS en macOS)
+### Opcional (para desarrollo nativo iOS en macOS)
 
 Si quieres compilar aplicaciones iOS **directamente en tu Mac** (fuera del container):
 
@@ -47,11 +47,13 @@ colima list
 ```
 
 **Recursos recomendados**:
+
 - **CPUs**: 8+ (desarrollo full-stack con Rust + Android)
 - **Memory**: 16GB (Android SDK + Gradle + compilación Rust)
 - **Disk**: 100GB (Android SDK ~30GB, cache de Rust, node_modules)
 
 **Comandos útiles**:
+
 ```bash
 # Detener Colima
 colima stop
@@ -75,6 +77,7 @@ brew install --cask docker
 ```
 
 Después de instalar:
+
 1. Abrir Docker Desktop
 2. Ir a Settings → Resources
 3. Ajustar CPUs (8+) y Memory (16GB+)
@@ -98,12 +101,14 @@ brew install --cask visual-studio-code
 Dos formas de instalar:
 
 ### Desde VS Code:
+
 1. Abrir VS Code
 2. Ir a Extensions (⌘+Shift+X)
 3. Buscar "Dev Containers"
 4. Instalar "Dev Containers" por Microsoft
 
 ### Desde terminal:
+
 ```bash
 code --install-extension ms-vscode-remote.remote-containers
 ```
@@ -205,6 +210,7 @@ pod --version
 ```
 
 **Si obtienes error de permisos**:
+
 ```bash
 # Opción 1: Instalar en directorio de usuario
 gem install cocoapods --user-install
@@ -255,7 +261,7 @@ brew --version
 
 ---
 
-## [OK] Verificación Rápida
+## Verificación Rápida
 
 Ejecuta estos comandos para verificar que todo está instalado correctamente:
 
@@ -291,16 +297,18 @@ npm --version
 
 ---
 
-## [LAUNCH] Flujo de Trabajo Recomendado
+## Flujo de Trabajo Recomendado
 
 ### Desarrollo Web/Android/Tauri → Usar el devcontainer
 
 1. Iniciar Colima (si no está corriendo):
+
    ```bash
    colima start --cpu 8 --memory 16
    ```
 
 2. Abrir proyecto en VS Code:
+
    ```bash
    code /Users/linus/projects/apuntador
    ```
@@ -320,13 +328,14 @@ Para iOS, necesitas salir del container:
 1. En VS Code, Cmd+Shift+P → "Dev Containers: Reopen Folder Locally"
 
 2. Ejecutar comandos iOS en terminal de macOS:
+
    ```bash
    # Sincronizar Capacitor
    npx cap sync ios
-   
+
    # Abrir en Xcode
    npx cap open ios
-   
+
    # O usar Ionic CLI
    ionic capacitor build ios
    ionic capacitor run ios
@@ -336,26 +345,26 @@ Para iOS, necesitas salir del container:
 
 ---
 
-## [STATS] Espacio en Disco Requerido
+## Espacio en Disco Requerido
 
 Estima estos tamaños en tu macOS:
 
-| Componente | Tamaño Aproximado |
-|------------|-------------------|
-| Docker Desktop / Colima | ~500 MB |
-| VS Code | ~300 MB |
-| Xcode (completo) | ~15 GB |
-| Xcode Command Line Tools | ~1.5 GB |
-| Node.js (si instalas en host) | ~100 MB |
-| **Volúmenes Docker** (node_modules, target) | **5-20 GB** |
-| **Android SDK** (en container) | **~30 GB** |
+| Componente                                  | Tamaño Aproximado |
+| ------------------------------------------- | ----------------- |
+| Docker Desktop / Colima                     | ~500 MB           |
+| VS Code                                     | ~300 MB           |
+| Xcode (completo)                            | ~15 GB            |
+| Xcode Command Line Tools                    | ~1.5 GB           |
+| Node.js (si instalas en host)               | ~100 MB           |
+| **Volúmenes Docker** (node_modules, target) | **5-20 GB**       |
+| **Android SDK** (en container)              | **~30 GB**        |
 
 **Total mínimo** (sin iOS): ~6 GB  
 **Total completo** (con iOS): ~50-70 GB
 
 ---
 
-## [BUG] Troubleshooting
+## Troubleshooting
 
 ### "Cannot connect to Docker daemon"
 
@@ -374,6 +383,7 @@ docker context use colima
 ### VS Code no detecta el devcontainer
 
 1. Verificar que la extensión Dev Containers esté instalada:
+
    ```bash
    code --list-extensions | grep ms-vscode-remote.remote-containers
    ```
@@ -404,6 +414,7 @@ colima start --cpu 4 --memory 8
 **Problema 1**: `ffi requires Ruby version >= 3.0. The current ruby version is 2.6.10.`
 
 **Solución**:
+
 ```bash
 # Instalar Ruby 3.3.x con rbenv (NO usar brew install ruby)
 brew install rbenv ruby-build
@@ -428,6 +439,7 @@ gem install cocoapods
 **Causa**: CocoaPods se instaló con el Ruby del sistema en una ubicación no incluida en PATH.
 
 **Solución**:
+
 ```bash
 # 1. Si instalaste Ruby con Homebrew, desinstalarlo
 brew uninstall ruby
@@ -460,6 +472,7 @@ which pod         # Mostrar ubicación del comando
 **Causa**: Ruby 4.0.0 es una versión en desarrollo (inestable) y tiene problemas con gems.
 
 **Solución**:
+
 ```bash
 # 1. Desinstalar Ruby 4.0.0 de Homebrew
 brew uninstall ruby
@@ -490,7 +503,7 @@ which pod         # Mostrar ubicación del comando
 
 ---
 
-## [NOTE] Resumen para tu Caso
+## Resumen para tu Caso
 
 ### Instalación Mínima (solo devcontainer)
 
@@ -510,7 +523,7 @@ brew install --cask visual-studio-code
 # 5. Instalar extensión Dev Containers
 code --install-extension ms-vscode-remote.remote-containers
 
-# [OK] Listo! Ahora puedes abrir el proyecto en container
+# Listo! Ahora puedes abrir el proyecto en container
 ```
 
 ### Instalación Completa (con soporte iOS nativo)
@@ -544,18 +557,18 @@ brew install node@20
 
 ---
 
-## [TARGET] ¿Qué se queda en el container vs en tu Mac?
+## ¿Qué se queda en el container vs en tu Mac?
 
-| Herramienta | Container | macOS Host | Notas |
-|-------------|-----------|------------|-------|
-| Node.js 20 | [OK] | [WARNING] Opcional | En container para desarrollo principal |
-| Rust + Cargo | [OK] | [ERROR] | Solo en container |
-| Android SDK | [OK] | [ERROR] | Solo en container (~30GB) |
-| Tauri CLI | [OK] | [ERROR] | Solo en container |
-| Xcode | [ERROR] | [OK] | Solo en macOS (no funciona en Linux) |
-| CocoaPods | [WARNING] Instalado en ambos | [OK] | iOS requiere macOS nativo |
-| Docker/Colima | [ERROR] | [OK] | Runtime en host |
-| VS Code | [ERROR] | [OK] | UI en host, extensiones en container |
+| Herramienta   | Container                    | macOS Host         | Notas                                  |
+| ------------- | ---------------------------- | ------------------ | -------------------------------------- |
+| Node.js 20    |                              | [WARNING] Opcional | En container para desarrollo principal |
+| Rust + Cargo  |                              | [ERROR]            | Solo en container                      |
+| Android SDK   |                              | [ERROR]            | Solo en container (~30GB)              |
+| Tauri CLI     |                              | [ERROR]            | Solo en container                      |
+| Xcode         | [ERROR]                      |                    | Solo en macOS (no funciona en Linux)   |
+| CocoaPods     | [WARNING] Instalado en ambos |                    | iOS requiere macOS nativo              |
+| Docker/Colima | [ERROR]                      |                    | Runtime en host                        |
+| VS Code       | [ERROR]                      |                    | UI en host, extensiones en container   |
 
 ---
 

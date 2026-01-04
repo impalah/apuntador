@@ -84,7 +84,7 @@ jobs:
             exit 1
           fi
 
-          echo "[PACKAGE] Downloading: ${DOWNLOAD_URL}"
+          echo "Downloading: ${DOWNLOAD_URL}"
           curl -L -H "Authorization: token ${GITHUB_TOKEN}" \
             -o "release-${RELEASE_TAG}.zip" \
             "${DOWNLOAD_URL}"
@@ -95,7 +95,7 @@ jobs:
             exit 1
           fi
 
-          echo "[OK] Downloaded release-${RELEASE_TAG}.zip"
+          echo "Downloaded release-${RELEASE_TAG}.zip"
           ls -la "release-${RELEASE_TAG}.zip"
 
       - name: Extract and prepare web build
@@ -109,7 +109,7 @@ jobs:
           echo "Contents of dist directory:"
           ls -la dist/
 
-          echo "[OK] Web build ready for Capacitor"
+          echo "Web build ready for Capacitor"
 
       - name: Setup Android environment
         run: |
@@ -121,7 +121,7 @@ jobs:
           VERSION_CODE: ${{ github.event.inputs.versionCode }}
           VERSION_NAME: ${{ github.event.inputs.release_tag }}
         run: |
-          echo "[REFRESH] Updating Android version and enabling R8 optimization..."
+          echo "Updating Android version and enabling R8 optimization..."
           echo "  versionCode: ${VERSION_CODE}"
           echo "  versionName: ${VERSION_NAME}"
           echo "  R8 optimization: enabled for release builds"
@@ -137,14 +137,14 @@ jobs:
           if ! grep -q "minifyEnabled true" android/app/build.gradle; then
             echo "[WARNING] Warning: minifyEnabled not found in build.gradle. R8 optimization may not be active."
           else
-            echo "[OK] R8 optimization confirmed in build.gradle"
+            echo "R8 optimization confirmed in build.gradle"
           fi
 
           # Verify the changes
-          echo "[LIST] Updated build.gradle content:"
+          echo "Updated build.gradle content:"
           grep -A 5 -B 5 "versionCode\|versionName\|minifyEnabled" android/app/build.gradle
 
-          echo "[OK] Android version updated successfully with R8 optimization"
+          echo "Android version updated successfully with R8 optimization"
 
       - name: Commit version changes to repository
         env:
@@ -156,13 +156,13 @@ jobs:
 
           # Check if there are changes to commit
           if git diff --quiet android/app/build.gradle; then
-            echo "[INFO] No changes detected in build.gradle"
+            echo "No changes detected in build.gradle"
           else
-            echo "[NOTE] Committing version update to repository..."
+            echo "Committing version update to repository..."
             git add android/app/build.gradle
-            git commit -m "[MOBILE] Update Android version to ${VERSION_NAME} (versionCode: ${VERSION_CODE})"
+            git commit -m "Update Android version to ${VERSION_NAME} (versionCode: ${VERSION_CODE})"
             git push
-            echo "[OK] Version changes committed and pushed to repository"
+            echo "Version changes committed and pushed to repository"
           fi
 
       - name: Decode and create keystore
@@ -199,7 +199,7 @@ jobs:
 
           if [ -f "$ORIGINAL_AAB" ]; then
             mv "$ORIGINAL_AAB" "$NEW_AAB"
-            echo "[OK] Renamed AAB to: $(basename "$NEW_AAB")"
+            echo "Renamed AAB to: $(basename "$NEW_AAB")"
           else
             echo "[ERROR] Original AAB file not found: $ORIGINAL_AAB"
             exit 1
@@ -217,7 +217,7 @@ jobs:
 
           if [ -f "$ORIGINAL_AAB" ]; then
             mv "$ORIGINAL_AAB" "$NEW_AAB"
-            echo "[OK] Renamed AAB to: $(basename "$NEW_AAB")"
+            echo "Renamed AAB to: $(basename "$NEW_AAB")"
           else
             echo "[ERROR] Original AAB file not found: $ORIGINAL_AAB"
             exit 1
@@ -240,7 +240,7 @@ jobs:
 
           # Check AAB files
           if [ -f "$RELEASE_AAB" ]; then
-            echo "[OK] Release Bundle found: $(basename "$RELEASE_AAB")"
+            echo "Release Bundle found: $(basename "$RELEASE_AAB")"
             ls -la "$RELEASE_AAB"
           else
             echo "[ERROR] Release Bundle not found: $RELEASE_AAB"
@@ -249,7 +249,7 @@ jobs:
           fi
 
           if [ -f "$DEBUG_AAB" ]; then
-            echo "[OK] Debug Bundle found: $(basename "$DEBUG_AAB")"
+            echo "Debug Bundle found: $(basename "$DEBUG_AAB")"
             ls -la "$DEBUG_AAB"
           else
             echo "[ERROR] Debug Bundle not found: $DEBUG_AAB"
@@ -260,9 +260,9 @@ jobs:
           # Check mapping file (only for release builds)
           if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
             if [ -f "$MAPPING_FILE" ]; then
-              echo "[OK] ProGuard mapping file found: $(basename "$MAPPING_FILE")"
+              echo "ProGuard mapping file found: $(basename "$MAPPING_FILE")"
               ls -la "$MAPPING_FILE"
-              echo "[STATS] Mapping file size: $(du -h "$MAPPING_FILE" | cut -f1)"
+              echo "Mapping file size: $(du -h "$MAPPING_FILE" | cut -f1)"
             else
               echo "[ERROR] ProGuard mapping file not found: $MAPPING_FILE"
               echo "Contents of mapping directory:"
@@ -270,7 +270,7 @@ jobs:
               echo "[WARNING] This indicates R8/ProGuard optimization may not be enabled"
             fi
           else
-            echo "[INFO] Mapping file check skipped for debug build"
+            echo "Mapping file check skipped for debug build"
           fi
 
       - name: Upload Release Bundle artifact
@@ -299,7 +299,7 @@ jobs:
 
       - name: Generate Bundle info
         run: |
-          echo "[MOBILE] Android Bundle Build Complete" >> $GITHUB_STEP_SUMMARY
+          echo "Android Bundle Build Complete" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Build Information" >> $GITHUB_STEP_SUMMARY
           echo "- **Release Tag**: ${{ github.event.inputs.release_tag }}" >> $GITHUB_STEP_SUMMARY
@@ -309,24 +309,24 @@ jobs:
           echo "- **Bundle Format**: AAB (Android App Bundle)" >> $GITHUB_STEP_SUMMARY
           echo "- **Target**: Google Play Store" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
-            echo "- **R8 Optimization**: [OK] Enabled (code shrinking & obfuscation)" >> $GITHUB_STEP_SUMMARY
-            echo "- **Mapping File**: [OK] Generated for crash analysis" >> $GITHUB_STEP_SUMMARY
+            echo "- **R8 Optimization**: Enabled (code shrinking & obfuscation)" >> $GITHUB_STEP_SUMMARY
+            echo "- **Mapping File**: Generated for crash analysis" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **R8 Optimization**: [ERROR] Disabled (debug build)" >> $GITHUB_STEP_SUMMARY
           fi
           echo "" >> $GITHUB_STEP_SUMMARY
           if [ "${{ github.event.inputs.buildType }}" = "release" ]; then
-            echo "### [LAUNCH] Ready for Play Store Upload" >> $GITHUB_STEP_SUMMARY
+            echo "### Ready for Play Store Upload" >> $GITHUB_STEP_SUMMARY
             echo "The generated AAB file is optimized with R8 and ready for Google Play Console." >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
-            echo "### [LIST] Upload Instructions" >> $GITHUB_STEP_SUMMARY
+            echo "### Upload Instructions" >> $GITHUB_STEP_SUMMARY
             echo "1. **Download artifacts**: AAB bundle + mapping.txt file" >> $GITHUB_STEP_SUMMARY
             echo "2. **Upload AAB**: To Google Play Console → Create new release" >> $GITHUB_STEP_SUMMARY
             echo "3. **Upload mapping.txt**: As deobfuscation file in the same release" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
             echo "**Next version code should be**: $(( ${{ github.event.inputs.versionCode }} + 1 ))" >> $GITHUB_STEP_SUMMARY
           else
-            echo "### [CONFIG] Debug Bundle" >> $GITHUB_STEP_SUMMARY
+            echo "### Debug Bundle" >> $GITHUB_STEP_SUMMARY
             echo "This is a debug bundle for testing purposes." >> $GITHUB_STEP_SUMMARY
           fi
 

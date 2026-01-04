@@ -1,6 +1,6 @@
 /**
  * Cliente TypeScript para el puente WKWebView nativo de Secure Enclave
- * 
+ *
  * Este NO usa Capacitor plugins, sino WKWebView message handlers directamente.
  * Es una solución alternativa cuando los plugins de Capacitor no funcionan.
  */
@@ -19,11 +19,11 @@ class SecureEnclaveNativeBridge {
   constructor() {
     // Registrar callback global
     ;(globalThis as any)._secureEnclaveCallback = this.handleCallback.bind(this)
-    
+
     // Verificar si el bridge está disponible
     if ((globalThis as any).webkit?.messageHandlers?.secureEnclave) {
       this.isReady = true
-      console.log('[OK] [Native Bridge] Secure Enclave WebKit bridge available')
+      console.log('[Native Bridge] Secure Enclave WebKit bridge available')
     } else {
       console.warn('[WARNING] [Native Bridge] WebKit message handlers not found')
     }
@@ -32,7 +32,7 @@ class SecureEnclaveNativeBridge {
   private handleCallback(response: any) {
     const { callId, success, result, error } = response
     const call = this.pendingCalls.get(callId)
-    
+
     if (!call) {
       console.warn(`[WARNING] [Native Bridge] Received response for unknown callId: ${callId}`)
       return
@@ -103,9 +103,7 @@ class SecureEnclaveNativeBridge {
     return this.sendMessage('generateCSR', options)
   }
 
-  async storeCertificate(options: {
-    certificate: string
-  }): Promise<{
+  async storeCertificate(options: { certificate: string }): Promise<{
     success: boolean
     size: number
   }> {

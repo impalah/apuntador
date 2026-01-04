@@ -74,7 +74,7 @@ class SecureEnclaveWebBridge: NSObject, WKScriptMessageHandler {
     
     private func handleGenerateKeyPair(webView: WKWebView?, callId: String) {
         do {
-            // 🔧 IMPORTANTE: Eliminar clave existente primero (si existe)
+            // IMPORTANTE: Eliminar clave existente primero (si existe)
             // Esto previene el error -25299 (errSecDuplicateItem)
             let deleteQuery: [String: Any] = [
                 kSecClass as String: kSecClassKey,

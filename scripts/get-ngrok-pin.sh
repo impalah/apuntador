@@ -31,7 +31,7 @@ echo -e "${YELLOW}ngrok Domain:${NC} $NGROK_DOMAIN"
 echo ""
 
 # Verificar que ngrok está corriendo
-echo -e "${BLUE}[SEARCH] Verificando que ngrok está corriendo...${NC}"
+echo -e "${BLUE}Verificando que ngrok está corriendo...${NC}"
 if ! curl -s -f "https://$NGROK_DOMAIN" > /dev/null 2>&1; then
     echo -e "${RED}[ERROR] Error: No se puede conectar a $NGROK_DOMAIN${NC}"
     echo -e "${YELLOW}   Asegúrate de que ngrok está corriendo:${NC}"
@@ -39,11 +39,11 @@ if ! curl -s -f "https://$NGROK_DOMAIN" > /dev/null 2>&1; then
     exit 1
 fi
 
-echo -e "${GREEN}[OK] ngrok está corriendo${NC}"
+echo -e "${GREEN}ngrok está corriendo${NC}"
 echo ""
 
 # Obtener el pin SHA-256
-echo -e "${BLUE}[SIGNAL] Obteniendo certificado de ngrok...${NC}"
+echo -e "${BLUE}Obteniendo certificado de ngrok...${NC}"
 PIN=$(echo | openssl s_client -servername $NGROK_DOMAIN -connect $NGROK_DOMAIN:443 2>/dev/null | openssl x509 -pubkey -noout | openssl pkey -pubin -outform DER | openssl dgst -sha256 -binary | base64)
 
 if [ -z "$PIN" ]; then
@@ -51,7 +51,7 @@ if [ -z "$PIN" ]; then
     exit 1
 fi
 
-echo -e "${GREEN}[OK] Pin obtenido exitosamente${NC}"
+echo -e "${GREEN}Pin obtenido exitosamente${NC}"
 echo ""
 
 # Mostrar resultado

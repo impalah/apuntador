@@ -85,7 +85,7 @@ impl CertificateStore {
     fn store_macos(cert: &StoredCertificate) -> Result<(), String> {
         use security_framework::passwords::{set_generic_password};
 
-        println!("[SECURE] Storing certificate in macOS Keychain...");
+        println!("Storing certificate in macOS Keychain...");
 
         // Serialize certificate to JSON
         let cert_json = serde_json::to_string(cert)
@@ -107,7 +107,7 @@ impl CertificateStore {
         )
         .map_err(|e| format!("Failed to store in Keychain: {}", e))?;
 
-        println!("[OK] Certificate stored successfully in macOS Keychain");
+        println!("Certificate stored successfully in macOS Keychain");
         Ok(())
     }
 
@@ -115,7 +115,7 @@ impl CertificateStore {
     fn retrieve_macos() -> Result<StoredCertificate, String> {
         use security_framework::passwords::get_generic_password;
 
-        println!("[SEARCH] Retrieving certificate from macOS Keychain...");
+        println!("Retrieving certificate from macOS Keychain...");
 
         let password = get_generic_password(Self::SERVICE_NAME, Self::ACCOUNT_NAME)
             .map_err(|e| format!("Certificate not found in Keychain: {}", e))?;
@@ -126,7 +126,7 @@ impl CertificateStore {
         let cert: StoredCertificate = serde_json::from_str(&cert_json)
             .map_err(|e| format!("Failed to deserialize certificate: {}", e))?;
 
-        println!("[OK] Certificate retrieved from Keychain");
+        println!("Certificate retrieved from Keychain");
         Ok(cert)
     }
 
@@ -134,12 +134,12 @@ impl CertificateStore {
     fn delete_macos() -> Result<(), String> {
         use security_framework::passwords::delete_generic_password;
 
-        println!("[DELETE]  Deleting certificate from macOS Keychain...");
+        println!(" Deleting certificate from macOS Keychain...");
 
         delete_generic_password(Self::SERVICE_NAME, Self::ACCOUNT_NAME)
             .map_err(|e| format!("Failed to delete from Keychain: {}", e))?;
 
-        println!("[OK] Certificate deleted from Keychain");
+        println!("Certificate deleted from Keychain");
         Ok(())
     }
 

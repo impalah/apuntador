@@ -36,7 +36,7 @@ export type AppConfigurationName = 'standard' | 'legacy' | 'mixed' | 'minimal' |
 /**
  * Default application configuration
  *
- * [CONFIG] CHANGE THIS TO SELECT YOUR PREFERRED CONFIGURATION
+ * CHANGE THIS TO SELECT YOUR PREFERRED CONFIGURATION
  */
 export const DEFAULT_APP_CONFIG: AppConfigurationName = 'mixed' // 👈 CHANGE HERE
 

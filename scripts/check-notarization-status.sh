@@ -12,7 +12,7 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
-echo "[SEARCH] Verificador de Estado de Notarización de Apple"
+echo "Verificador de Estado de Notarización de Apple"
 echo "=================================================="
 echo ""
 
@@ -73,7 +73,7 @@ if [ -z "$APPLE_ID" ] || [ -z "$APPLE_APP_SPECIFIC_PASSWORD" ] || [ -z "$APPLE_T
     exit 1
 fi
 
-echo -e "${BLUE}[LIST] Submission ID:${NC} $SUBMISSION_ID"
+echo -e "${BLUE}Submission ID:${NC} $SUBMISSION_ID"
 echo -e "${BLUE}🆔 Apple ID:${NC} $APPLE_ID"
 echo -e "${BLUE}👥 Team ID:${NC} $APPLE_TEAM_ID"
 echo ""
@@ -98,7 +98,7 @@ echo "════════════════════════�
 
 case "$STATUS" in
     "Accepted")
-        echo -e "${GREEN}[OK] NOTARIZACIÓN APROBADA${NC}"
+        echo -e "${GREEN}NOTARIZACIÓN APROBADA${NC}"
         echo "════════════════════════════════════════════════════════════════"
         echo ""
         
@@ -107,16 +107,16 @@ case "$STATUS" in
             xcrun stapler staple "$APP_PATH"
             
             echo ""
-            echo -e "${YELLOW}[SEARCH] Verificando ticket grapado...${NC}"
+            echo -e "${YELLOW}Verificando ticket grapado...${NC}"
             xcrun stapler validate "$APP_PATH"
             
             echo ""
-            echo -e "${GREEN}[OK] Proceso completado exitosamente!${NC}"
+            echo -e "${GREEN}Proceso completado exitosamente!${NC}"
             echo ""
             echo "La aplicación ahora está firmada, notarizada y con ticket grapado."
             echo "Los usuarios NO verán advertencias de seguridad al instalarla."
         else
-            echo -e "${BLUE}[INFO]  La notarización está aprobada${NC}"
+            echo -e "${BLUE} La notarización está aprobada${NC}"
             echo ""
             echo "Para grapar el ticket a tu aplicación, ejecuta:"
             echo -e "${BLUE}  xcrun stapler staple /path/to/Apuntador.app${NC}"
