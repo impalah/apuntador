@@ -1,10 +1,12 @@
 name: Build
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+  # Automatic triggers disabled - run manually from the Actions tab instead.
+  # push:
+  #   branches:
+  #     - main
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
 jobs:
   sonarqube:
     name: SonarQube
