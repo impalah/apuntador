@@ -11,7 +11,7 @@ Comprobado y ejecutado en este equipo el 2026-07-24. Arquitectura: Apple Silicon
 | Node.js                     | Todo (web/Android/iOS)                  | `>=22` (`package.json` → `engines`)                                                              |
 | Homebrew                    | Instalar el resto                       | —                                                                                                |
 | JDK 17                      | Compilar Android (Gradle)               | Fijado en `npm run android:release` (`JAVA_HOME=/opt/homebrew/opt/openjdk@17`)                   |
-| Android SDK (cmdline-tools) | Compilar Android                        | `compileSdkVersion 36`, `targetSdkVersion 35`, `build-tools;35.0.0` (`android/variables.gradle`) |
+| Android SDK (cmdline-tools) | Compilar Android                        | `compileSdkVersion 36`, `targetSdkVersion 36`, `build-tools;35.0.0` (`android/variables.gradle`) |
 | Gradle                      | Compilar Android                        | `8.13` — se descarga solo vía `android/gradlew`, no hace falta instalarlo aparte                 |
 | Xcode + Command Line Tools  | Compilar iOS                            | Requiere macOS nativo, Xcode no funciona en Linux/devcontainer                                   |
 | Ruby ≥ 3.0 (vía rbenv)      | Requisito de CocoaPods                  | El Ruby del sistema en macOS es `2.6.10`, insuficiente                                           |
