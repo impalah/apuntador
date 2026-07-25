@@ -2,7 +2,7 @@
 /// 
 /// Generates a private key and CSR for device enrollment.
 
-use rcgen::{Certificate, CertificateParams, DnType, KeyPair};
+use rcgen::{CertificateParams, DnType, KeyPair};
 use std::error::Error;
 
 /// Generate a CSR with device information
@@ -10,13 +10,13 @@ pub fn generate_csr(device_id: &str, platform: &str) -> Result<(String, String),
     println!("[KEY] Generating CSR for device: {}", device_id);
 
     // Generate key pair
-    let key_pair = KeyPair::generate(&rcgen::PKCS_ECDSA_P256_SHA256)?;
+    let key_pair = KeyPair::generate()?;
     let private_key_pem = key_pair.serialize_pem();
 
     // Create certificate parameters
     let mut params = CertificateParams::new(vec![
         format!("{}.apuntador.io", device_id),
-    ]);
+    ])?;
 
     // Set subject
     params.distinguished_name.push(
@@ -36,8 +36,8 @@ pub fn generate_csr(device_id: &str, platform: &str) -> Result<(String, String),
     params.custom_extensions = vec![];
 
     // Generate CSR
-    let cert = Certificate::from_params(params)?;
-    let csr_pem = cert.serialize_request_pem()?;
+    let csr = params.serialize_request(&key_pair)?;
+    let csr_pem = csr.pem()?;
 
     println!("CSR generated successfully");
     println!("   Device ID: {}", device_id);
