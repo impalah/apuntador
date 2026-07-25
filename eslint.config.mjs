@@ -57,7 +57,7 @@ export default [
   },
   {
     // App source runs in the browser.
-    files: ['src/**/*.ts', 'src/**/*.vue', 'debug-hotkey.js'],
+    files: ['src/**/*.ts', 'src/**/*.vue', 'scripts/debug-hotkey.js'],
     languageOptions: {
       globals: {
         ...globals.browser,
