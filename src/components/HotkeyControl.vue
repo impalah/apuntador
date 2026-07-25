@@ -1,5 +1,8 @@
 <template>
-  <div class="hotkey-control" :data-testid="`hotkey-control-${hotkey.action}`">
+  <div
+    class="hotkey-control"
+    :data-testid="`hotkey-control-${hotkey.action}`"
+  >
     <div class="hotkey-row">
       <div class="hotkey-function">
         <span class="function-label">{{ hotkey.description }}</span>

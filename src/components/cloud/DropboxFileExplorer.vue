@@ -17,7 +17,10 @@
       {{ $t('dropbox.files.title', 'Explorador de archivos') }}
     </v-card-title>
 
-    <div class="file-explorer-content" :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }">
+    <div
+      class="file-explorer-content"
+      :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }"
+    >
       <!-- Navegación -->
       <div class="d-flex align-center mb-4">
         <v-btn
@@ -85,7 +88,10 @@
 
             <template #append>
               <!-- Only show action buttons in full mode -->
-              <div v-if="!compactMode" class="d-flex">
+              <div
+                v-if="!compactMode"
+                class="d-flex"
+              >
                 <!-- Abrir archivo (solo archivos .md o .txt) -->
                 <v-btn
                   v-if="!file.isFolder && isTextFile(file.name)"

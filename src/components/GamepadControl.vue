@@ -1,5 +1,8 @@
 <template>
-  <div class="gamepad-control" :data-testid="`gamepad-control-${gamepadMapping.action}`">
+  <div
+    class="gamepad-control"
+    :data-testid="`gamepad-control-${gamepadMapping.action}`"
+  >
     <div class="gamepad-row">
       <div class="gamepad-function">
         <span class="function-label">{{ gamepadMapping.description }}</span>

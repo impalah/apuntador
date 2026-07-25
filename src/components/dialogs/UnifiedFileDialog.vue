@@ -1,15 +1,18 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
     max-width="900"
     max-height="700"
     persistent
     scrollable
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
       <v-card-title class="d-flex align-center py-3 px-4 bg-surface-variant">
-        <v-icon color="primary" class="me-2">
+        <v-icon
+          color="primary"
+          class="me-2"
+        >
           {{ mode === 'open' ? 'mdi-folder-open' : 'mdi-content-save' }}
         </v-icon>
         {{ mode === 'open' ? t('fileLoader.openFile') : t('fileLoader.save') }}
@@ -22,23 +25,40 @@
         />
       </v-card-title>
 
-      <v-tabs v-model="activeTab" bg-color="surface-variant">
+      <v-tabs
+        v-model="activeTab"
+        bg-color="surface-variant"
+      >
         <v-tab value="local">
-          <v-icon start>mdi-laptop</v-icon>
+          <v-icon start>
+            mdi-laptop
+          </v-icon>
           {{ t('fileDialog.local') }}
         </v-tab>
         <v-tab value="cloud">
-          <v-icon start>mdi-cloud</v-icon>
+          <v-icon start>
+            mdi-cloud
+          </v-icon>
           {{ t('fileDialog.cloud') }}
         </v-tab>
       </v-tabs>
 
-      <v-card-text style="min-height: 400px; max-height: 500px;" class="pa-0">
+      <v-card-text
+        style="min-height: 400px; max-height: 500px;"
+        class="pa-0"
+      >
         <v-tabs-window v-model="activeTab">
           <!-- Local Tab -->
-          <v-tabs-window-item value="local" class="pa-6">
+          <v-tabs-window-item
+            value="local"
+            class="pa-6"
+          >
             <div class="text-center">
-              <v-icon size="64" color="primary" class="mb-4">
+              <v-icon
+                size="64"
+                color="primary"
+                class="mb-4"
+              >
                 {{ mode === 'open' ? 'mdi-file-document' : 'mdi-content-save-outline' }}
               </v-icon>
               
@@ -67,15 +87,22 @@
                 accept=".md,.txt,.markdown"
                 style="display: none"
                 @change="onFileSelected"
-              />
+              >
             </div>
           </v-tabs-window-item>
 
           <!-- Cloud Tab -->
           <v-tabs-window-item value="cloud">
             <!-- Not connected message -->
-            <div v-if="!cloudStore.isConnected" class="pa-6 text-center">
-              <v-icon size="64" color="warning" class="mb-4">
+            <div
+              v-if="!cloudStore.isConnected"
+              class="pa-6 text-center"
+            >
+              <v-icon
+                size="64"
+                color="warning"
+                class="mb-4"
+              >
                 mdi-cloud-off-outline
               </v-icon>
               
@@ -98,14 +125,20 @@
             </div>
 
             <!-- Cloud file explorer -->
-            <div v-else class="dropbox-explorer-container">
+            <div
+              v-else
+              class="dropbox-explorer-container"
+            >
               <CloudFileExplorer
                 compact-mode
                 @file-selected="onCloudFileSelected"
               />
               
               <!-- File name input for save mode -->
-              <div v-if="mode === 'save'" class="pa-4 bg-surface-variant">
+              <div
+                v-if="mode === 'save'"
+                class="pa-4 bg-surface-variant"
+              >
                 <v-text-field
                   v-model="fileName"
                   :label="t('fileDialog.fileName')"
@@ -125,7 +158,10 @@
 
       <v-card-actions class="px-4 py-3">
         <v-spacer />
-        <v-btn variant="text" @click="onCancel">
+        <v-btn
+          variant="text"
+          @click="onCancel"
+        >
           {{ t('common.cancel') }}
         </v-btn>
         <v-btn

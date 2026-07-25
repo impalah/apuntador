@@ -1,13 +1,25 @@
 <template>
   <div class="font-size-control">
-    <v-btn icon="mdi-minus" size="small" variant="outlined" color="primary" @click="decreaseSize" />
+    <v-btn
+      icon="mdi-minus"
+      size="small"
+      variant="outlined"
+      color="primary"
+      @click="decreaseSize"
+    />
 
     <div class="size-display">
       <span class="size-value">{{ size }}</span>
       <span class="size-unit">px</span>
     </div>
 
-    <v-btn icon="mdi-plus" size="small" variant="outlined" color="primary" @click="increaseSize" />
+    <v-btn
+      icon="mdi-plus"
+      size="small"
+      variant="outlined"
+      color="primary"
+      @click="increaseSize"
+    />
   </div>
 </template>
 

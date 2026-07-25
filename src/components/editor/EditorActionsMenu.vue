@@ -12,7 +12,10 @@
       rounded="t-xl"
     >
       <!-- Handle bar para indicar que es arrastrable -->
-      <div class="handle-bar" @click="toggleMaximize">
+      <div
+        class="handle-bar"
+        @click="toggleMaximize"
+      >
         <div class="handle" />
       </div>
 
@@ -29,7 +32,10 @@
         />
 
         <!-- File Operations View (when no provider selected) -->
-        <div v-else-if="!selectedProvider" class="file-operations-container">
+        <div
+          v-else-if="!selectedProvider"
+          class="file-operations-container"
+        >
           <!-- Header -->
           <div class="operations-header">
             <h2 class="operations-title">
@@ -46,7 +52,11 @@
               @click="onLocalFile"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon icon="mdi-laptop" size="32" class="mr-4" />
+                <v-icon
+                  icon="mdi-laptop"
+                  size="32"
+                  class="mr-4"
+                />
                 <div>
                   <div class="text-h6">
                     {{ mode === 'open' ? t('cloud.files.openLocal') : t('cloud.files.saveLocal') }}
@@ -73,9 +83,16 @@
               @click="onSelectCloudProvider('googledrive')"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon icon="mdi-google-drive" size="32" class="mr-4" color="primary" />
+                <v-icon
+                  icon="mdi-google-drive"
+                  size="32"
+                  class="mr-4"
+                  color="primary"
+                />
                 <div class="flex-grow-1">
-                  <div class="text-h6">Google Drive</div>
+                  <div class="text-h6">
+                    Google Drive
+                  </div>
                   <div class="text-caption text-medium-emphasis">
                     {{ isGoogleDriveConnected 
                       ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) + ' Google Drive'
@@ -102,9 +119,16 @@
               @click="onSelectCloudProvider('dropbox')"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon icon="mdi-dropbox" size="32" class="mr-4" color="primary" />
+                <v-icon
+                  icon="mdi-dropbox"
+                  size="32"
+                  class="mr-4"
+                  color="primary"
+                />
                 <div class="flex-grow-1">
-                  <div class="text-h6">Dropbox</div>
+                  <div class="text-h6">
+                    Dropbox
+                  </div>
                   <div class="text-caption text-medium-emphasis">
                     {{ isDropboxConnected 
                       ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) + ' Dropbox'
@@ -137,7 +161,10 @@
         </div>
 
         <!-- Cloud File Explorer View (when provider selected) -->
-        <div v-else class="cloud-explorer-container">
+        <div
+          v-else
+          class="cloud-explorer-container"
+        >
           <!-- Header with back button -->
           <div class="explorer-header d-flex align-center mb-4">
             <v-btn
@@ -157,7 +184,10 @@
           />
 
           <!-- File name input for save mode -->
-          <div v-if="mode === 'save'" class="mt-4">
+          <div
+            v-if="mode === 'save'"
+            class="mt-4"
+          >
             <v-text-field
               v-model="fileName"
               :label="t('fileDialog.fileName')"

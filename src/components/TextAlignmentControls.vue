@@ -1,11 +1,11 @@
 <template>
   <v-btn-toggle
     :model-value="prefsStore.textAlignment"
-    @update:model-value="updateAlignment"
     mandatory
     density="comfortable"
     :class="['text-alignment-controls', { 'menu-layout': props.isMenuLayout }]"
     data-testid="text-alignment-controls"
+    @update:model-value="updateAlignment"
   >
     <v-btn
       value="left"
@@ -16,7 +16,9 @@
       :icon="!props.isMenuLayout"
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-left' : undefined"
     >
-      <v-icon v-if="!props.isMenuLayout">mdi-format-align-left</v-icon>
+      <v-icon v-if="!props.isMenuLayout">
+        mdi-format-align-left
+      </v-icon>
       <span v-if="props.isMenuLayout">{{ t('common.left') }}</span>
     </v-btn>
 
@@ -29,7 +31,9 @@
       :icon="!props.isMenuLayout"
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-center' : undefined"
     >
-      <v-icon v-if="!props.isMenuLayout">mdi-format-align-center</v-icon>
+      <v-icon v-if="!props.isMenuLayout">
+        mdi-format-align-center
+      </v-icon>
       <span v-if="props.isMenuLayout">{{ t('common.center') }}</span>
     </v-btn>
 
@@ -42,7 +46,9 @@
       :icon="!props.isMenuLayout"
       :prepend-icon="props.isMenuLayout ? 'mdi-format-align-right' : undefined"
     >
-      <v-icon v-if="!props.isMenuLayout">mdi-format-align-right</v-icon>
+      <v-icon v-if="!props.isMenuLayout">
+        mdi-format-align-right
+      </v-icon>
       <span v-if="props.isMenuLayout">{{ t('common.right') }}</span>
     </v-btn>
   </v-btn-toggle>

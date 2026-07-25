@@ -1,7 +1,12 @@
 <template>
   <v-card class="dropbox-connection">
     <v-card-title class="d-flex align-center">
-      <v-icon color="primary" class="me-2">mdi-dropbox</v-icon>
+      <v-icon
+        color="primary"
+        class="me-2"
+      >
+        mdi-dropbox
+      </v-icon>
       Dropbox
     </v-card-title>
 
@@ -16,16 +21,21 @@
           color="primary"
           variant="elevated"
           :loading="dropboxStore.isConnecting"
-          @click="handleConnect"
           block
+          @click="handleConnect"
         >
-          <v-icon start>mdi-link</v-icon>
+          <v-icon start>
+            mdi-link
+          </v-icon>
           {{ $t('dropbox.connection.connect') }}
         </v-btn>
       </div>
 
       <!-- Estado conectando -->
-      <div v-else-if="dropboxStore.isConnecting" class="text-center">
+      <div
+        v-else-if="dropboxStore.isConnecting"
+        class="text-center"
+      >
         <v-progress-circular
           indeterminate
           color="primary"
@@ -38,15 +48,25 @@
       </div>
 
       <!-- Estado conectado -->
-      <div v-else class="d-flex flex-column">
+      <div
+        v-else
+        class="d-flex flex-column"
+      >
         <!-- Información del usuario -->
         <div class="d-flex align-center mb-4">
-          <v-avatar color="primary" class="me-3">
+          <v-avatar
+            color="primary"
+            class="me-3"
+          >
             <v-icon>mdi-account</v-icon>
           </v-avatar>
           <div>
-            <p class="text-subtitle-2 mb-0">{{ dropboxStore.userInfo?.name }}</p>
-            <p class="text-caption text-medium-emphasis">{{ dropboxStore.userInfo?.email }}</p>
+            <p class="text-subtitle-2 mb-0">
+              {{ dropboxStore.userInfo?.name }}
+            </p>
+            <p class="text-caption text-medium-emphasis">
+              {{ dropboxStore.userInfo?.email }}
+            </p>
           </div>
         </div>
 
@@ -57,7 +77,12 @@
           size="small"
           class="mb-4"
         >
-          <v-icon start size="16">mdi-check-circle</v-icon>
+          <v-icon
+            start
+            size="16"
+          >
+            mdi-check-circle
+          </v-icon>
           {{ $t('dropbox.connection.connected') }}
         </v-chip>
 
@@ -66,10 +91,12 @@
           color="error"
           variant="outlined"
           size="small"
-          @click="handleDisconnect"
           block
+          @click="handleDisconnect"
         >
-          <v-icon start>mdi-link-off</v-icon>
+          <v-icon start>
+            mdi-link-off
+          </v-icon>
           {{ $t('dropbox.connection.disconnect') }}
         </v-btn>
       </div>

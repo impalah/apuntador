@@ -1,24 +1,44 @@
 <template>
   <v-container>
-    <v-card class="mx-auto" max-width="800">
+    <v-card
+      class="mx-auto"
+      max-width="800"
+    >
       <v-card-title class="text-h5 d-flex align-center">
-        <v-btn icon="mdi-arrow-left" variant="text" @click="goBack" class="mr-2"></v-btn>
+        <v-btn
+          icon="mdi-arrow-left"
+          variant="text"
+          class="mr-2"
+          @click="goBack"
+        />
         Device Enrollment Test (mTLS + HSM)
       </v-card-title>
 
       <v-card-text>
         <!-- Device Info Section -->
-        <v-card class="mb-4" variant="tonal" color="primary">
+        <v-card
+          class="mb-4"
+          variant="tonal"
+          color="primary"
+        >
           <v-card-title>Device Information</v-card-title>
           <v-card-text>
             <div v-if="deviceInfo">
-              <div class="mb-2"><strong>Device ID:</strong> {{ deviceInfo.deviceId }}</div>
-              <div class="mb-2"><strong>Manufacturer:</strong> {{ deviceInfo.manufacturer }}</div>
-              <div class="mb-2"><strong>Model:</strong> {{ deviceInfo.model }}</div>
+              <div class="mb-2">
+                <strong>Device ID:</strong> {{ deviceInfo.deviceId }}
+              </div>
+              <div class="mb-2">
+                <strong>Manufacturer:</strong> {{ deviceInfo.manufacturer }}
+              </div>
+              <div class="mb-2">
+                <strong>Model:</strong> {{ deviceInfo.model }}
+              </div>
               <div class="mb-2">
                 <strong>Android Version:</strong> {{ deviceInfo.androidVersion }}
               </div>
-              <div class="mb-2"><strong>API Level:</strong> {{ deviceInfo.apiLevel }}</div>
+              <div class="mb-2">
+                <strong>API Level:</strong> {{ deviceInfo.apiLevel }}
+              </div>
               <v-chip
                 :color="deviceInfo.hasStrongBox ? 'success' : 'warning'"
                 size="small"
@@ -26,16 +46,19 @@
               >
                 StrongBox: {{ deviceInfo.hasStrongBox ? '✓' : '✗' }}
               </v-chip>
-              <v-chip :color="deviceInfo.hasTEE ? 'success' : 'warning'" size="small">
+              <v-chip
+                :color="deviceInfo.hasTEE ? 'success' : 'warning'"
+                size="small"
+              >
                 TEE: {{ deviceInfo.hasTEE ? '✓' : '✗' }}
               </v-chip>
             </div>
             <v-btn
               v-else
-              @click="loadDeviceInfo"
               :loading="loadingDeviceInfo"
               color="primary"
               block
+              @click="loadDeviceInfo"
             >
               Load Device Info
             </v-btn>
@@ -43,13 +66,20 @@
         </v-card>
 
         <!-- Enrollment Status Section -->
-        <v-card class="mb-4" variant="tonal" :color="enrollmentStatusColor">
+        <v-card
+          class="mb-4"
+          variant="tonal"
+          :color="enrollmentStatusColor"
+        >
           <v-card-title>Enrollment Status</v-card-title>
           <v-card-text>
             <div v-if="enrollmentStatus">
               <div class="mb-2">
                 <strong>Enrolled:</strong>
-                <v-chip :color="enrollmentStatus.isEnrolled ? 'success' : 'error'" size="small">
+                <v-chip
+                  :color="enrollmentStatus.isEnrolled ? 'success' : 'error'"
+                  size="small"
+                >
                   {{ enrollmentStatus.isEnrolled ? 'YES' : 'NO' }}
                 </v-chip>
               </div>
@@ -85,10 +115,10 @@
             </div>
             <v-btn
               v-else
-              @click="checkEnrollmentStatus"
               :loading="checkingStatus"
               color="primary"
               block
+              @click="checkEnrollmentStatus"
             >
               Check Enrollment Status
             </v-btn>
@@ -102,57 +132,82 @@
           hint="URL del backend (ej: https://apuntador.ngrok.app)"
           persistent-hint
           class="mb-4"
-        ></v-text-field>
+        />
 
         <!-- Actions -->
         <v-row>
           <v-col cols="6">
             <v-btn
-              @click="enrollDevice"
               :loading="enrolling"
               :disabled="!backendUrl"
               color="success"
               block
               size="large"
+              @click="enrollDevice"
             >
-              <v-icon start>mdi-shield-check</v-icon>
+              <v-icon start>
+                mdi-shield-check
+              </v-icon>
               Enroll Device
             </v-btn>
           </v-col>
           <v-col cols="6">
             <v-btn
-              @click="unenrollDevice"
               :loading="unenrolling"
               :disabled="!enrollmentStatus?.isEnrolled"
               color="error"
               block
               size="large"
+              @click="unenrollDevice"
             >
-              <v-icon start>mdi-shield-remove</v-icon>
+              <v-icon start>
+                mdi-shield-remove
+              </v-icon>
               Unenroll
             </v-btn>
           </v-col>
         </v-row>
 
         <!-- Logs Section -->
-        <v-card class="mt-4" variant="tonal">
+        <v-card
+          class="mt-4"
+          variant="tonal"
+        >
           <v-card-title>
             Logs
-            <v-spacer></v-spacer>
-            <v-btn @click="logs = []" size="small" variant="text" icon="mdi-delete"></v-btn>
+            <v-spacer />
+            <v-btn
+              size="small"
+              variant="text"
+              icon="mdi-delete"
+              @click="logs = []"
+            />
           </v-card-title>
           <v-card-text>
-            <div v-if="logs.length === 0" class="text-center text-grey">No logs yet</div>
-            <div v-else style="max-height: 300px; overflow-y: auto">
+            <div
+              v-if="logs.length === 0"
+              class="text-center text-grey"
+            >
+              No logs yet
+            </div>
+            <div
+              v-else
+              style="max-height: 300px; overflow-y: auto"
+            >
               <div
                 v-for="(log, index) in logs"
                 :key="index"
                 :class="['log-entry', `log-${log.type}`]"
                 class="mb-2 pa-2 rounded"
               >
-                <div class="text-caption text-grey">{{ log.timestamp }}</div>
+                <div class="text-caption text-grey">
+                  {{ log.timestamp }}
+                </div>
                 <div>{{ log.message }}</div>
-                <pre v-if="log.data" class="text-caption mt-1">{{
+                <pre
+                  v-if="log.data"
+                  class="text-caption mt-1"
+                >{{
                   JSON.stringify(log.data, null, 2)
                 }}</pre>
               </div>

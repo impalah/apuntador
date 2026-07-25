@@ -8,7 +8,10 @@
         data-testid="new-file-button"
         @click="onNew"
       >
-        <v-icon icon="mdi-file-plus" size="28" />
+        <v-icon
+          icon="mdi-file-plus"
+          size="28"
+        />
       </button>
 
       <!-- Abrir archivo -->
@@ -19,7 +22,10 @@
         data-testid="open-file-button"
         @click="onOpenFile"
       >
-        <v-icon icon="mdi-folder-open" size="28" />
+        <v-icon
+          icon="mdi-folder-open"
+          size="28"
+        />
       </button>
 
       <!-- Guardar -->
@@ -30,7 +36,10 @@
         data-testid="save-button"
         @click="onSave"
       >
-        <v-icon icon="mdi-content-save" size="28" />
+        <v-icon
+          icon="mdi-content-save"
+          size="28"
+        />
       </button>
 
       <!-- Configuración -->

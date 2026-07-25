@@ -1,29 +1,67 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
     max-width="700"
     scrollable
     data-testid="settings-dialog"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
       <v-card-title class="d-flex align-center justify-space-between">
         <span>{{ t('settings.title') }}</span>
-        <v-btn icon="mdi-close" variant="text" @click="$emit('update:modelValue', false)" />
+        <v-btn
+          icon="mdi-close"
+          variant="text"
+          @click="$emit('update:modelValue', false)"
+        />
       </v-card-title>
 
       <v-divider />
 
       <v-card-text style="height: 500px">
-        <v-tabs v-model="activeTab" show-arrows density="compact">
-          <v-tab value="appearance" data-testid="appearance-tab">{{
-            t('settings.appearance')
-          }}</v-tab>
-          <v-tab value="behavior" data-testid="behavior-tab">{{ t('settings.behavior') }}</v-tab>
-          <v-tab value="controls" data-testid="controls-tab">{{ t('settings.controls') }}</v-tab>
-          <v-tab value="cloud" data-testid="cloud-tab">{{ t('settings.cloud') }}</v-tab>
-          <v-tab value="data" data-testid="data-tab">{{ t('settings.data') }}</v-tab>
-          <v-tab value="about" data-testid="about-tab">{{ t('settings.about') }}</v-tab>
+        <v-tabs
+          v-model="activeTab"
+          show-arrows
+          density="compact"
+        >
+          <v-tab
+            value="appearance"
+            data-testid="appearance-tab"
+          >
+            {{
+              t('settings.appearance')
+            }}
+          </v-tab>
+          <v-tab
+            value="behavior"
+            data-testid="behavior-tab"
+          >
+            {{ t('settings.behavior') }}
+          </v-tab>
+          <v-tab
+            value="controls"
+            data-testid="controls-tab"
+          >
+            {{ t('settings.controls') }}
+          </v-tab>
+          <v-tab
+            value="cloud"
+            data-testid="cloud-tab"
+          >
+            {{ t('settings.cloud') }}
+          </v-tab>
+          <v-tab
+            value="data"
+            data-testid="data-tab"
+          >
+            {{ t('settings.data') }}
+          </v-tab>
+          <v-tab
+            value="about"
+            data-testid="about-tab"
+          >
+            {{ t('settings.about') }}
+          </v-tab>
         </v-tabs>
 
         <v-tabs-window v-model="activeTab">
@@ -32,7 +70,9 @@
             <v-form class="mt-4">
               <!-- Language Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.language') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.language') }}
+                </h3>
 
                 <v-select
                   :model-value="i18nStore.isAutoDetect ? 'auto' : i18nStore.currentLanguage"
@@ -46,7 +86,9 @@
 
               <!-- Font Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.fontFamily') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.fontFamily') }}
+                </h3>
 
                 <v-select
                   v-model="prefsStore.fontFamily"
@@ -89,7 +131,9 @@
 
               <!-- Colors -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.foregroundColor') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.foregroundColor') }}
+                </h3>
 
                 <v-row>
                   <v-col cols="6">
@@ -113,7 +157,9 @@
 
               <!-- Highlight Band -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.highlightBandHeight') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.highlightBandHeight') }}
+                </h3>
 
                 <v-select
                   v-model="prefsStore.highlightBandLines"
@@ -149,7 +195,9 @@
 
               <!-- Mirror Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.mirrorHorizontal') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.mirrorHorizontal') }}
+                </h3>
 
                 <v-row>
                   <v-col cols="6">
@@ -176,7 +224,9 @@
             <v-form class="mt-4">
               <!-- Speed Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.scrollSpeed') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.scrollSpeed') }}
+                </h3>
 
                 <v-slider
                   v-model="prefsStore.speedPxPerSec"
@@ -218,7 +268,9 @@
             <v-form class="mt-4">
               <!-- Hotkeys Settings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('hotkeys.title') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('hotkeys.title') }}
+                </h3>
 
                 <div class="hotkeys-container">
                   <HotkeyControl
@@ -231,7 +283,11 @@
                 </div>
 
                 <div class="mt-4">
-                  <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetHotkeys">
+                  <v-btn
+                    color="warning"
+                    prepend-icon="mdi-refresh"
+                    @click="onResetHotkeys"
+                  >
                     {{ t('hotkeys.resetToDefaults') }}
                   </v-btn>
                 </div>
@@ -239,9 +295,16 @@
 
               <!-- Gamepad Status -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('gamepad.status') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('gamepad.status') }}
+                </h3>
 
-                <v-alert v-if="!gamepadSupported" type="warning" variant="tonal" class="mb-4">
+                <v-alert
+                  v-if="!gamepadSupported"
+                  type="warning"
+                  variant="tonal"
+                  class="mb-4"
+                >
                   {{ t('gamepad.notSupported') }}
                 </v-alert>
 
@@ -254,14 +317,21 @@
                   {{ t('gamepad.noGamepads') }}
                 </v-alert>
 
-                <v-alert v-else type="success" variant="tonal" class="mb-4">
+                <v-alert
+                  v-else
+                  type="success"
+                  variant="tonal"
+                  class="mb-4"
+                >
                   {{ t('gamepad.connected', { count: connectedGamepads }) }}
                 </v-alert>
               </div>
 
               <!-- Gamepad Button Mappings -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('gamepad.buttonAssignments') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('gamepad.buttonAssignments') }}
+                </h3>
                 <p class="text-caption text-medium-emphasis mb-4">
                   {{ t('gamepad.assignmentInstructions') }}
                 </p>
@@ -277,7 +347,11 @@
                 </div>
 
                 <div class="mt-4">
-                  <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetGamepadMappings">
+                  <v-btn
+                    color="warning"
+                    prepend-icon="mdi-refresh"
+                    @click="onResetGamepadMappings"
+                  >
                     {{ t('gamepad.resetToDefaults') }}
                   </v-btn>
                 </div>
@@ -290,7 +364,9 @@
             <div class="mt-4">
               <!-- Cloud Storage Providers -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.cloudProviders') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.cloudProviders') }}
+                </h3>
 
                 <!-- Cloud Provider Selector -->
                 <CloudProviderSelector />
@@ -303,21 +379,37 @@
             <div class="mt-4">
               <!-- Data Management -->
               <div class="mb-6">
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.dataManagement') }}</h3>
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.dataManagement') }}
+                </h3>
 
-                <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetSettings">
+                <v-btn
+                  color="warning"
+                  prepend-icon="mdi-refresh"
+                  @click="onResetSettings"
+                >
                   {{ t('settings.resetSettings') }}
                 </v-btn>
 
-                <v-btn color="error" prepend-icon="mdi-delete" class="ml-2" @click="onClearAllData">
+                <v-btn
+                  color="error"
+                  prepend-icon="mdi-delete"
+                  class="ml-2"
+                  @click="onClearAllData"
+                >
                   {{ t('settings.clearAllData') }}
                 </v-btn>
               </div>
 
               <!-- Storage Info -->
               <div>
-                <h3 class="text-subtitle-1 mb-3">{{ t('settings.storageInfo') }}</h3>
-                <v-alert type="info" variant="outlined">
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.storageInfo') }}
+                </h3>
+                <v-alert
+                  type="info"
+                  variant="outlined"
+                >
                   {{ t('settings.localStorageNote') }}
                 </v-alert>
               </div>
@@ -329,7 +421,9 @@
             <div class="mt-4 text-center">
               <!-- App Title and Subtitle -->
               <div class="mb-6">
-                <h2 class="text-h4 mb-2">{{ versionInfo.name }} - {{ t('settings.subtitle') }}</h2>
+                <h2 class="text-h4 mb-2">
+                  {{ versionInfo.name }} - {{ t('settings.subtitle') }}
+                </h2>
                 <p class="text-body-1 text-medium-emphasis">
                   {{ t('settings.version') }}: {{ versionInfo.version }}
                 </p>
@@ -337,7 +431,9 @@
 
               <!-- Copyright -->
               <div class="mb-4">
-                <p class="text-body-2 text-medium-emphasis">{{ versionInfo.copyright }}</p>
+                <p class="text-body-2 text-medium-emphasis">
+                  {{ versionInfo.copyright }}
+                </p>
               </div>
 
               <!-- Repository Link -->
@@ -363,8 +459,8 @@
           v-if="isNativePlatform"
           color="secondary"
           variant="text"
-          @click="goToEnrollmentTest"
           prepend-icon="mdi-shield-check"
+          @click="goToEnrollmentTest"
         >
           Device Enrollment Test
         </v-btn>
@@ -372,8 +468,8 @@
           v-if="isNativePlatform"
           color="info"
           variant="text"
-          @click="goToMTLSTest"
           prepend-icon="mdi-lock-check"
+          @click="goToMTLSTest"
         >
           mTLS Client Test
         </v-btn>
@@ -381,8 +477,8 @@
           v-if="isTauriPlatform"
           color="success"
           variant="text"
-          @click="goToDesktopMTLSTest"
           prepend-icon="mdi-desktop-mac"
+          @click="goToDesktopMTLSTest"
         >
           Desktop mTLS Test
         </v-btn>

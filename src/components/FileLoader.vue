@@ -1,14 +1,19 @@
 <template>
   <v-dialog
     :model-value="modelValue"
-    @update:model-value="$emit('update:modelValue', $event)"
     max-width="500"
     data-testid="file-import-dialog"
+    @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card>
       <v-card-title>
         {{ t('fileLoader.title') }}
-        <v-chip v-if="props.autoImport" size="small" color="primary" class="ml-2">
+        <v-chip
+          v-if="props.autoImport"
+          size="small"
+          color="primary"
+          class="ml-2"
+        >
           {{ t('fileLoader.autoImportEnabled') }}
         </v-chip>
       </v-card-title>
@@ -38,16 +43,29 @@
             @dragenter="onDragEnter"
             @dragleave="onDragLeave"
           >
-            <v-icon size="48" class="mb-2">mdi-cloud-upload</v-icon>
-            <p class="text-body-1 mb-2">{{ t('fileLoader.dropZone') }}</p>
+            <v-icon
+              size="48"
+              class="mb-2"
+            >
+              mdi-cloud-upload
+            </v-icon>
+            <p class="text-body-1 mb-2">
+              {{ t('fileLoader.dropZone') }}
+            </p>
             <p class="text-body-2 text-medium-emphasis">
               {{ t('fileLoader.supportedFormats') }}
-              <span v-if="props.autoImport" class="text-primary">
-                • {{ t('fileLoader.autoImportNote') }}</span
+              <span
+                v-if="props.autoImport"
+                class="text-primary"
               >
+                • {{ t('fileLoader.autoImportNote') }}</span>
             </p>
             <div class="d-flex gap-2 mt-2">
-              <v-btn color="primary" variant="outlined" @click="triggerFileInput">
+              <v-btn
+                color="primary"
+                variant="outlined"
+                @click="triggerFileInput"
+              >
                 {{ t('fileLoader.browseFiles') }}
               </v-btn>
               <v-btn
@@ -62,24 +80,45 @@
           </div>
 
           <!-- Loading State -->
-          <div v-if="loading" class="text-center py-4">
-            <v-progress-circular indeterminate color="primary" />
-            <p class="mt-2">{{ t('fileLoader.readingFile') }}</p>
+          <div
+            v-if="loading"
+            class="text-center py-4"
+          >
+            <v-progress-circular
+              indeterminate
+              color="primary"
+            />
+            <p class="mt-2">
+              {{ t('fileLoader.readingFile') }}
+            </p>
           </div>
 
           <!-- Error State -->
-          <v-alert v-if="error" type="error" variant="outlined" closable @click:close="error = ''">
+          <v-alert
+            v-if="error"
+            type="error"
+            variant="outlined"
+            closable
+            @click:close="error = ''"
+          >
             {{ error }}
           </v-alert>
 
           <!-- File Info -->
-          <div v-if="fileInfo" class="file-info mt-4">
+          <div
+            v-if="fileInfo"
+            class="file-info mt-4"
+          >
             <v-card variant="outlined">
               <v-card-text>
                 <div class="d-flex align-center">
-                  <v-icon class="mr-3">mdi-file-document</v-icon>
+                  <v-icon class="mr-3">
+                    mdi-file-document
+                  </v-icon>
                   <div>
-                    <div class="text-subtitle-2">{{ fileInfo.name }}</div>
+                    <div class="text-subtitle-2">
+                      {{ fileInfo.name }}
+                    </div>
                     <div class="text-body-2 text-medium-emphasis">
                       {{ formatFileSize(fileInfo.size) }} • {{ fileInfo.type || 'text/plain' }}
                     </div>
@@ -95,8 +134,14 @@
 
       <v-card-actions>
         <v-spacer />
-        <v-btn @click="$emit('update:modelValue', false)"> {{ t('common.cancel') }} </v-btn>
-        <v-btn v-if="fileContent && !props.autoImport" color="primary" @click="onImport">
+        <v-btn @click="$emit('update:modelValue', false)">
+          {{ t('common.cancel') }}
+        </v-btn>
+        <v-btn
+          v-if="fileContent && !props.autoImport"
+          color="primary"
+          @click="onImport"
+        >
           {{ t('fileLoader.import') }}
         </v-btn>
       </v-card-actions>

@@ -6,7 +6,12 @@
     :style="handleStyle"
     @mousedown="onMouseDown"
   >
-    <v-icon size="small" color="white"> mdi-drag-horizontal </v-icon>
+    <v-icon
+      size="small"
+      color="white"
+    >
+      mdi-drag-horizontal
+    </v-icon>
   </div>
 
   <!-- Right handle -->
@@ -16,7 +21,12 @@
     :style="handleStyle"
     @mousedown="onMouseDown"
   >
-    <v-icon size="small" color="white"> mdi-drag-horizontal </v-icon>
+    <v-icon
+      size="small"
+      color="white"
+    >
+      mdi-drag-horizontal
+    </v-icon>
   </div>
 </template>
 

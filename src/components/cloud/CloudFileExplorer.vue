@@ -17,7 +17,10 @@
       {{ t('cloud.files.title', 'File Explorer') }}
     </v-card-title>
 
-    <div class="file-explorer-content" :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }">
+    <div
+      class="file-explorer-content"
+      :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }"
+    >
       <!-- Navegación -->
       <div class="d-flex align-center mb-4">
         <v-btn
@@ -49,7 +52,10 @@
           size="small"
           variant="tonal"
         >
-          <v-icon start size="small">
+          <v-icon
+            start
+            size="small"
+          >
             {{ getProviderIcon(cloudStore.activeProvider.id) }}
           </v-icon>
           {{ cloudStore.activeProvider.name }}
@@ -99,7 +105,10 @@
 
             <template #append>
               <!-- Only show action buttons in full mode -->
-              <div v-if="!compactMode" class="d-flex">
+              <div
+                v-if="!compactMode"
+                class="d-flex"
+              >
                 <!-- Abrir archivo (solo archivos .md o .txt) -->
                 <v-btn
                   v-if="!file.isFolder && isTextFile(file.name)"
@@ -141,8 +150,14 @@
       </div>
 
       <!-- Lista vacía -->
-      <div v-else class="text-center py-8">
-        <v-icon size="64" color="grey-lighten-1">
+      <div
+        v-else
+        class="text-center py-8"
+      >
+        <v-icon
+          size="64"
+          color="grey-lighten-1"
+        >
           mdi-folder-open-outline
         </v-icon>
         <p class="text-body-2 text-medium-emphasis mt-4">
@@ -183,7 +198,10 @@
     </div>
 
     <!-- Diálogo de confirmación para eliminar -->
-    <v-dialog v-model="deleteDialog" max-width="400">
+    <v-dialog
+      v-model="deleteDialog"
+      max-width="400"
+    >
       <v-card>
         <v-card-title>{{ t('cloud.files.deleteFile') }}</v-card-title>
         <v-card-text>

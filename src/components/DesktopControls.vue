@@ -1,36 +1,45 @@
 <template>
-  <div v-if="tauriComposable.isDesktop.value" class="desktop-controls">
+  <div
+    v-if="tauriComposable.isDesktop.value"
+    class="desktop-controls"
+  >
     <!-- Desktop-specific controls -->
-    <v-btn-group variant="outlined" density="compact">
+    <v-btn-group
+      variant="outlined"
+      density="compact"
+    >
       <v-btn
         icon="mdi-window-minimize"
         size="small"
-        @click="tauriComposable.minimizeWindow"
         :title="t('desktop.minimize')"
+        @click="tauriComposable.minimizeWindow"
       />
       <v-btn
         :icon="isMaximized ? 'mdi-window-restore' : 'mdi-window-maximize'"
         size="small"
-        @click="toggleMaximize"
         :title="t('desktop.maximize')"
+        @click="toggleMaximize"
       />
       <v-btn
         icon="mdi-close"
         size="small"
-        @click="tauriComposable.closeWindow"
         :title="t('desktop.close')"
+        @click="tauriComposable.closeWindow"
       />
     </v-btn-group>
 
-    <v-divider vertical class="mx-2" />
+    <v-divider
+      vertical
+      class="mx-2"
+    />
 
     <!-- Always on top toggle -->
     <v-btn
       :icon="alwaysOnTop ? 'mdi-pin' : 'mdi-pin-outline'"
       :variant="alwaysOnTop ? 'flat' : 'outlined'"
       size="small"
-      @click="toggleAlwaysOnTop"
       :title="t('desktop.alwaysOnTop')"
+      @click="toggleAlwaysOnTop"
     />
 
     <!-- Fullscreen toggle -->
@@ -38,8 +47,8 @@
       :icon="isFullscreen ? 'mdi-fullscreen-exit' : 'mdi-fullscreen'"
       :variant="isFullscreen ? 'flat' : 'outlined'"
       size="small"
-      @click="toggleFullscreen"
       :title="t('desktop.fullscreen')"
+      @click="toggleFullscreen"
     />
   </div>
 </template>

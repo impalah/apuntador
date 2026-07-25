@@ -71,10 +71,19 @@
     />
 
     <!-- File Loader -->
-    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
+    <FileLoader
+      v-model="fileLoaderOpen"
+      auto-import
+      @file-imported="onFileImported"
+    />
 
     <!-- Android Exit Confirmation Snackbar -->
-    <v-snackbar v-model="showExitSnackbar" :timeout="2000" color="info" location="top">
+    <v-snackbar
+      v-model="showExitSnackbar"
+      :timeout="2000"
+      color="info"
+      location="top"
+    >
       {{ t('teleprompter.pressBackAgainToExit') }}
     </v-snackbar>
   </div>

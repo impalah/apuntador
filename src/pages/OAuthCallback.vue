@@ -1,11 +1,21 @@
 <template>
   <div class="oauth-callback d-flex align-center justify-center min-vh-100">
-    <v-card max-width="500" class="mx-auto">
+    <v-card
+      max-width="500"
+      class="mx-auto"
+    >
       <v-card-text class="text-center py-8">
         <!-- Estado de procesamiento -->
         <div v-if="isProcessing">
-          <v-progress-circular indeterminate color="primary" size="64" class="mb-4" />
-          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.connecting') }}</h2>
+          <v-progress-circular
+            indeterminate
+            color="primary"
+            size="64"
+            class="mb-4"
+          />
+          <h2 class="text-h5 mb-2">
+            {{ $t('cloud.oauth.connecting') }}
+          </h2>
           <p class="text-body-2 text-medium-emphasis">
             {{ $t('cloud.oauth.processing') }}
           </p>
@@ -13,28 +23,56 @@
 
         <!-- Estado de éxito -->
         <div v-else-if="isSuccess">
-          <v-icon size="64" color="success" class="mb-4"> mdi-check-circle </v-icon>
-          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.successTitle') }}</h2>
+          <v-icon
+            size="64"
+            color="success"
+            class="mb-4"
+          >
+            mdi-check-circle
+          </v-icon>
+          <h2 class="text-h5 mb-2">
+            {{ $t('cloud.oauth.successTitle') }}
+          </h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
             {{ $t('cloud.oauth.successMessage') }}
           </p>
-          <v-btn color="primary" variant="elevated" @click="redirectToApp">
+          <v-btn
+            color="primary"
+            variant="elevated"
+            @click="redirectToApp"
+          >
             {{ $t('cloud.oauth.continueButton') }}
           </v-btn>
         </div>
 
         <!-- Estado de error -->
         <div v-else-if="error">
-          <v-icon size="64" color="error" class="mb-4"> mdi-alert-circle </v-icon>
-          <h2 class="text-h5 mb-2">{{ $t('cloud.oauth.errorTitle') }}</h2>
+          <v-icon
+            size="64"
+            color="error"
+            class="mb-4"
+          >
+            mdi-alert-circle
+          </v-icon>
+          <h2 class="text-h5 mb-2">
+            {{ $t('cloud.oauth.errorTitle') }}
+          </h2>
           <p class="text-body-2 text-medium-emphasis mb-4">
             {{ error }}
           </p>
           <div class="d-flex flex-column gap-2">
-            <v-btn color="primary" variant="outlined" @click="retryConnection">
+            <v-btn
+              color="primary"
+              variant="outlined"
+              @click="retryConnection"
+            >
               {{ $t('cloud.oauth.retryButton') }}
             </v-btn>
-            <v-btn color="grey" variant="text" @click="redirectToApp">
+            <v-btn
+              color="grey"
+              variant="text"
+              @click="redirectToApp"
+            >
               {{ $t('cloud.oauth.backButton') }}
             </v-btn>
           </div>
