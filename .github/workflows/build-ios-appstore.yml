@@ -41,7 +41,11 @@ jobs:
       - name: Setup Xcode
         uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '16.1'
+          # Apple requires builds submitted to the App Store to use the iOS 26 SDK
+          # or later since 2026-04-28. Track the latest stable Xcode automatically
+          # instead of pinning a version number, so this doesn't silently go stale
+          # again next year.
+          xcode-version: latest-stable
 
       - name: Install dependencies (minimal for Capacitor)
         run: npm ci
