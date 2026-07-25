@@ -12,7 +12,8 @@
 import { Capacitor } from '@capacitor/core'
 import { SecureEnclave, AutoEnrollment } from '../plugins/ios-mtls'
 import { getSecureEnclaveNativeBridge } from './secureEnclaveNativeBridge'
-import { BACKEND_OAUTH_URL } from '@/config/api'
+import { resolveBackendUrl } from './mtls/enrollmentStrategy'
+import { createBackendClient } from './http/mtlsHttpAdapter'
 
 // Simple logger replacement
 const logger = {
@@ -47,11 +48,7 @@ export class IOSSecureEnclaveService {
   private constructor() {
     // Obtener URL del backend desde variables de entorno
     // Prioridad: iOS Dev > Dev genérico > Prod > Constante centralizada
-    this.backendUrl =
-      import.meta.env.VITE_BACKEND_OAUTH_URL_IOS_DEV ||
-      import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
-      import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-      BACKEND_OAUTH_URL
+    this.backendUrl = resolveBackendUrl(import.meta.env.VITE_BACKEND_OAUTH_URL_IOS_DEV)
 
     // Detectar si el native bridge está disponible
     if ((globalThis as any).webkit !== undefined) {
@@ -335,20 +332,12 @@ export class IOSSecureEnclaveService {
       // No necesitamos un plugin especial, CapacitorHttp ya usa el pinning configurado
       logger.info('[iOS Native Enrollment] Using Certificate Pinning (via URLSession delegate)')
 
-      const { CapacitorHttp } = await import('@capacitor/core')
-
-      const response = await CapacitorHttp.post({
-        url: `${this.backendUrl}/device/enroll`,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        data: {
-          csr: csrResult.csr,
-          device_id: deviceId,
-          platform: 'ios',
-          device_model: deviceInfo.deviceModel,
-          os_version: deviceInfo.osVersion,
-        },
+      const response = await createBackendClient(this.backendUrl).post('/device/enroll', {
+        csr: csrResult.csr,
+        device_id: deviceId,
+        platform: 'ios',
+        device_model: deviceInfo.deviceModel,
+        os_version: deviceInfo.osVersion,
       })
 
       // Aceptar 200 OK o 201 Created

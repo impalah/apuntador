@@ -1,25 +1,31 @@
 /**
  * Cliente mTLS unificado para todas las plataformas
  *
- * Detecta automáticamente la plataforma y usa el servicio apropiado:
+ * Detecta automáticamente la plataforma y delega en la estrategia
+ * (`PlatformEnrollmentStrategy`) apropiada:
  * - Android: Android Keystore (TEE/StrongBox)
  * - iOS: Secure Enclave
  * - Desktop: macOS Keychain, Windows Certificate Store, Linux encrypted file
  * - Web: OAuth sin mTLS
  *
  * Proporciona una interfaz unificada para el auto-enrollment
- * independientemente de la plataforma.
+ * independientemente de la plataforma. La plataforma se resuelve una única
+ * vez (en el constructor) y cada método público delega en la estrategia
+ * resuelta, en vez de repetir un switch por plataforma en cada método.
  */
 
 import { Capacitor } from '@capacitor/core'
-import DeviceEnrollment from '../plugins/deviceEnrollment'
-import { iosSecureEnclaveService } from './iosSecureEnclaveService'
-import { desktopEnrollmentService } from './desktopEnrollmentService'
 import { isTauri } from '@/utils/tauri'
-import { BACKEND_OAUTH_URL } from '@/config/api'
+import type { PlatformEnrollmentStrategy } from './mtls/enrollmentStrategy'
+import { AndroidEnrollmentStrategy } from './mtls/androidEnrollmentStrategy'
+import { IOSEnrollmentStrategy } from './mtls/iosEnrollmentStrategy'
+import { DesktopEnrollmentStrategy } from './mtls/desktopEnrollmentStrategy'
+import { WebEnrollmentStrategy } from './mtls/webEnrollmentStrategy'
+
+export type MTLSPlatform = 'android' | 'ios' | 'desktop' | 'web'
 
 export interface MTLSEnrollmentStatus {
-  platform: 'android' | 'ios' | 'desktop' | 'web'
+  platform: MTLSPlatform
   enrolled: boolean
   deviceId?: string
   deviceModel?: string
@@ -31,11 +37,39 @@ export interface MTLSEnrollmentStatus {
 export interface MTLSEnrollmentResult {
   success: boolean
   enrolled: boolean
-  platform: 'android' | 'ios' | 'desktop' | 'web'
+  platform: MTLSPlatform
   deviceId?: string
   certificateSize?: number
   alreadyEnrolled?: boolean
   error?: string
+}
+
+function detectPlatform(): MTLSPlatform {
+  // Check Tauri first (Desktop apps)
+  if (isTauri()) {
+    return 'desktop'
+  }
+
+  // Then check Capacitor (Mobile apps)
+  const platform = Capacitor.getPlatform()
+  if (platform === 'android') return 'android'
+  if (platform === 'ios') return 'ios'
+
+  // Default to web
+  return 'web'
+}
+
+function createStrategy(platform: MTLSPlatform): PlatformEnrollmentStrategy {
+  switch (platform) {
+    case 'android':
+      return new AndroidEnrollmentStrategy()
+    case 'ios':
+      return new IOSEnrollmentStrategy()
+    case 'desktop':
+      return new DesktopEnrollmentStrategy()
+    default:
+      return new WebEnrollmentStrategy()
+  }
 }
 
 /**
@@ -47,9 +81,13 @@ export interface MTLSEnrollmentResult {
 export class UnifiedMTLSService {
   private static instance: UnifiedMTLSService
 
+  private readonly platform: MTLSPlatform
+  private readonly strategy: PlatformEnrollmentStrategy
+
   private constructor() {
-    const platform = this.getPlatform()
-    console.log(`[Unified mTLS] Initialized for platform: ${platform}`)
+    this.platform = detectPlatform()
+    this.strategy = createStrategy(this.platform)
+    console.log(`[Unified mTLS] Initialized for platform: ${this.platform}`)
   }
 
   public static getInstance(): UnifiedMTLSService {
@@ -60,103 +98,34 @@ export class UnifiedMTLSService {
   }
 
   /**
-   * Check if running in Tauri (Desktop)
-   */
-  private isTauri(): boolean {
-    return isTauri()
-  }
-
-  /**
    * Obtiene la plataforma actual
    */
-  public getPlatform(): 'android' | 'ios' | 'desktop' | 'web' {
-    // Check Tauri first (Desktop apps)
-    if (this.isTauri()) {
-      return 'desktop'
-    }
-
-    // Then check Capacitor (Mobile apps)
-    const platform = Capacitor.getPlatform()
-    if (platform === 'android') return 'android'
-    if (platform === 'ios') return 'ios'
-
-    // Default to web
-    return 'web'
+  public getPlatform(): MTLSPlatform {
+    return this.platform
   }
 
   /**
    * Verifica si la plataforma soporta mTLS con HSM
    */
   public supportsHSM(): boolean {
-    const platform = this.getPlatform()
-    return platform === 'android' || platform === 'ios'
+    return this.platform === 'android' || this.platform === 'ios'
   }
 
   /**
    * Verifica si la plataforma soporta mTLS (con o sin HSM)
    */
   public supportsMTLS(): boolean {
-    const platform = this.getPlatform()
-    return platform === 'android' || platform === 'ios' || platform === 'desktop'
+    return this.platform !== 'web'
   }
 
   /**
    * Verifica el estado del enrollment (todas las plataformas)
    */
   public async checkEnrollmentStatus(): Promise<MTLSEnrollmentStatus> {
-    const platform = this.getPlatform()
-
-    if (platform === 'android') {
-      const info = await DeviceEnrollment.getDeviceInfo()
-      const status = await DeviceEnrollment.checkEnrollmentStatus()
-
-      let hsmType: 'Android Keystore' | 'Secure Enclave' | 'macOS Keychain' | 'None' = 'None'
-      if (info.hasStrongBox || info.hasTEE) {
-        hsmType = 'Android Keystore'
-      }
-
-      return {
-        platform: 'android',
-        enrolled: status.isEnrolled,
-        deviceId: info.deviceId,
-        deviceModel: info.model,
-        osVersion: info.androidVersion,
-        hasHSM: info.hasStrongBox || info.hasTEE,
-        hsmType,
-      }
-    } else if (platform === 'ios') {
-      const status = await iosSecureEnclaveService.checkEnrollmentStatus()
-      return {
-        platform: 'ios',
-        enrolled: status.enrolled,
-        deviceId: status.deviceId,
-        deviceModel: status.deviceModel,
-        osVersion: status.osVersion,
-        hasHSM: status.hasSecureEnclave,
-        hsmType: status.hasSecureEnclave ? 'Secure Enclave' : 'None',
-      }
-    } else if (platform === 'desktop') {
-      // Desktop (Tauri)
-      const desktopStatus = await desktopEnrollmentService.checkEnrollmentStatus()
-      const deviceInfo = await desktopEnrollmentService.getDeviceInfo()
-
-      return {
-        platform: 'desktop',
-        enrolled: desktopStatus.enrolled,
-        deviceId: desktopStatus.device_id,
-        deviceModel: deviceInfo.device_model,
-        osVersion: deviceInfo.os_version,
-        hasHSM: deviceInfo.platform === 'macos', // macOS has Keychain (partial HSM)
-        hsmType: deviceInfo.platform === 'macos' ? 'macOS Keychain' : 'None',
-      }
-    } else {
-      // Web no soporta mTLS
-      return {
-        platform: 'web',
-        enrolled: false,
-        hasHSM: false,
-        hsmType: 'None',
-      }
+    const status = await this.strategy.checkStatus()
+    return {
+      platform: this.platform,
+      ...status,
     }
   }
 
@@ -171,59 +140,11 @@ export class UnifiedMTLSService {
    * 4. Manejar errores y reintentos
    */
   public async ensureEnrolled(): Promise<MTLSEnrollmentResult> {
-    const platform = this.getPlatform()
-
-    console.log(`[Unified mTLS] Ensuring enrollment for platform: ${platform}`)
-
-    if (platform === 'android') {
-      // Usar la API de producción desplegada en AWS
-      const backendUrl =
-        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
-        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-        BACKEND_OAUTH_URL
-
-      const result = await DeviceEnrollment.enrollDevice({
-        backendUrl,
-        useStrongBox: true,
-      })
-
-      return {
-        success: result.success,
-        enrolled: true,
-        platform: 'android',
-        deviceId: result.deviceId,
-        alreadyEnrolled: result.alreadyEnrolled,
-      }
-    } else if (platform === 'ios') {
-      const result = await iosSecureEnclaveService.ensureEnrolled()
-      return {
-        success: result.success,
-        enrolled: result.enrolled,
-        platform: 'ios',
-        deviceId: result.deviceId,
-        certificateSize: result.certificateSize,
-        alreadyEnrolled: result.alreadyEnrolled,
-        error: result.error,
-      }
-    } else if (platform === 'desktop') {
-      // Desktop (Tauri)
-      const result = await desktopEnrollmentService.ensureEnrolled()
-      return {
-        success: result.success,
-        enrolled: result.enrolled,
-        platform: 'desktop',
-        deviceId: result.device_id,
-        alreadyEnrolled: result.already_enrolled,
-        error: result.error,
-      }
-    } else {
-      // Web no requiere enrollment
-      console.log(' [Unified mTLS] Web platform does not require enrollment')
-      return {
-        success: true,
-        enrolled: false,
-        platform: 'web',
-      }
+    console.log(`[Unified mTLS] Ensuring enrollment for platform: ${this.platform}`)
+    const result = await this.strategy.ensureEnrolled()
+    return {
+      platform: this.platform,
+      ...result,
     }
   }
 
@@ -236,58 +157,11 @@ export class UnifiedMTLSService {
    * - Se quiere renovar el certificado manualmente
    */
   public async forceReEnroll(): Promise<MTLSEnrollmentResult> {
-    const platform = this.getPlatform()
-
-    console.log(`[Unified mTLS] Forcing re-enrollment for platform: ${platform}`)
-
-    if (platform === 'android') {
-      // Para Android, primero unenroll y luego enroll de nuevo
-      await DeviceEnrollment.unenrollDevice()
-
-      const backendUrl =
-        import.meta.env.VITE_BACKEND_OAUTH_URL_DEV ||
-        import.meta.env.VITE_BACKEND_OAUTH_URL_PROD ||
-        BACKEND_OAUTH_URL
-
-      const result = await DeviceEnrollment.enrollDevice({
-        backendUrl,
-        useStrongBox: true,
-      })
-
-      return {
-        success: result.success,
-        enrolled: true,
-        platform: 'android',
-        deviceId: result.deviceId,
-      }
-    } else if (platform === 'ios') {
-      const result = await iosSecureEnclaveService.forceReEnroll()
-      return {
-        success: result.success,
-        enrolled: result.enrolled,
-        platform: 'ios',
-        deviceId: result.deviceId,
-        certificateSize: result.certificateSize,
-        error: result.error,
-      }
-    } else if (platform === 'desktop') {
-      // Desktop (Tauri)
-      const result = await desktopEnrollmentService.forceReEnroll()
-      return {
-        success: result.success,
-        enrolled: result.enrolled,
-        platform: 'desktop',
-        deviceId: result.device_id,
-        error: result.error,
-      }
-    } else {
-      console.log(' [Unified mTLS] Web platform does not support re-enrollment')
-      return {
-        success: false,
-        enrolled: false,
-        platform: 'web',
-        error: 'Web platform does not support mTLS',
-      }
+    console.log(`[Unified mTLS] Forcing re-enrollment for platform: ${this.platform}`)
+    const result = await this.strategy.forceReEnroll()
+    return {
+      platform: this.platform,
+      ...result,
     }
   }
 
@@ -295,19 +169,8 @@ export class UnifiedMTLSService {
    * Elimina todas las credenciales (para testing/debugging)
    */
   public async deleteAllCredentials(): Promise<void> {
-    const platform = this.getPlatform()
-
-    console.log(` [Unified mTLS] Deleting credentials for platform: ${platform}`)
-
-    if (platform === 'android') {
-      await DeviceEnrollment.unenrollDevice()
-    } else if (platform === 'ios') {
-      await iosSecureEnclaveService.deleteAllCredentials()
-    } else if (platform === 'desktop') {
-      await desktopEnrollmentService.unenrollDevice()
-    } else {
-      console.log(' [Unified mTLS] Web platform has no credentials to delete')
-    }
+    console.log(`[Unified mTLS] Deleting credentials for platform: ${this.platform}`)
+    await this.strategy.deleteAllCredentials()
   }
 
   /**
