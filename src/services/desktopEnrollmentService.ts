@@ -112,53 +112,31 @@ export class DesktopEnrollmentService {
    */
   private async getCertificatePins(): Promise<string[]> {
     console.log('[Desktop Enrollment] Fetching certificate pins...')
-
-    // TEMPORAL: Usar pins hardcodeados para ngrok
-    // TODO: El backend debería exponer un endpoint público para obtener pins
-    // antes del enrollment (sin requerir certificado de cliente)
-
-    if (this.backendUrl.includes('ngrok.app')) {
-      console.log(' Using hardcoded ngrok pins for testing')
-      return [
-        'wexXiEAY/v67Xokb8oZpilJNMfon0OnTAB6vGdI94Mw=', // ngrok certificate pin
-      ]
-    }
-
-    // Para otros backends, intentar obtener desde el endpoint
     console.log('   URL:', `${this.backendUrl}/public/ca-certificate-pin`)
 
-    try {
-      // Intentar endpoint público (sin autenticación)
-      const response = await fetch(`${this.backendUrl}/public/ca-certificate-pin`)
+    // Public endpoint (no client certificate required)
+    const response = await fetch(`${this.backendUrl}/public/ca-certificate-pin`)
 
-      if (!response.ok) {
-        throw new Error(`Failed to get certificate pins: ${response.status}`)
-      }
-
-      const data = await response.json()
-      console.log('Certificate pins response:', data)
-
-      // Extract base64 pins from response
-      const pins: string[] = []
-      if (data.sha256_base64) {
-        pins.push(data.sha256_base64)
-      }
-      if (data.backup_pin_base64) {
-        pins.push(data.backup_pin_base64)
-      }
-
-      if (pins.length === 0) {
-        throw new Error('No certificate pins received from backend')
-      }
-
-      return pins
-    } catch (error) {
-      console.error('[ERROR] Failed to get certificate pins:', error)
-      console.warn('[WARNING]  Falling back to default pins')
-
-      // Fallback: usar pins de ngrok por defecto
-      return ['wexXiEAY/v67Xokb8oZpilJNMfon0OnTAB6vGdI94Mw=']
+    if (!response.ok) {
+      throw new Error(`Failed to get certificate pins: ${response.status}`)
     }
+
+    const data = await response.json()
+    console.log('Certificate pins response:', data)
+
+    const pins: string[] = []
+    if (data.sha256_base64) {
+      pins.push(data.sha256_base64)
+    }
+    if (data.backup_pin_base64) {
+      pins.push(data.backup_pin_base64)
+    }
+
+    if (pins.length === 0) {
+      throw new Error('No certificate pins received from backend')
+    }
+
+    return pins
   }
 
   /**
