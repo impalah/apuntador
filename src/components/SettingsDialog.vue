@@ -28,9 +28,7 @@
             value="appearance"
             data-testid="appearance-tab"
           >
-            {{
-              t('settings.appearance')
-            }}
+            {{ t('settings.appearance') }}
           </v-tab>
           <v-tab
             value="behavior"
@@ -456,7 +454,7 @@
 
       <v-card-actions>
         <v-btn
-          v-if="isNativePlatform"
+          v-if="isDevMode && isNativePlatform"
           color="secondary"
           variant="text"
           prepend-icon="mdi-shield-check"
@@ -465,7 +463,7 @@
           Device Enrollment Test
         </v-btn>
         <v-btn
-          v-if="isNativePlatform"
+          v-if="isDevMode && isNativePlatform"
           color="info"
           variant="text"
           prepend-icon="mdi-lock-check"
@@ -474,7 +472,7 @@
           mTLS Client Test
         </v-btn>
         <v-btn
-          v-if="isTauriPlatform"
+          v-if="isDevMode && isTauriPlatform"
           color="success"
           variant="text"
           prepend-icon="mdi-desktop-mac"
@@ -622,6 +620,9 @@ async function onClearAllData() {
     globalThis.location.reload()
   }
 }
+
+// Device enrollment / mTLS debug pages must never be reachable outside development builds
+const isDevMode = import.meta.env.DEV
 
 // Platform detection
 const isNativePlatform = computed(() => Capacitor.isNativePlatform())
