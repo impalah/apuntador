@@ -51,7 +51,6 @@ export default defineConfig({
         'src/services/desktopEnrollmentService.ts',
         'src/services/iosSecureEnclaveService.ts',
         'src/services/secureEnclaveNativeBridge.ts',
-        'src/services/unifiedMTLSService.ts',
         'src/services/http/**',
         'src/services/certificate/**',
         // Exclude platform-specific config
@@ -77,6 +76,8 @@ export default defineConfig({
         'src/stores/useI18nStore.ts',
         'src/utils/**/*.ts',
         'src/services/cloudProviderConfig.ts',
+        'src/services/unifiedMTLSService.ts',
+        'src/services/mtls/**/*.ts',
       ],
       thresholds: {
         statements: 80,
