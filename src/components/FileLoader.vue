@@ -154,7 +154,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { sanitizeMarkdown } from '@/utils/markdown'
 import { useFileStore } from '@/stores/useFileStore'
-import { openFile, isFileSystemAccessSupported } from '@/utils/fileSystem'
+import { openFile, isFileSystemAccessSupported, formatFileSize } from '@/utils/fileSystem'
 
 // I18n
 const { t } = useI18n()
@@ -270,16 +270,6 @@ function isValidFile(file: File): boolean {
   const hasValidType = validTypes.includes(file.type) || file.type === ''
 
   return hasValidExtension || hasValidType
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 Bytes'
-
-  const k = 1024
-  const sizes = ['Bytes', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-
-  return Number.parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
 }
 
 function onFileSelect() {

@@ -9,12 +9,17 @@ vi.mock('@/utils/markdown', () => ({
   sanitizeMarkdown: vi.fn((content: string) => content),
 }))
 
-// Mock fileSystem utils
-vi.mock('@/utils/fileSystem', () => ({
-  openFile: vi.fn(),
-  isFileSystemAccessSupported: vi.fn(() => false),
-  ensureMarkdownExtension: vi.fn((name: string) => name),
-}))
+// Mock fileSystem utils (formatFileSize is kept as the real implementation
+// since it's a pure function under test below, not a browser/native API)
+vi.mock('@/utils/fileSystem', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/fileSystem')>()
+  return {
+    ...actual,
+    openFile: vi.fn(),
+    isFileSystemAccessSupported: vi.fn(() => false),
+    ensureMarkdownExtension: vi.fn((name: string) => name),
+  }
+})
 
 describe('FileLoader Component', () => {
   let wrapper: any
@@ -183,10 +188,10 @@ describe('FileLoader Component', () => {
 
   describe('File Size Formatting', () => {
     it('should format file sizes correctly', () => {
-      expect(wrapper.vm.formatFileSize(0)).toBe('0 Bytes')
+      expect(wrapper.vm.formatFileSize(0)).toBe('0 B')
       expect(wrapper.vm.formatFileSize(1024)).toBe('1 KB')
       expect(wrapper.vm.formatFileSize(1048576)).toBe('1 MB')
-      expect(wrapper.vm.formatFileSize(500)).toBe('500 Bytes')
+      expect(wrapper.vm.formatFileSize(500)).toBe('500 B')
     })
   })
 

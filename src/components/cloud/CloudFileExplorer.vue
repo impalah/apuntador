@@ -235,6 +235,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { useNotification } from '@/composables/useNotification'
+import { formatFileSize } from '@/utils/fileSystem'
 import type { CloudFile, CloudProviderId } from '@/types/cloud'
 
 // Props
@@ -290,14 +291,6 @@ function getProviderIcon(providerId: CloudProviderId): string {
 function isTextFile(filename: string): boolean {
   const ext = filename.toLowerCase().split('.').pop()
   return ext === 'md' || ext === 'txt' || ext === 'markdown'
-}
-
-function formatFileSize(bytes: number): string {
-  if (bytes === 0) return '0 B'
-  const k = 1024
-  const sizes = ['B', 'KB', 'MB', 'GB']
-  const i = Math.floor(Math.log(bytes) / Math.log(k))
-  return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i]
 }
 
 function formatDate(date: Date): string {
