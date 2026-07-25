@@ -94,7 +94,9 @@ describe('CloudProviderConfigService', () => {
         text: async () => 'Unauthorized',
       })
 
-      await expect(service.fetchConfig()).rejects.toThrow('Unauthorized: Invalid or missing API key')
+      await expect(service.fetchConfig()).rejects.toThrow(
+        'Unauthorized: Invalid or missing API key'
+      )
     })
 
     it('should throw error on other HTTP errors', async () => {
@@ -302,6 +304,62 @@ describe('CloudProviderConfigService', () => {
 
       expect(fetchMock).toHaveBeenCalledTimes(2)
     })
+
+    it('should not throw when localStorage.removeItem fails', () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => {
+        throw new Error('storage unavailable')
+      })
+
+      expect(() => service.clearCache()).not.toThrow()
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to clear localStorage cache:',
+        expect.any(Error)
+      )
+
+      consoleSpy.mockRestore()
+    })
+  })
+
+  describe('cache persistence error handling', () => {
+    it('should still return the fetched config when localStorage.setItem fails', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
+        throw new Error('quota exceeded')
+      })
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockConfig,
+      })
+
+      const result = await service.getConfig()
+
+      expect(result).toEqual(mockConfig)
+      expect(consoleSpy).toHaveBeenCalledWith('Failed to save to localStorage:', expect.any(Error))
+
+      consoleSpy.mockRestore()
+    })
+
+    it('should fetch fresh config when reading the cache throws', async () => {
+      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+        throw new Error('access denied')
+      })
+      fetchMock.mockResolvedValueOnce({
+        ok: true,
+        json: async () => mockConfig,
+      })
+
+      const result = await service.getConfig()
+
+      expect(result).toEqual(mockConfig)
+      expect(consoleSpy).toHaveBeenCalledWith(
+        'Failed to load from localStorage:',
+        expect.any(Error)
+      )
+
+      consoleSpy.mockRestore()
+    })
   })
 
   describe('getPlatform', () => {
@@ -329,7 +387,7 @@ describe('CloudProviderConfigService', () => {
       expect(fetchMock).toHaveBeenCalledTimes(1)
 
       // Wait for cache to expire
-      await new Promise(resolve => setTimeout(resolve, 1100))
+      await new Promise((resolve) => setTimeout(resolve, 1100))
 
       // Should fetch again after expiration
       fetchMock.mockResolvedValueOnce({

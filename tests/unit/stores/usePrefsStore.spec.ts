@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { storage } from '@/utils/persistence'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -109,6 +110,105 @@ describe('usePrefsStore', () => {
       // Should fall back to defaults
       expect(store.fontSizePx).toBe(24)
       expect(Object.keys(store.customHotkeys).length).toBeGreaterThan(0)
+    })
+
+    it('falls back to defaults when saved data fails schema validation', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: 'not-a-hex-color', // fails the schema's regex validation
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        customHotkeys: {},
+        customGamepadMappings: {},
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const store = usePrefsStore()
+      store.fontFamily = 'Arial' // dirty the state so we can prove reset() ran
+      await store.load()
+
+      expect(warnSpy).toHaveBeenCalledWith(
+        'Failed to load preferences, using defaults:',
+        expect.anything()
+      )
+      expect(store.fontFamily).toBe('Roboto, sans-serif')
+      warnSpy.mockRestore()
+    })
+
+    it('keeps defaults when there is nothing saved in localStorage', async () => {
+      const store = usePrefsStore()
+
+      await store.load()
+
+      expect(store.fontSizePx).toBe(24)
+      expect(store.speedPxPerSec).toBe(50)
+    })
+
+    it('falls back to default gamepad mappings when saved mappings are empty', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        customHotkeys: {},
+        customGamepadMappings: {},
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+
+      const store = usePrefsStore()
+      await store.load()
+
+      expect(Object.keys(store.customGamepadMappings).length).toBeGreaterThan(0)
+    })
+
+    it('keeps saved gamepad mappings when present', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        customHotkeys: {},
+        customGamepadMappings: {
+          'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Play/Pause' },
+        },
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+
+      const store = usePrefsStore()
+      await store.load()
+
+      expect(store.customGamepadMappings['toggle-play']?.buttonIndex).toBe(0)
     })
   })
 
@@ -270,6 +370,150 @@ describe('usePrefsStore', () => {
 
       const savedData = JSON.parse(localStorageMock.getItem('preferences') || '{}')
       expect(savedData.fontFamily).toBe('Arial')
+    })
+
+    it('logs a warning instead of throwing when persisting fails', async () => {
+      const store = usePrefsStore()
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+      const setSpy = vi.spyOn(storage, 'set').mockRejectedValueOnce(new Error('disk full'))
+
+      await expect(store.save()).resolves.toBeUndefined()
+
+      expect(warnSpy).toHaveBeenCalledWith('Failed to save preferences:', expect.any(Error))
+      setSpy.mockRestore()
+      warnSpy.mockRestore()
+    })
+  })
+
+  describe('increase/decreaseFontSize', () => {
+    it('increases font size by the configured step', () => {
+      const store = usePrefsStore()
+      const initial = store.fontSizePx
+
+      store.increaseFontSize()
+
+      expect(store.fontSizePx).toBe(initial + 2)
+    })
+
+    it('does not increase font size past the maximum', () => {
+      const store = usePrefsStore()
+      store.fontSizePx = 200 // SETTINGS_MAX_FONT_SIZE
+
+      store.increaseFontSize()
+
+      expect(store.fontSizePx).toBe(200)
+    })
+
+    it('decreases font size by the configured step', () => {
+      const store = usePrefsStore()
+      const initial = store.fontSizePx
+
+      store.decreaseFontSize()
+
+      expect(store.fontSizePx).toBe(initial - 2)
+    })
+
+    it('does not decrease font size below the minimum', () => {
+      const store = usePrefsStore()
+      store.fontSizePx = 16 // MIN_FONT_SIZE
+
+      store.decreaseFontSize()
+
+      expect(store.fontSizePx).toBe(16)
+    })
+  })
+
+  describe('increase/decreaseSpeed', () => {
+    it('increases speed by the configured step', () => {
+      const store = usePrefsStore()
+      const initial = store.speedPxPerSec
+
+      store.increaseSpeed()
+
+      expect(store.speedPxPerSec).toBe(initial + 5)
+    })
+
+    it('does not increase speed past speedMax', () => {
+      const store = usePrefsStore()
+      store.speedPxPerSec = store.speedMax
+
+      store.increaseSpeed()
+
+      expect(store.speedPxPerSec).toBe(store.speedMax)
+    })
+
+    it('decreases speed by the configured step', () => {
+      const store = usePrefsStore()
+      const initial = store.speedPxPerSec
+
+      store.decreaseSpeed()
+
+      expect(store.speedPxPerSec).toBe(initial - 5)
+    })
+
+    it('does not decrease speed below speedMin', () => {
+      const store = usePrefsStore()
+      store.speedPxPerSec = store.speedMin
+
+      store.decreaseSpeed()
+
+      expect(store.speedPxPerSec).toBe(store.speedMin)
+    })
+  })
+
+  describe('toggleMirrorH/toggleMirrorV', () => {
+    it('toggles mirrorH on and off', () => {
+      const store = usePrefsStore()
+      expect(store.mirrorH).toBe(false)
+
+      store.toggleMirrorH()
+      expect(store.mirrorH).toBe(true)
+
+      store.toggleMirrorH()
+      expect(store.mirrorH).toBe(false)
+    })
+
+    it('toggles mirrorV on and off', () => {
+      const store = usePrefsStore()
+      expect(store.mirrorV).toBe(false)
+
+      store.toggleMirrorV()
+      expect(store.mirrorV).toBe(true)
+
+      store.toggleMirrorV()
+      expect(store.mirrorV).toBe(false)
+    })
+  })
+
+  describe('gamepad mappings', () => {
+    it('updates the button index for an existing mapping', () => {
+      const store = usePrefsStore()
+      const [firstAction] = Object.keys(store.customGamepadMappings)
+      expect(firstAction).toBeDefined()
+
+      store.updateGamepadMapping(firstAction!, 3)
+
+      expect(store.customGamepadMappings[firstAction!]?.buttonIndex).toBe(3)
+    })
+
+    it('does nothing when updating a mapping that does not exist', () => {
+      const store = usePrefsStore()
+      const before = { ...store.customGamepadMappings }
+
+      store.updateGamepadMapping('nonexistent-action', 5)
+
+      expect(store.customGamepadMappings).toEqual(before)
+    })
+
+    it('resets gamepad mappings to defaults', () => {
+      const store = usePrefsStore()
+      const [firstAction] = Object.keys(store.customGamepadMappings)
+      expect(firstAction).toBeDefined()
+      store.updateGamepadMapping(firstAction!, 7)
+
+      store.resetGamepadMappings()
+
+      expect(store.customGamepadMappings[firstAction!]?.buttonIndex).not.toBe(7)
     })
   })
 

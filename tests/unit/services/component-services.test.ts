@@ -3,6 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { nextTick } from 'vue'
 import { setActivePinia, createPinia } from 'pinia'
 import {
   ScrollService,
@@ -70,6 +71,17 @@ describe('component-services', () => {
       expect(teleprompterStore.scrollOffset).toBeGreaterThan(initialOffset)
     })
 
+    it('should set scroll offset directly', () => {
+      const service = new ScrollService()
+      const teleprompterStore = useTeleprompterStore()
+      teleprompterStore.setViewportHeight(500)
+      teleprompterStore.setContentHeight(1000)
+
+      service.setOffset(250)
+
+      expect(teleprompterStore.scrollOffset).toBe(250)
+    })
+
     it('should go to home', () => {
       const service = new ScrollService()
       const teleprompterStore = useTeleprompterStore()
@@ -127,6 +139,31 @@ describe('component-services', () => {
       // Should not throw
       expect(() => unsubscribe()).not.toThrow()
     })
+
+    it('should notify subscribers when the scroll state changes', async () => {
+      const service = new ScrollService()
+      const teleprompterStore = useTeleprompterStore()
+      const callback = vi.fn()
+
+      service.onStateChange(callback)
+      teleprompterStore.play()
+      await nextTick()
+
+      expect(callback).toHaveBeenCalled()
+    })
+
+    it('should stop notifying after unsubscribing', async () => {
+      const service = new ScrollService()
+      const teleprompterStore = useTeleprompterStore()
+      const callback = vi.fn()
+
+      const unsubscribe = service.onStateChange(callback)
+      unsubscribe()
+      teleprompterStore.play()
+      await nextTick()
+
+      expect(callback).not.toHaveBeenCalled()
+    })
   })
 
   describe('ContentService', () => {
@@ -153,6 +190,17 @@ describe('component-services', () => {
       service.setContent('# New Content')
 
       expect(teleprompterStore.contentRaw).toBe('# New Content')
+    })
+
+    it('should compile markdown content and return the rendered HTML', async () => {
+      const service = new ContentService()
+      const teleprompterStore = useTeleprompterStore()
+
+      const html = await service.compileMarkdown('# Compiled')
+
+      expect(teleprompterStore.contentRaw).toBe('# Compiled')
+      expect(html).toContain('<h1')
+      expect(html).toBe(teleprompterStore.contentHtml)
     })
 
     it('should register content change callbacks', () => {
@@ -192,6 +240,41 @@ describe('component-services', () => {
       expect(prefsStore.fontSizePx).toBe(64)
     })
 
+    it('should update every individual display preference field when provided', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+
+      await service.updateDisplayPrefs({
+        fontFamily: 'Courier New',
+        fontSizePx: 32,
+        lineHeight: 1.8,
+        fgColor: '#00ff00',
+        bgColor: '#111111',
+        mirrorH: true,
+        mirrorV: true,
+      })
+
+      expect(prefsStore.fontFamily).toBe('Courier New')
+      expect(prefsStore.fontSizePx).toBe(32)
+      expect(prefsStore.lineHeight).toBe(1.8)
+      expect(prefsStore.fgColor).toBe('#00ff00')
+      expect(prefsStore.bgColor).toBe('#111111')
+      expect(prefsStore.mirrorH).toBe(true)
+      expect(prefsStore.mirrorV).toBe(true)
+    })
+
+    it('should leave display preference fields untouched when not provided', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+      const originalFontFamily = prefsStore.fontFamily
+      const originalMirrorH = prefsStore.mirrorH
+
+      await service.updateDisplayPrefs({})
+
+      expect(prefsStore.fontFamily).toBe(originalFontFamily)
+      expect(prefsStore.mirrorH).toBe(originalMirrorH)
+    })
+
     it('should get speed config', () => {
       const service = new PreferencesService()
       const prefsStore = usePrefsStore()
@@ -211,6 +294,26 @@ describe('component-services', () => {
       await service.updateSpeedConfig({ current: 150 })
 
       expect(prefsStore.speedPxPerSec).toBe(150)
+    })
+
+    it('should update min and max speed independently', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+
+      await service.updateSpeedConfig({ min: 5, max: 300 })
+
+      expect(prefsStore.speedMin).toBe(5)
+      expect(prefsStore.speedMax).toBe(300)
+    })
+
+    it('should leave speed config untouched when not provided', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+      const originalCurrent = prefsStore.speedPxPerSec
+
+      await service.updateSpeedConfig({})
+
+      expect(prefsStore.speedPxPerSec).toBe(originalCurrent)
     })
 
     it('should get highlight band config', () => {
@@ -234,6 +337,37 @@ describe('component-services', () => {
 
       expect(prefsStore.highlightBandLines).toBe(2)
       expect(prefsStore.highlightBandPosPct).toBe(70)
+    })
+
+    it('should update dimming intensity independently', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+
+      await service.updateHighlightBandConfig({ dimmingIntensity: 0.5 })
+
+      expect(prefsStore.dimmingIntensity).toBe(0.5)
+    })
+
+    it('should leave highlight band config untouched when not provided', async () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+      const originalLines = prefsStore.highlightBandLines
+
+      await service.updateHighlightBandConfig({})
+
+      expect(prefsStore.highlightBandLines).toBe(originalLines)
+    })
+
+    it('should report highlight band as disabled when lines is 0', () => {
+      const service = new PreferencesService()
+      const prefsStore = usePrefsStore()
+      // The type only allows 1 | 2, but the `enabled` getter defensively checks
+      // `> 0` (e.g. for data loaded from storage that bypassed validation).
+      ;(prefsStore.highlightBandLines as unknown as number) = 0
+
+      const config = service.getHighlightBandConfig()
+
+      expect(config.enabled).toBe(false)
     })
 
     it('should register preferences change callbacks', () => {

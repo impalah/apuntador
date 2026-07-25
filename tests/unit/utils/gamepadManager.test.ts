@@ -14,7 +14,7 @@ describe('GamepadManager', () => {
 
   beforeEach(() => {
     manager = new GamepadManager()
-    
+
     // Create mock gamepad composable
     mockGamepadComposable = {
       isSupported: { value: true },
@@ -22,7 +22,7 @@ describe('GamepadManager', () => {
       onButtonPress: vi.fn(),
       getButtonDisplayName: vi.fn(),
       isButtonPressed: vi.fn(),
-      cleanup: vi.fn()
+      cleanup: vi.fn(),
     }
 
     mockUseGamepad.mockReturnValue(mockGamepadComposable)
@@ -56,9 +56,9 @@ describe('GamepadManager', () => {
 
     it('should handle executing unregistered actions', () => {
       const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       manager.executeAction('toggle-play' as HotkeyAction)
-      
+
       expect(consoleSpy).toHaveBeenCalledWith('No handler registered for action: toggle-play')
       consoleSpy.mockRestore()
     })
@@ -67,7 +67,7 @@ describe('GamepadManager', () => {
   describe('Mapping Management', () => {
     it('should update custom mapping', () => {
       const mapping: CustomGamepadMapping = {
-        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' }
+        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' },
       }
 
       manager.updateMapping(mapping)
@@ -76,16 +76,16 @@ describe('GamepadManager', () => {
 
     it('should preserve existing mapping when updating', () => {
       const initialMapping: CustomGamepadMapping = {
-        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' }
+        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' },
       }
-      
+
       const newMapping: CustomGamepadMapping = {
-        'step-up': { buttonIndex: 1, action: 'step-up', description: 'Step up' }
+        'step-up': { buttonIndex: 1, action: 'step-up', description: 'Step up' },
       }
 
       manager.updateMapping(initialMapping)
       manager.updateMapping(newMapping)
-      
+
       expect(manager['customMapping']).toEqual(newMapping)
     })
   })
@@ -137,6 +137,24 @@ describe('GamepadManager', () => {
       expect(() => manager.stopListening()).not.toThrow()
       expect(manager['isListening']).toBe(false)
     })
+
+    it('should stop listening cleanly when there is no unsubscribe callback', () => {
+      // Force isListening without going through startListening, so
+      // unsubscribeButtonPress stays null - covers that defensive branch.
+      manager['isListening'] = true
+
+      expect(() => manager.stopListening()).not.toThrow()
+      expect(manager['isListening']).toBe(false)
+    })
+
+    it('should stop listening cleanly when the composable has no cleanup function', () => {
+      delete mockGamepadComposable.cleanup
+
+      manager.startListening()
+
+      expect(() => manager.stopListening()).not.toThrow()
+      expect(manager['isListening']).toBe(false)
+    })
   })
 
   describe('Button Press Handling', () => {
@@ -144,9 +162,9 @@ describe('GamepadManager', () => {
       const mockHandler = vi.fn()
       const action: HotkeyAction = 'toggle-play'
       const mapping: CustomGamepadMapping = {
-        [action]: { buttonIndex: 0, action: action, description: 'Toggle play/pause' }
+        [action]: { buttonIndex: 0, action: action, description: 'Toggle play/pause' },
       }
-      
+
       manager.registerAction(action, mockHandler)
       manager.updateMapping(mapping)
 
@@ -158,34 +176,32 @@ describe('GamepadManager', () => {
 
     it('should handle button press without mapping', () => {
       const button = { buttonIndex: 5, buttonName: 'Unmapped Button', gamepadIndex: 0 }
-      
+
       expect(() => manager['handleButtonPress'](button)).not.toThrow()
     })
 
     it('should handle button press with mapping but no handler', () => {
       const mapping: CustomGamepadMapping = {
-        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' }
+        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' },
       }
-      
+
       manager.updateMapping(mapping)
 
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
-      
+
       expect(() => manager['handleButtonPress'](button)).not.toThrow()
     })
   })
 
   describe('Status and Information', () => {
     it('should return correct status', () => {
-      mockGamepadComposable.connectedGamepads.value = [
-        { index: 0 }, { index: 1 }
-      ]
-      
+      mockGamepadComposable.connectedGamepads.value = [{ index: 0 }, { index: 1 }]
+
       const mapping: CustomGamepadMapping = {
         'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' },
-        'step-up': { buttonIndex: 1, action: 'step-up', description: 'Step up' }
+        'step-up': { buttonIndex: 1, action: 'step-up', description: 'Step up' },
       }
-      
+
       manager.updateMapping(mapping)
       manager.startListening()
 
@@ -208,41 +224,41 @@ describe('GamepadManager', () => {
 
     it('should get button display name', () => {
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
-      
+
       mockGamepadComposable.getButtonDisplayName.mockReturnValue('A Button (Gamepad 0)')
       manager.startListening()
 
       const displayName = manager.getButtonDisplayName(button)
-      
+
       expect(displayName).toBe('A Button (Gamepad 0)')
       expect(mockGamepadComposable.getButtonDisplayName).toHaveBeenCalledWith(button)
     })
 
     it('should get button display name when not listening', () => {
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
-      
+
       const displayName = manager.getButtonDisplayName(button)
-      
+
       expect(displayName).toBe('A Button')
     })
 
     it('should check if button is pressed', () => {
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
-      
+
       mockGamepadComposable.isButtonPressed.mockReturnValue(true)
       manager.startListening()
 
       const isPressed = manager.isButtonPressed(button)
-      
+
       expect(isPressed).toBe(true)
       expect(mockGamepadComposable.isButtonPressed).toHaveBeenCalledWith(button)
     })
 
     it('should return false for button press when not listening', () => {
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
-      
+
       const isPressed = manager.isButtonPressed(button)
-      
+
       expect(isPressed).toBe(false)
     })
   })
@@ -250,24 +266,24 @@ describe('GamepadManager', () => {
   describe('Rebuild Scheduling', () => {
     it('should schedule rebuild when registering actions', async () => {
       const rebuildSpy = vi.spyOn(manager as any, 'rebuildHandlers')
-      
+
       manager.registerAction('toggle-play', vi.fn())
-      
+
       // Wait for the scheduled rebuild
-      await new Promise(resolve => setTimeout(resolve, 0))
-      
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
       expect(rebuildSpy).toHaveBeenCalled()
     })
 
     it('should not schedule multiple rebuilds', async () => {
       const rebuildSpy = vi.spyOn(manager as any, 'rebuildHandlers')
-      
+
       manager.registerAction('toggle-play', vi.fn())
       manager.registerAction('step-up', vi.fn())
-      
+
       // Wait for the scheduled rebuild
-      await new Promise(resolve => setTimeout(resolve, 0))
-      
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
       expect(rebuildSpy).toHaveBeenCalledOnce()
     })
   })
@@ -281,7 +297,7 @@ describe('GamepadManager', () => {
       // The singleton is tested by importing it at the top of the file
       // and verifying it's an instance of GamepadManager
       expect(gamepadManager).toBeInstanceOf(GamepadManager)
-      
+
       // In a real scenario, the singleton pattern ensures the same instance
       // is returned, but testing dynamic imports in Vitest is complex
       expect(gamepadManager).toBe(gamepadManager)
@@ -308,13 +324,78 @@ describe('GamepadManager', () => {
       })
 
       const handleButtonPressSpy = vi.spyOn(manager as any, 'handleButtonPress')
-      
+
       manager.startListening()
 
       const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
       buttonPressCallback!(button)
 
       expect(handleButtonPressSpy).toHaveBeenCalledWith(button)
+    })
+  })
+
+  describe('Production mode (DEV logging disabled)', () => {
+    afterEach(() => {
+      vi.unstubAllEnvs()
+    })
+
+    it('starts listening without dev logging when supported', () => {
+      vi.stubEnv('DEV', false)
+      mockGamepadComposable.onButtonPress.mockReturnValue(vi.fn())
+
+      expect(() => manager.startListening()).not.toThrow()
+      expect(manager['isListening']).toBe(true)
+    })
+
+    it('bails out without dev logging when unsupported', () => {
+      vi.stubEnv('DEV', false)
+      mockGamepadComposable.isSupported.value = false
+
+      expect(() => manager.startListening()).not.toThrow()
+      expect(manager['isListening']).toBe(false)
+    })
+
+    it('handles a mapped button press with a handler without dev logging', () => {
+      vi.stubEnv('DEV', false)
+      const mockHandler = vi.fn()
+      const action: HotkeyAction = 'toggle-play'
+      manager.registerAction(action, mockHandler)
+      manager.updateMapping({
+        [action]: { buttonIndex: 0, action, description: 'Toggle play/pause' },
+      })
+
+      const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
+      manager['handleButtonPress'](button)
+
+      expect(mockHandler).toHaveBeenCalledOnce()
+    })
+
+    it('handles a mapped button press without a handler without dev logging', () => {
+      vi.stubEnv('DEV', false)
+      manager.updateMapping({
+        'toggle-play': { buttonIndex: 0, action: 'toggle-play', description: 'Toggle play/pause' },
+      })
+
+      const button = { buttonIndex: 0, buttonName: 'A Button', gamepadIndex: 0 }
+
+      expect(() => manager['handleButtonPress'](button)).not.toThrow()
+    })
+
+    it('handles an unmapped button press without dev logging', () => {
+      vi.stubEnv('DEV', false)
+      const button = { buttonIndex: 9, buttonName: 'Unmapped', gamepadIndex: 0 }
+
+      expect(() => manager['handleButtonPress'](button)).not.toThrow()
+    })
+
+    it('rebuilds handlers without dev logging', async () => {
+      vi.stubEnv('DEV', false)
+
+      manager.registerAction('toggle-play', vi.fn())
+      await new Promise((resolve) => setTimeout(resolve, 0))
+
+      // Should not throw and should not touch lastMappingHash (DEV-only bookkeeping)
+      expect(manager['lastMappingHash']).toBe('')
     })
   })
 })

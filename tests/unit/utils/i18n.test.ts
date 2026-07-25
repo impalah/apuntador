@@ -148,6 +148,64 @@ describe('i18n utils', () => {
         expect(i18n.global.locale.value).toBe('es-ES')
       })
     })
+
+    it('should detect Catalan variants', () => {
+      ;['ca', 'ca-ES'].forEach((lang) => {
+        mockNavigator.language = lang
+        setLanguage('auto')
+        expect(i18n.global.locale.value).toBe('ca-ES')
+      })
+    })
+
+    it('should detect Galician variants', () => {
+      ;['gl', 'gl-ES'].forEach((lang) => {
+        mockNavigator.language = lang
+        setLanguage('auto')
+        expect(i18n.global.locale.value).toBe('gl-ES')
+      })
+    })
+
+    it('should detect Brazilian Portuguese exactly', () => {
+      mockNavigator.language = 'pt-BR'
+      setLanguage('auto')
+      expect(i18n.global.locale.value).toBe('pt-BR')
+    })
+
+    it('should detect European Portuguese exactly', () => {
+      mockNavigator.language = 'pt-PT'
+      setLanguage('auto')
+      expect(i18n.global.locale.value).toBe('pt-PT')
+    })
+
+    it('should default generic Portuguese to pt-PT', () => {
+      mockNavigator.language = 'pt'
+      setLanguage('auto')
+      expect(i18n.global.locale.value).toBe('pt-PT')
+    })
+
+    it('should detect French variants', () => {
+      ;['fr', 'fr-FR', 'fr-CA'].forEach((lang) => {
+        mockNavigator.language = lang
+        setLanguage('auto')
+        expect(i18n.global.locale.value).toBe('fr-FR')
+      })
+    })
+
+    it('should detect German variants', () => {
+      ;['de', 'de-DE', 'de-AT'].forEach((lang) => {
+        mockNavigator.language = lang
+        setLanguage('auto')
+        expect(i18n.global.locale.value).toBe('de-DE')
+      })
+    })
+
+    it('should detect Italian variants', () => {
+      ;['it', 'it-IT'].forEach((lang) => {
+        mockNavigator.language = lang
+        setLanguage('auto')
+        expect(i18n.global.locale.value).toBe('it-IT')
+      })
+    })
   })
 
   describe('localStorage integration', () => {
