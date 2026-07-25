@@ -21,10 +21,10 @@ describe('Debug Utils', () => {
           '--safe-area-inset-top': '20px',
           '--safe-area-inset-bottom': '34px',
           '--safe-area-inset-left': '0px',
-          '--safe-area-inset-right': '0px'
+          '--safe-area-inset-right': '0px',
         }
         return values[property] || ''
-      })
+      }),
     }))
     global.getComputedStyle = mockGetComputedStyle
 
@@ -32,17 +32,17 @@ describe('Debug Utils', () => {
     mockLocalStorage = {
       getItem: vi.fn(),
       setItem: vi.fn(),
-      removeItem: vi.fn()
+      removeItem: vi.fn(),
     }
     Object.defineProperty(window, 'localStorage', {
       value: mockLocalStorage,
-      writable: true
+      writable: true,
     })
 
     // Mock navigator
     Object.defineProperty(navigator, 'userAgent', {
       value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F) AppleWebKit/537.36',
-      writable: true
+      writable: true,
     })
 
     // Mock screen
@@ -51,9 +51,9 @@ describe('Debug Utils', () => {
         width: 1080,
         height: 2400,
         availWidth: 1080,
-        availHeight: 2400
+        availHeight: 2400,
       },
-      writable: true
+      writable: true,
     })
 
     // Mock window dimensions
@@ -71,27 +71,27 @@ describe('Debug Utils', () => {
         offsetLeft: 0,
         pageTop: 0,
         pageLeft: 0,
-        scale: 1
+        scale: 1,
       },
-      writable: true
+      writable: true,
     })
 
     // Mock document
     Object.defineProperty(document, 'documentElement', {
       value: {
         className: 'mobile android',
-        style: {}
+        style: {},
       },
-      writable: true
+      writable: true,
     })
 
     Object.defineProperty(document, 'body', {
       value: {
         className: 'debug-mode',
         appendChild: vi.fn(),
-        style: {}
+        style: {},
       },
-      writable: true
+      writable: true,
     })
   })
 
@@ -131,19 +131,19 @@ describe('Debug Utils', () => {
       expect(mockConsoleLog).toHaveBeenCalledWith('=== Android Edge-to-Edge Debug Info ===')
       expect(mockConsoleLog).toHaveBeenCalledWith('User Agent:', navigator.userAgent)
       expect(mockConsoleLog).toHaveBeenCalledWith('Is Android:', true)
-      
+
       expect(mockConsoleLog).toHaveBeenCalledWith('Screen dimensions:', {
         width: 1080,
         height: 2400,
         availWidth: 1080,
-        availHeight: 2400
+        availHeight: 2400,
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith('Viewport dimensions:', {
         innerWidth: 1080,
         innerHeight: 2400,
         outerWidth: 1080,
-        outerHeight: 2400
+        outerHeight: 2400,
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith('Visual Viewport:', {
@@ -153,21 +153,21 @@ describe('Debug Utils', () => {
         offsetLeft: 0,
         pageTop: 0,
         pageLeft: 0,
-        scale: 1
+        scale: 1,
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith('CSS Environment Variables:', {
         'safe-area-inset-top': '20px',
         'safe-area-inset-bottom': '34px',
         'safe-area-inset-left': '0px',
-        'safe-area-inset-right': '0px'
+        'safe-area-inset-right': '0px',
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith('Custom CSS Properties:', {
         '--safe-area-inset-top': '20px',
         '--safe-area-inset-bottom': '34px',
         '--safe-area-inset-left': '0px',
-        '--safe-area-inset-right': '0px'
+        '--safe-area-inset-right': '0px',
       })
 
       expect(mockConsoleLog).toHaveBeenCalledWith('HTML classes:', 'mobile android')
@@ -179,7 +179,7 @@ describe('Debug Utils', () => {
       mockLocalStorage.getItem.mockReturnValue('true')
       Object.defineProperty(window, 'visualViewport', {
         value: undefined,
-        writable: true
+        writable: true,
       })
 
       debugEdgeToEdge()
@@ -193,7 +193,7 @@ describe('Debug Utils', () => {
       mockLocalStorage.getItem.mockReturnValue('true')
       Object.defineProperty(navigator, 'userAgent', {
         value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
-        writable: true
+        writable: true,
       })
 
       debugEdgeToEdge()
@@ -205,26 +205,13 @@ describe('Debug Utils', () => {
   describe('showDebugOverlay', () => {
     let mockDocument: any
     let mockOverlayElement: any
-    let mockBottomElement: any
-    let mockInfoElement: any
 
     beforeEach(() => {
       mockOverlayElement = {
         id: '',
         style: { cssText: '' },
         remove: vi.fn(),
-        innerHTML: ''
-      }
-      
-      mockBottomElement = {
-        style: { cssText: '' },
-        remove: vi.fn()
-      }
-      
-      mockInfoElement = {
-        style: { cssText: '' },
         innerHTML: '',
-        remove: vi.fn()
       }
 
       mockDocument = {
@@ -236,9 +223,9 @@ describe('Debug Utils', () => {
           return mockOverlayElement
         }),
         body: {
-          appendChild: vi.fn()
+          appendChild: vi.fn(),
         },
-        addEventListener: vi.fn()
+        addEventListener: vi.fn(),
       }
 
       // Mock document methods
@@ -251,19 +238,19 @@ describe('Debug Utils', () => {
               id: '',
               style: { cssText: '' },
               innerHTML: '',
-              remove: vi.fn()
+              remove: vi.fn(),
             }
             return element
           }),
           body: {
-            appendChild: vi.fn()
+            appendChild: vi.fn(),
           },
           addEventListener: vi.fn(),
           documentElement: {
-            className: 'mobile android'
-          }
+            className: 'mobile android',
+          },
         },
-        writable: true
+        writable: true,
       })
     })
 
@@ -290,7 +277,7 @@ describe('Debug Utils', () => {
     it('should remove existing overlay before creating new one', () => {
       mockLocalStorage.getItem.mockReturnValue('true')
       const existingElement = { remove: vi.fn() }
-      
+
       vi.spyOn(document, 'getElementById').mockReturnValue(existingElement as any)
 
       showDebugOverlay()
@@ -314,7 +301,7 @@ describe('Debug Utils', () => {
       vi.spyOn(document, 'getElementById').mockReturnValue(null)
 
       let clickHandler: any
-      vi.spyOn(document, 'addEventListener').mockImplementation((event, handler, options) => {
+      vi.spyOn(document, 'addEventListener').mockImplementation((event, handler) => {
         if (event === 'click') {
           clickHandler = handler
         }
@@ -323,10 +310,12 @@ describe('Debug Utils', () => {
       showDebugOverlay()
 
       // Wait for setTimeout
-      await new Promise(resolve => setTimeout(resolve, 150))
-      
-      expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function), { once: true })
-      
+      await new Promise((resolve) => setTimeout(resolve, 150))
+
+      expect(document.addEventListener).toHaveBeenCalledWith('click', expect.any(Function), {
+        once: true,
+      })
+
       // Simulate click
       if (clickHandler) {
         clickHandler()
@@ -336,9 +325,9 @@ describe('Debug Utils', () => {
     it('should handle missing computed style values', () => {
       mockLocalStorage.getItem.mockReturnValue('true')
       vi.spyOn(document, 'getElementById').mockReturnValue(null)
-      
+
       mockGetComputedStyle.mockReturnValue({
-        getPropertyValue: vi.fn(() => '') // Return empty string
+        getPropertyValue: vi.fn(() => ''), // Return empty string
       })
 
       showDebugOverlay()

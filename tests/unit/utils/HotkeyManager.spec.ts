@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { HotkeyManager } from '@/utils/hotkeys'
-import type { HotkeyAction, CustomHotkeyMapping, HotkeyDefinition } from '@/types'
+import type { CustomHotkeyMapping, HotkeyDefinition } from '@/types'
 
 describe('HotkeyManager', () => {
   let hotkeyManager: HotkeyManager

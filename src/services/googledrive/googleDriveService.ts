@@ -45,7 +45,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
   /**
    * Procesa los tokens recibidos (guardar en instancia)
    */
-  protected async onTokensReceived(accessToken: string, refreshToken?: string): Promise<void> {
+  protected async onTokensReceived(accessToken: string, _refreshToken?: string): Promise<void> {
     this.accessToken = accessToken
   }
 

@@ -1,4 +1,5 @@
 import type { CapacitorConfig } from '@capacitor/cli'
+import { KeyboardResize, KeyboardStyle } from '@capacitor/keyboard'
 
 const config: CapacitorConfig = {
   appId: 'io.apuntador.app',
@@ -30,8 +31,8 @@ const config: CapacitorConfig = {
       // Allow all orientations - the app will handle adaptation
     },
     Keyboard: {
-      resize: 'body',
-      style: 'dark',
+      resize: KeyboardResize.Body,
+      style: KeyboardStyle.Dark,
       resizeOnFullScreen: true,
     },
     Haptics: {

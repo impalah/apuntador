@@ -46,7 +46,7 @@ export async function readSourceContent(fileHandle: any): Promise<string> {
     const file = await fileHandle.getFile()
     return await file.text()
   } catch (error) {
-    throw new Error(`Failed to read source file: ${error}`)
+    throw new Error(`Failed to read source file: ${error}`, { cause: error })
   }
 }
 

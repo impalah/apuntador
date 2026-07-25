@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
 import { isFullscreenSupported, useWebFullscreen } from '@/utils/webFullscreen'
-import { ref } from 'vue'
 
 // Mock DOM APIs
 const mockRequestFullscreen = vi.fn()
@@ -78,7 +77,8 @@ describe('Web Fullscreen Utils', () => {
 
     it('should return false when no fullscreen APIs are available', () => {
       const originalRequestFullscreen = document.documentElement.requestFullscreen
-      const originalWebkitRequestFullscreen = (document.documentElement as any).webkitRequestFullscreen
+      const originalWebkitRequestFullscreen = (document.documentElement as any)
+        .webkitRequestFullscreen
       const originalMozRequestFullScreen = (document.documentElement as any).mozRequestFullScreen
       const originalMsRequestFullscreen = (document.documentElement as any).msRequestFullscreen
 
@@ -119,7 +119,7 @@ describe('Web Fullscreen Utils', () => {
 
     it('should toggle fullscreen from false to true', async () => {
       const { toggleFullscreen, isFullscreen } = useWebFullscreen()
-      
+
       // Mock successful fullscreen request
       mockRequestFullscreen.mockResolvedValue(undefined)
 
@@ -130,15 +130,14 @@ describe('Web Fullscreen Utils', () => {
 
     it('should toggle fullscreen from true to false', async () => {
       mockGetFullscreenElement.mockReturnValue(document.documentElement)
-      
+
       const { toggleFullscreen, isFullscreen } = useWebFullscreen()
-      
+
       // Test that composable handles state correctly
       expect(typeof toggleFullscreen).toBe('function')
-      
+
       // Simulate fullscreen state
       isFullscreen.value = true
-
     })
 
     it('should enter fullscreen successfully', async () => {
@@ -150,9 +149,9 @@ describe('Web Fullscreen Utils', () => {
 
     it('should exit fullscreen successfully', async () => {
       mockGetFullscreenElement.mockReturnValue(document.documentElement)
-      
+
       const { exitFullscreen, isFullscreen } = useWebFullscreen()
-      
+
       // Simulate fullscreen state
       isFullscreen.value = true
 
@@ -178,16 +177,13 @@ describe('Web Fullscreen Utils', () => {
 
     it('should detect multi-screen setup when available', async () => {
       mockGetScreenDetails.mockResolvedValue({
-        screens: [
-          { isPrimary: true },
-          { isPrimary: false }
-        ]
+        screens: [{ isPrimary: true }, { isPrimary: false }],
       })
 
       const { screenInfo } = useWebFullscreen({ autoDetectPrimaryScreen: true })
 
       // Wait for async screen detection
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       // Screen detection may not work in test environment
       expect(screenInfo.value.screenCount).toBeGreaterThanOrEqual(1)
@@ -201,7 +197,7 @@ describe('Web Fullscreen Utils', () => {
       const { screenInfo } = useWebFullscreen({ autoDetectPrimaryScreen: true })
 
       // Wait for async screen detection
-      await new Promise(resolve => setTimeout(resolve, 0))
+      await new Promise((resolve) => setTimeout(resolve, 0))
 
       expect(screenInfo.value).toEqual({
         isPrimary: true,
@@ -216,9 +212,9 @@ describe('Web Fullscreen Utils', () => {
     it('should use custom element for fullscreen', async () => {
       const customElement = document.createElement('div')
       customElement.requestFullscreen = vi.fn().mockResolvedValue(undefined)
-      
+
       const { enterFullscreen } = useWebFullscreen({ element: customElement })
-      
+
       // Test that custom element configuration works
       expect(typeof enterFullscreen).toBe('function')
       expect(customElement.requestFullscreen).toBeDefined()
@@ -227,9 +223,9 @@ describe('Web Fullscreen Utils', () => {
     it('should handle webkit prefixed APIs', async () => {
       // Remove standard API to force webkit usage
       delete (document.documentElement as any).requestFullscreen
-      
+
       const { toggleFullscreen } = useWebFullscreen()
-      
+
       // Test that webkit API fallback is available
       expect(typeof toggleFullscreen).toBe('function')
       expect((document.documentElement as any).webkitRequestFullscreen).toBeDefined()
@@ -237,9 +233,9 @@ describe('Web Fullscreen Utils', () => {
 
     it('should not enter fullscreen when already in fullscreen', async () => {
       mockGetFullscreenElement.mockReturnValue(document.documentElement)
-      
+
       const { enterFullscreen, isFullscreen } = useWebFullscreen()
-      
+
       // Simulate fullscreen state
       isFullscreen.value = true
 
@@ -250,7 +246,7 @@ describe('Web Fullscreen Utils', () => {
     })
 
     it('should not exit fullscreen when not in fullscreen', async () => {
-      const { exitFullscreen, isFullscreen } = useWebFullscreen()
+      const { exitFullscreen } = useWebFullscreen()
 
       const result = await exitFullscreen()
 

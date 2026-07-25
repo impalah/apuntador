@@ -99,7 +99,7 @@ export default defineConfig({
 
   markdown: {
     lineNumbers: true,
-    config: (md) => {
+    config: (_md) => {
       // Add any markdown-it plugins here if needed
     },
   },

@@ -92,7 +92,6 @@ export default defineConfig({
       },
       reportsDirectory: './coverage',
       enabled: true,
-      ignoreEmptyLines: true,
     },
     // Handle CSS and Vuetify styles in tests
     setupFiles: ['tests/setup.ts'],

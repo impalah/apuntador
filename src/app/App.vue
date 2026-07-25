@@ -16,7 +16,7 @@ import { useDeepLinks } from '@/composables/useDeepLinks'
 import NotificationContainer from '@/components/NotificationContainer.vue'
 
 // Initialize window insets for Android edge-to-edge support
-const { safeAreaInsets, isEdgeToEdge } = useWindowInsets()
+const { isEdgeToEdge } = useWindowInsets()
 const prefsStore = usePrefsStore()
 const cloudStore = useCloudStore()
 

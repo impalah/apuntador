@@ -19,7 +19,9 @@ test.describe('Text Alignment Controls', () => {
     await expect(page.locator('[data-testid="align-right-button"]')).toBeVisible()
   })
 
-  test.skip('should change text alignment and reflect in teleprompter content', async ({ page }) => {
+  test.skip('should change text alignment and reflect in teleprompter content', async ({
+    page,
+  }) => {
     // Add some content first
     const testContent =
       '# Test Content\n\nThis is a test paragraph for alignment.\n\n## Another Section\n\nMore content here.'
@@ -42,7 +44,7 @@ test.describe('Text Alignment Controls', () => {
     // Editor is now a full page, not a dialog
     const textarea = page.locator('textarea')
     await expect(textarea).toBeVisible()
-    
+
     // Add content in the textarea
     await textarea.fill(testContent)
 
@@ -72,7 +74,7 @@ test.describe('Text Alignment Controls', () => {
         await expect(page.locator('[data-testid="align-left-button"]')).toBeVisible({
           timeout: 3000,
         })
-      } catch (e) {
+      } catch {
         // If not found, close and reopen menu
         await page.click('body', { position: { x: 100, y: 100 } })
         await page.waitForTimeout(500)
@@ -257,7 +259,7 @@ test.describe('Text Alignment Controls', () => {
     // Editor is now a full page
     const textarea = page.locator('textarea')
     await expect(textarea).toBeVisible()
-    
+
     // Add content
     const testContent = '# Preview Test\n\nThis content should show alignment in the preview.'
     await textarea.fill(testContent)

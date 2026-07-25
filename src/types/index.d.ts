@@ -29,6 +29,7 @@ export interface PreferencesState {
 
 export interface ScrollAnimation {
   startTime: number
+  startOffset: number
   targetOffset: number
   duration: number
 }
@@ -86,31 +87,6 @@ export type HotkeyAction =
   | 'align-left'
   | 'align-center'
   | 'align-right'
-
-export interface ScrollAnimation {
-  startTime: number
-  startOffset: number
-  targetOffset: number
-  duration: number
-}
-
-export interface FileImportResult {
-  content: string
-  filename: string
-  success: boolean
-  error?: string
-}
-
-export type MirrorMode = 'none' | 'horizontal' | 'vertical' | 'both'
-
-export interface HotkeyDefinition {
-  key: string
-  ctrlKey?: boolean
-  altKey?: boolean
-  shiftKey?: boolean
-  action: string
-  description: string
-}
 
 export interface ToolbarAction {
   id: string

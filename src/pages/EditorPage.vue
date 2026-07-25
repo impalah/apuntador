@@ -17,7 +17,7 @@
       :model-value="cloudStore.isDownloading || cloudStore.isUploading"
       persistent
       class="align-center justify-center"
-      style="z-index: 9999;"
+      style="z-index: 9999"
     >
       <div class="text-center">
         <v-progress-circular
@@ -32,8 +32,8 @@
     </v-overlay>
 
     <!-- Editor Content Area -->
-    <v-container 
-      fluid 
+    <v-container
+      fluid
       class="editor-container pa-0"
     >
       <div class="editor-content">
@@ -48,10 +48,10 @@
     </v-container>
 
     <!-- File Loader (for backward compatibility, can be removed later) -->
-    <FileLoader 
-      v-model="fileLoaderOpen" 
-      auto-import 
-      @file-imported="onFileImported" 
+    <FileLoader
+      v-model="fileLoaderOpen"
+      auto-import
+      @file-imported="onFileImported"
     />
 
     <!-- Editor Actions Menu for Open -->
@@ -96,7 +96,6 @@ import { useI18n } from 'vue-i18n'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { useFileStore } from '@/stores/useFileStore'
 import { useCloudStore } from '@/stores/useCloudStore'
-import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useNotification } from '@/composables/useNotification'
 import { Browser } from '@capacitor/browser'
 import { Capacitor } from '@capacitor/core'
@@ -118,7 +117,6 @@ const { showError, showSuccess } = useNotification()
 const teleprompterStore = useTeleprompterStore()
 const fileStore = useFileStore()
 const cloudStore = useCloudStore()
-const prefsStore = usePrefsStore()
 
 // Refs
 const textEditorRef = ref()
@@ -143,7 +141,7 @@ onMounted(() => {
   if (teleprompterStore.contentRaw && teleprompterStore.contentRaw.trim()) {
     localContent.value = teleprompterStore.contentRaw
   }
-  
+
   // Focus editor on mobile
   if (window.innerWidth < 768) {
     nextTick(() => {
@@ -151,16 +149,6 @@ onMounted(() => {
     })
   }
 })
-
-// Watch for changes in teleprompter store content
-watch(
-  () => teleprompterStore.contentRaw,
-  (newContent) => {
-    if (newContent !== localContent.value) {
-      localContent.value = newContent
-    }
-  }
-)
 
 // Watch for changes in teleprompter store content
 watch(
@@ -180,13 +168,6 @@ function onContentChange(content: string) {
 
 function onClose() {
   // Navigate back to teleprompter without saving
-  router.push('/')
-}
-
-function onApply() {
-  // Save content to teleprompter store and navigate back
-  teleprompterStore.setContent(localContent.value)
-  fileStore.markAsSaved()
   router.push('/')
 }
 
@@ -214,11 +195,11 @@ async function onOpenLocalFile() {
     const input = document.createElement('input')
     input.type = 'file'
     input.accept = '.md,.txt'
-    
+
     input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0]
       if (!file) return
-      
+
       try {
         const content = await file.text()
         localContent.value = content
@@ -232,7 +213,7 @@ async function onOpenLocalFile() {
         console.error('Error loading local file:', error)
       }
     }
-    
+
     input.click()
   } catch (error) {
     showError(t('errors.services.file.readFailed'))
@@ -268,7 +249,7 @@ async function onSaveLocalFile() {
     a.download = suggestedFileName.value || 'script.md'
     a.click()
     URL.revokeObjectURL(url)
-    
+
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
     showSuccess(t('messages.services.file.saved'))
@@ -284,22 +265,20 @@ async function onSaveCloudFile(fileName: string) {
   saving.value = true
   try {
     const currentPath = cloudStore.currentPath
-    
+
     // Construir el path según el proveedor
     // - Google Drive: usa IDs, formato "folderId/fileName" o solo "fileName" para root
     // - Dropbox: usa rutas, formato "/folder/fileName" o "/fileName"
     let fullPath: string
-    
+
     if (cloudStore.activeProviderId === 'googledrive') {
       // Para Google Drive, si estamos en una carpeta, usar "folderId/fileName"
-      fullPath = (currentPath && currentPath !== 'root') 
-        ? `${currentPath}/${fileName}` 
-        : fileName
+      fullPath = currentPath && currentPath !== 'root' ? `${currentPath}/${fileName}` : fileName
     } else {
       // Para Dropbox y otros, usar formato de ruta tradicional
       fullPath = currentPath ? `${currentPath}/${fileName}` : fileName
     }
-    
+
     await cloudStore.uploadFile(fullPath, localContent.value)
     await teleprompterStore.setContent(localContent.value)
     fileStore.markAsSaved()
@@ -323,7 +302,7 @@ function onOpenSettingsDialog() {
 
 async function onMarkdownHelp() {
   const url = 'https://www.markdownguide.org/basic-syntax/'
-  
+
   try {
     if (Capacitor.isNativePlatform()) {
       // En plataformas móviles, usar el plugin Browser de Capacitor
@@ -357,8 +336,6 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
 
   fileLoaderOpen.value = false
 }
-
-
 </script>
 
 <style scoped>
@@ -399,7 +376,9 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
 }
 
 .mobile .editor-panel {
-  height: calc(100vh - 64px - max(44px, env(safe-area-inset-top, 0px))); /* Account for toolbar and safe area */
+  height: calc(
+    100vh - 64px - max(44px, env(safe-area-inset-top, 0px))
+  ); /* Account for toolbar and safe area */
 }
 
 .help-content {

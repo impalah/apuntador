@@ -81,7 +81,7 @@ export async function saveToFileHandle(handle: any, content: string): Promise<bo
 }
 
 // Check if file exists (for overwrite confirmation)
-export async function checkFileExists(fileName: string): Promise<boolean> {
+export async function checkFileExists(_fileName: string): Promise<boolean> {
   // Note: File System Access API doesn't provide a direct way to check existence
   // We'll handle this through the save dialog and let the browser handle conflicts
   return false

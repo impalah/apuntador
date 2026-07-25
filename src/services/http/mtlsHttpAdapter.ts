@@ -93,7 +93,7 @@ export class MTLSHttpAdapter {
       }
     } catch (error: any) {
       console.error(`HTTP Request Error (${url}):`, error)
-      throw new Error(`Request failed: ${error.message}`)
+      throw new Error(`Request failed: ${error.message}`, { cause: error })
     }
   }
 

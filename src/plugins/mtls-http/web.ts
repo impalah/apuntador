@@ -37,7 +37,7 @@ export class MTLSHttpWeb extends WebPlugin implements MTLSHttpPlugin {
         data,
       }
     } catch (error) {
-      throw new Error(`HTTP request failed: ${error}`)
+      throw new Error(`HTTP request failed: ${error}`, { cause: error })
     }
   }
 }

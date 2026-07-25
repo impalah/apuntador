@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePrefsStore } from '@/stores/usePrefsStore'
-import type { HotkeyAction } from '@/types'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -196,8 +195,8 @@ describe('usePrefsStore', () => {
 
       store.resetHotkeys()
 
-      // Should be back to default mapping (not empty)
-      expect(Object.keys(store.customHotkeys).length).toBeGreaterThan(0)
+      // Should be back to the original default mapping
+      expect(Object.keys(store.customHotkeys).length).toBe(initialCount)
       expect(store.customHotkeys['toggle-play']?.key).toBe(' ') // Default
     })
 

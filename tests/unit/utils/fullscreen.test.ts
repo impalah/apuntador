@@ -60,11 +60,11 @@ vi.mock('@/utils/immersiveMode', () => ({
 describe('Unified Fullscreen Utils', () => {
   beforeEach(async () => {
     vi.clearAllMocks()
-    
+
     // Reset all platform mocks to web defaults
     const { isTauri } = await import('@/utils/tauri')
     const { Capacitor } = await import('@capacitor/core')
-    
+
     vi.mocked(isTauri).mockReturnValue(false)
     vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false)
     vi.mocked(Capacitor.getPlatform).mockReturnValue('web')
@@ -89,10 +89,10 @@ describe('Unified Fullscreen Utils', () => {
     it('should detect Android platform when Capacitor is on Android', async () => {
       // Reset mocks first
       vi.clearAllMocks()
-      
+
       const { Capacitor } = await import('@capacitor/core')
       const { isTauri } = await import('@/utils/tauri')
-      
+
       // Ensure Tauri is false (web/mobile)
       vi.mocked(isTauri).mockReturnValue(false)
       // Set up Android
@@ -118,7 +118,7 @@ describe('Unified Fullscreen Utils', () => {
         enterFullscreen: vi.fn().mockResolvedValue(true),
         exitFullscreen: vi.fn().mockResolvedValue(false),
       })
-      
+
       const { isFullscreen, platform } = useFullscreen()
 
       expect(isFullscreen.value).toBe(false)
@@ -142,18 +142,18 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { platform } = useFullscreen()
-      
+
       expect(platform.value).toBe('web')
       expect(mockToggle).toBeDefined()
     })
 
     it('should use Android immersive mode on Android platform', async () => {
       vi.clearAllMocks()
-      
+
       // Mock Android platform
       const { Capacitor } = await import('@capacitor/core')
       const { isTauri } = await import('@/utils/tauri')
-      
+
       vi.mocked(isTauri).mockReturnValue(false)
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true)
       vi.mocked(Capacitor.getPlatform).mockReturnValue('android')
@@ -174,7 +174,7 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { toggleFullscreen } = useFullscreen()
-      
+
       await toggleFullscreen()
 
       expect(mockToggleImmersive).toHaveBeenCalled()
@@ -184,7 +184,7 @@ describe('Unified Fullscreen Utils', () => {
       // Mock desktop platform
       const { isTauri, useTauri } = await import('@/utils/tauri')
       vi.mocked(isTauri).mockReturnValue(true)
-      
+
       const mockTauri = vi.mocked(useTauri).mockReturnValue({
         isDesktop: computed(() => true),
         isFullscreen: ref(false),
@@ -208,7 +208,7 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { toggleFullscreen } = useFullscreen()
-      
+
       const result = await toggleFullscreen()
 
       expect(result).toBe(true)
@@ -217,7 +217,7 @@ describe('Unified Fullscreen Utils', () => {
 
     it('should handle unsupported platform gracefully', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
-      
+
       const { useWebFullscreen } = await import('@/utils/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
@@ -233,15 +233,15 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { platform } = useFullscreen()
-      
+
       expect(platform.value).toBe('web')
-      
+
       consoleWarnSpy.mockRestore()
     })
 
     it('should handle toggle fullscreen errors gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-      
+
       const { useWebFullscreen } = await import('@/utils/webFullscreen')
       const mockToggle = vi.fn().mockRejectedValue(new Error('Fullscreen failed'))
       vi.mocked(useWebFullscreen).mockReturnValue({
@@ -258,7 +258,7 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { platform } = useFullscreen()
-      
+
       expect(platform.value).toBe('web')
       expect(mockToggle).toBeDefined()
 
@@ -282,7 +282,7 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { platform } = useFullscreen()
-      
+
       expect(platform.value).toBe('web')
       expect(mockEnter).toBeDefined()
     })
@@ -304,7 +304,7 @@ describe('Unified Fullscreen Utils', () => {
       })
 
       const { platform, isFullscreen } = useFullscreen()
-      
+
       expect(platform.value).toBe('web')
       expect(isFullscreen.value).toBe(true)
       expect(mockExit).toBeDefined()
@@ -325,8 +325,8 @@ describe('Unified Fullscreen Utils', () => {
         exitFullscreen: vi.fn(),
       })
 
-      const { enterFullscreen, isFullscreen } = useFullscreen()
-      
+      const { enterFullscreen } = useFullscreen()
+
       const result = await enterFullscreen()
 
       expect(result).toBe(true) // Returns current state
@@ -348,8 +348,8 @@ describe('Unified Fullscreen Utils', () => {
         exitFullscreen: vi.fn(),
       })
 
-      const { exitFullscreen, isFullscreen } = useFullscreen()
-      
+      const { exitFullscreen } = useFullscreen()
+
       const result = await exitFullscreen()
 
       expect(result).toBe(false) // Returns current state
@@ -366,7 +366,7 @@ describe('Unified Fullscreen Utils', () => {
 
     it('should forward options to web fullscreen composable', async () => {
       vi.clearAllMocks()
-      
+
       const customElement = document.createElement('div')
       const options = {
         element: customElement,
@@ -374,7 +374,7 @@ describe('Unified Fullscreen Utils', () => {
       }
 
       const { useWebFullscreen } = await import('@/utils/webFullscreen')
-      
+
       useFullscreen(options)
 
       expect(useWebFullscreen).toHaveBeenCalledWith(options)

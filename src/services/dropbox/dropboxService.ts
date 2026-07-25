@@ -41,7 +41,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
   /**
    * Procesa los tokens recibidos - Inicializa el cliente Dropbox SDK
    */
-  protected async onTokensReceived(accessToken: string, refreshToken?: string): Promise<void> {
+  protected async onTokensReceived(accessToken: string, _refreshToken?: string): Promise<void> {
     this.dropbox = new Dropbox({
       accessToken,
       fetch: fetch.bind(globalThis),
@@ -462,7 +462,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
             name: 'App Folder User',
             email: 'appfolder@dropbox.local',
           }
-        } catch (listError) {
+        } catch {
           console.log('[ERROR] Service: Even filesListFolder failed, this is a deeper auth issue')
           throw error // Original error
         }

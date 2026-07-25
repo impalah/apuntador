@@ -67,14 +67,14 @@ test.describe('Teleprompter Basic Functionality', () => {
 
     // Wait for playback to start and toolbar to auto-hide
     await page.waitForTimeout(800)
-    
+
     // Tap teleprompter to show toolbar again (force click to avoid scrolling instability)
     const teleprompterContent = page.locator('.teleprompter-content')
     await teleprompterContent.click({ position: { x: 10, y: 10 }, force: true })
-    
+
     // Wait longer for webkit/safari
     await page.waitForTimeout(500)
-    
+
     // Button should be visible and show pause state
     await expect(playButton).toBeVisible({ timeout: 8000 })
     await expect(playButton).toHaveAttribute('aria-label', /pause/i)
@@ -104,13 +104,13 @@ test.describe('Teleprompter Basic Functionality', () => {
       // On mobile devices, use button clicks instead of keyboard
       await playButton.click()
       await page.waitForTimeout(500)
-      
+
       // Ensure button is visible after play - click on content with testid
       const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
       await expect(teleprompterContent).toBeVisible()
       await teleprompterContent.click({ force: true })
       await page.waitForTimeout(500)
-      
+
       await expect(playButton).toBeVisible()
       await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
@@ -125,13 +125,13 @@ test.describe('Teleprompter Basic Functionality', () => {
       // Test play/pause functionality
       await playButton.click()
       await page.waitForTimeout(500)
-      
+
       // Ensure button is visible after play - click on content with testid
       const teleprompterContent = page.locator('[data-testid="teleprompter-content"]')
       await expect(teleprompterContent).toBeVisible()
       await teleprompterContent.click({ force: true })
       await page.waitForTimeout(500)
-      
+
       await expect(playButton).toBeVisible()
       await expect(playButton).toHaveAttribute('aria-label', /pause/i)
 
@@ -181,7 +181,7 @@ test.describe('Settings and Configuration', () => {
 
     // Wait for settings view to appear
     await page.waitForTimeout(500)
-    
+
     // Check for settings header with specific selector
     const settingsTitle = page.locator('.settings-title', { hasText: 'Settings' })
     await expect(settingsTitle).toBeVisible()
@@ -231,35 +231,35 @@ test.describe('Settings and Configuration', () => {
     const container = page.locator('.teleprompter-container')
     const mirrorHButton = page.locator('[data-testid="mirror-h-button"]').first()
     const mirrorVButton = page.locator('[data-testid="mirror-v-button"]').first()
-    
+
     await expect(mirrorHButton).toBeVisible({ timeout: 10000 })
     await expect(mirrorVButton).toBeVisible({ timeout: 10000 })
-    
+
     // Get initial transform state
-    const initialTransform = await container.evaluate(el => window.getComputedStyle(el).transform)
-    
+    const initialTransform = await container.evaluate((el) => window.getComputedStyle(el).transform)
+
     // Click mirror H button to toggle it
     await mirrorHButton.click()
     await page.waitForTimeout(500)
-    
+
     // Transform should now be different
-    const transformAfterH = await container.evaluate(el => window.getComputedStyle(el).transform)
+    const transformAfterH = await container.evaluate((el) => window.getComputedStyle(el).transform)
     expect(transformAfterH).not.toBe(initialTransform)
-    
+
     // Click mirror V button to toggle it
     await mirrorVButton.click()
     await page.waitForTimeout(500)
-    
+
     // Transform should be different again (both mirrors active)
-    const transformAfterV = await container.evaluate(el => window.getComputedStyle(el).transform)
+    const transformAfterV = await container.evaluate((el) => window.getComputedStyle(el).transform)
     expect(transformAfterV).not.toBe(transformAfterH)
-    
+
     // Click mirror H again to turn it off
     await mirrorHButton.click()
     await page.waitForTimeout(500)
-    
+
     // Transform should change again (only V active now)
-    const transformFinal = await container.evaluate(el => window.getComputedStyle(el).transform)
+    const transformFinal = await container.evaluate((el) => window.getComputedStyle(el).transform)
     expect(transformFinal).not.toBe(transformAfterV)
   })
 })
@@ -505,8 +505,6 @@ test.describe('File Import', () => {
   })
 
   test.skip('should handle drag and drop file upload', async ({ page }) => {
-    const testContent = '# Drag and Drop Test\n\nThis file was uploaded via drag and drop.'
-
     // Wait for page to be fully loaded
     await page.waitForLoadState('networkidle')
 
@@ -550,9 +548,6 @@ test.describe('File Import', () => {
     // Find the drop zone
     const dropZone = dialog.locator('.drop-zone')
     await expect(dropZone).toBeVisible()
-
-    // Create file data for drag and drop
-    const dataTransfer = await page.evaluateHandle(() => new DataTransfer())
 
     // We can't easily test actual drag and drop in Playwright,
     // so we'll test the visual feedback instead
@@ -632,7 +627,7 @@ test.describe('File Import', () => {
     await expect(dialog).not.toBeVisible({ timeout: 10000 })
   })
 
-  test('should handle manual import when auto-import is disabled', async ({ page }) => {
+  test('should handle manual import when auto-import is disabled', async () => {
     // This test would require a page configuration without auto-import
     // For now, we'll skip it as all current pages use auto-import
     test.skip(true, 'Manual import testing requires page without auto-import')
