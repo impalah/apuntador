@@ -563,92 +563,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { usePrefsStore } from '@/stores/usePrefsStore'
-import { useI18nStore } from '@/stores/useI18nStore'
-import { storage } from '@/utils/persistence'
-import { useGamepad } from '@/utils/gamepad'
-import { getVersionInfo } from '@/utils/version'
-import type { HotkeyDefinition } from '@/types'
+import { useSettingsActions } from '@/composables/useSettingsActions'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import SliderControl from './SliderControl.vue'
 
 const { t } = useI18n()
-const prefsStore = usePrefsStore()
-const i18nStore = useI18nStore()
 
-// Gamepad composable
-const gamepadComposable = useGamepad()
+// Shared preferences/hotkeys/gamepad/data-management actions (also used by SettingsDialog)
+const {
+  prefsStore,
+  i18nStore,
+  fontFamilies,
+  versionInfo,
+  gamepadSupported,
+  connectedGamepads,
+  savePrefs,
+  onResetSettings,
+  onResetHotkeys,
+  onHotkeyChange,
+  onResetGamepadMappings,
+  onGamepadMappingChange,
+  onClearAllData: clearAllData,
+} = useSettingsActions()
 
-// Version info
-const versionInfo = getVersionInfo()
-
-// Computed
-const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
-const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
+function onClearAllData() {
+  return clearAllData(t('settings.clearDataConfirm'))
+}
 
 // Estado local para controlar vista de settings (moved after props declaration)
 const activeTab = ref('appearance')
 const isMaximized = ref(false)
 
-// Font families available
-const fontFamilies = [
-  'Roboto, sans-serif',
-  'Arial, sans-serif',
-  'Helvetica, sans-serif',
-  'Georgia, serif',
-  'Times New Roman, serif',
-  'Courier New, monospace',
-  'Monaco, monospace',
-  'system-ui, sans-serif',
-]
-
 // Toggle maximize/minimize
 function toggleMaximize() {
   isMaximized.value = !isMaximized.value
-}
-
-// Settings actions
-async function savePrefs() {
-  await prefsStore.save()
-  prefsStore.applyCSSVariables()
-}
-
-async function onResetSettings() {
-  prefsStore.reset()
-  i18nStore.changeLanguage('auto')
-  await prefsStore.save()
-  prefsStore.applyCSSVariables()
-}
-
-async function onResetHotkeys() {
-  prefsStore.resetHotkeys()
-  await prefsStore.save()
-}
-
-function onHotkeyChange(action: string, hotkey: HotkeyDefinition) {
-  prefsStore.updateHotkey(action, hotkey)
-}
-
-async function onResetGamepadMappings() {
-  prefsStore.resetGamepadMappings()
-  await prefsStore.save()
-}
-
-function onGamepadMappingChange(action: string, buttonIndex: number | null) {
-  prefsStore.updateGamepadMapping(action, buttonIndex)
-}
-
-async function onClearAllData() {
-  if (confirm(t('settings.clearDataConfirm'))) {
-    await storage.clear()
-    prefsStore.reset()
-    prefsStore.applyCSSVariables()
-    globalThis.location.reload()
-  }
 }
 
 // Props

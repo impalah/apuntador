@@ -498,12 +498,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Capacitor } from '@capacitor/core'
-import { usePrefsStore } from '@/stores/usePrefsStore'
-import { useI18nStore } from '@/stores/useI18nStore'
-import { storage } from '@/utils/persistence'
-import type { HotkeyDefinition } from '@/types'
-import { useGamepad } from '@/utils/gamepad'
-import { getVersionInfo } from '@/utils/version'
+import { useSettingsActions } from '@/composables/useSettingsActions'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
@@ -550,76 +545,29 @@ const emit = defineEmits<{
   'update:modelValue': [value: boolean]
 }>()
 
-// Stores
-const prefsStore = usePrefsStore()
-const i18nStore = useI18nStore()
+// Shared preferences/hotkeys/gamepad/data-management actions (also used by ActionsMenu)
+const {
+  prefsStore,
+  i18nStore,
+  fontFamilies,
+  versionInfo,
+  gamepadSupported,
+  connectedGamepads,
+  savePrefs,
+  onResetSettings,
+  onResetHotkeys,
+  onHotkeyChange,
+  onResetGamepadMappings,
+  onGamepadMappingChange,
+  onClearAllData: clearAllData,
+} = useSettingsActions()
 
-// Gamepad composable
-const gamepadComposable = useGamepad()
-
-// Version info
-const versionInfo = getVersionInfo()
-
-// Computed
-const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
-const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
+function onClearAllData() {
+  return clearAllData(t('settings.clearDataConfirm'))
+}
 
 // State
 const activeTab = ref(props.initialTab)
-
-// Font families available
-const fontFamilies = [
-  'Roboto, sans-serif',
-  'Arial, sans-serif',
-  'Helvetica, sans-serif',
-  'Georgia, serif',
-  'Times New Roman, serif',
-  'Courier New, monospace',
-  'Monaco, monospace',
-  'system-ui, sans-serif',
-]
-
-// Actions
-async function savePrefs() {
-  await prefsStore.save()
-  prefsStore.applyCSSVariables()
-}
-
-async function onResetSettings() {
-  prefsStore.reset()
-  i18nStore.changeLanguage('auto') // Reset language to auto-detect
-  await prefsStore.save()
-  prefsStore.applyCSSVariables()
-}
-
-async function onResetHotkeys() {
-  prefsStore.resetHotkeys()
-  await prefsStore.save()
-}
-
-function onHotkeyChange(action: string, hotkey: HotkeyDefinition) {
-  prefsStore.updateHotkey(action, hotkey)
-}
-
-async function onResetGamepadMappings() {
-  prefsStore.resetGamepadMappings()
-  await prefsStore.save()
-}
-
-function onGamepadMappingChange(action: string, buttonIndex: number | null) {
-  prefsStore.updateGamepadMapping(action, buttonIndex)
-}
-
-async function onClearAllData() {
-  // Show confirmation dialog first
-  if (confirm(t('settings.clearDataConfirm'))) {
-    await storage.clear()
-    prefsStore.reset()
-    prefsStore.applyCSSVariables()
-    // Reload the page to reset everything
-    globalThis.location.reload()
-  }
-}
 
 // Device enrollment / mTLS debug pages must never be reachable outside development builds
 const isDevMode = import.meta.env.DEV
