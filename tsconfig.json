@@ -6,7 +6,10 @@
     "src/**/*.vue",
     "tests/**/*",
     "vite.config.ts",
+    "vitest.config.ts",
     "playwright.config.ts",
+    "capacitor.config.ts",
+    "docs/.vitepress/config.ts",
     "config/**/*"
   ],
   "exclude": ["src/**/__tests__/*"],
@@ -18,7 +21,7 @@
       "@/*": ["./src/*"]
     },
     "target": "ES2021",
-    "lib": ["ES2021", "DOM", "DOM.Iterable"],
+    "lib": ["ES2021", "ES2022.Error", "DOM", "DOM.Iterable"],
     "module": "ESNext",
     "moduleResolution": "bundler"
   }
