@@ -6,7 +6,9 @@
 param(
     [string]$BuildType = "release",
     [string]$CertificatePath = "certificates\apuntador-codesigning.pfx",
-    [string]$CertificatePassword = "apuntador2024!"
+    # Falls back to APUNTADOR_CERT_PASSWORD env var, then prompts interactively.
+    # Never hardcode a default here - this file is committed to version control.
+    [string]$CertificatePassword = $env:APUNTADOR_CERT_PASSWORD
 )
 
 Write-Host "Compilando Apuntador para Windows con firma de código..." -ForegroundColor Green
@@ -17,6 +19,13 @@ if (!(Test-Path $CertificatePath)) {
     Write-Host "[ERROR] Certificado no encontrado: $CertificatePath" -ForegroundColor Red
     Write-Host "Ejecuta primero: .\scripts\create-self-signed-cert.ps1" -ForegroundColor Yellow
     exit 1
+}
+
+if ([string]::IsNullOrEmpty($CertificatePassword)) {
+    $secureInput = Read-Host "Certificate password" -AsSecureString
+    $CertificatePassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+        [Runtime.InteropServices.Marshal]::SecureStringToBSTR($secureInput)
+    )
 }
 
 try {
@@ -41,7 +50,7 @@ try {
         }
         
         # Compilar Tauri
-        Write-Host "🦀 Compilando aplicación Tauri..." -ForegroundColor Yellow
+        Write-Host "Compilando aplicación Tauri..." -ForegroundColor Yellow
         
         if ($BuildType -eq "debug") {
             npm run tauri:build -- --debug
@@ -61,7 +70,7 @@ try {
                 Get-ChildItem $bundlePath -Recurse -File | Where-Object { $_.Extension -in @('.msi', '.exe') } | ForEach-Object {
                     $sizeMB = [math]::Round($_.Length / 1MB, 2)
                     Write-Host "  $($_.Name) ($sizeMB MB)" -ForegroundColor White
-                    Write-Host "     📁 $($_.FullName)" -ForegroundColor Gray
+                    Write-Host "     $($_.FullName)" -ForegroundColor Gray
                 }
             }
             
