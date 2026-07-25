@@ -100,7 +100,7 @@ import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { useFileStore } from '@/stores/useFileStore'
-import { useTeleprompterFrameProps } from '@/adapters/storeToComponent'
+import type { TeleprompterFrameProps } from '@/types/component-interfaces'
 import {
   hotkeyManager,
   updateDescriptionsInMapping,
@@ -131,8 +131,39 @@ const isMinimalLayout = computed(() => xs.value || sm.value)
 // Show iOS back button (iOS doesn't have system back button)
 const showIOSBackButton = computed(() => Capacitor.getPlatform() === 'ios')
 
-// Modular component props
-const teleprompterFrameProps = useTeleprompterFrameProps()
+// Props for TeleprompterFrameV2, grouped from the stores it reads from
+const teleprompterFrameProps = computed<TeleprompterFrameProps>(() => ({
+  content: {
+    raw: teleprompterStore.contentRaw,
+    html: teleprompterStore.contentHtml,
+  },
+  scrollState: {
+    offset: teleprompterStore.scrollOffset,
+    isPlaying: teleprompterStore.isPlaying,
+    canScrollUp: teleprompterStore.scrollOffset > 0,
+    canScrollDown: teleprompterStore.scrollOffset < teleprompterStore.maxOffset,
+    progress:
+      teleprompterStore.maxOffset > 0
+        ? (teleprompterStore.scrollOffset / teleprompterStore.maxOffset) * 100
+        : 0,
+  },
+  displayPrefs: {
+    fontFamily: prefsStore.fontFamily,
+    fontSizePx: prefsStore.fontSizePx,
+    lineHeight: prefsStore.lineHeight,
+    fgColor: prefsStore.fgColor,
+    bgColor: prefsStore.bgColor,
+    mirrorH: prefsStore.mirrorH,
+    mirrorV: prefsStore.mirrorV,
+    textAlignment: prefsStore.textAlignment,
+  },
+  highlightBand: {
+    lines: prefsStore.highlightBandLines,
+    positionPct: prefsStore.highlightBandPosPct,
+    dimmingIntensity: prefsStore.dimmingIntensity,
+    enabled: prefsStore.highlightBandLines > 0,
+  },
+}))
 
 // Component refs
 const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()

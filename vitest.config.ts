@@ -56,8 +56,6 @@ export default defineConfig({
         'src/services/certificate/**',
         // Exclude platform-specific config
         'src/config/api.ts',
-        'src/config/app-configuration.ts',
-        'src/config/component-configurations.ts',
         // Exclude plugins (native bridges)
         'src/plugins/**',
         // Exclude composables (UI-coupled, tested via e2e)
@@ -78,10 +76,7 @@ export default defineConfig({
         'src/stores/useFileStore.ts',
         'src/stores/useI18nStore.ts',
         'src/utils/**/*.ts',
-        'src/adapters/**/*.ts',
-        'src/coordinators/**/*.ts',
         'src/services/cloudProviderConfig.ts',
-        'src/services/component-services.ts',
       ],
       thresholds: {
         statements: 80,
