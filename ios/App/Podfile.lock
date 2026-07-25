@@ -1,20 +1,20 @@
 PODS:
-  - Capacitor (8.0.0):
+  - Capacitor (8.4.2):
     - CapacitorCordova
-  - CapacitorApp (8.0.0):
+  - CapacitorApp (8.1.1):
     - Capacitor
-  - CapacitorBrowser (8.0.0):
+  - CapacitorBrowser (8.0.4):
     - Capacitor
-  - CapacitorCordova (8.0.0)
-  - CapacitorHaptics (8.0.0):
+  - CapacitorCordova (8.4.2)
+  - CapacitorHaptics (8.0.2):
     - Capacitor
-  - CapacitorKeyboard (8.0.0):
+  - CapacitorKeyboard (8.0.5):
     - Capacitor
-  - CapacitorScreenOrientation (8.0.0):
+  - CapacitorScreenOrientation (8.0.1):
     - Capacitor
-  - CapacitorSplashScreen (8.0.0):
+  - CapacitorSplashScreen (8.0.2):
     - Capacitor
-  - CapacitorStatusBar (8.0.0):
+  - CapacitorStatusBar (8.0.3):
     - Capacitor
 
 DEPENDENCIES:
@@ -49,15 +49,15 @@ EXTERNAL SOURCES:
     :path: "../../node_modules/@capacitor/status-bar"
 
 SPEC CHECKSUMS:
-  Capacitor: 79e40e5e76f852965dce30406c65253fa154e24a
-  CapacitorApp: cfa0120a1f3a6f69d4d37d3041782aa5c5167d0b
-  CapacitorBrowser: 7452c73a202716d9c9035e5dbe5c5d8d07737f22
-  CapacitorCordova: 5dc3912d25ef770a3fe0f431bb65c9fbfa2e92f9
-  CapacitorHaptics: 7a77ce744c4b516b3ffd7f8c96d3de574d77b898
-  CapacitorKeyboard: 0a2e7c0635ccf3db60abed14bd6f35147ce25942
-  CapacitorScreenOrientation: 82b7c0bcc6189e97269ec66c613d0cd4f1c1c004
-  CapacitorSplashScreen: 4b78177a21f0f73ccc1c78dd93b2a94854ac4b83
-  CapacitorStatusBar: c6fa2d404083e41d145ea56698707a6986d4428b
+  Capacitor: 7a1ef4c3b846b5f32437a2b3e11803c1c702a6c5
+  CapacitorApp: 9fd99482b6536ddf1a54721ce678145fc7fa3418
+  CapacitorBrowser: 553fcb154526484a5d12efc38093d3f781cb6a82
+  CapacitorCordova: 345eacdc4c8282415446aea4acd8c77d82480bd4
+  CapacitorHaptics: 4e1e84c2b74fb5918e403fb8f0e73a07d05937df
+  CapacitorKeyboard: b7df6f45f1072c292d7de8688aa98b9b266b37fe
+  CapacitorScreenOrientation: 07503c9d633377427f1e122449b06b1dbc992d10
+  CapacitorSplashScreen: 120117d1b2264bba31a6e6f998f51e510144dd12
+  CapacitorStatusBar: 40bdc21352ecc617ec71c45ea06d669cdd2da8df
 
 PODFILE CHECKSUM: 18ed6cef5cbc68fc712da40faccca8e661552465
 
