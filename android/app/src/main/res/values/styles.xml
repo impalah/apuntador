@@ -22,6 +22,13 @@
         <item name="android:fitsSystemWindows">false</item>
         <!-- Enable edge-to-edge mode for Android 35+ -->
         <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
+        <!--
+          Android 16 (API 36) ignores windowOptOutEdgeToEdgeEnforcement above, so the
+          system status/nav bars become transparent regardless. Without an explicit dark
+          windowBackground, the DayNight parent theme's light-mode default (white/light
+          gray) shows through behind them instead of the app's dark UI.
+        -->
+        <item name="android:windowBackground">#1E1E1E</item>
     </style>
 
 
