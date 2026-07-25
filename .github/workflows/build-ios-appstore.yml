@@ -338,7 +338,7 @@ jobs:
 
           ## Technical Details
           - **Bundle ID**: io.apuntador.app
-          - **Minimum iOS**: 14.0
+          - **Minimum iOS**: 15.0
           - **Supported Devices**: iPhone, iPad
           - **Signing**: Apple Distribution Certificate
           - **Provisioning**: App Store Distribution Profile
