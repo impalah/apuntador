@@ -21,7 +21,7 @@ Apuntador — a Vue 3 + TypeScript + Vite + Vuetify teleprompter app that ships 
   - `npm run stylelint` (SCSS/Vue styles — not covered by ESLint)
   - `npm run format` (Prettier, write)
 - Tests: `npm run test` (Vitest, unit), `npm run test:e2e` (Playwright, auto-starts dev on :3000), `npm run coverage`
-- Coverage thresholds (`vitest.config.ts`): 80% statements/branches/functions/lines, enforced only over the curated `include` scope (stores, utils, adapters, coordinators, `cloudProviderConfig.ts`, `component-services.ts`) — Vue components/pages/composables/plugins/native-bridge services are intentionally excluded and covered via Playwright e2e instead.
+- Coverage thresholds (`vitest.config.ts`): 80% statements/branches/functions/lines, enforced only over the curated `include` scope (stores, utils, `cloudProviderConfig.ts`) — Vue components/pages/composables/plugins/native-bridge services are intentionally excluded and covered via Playwright e2e instead.
 - `Makefile` mirrors the npm scripts (`make lint`, `make test`, ...) and adds platform build targets.
 
 ## Code style (differs from defaults)
@@ -32,9 +32,9 @@ Apuntador — a Vue 3 + TypeScript + Vite + Vuetify teleprompter app that ships 
 
 ## Architecture
 
-`src/` is layered: `components`/`pages` (UI) talk to `coordinators` + `adapters`, which wrap `stores` (Pinia, persisted via localforage) and `services` (oauth, dropbox, googledrive, http, certificate). Also `composables`, `plugins` (native bridges), `locales` (vue-i18n, 9 locales), `config`, `types`, `utils`. Keep UI components decoupled from stores through the coordinator/adapter layer.
+`src/` is layered: `components`/`pages` (UI) talk directly to `stores` (Pinia, persisted via localforage) and `services` (oauth, dropbox, googledrive, http, certificate) — there is no coordinator/adapter indirection layer; Pinia stores are the ViewModel. Also `composables` (shared reactive logic used by 2+ components), `plugins` (native bridges), `locales` (vue-i18n, 9 locales), `config`, `types`, `utils`.
 
-Component contracts are typed in `src/types/component-interfaces.d.ts` so implementations can be swapped without touching the coordinator layer.
+`src/types/component-interfaces.d.ts` only types the prop/event contract of `TeleprompterFrameV2.vue`, which is intentionally kept decoupled from Pinia (pure props/events) because it's the most complex render/scroll component. This is not a general pattern — don't add a matching adapter layer for other components; a `coordinators/`+`adapters/` layer covering the whole app was tried and removed because it added indirection (duplicated store getters, and mutations that bypassed store actions and silently broke persistence) without a real use case driving it. If genuine cross-store/cross-composable orchestration logic is ever needed, put it in a composable, not a bespoke "coordinator" abstraction.
 
 Device (m)TLS authentication is platform-specific: Android (Keystore/StrongBox), iOS (Secure Enclave), Desktop (encrypted file storage), Web (OAuth 2.0 + PKCE, no mTLS). Core logic is in `src/services/unifiedMTLSService.ts` and `src/services/certificate/`.
 

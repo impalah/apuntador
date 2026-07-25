@@ -14,11 +14,9 @@ A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite
 
 ## Architecture Overview
 
-**Modular Component System**: Uses coordinators + adapters to decouple UI components from state management.
+**State access**: Components/pages call Pinia stores directly (`usePrefsStore()`, `useTeleprompterStore()`, etc.) — there is no coordinator/adapter indirection layer. A generalized one was tried and removed (2026-07): it duplicated store getters and, in one place, mutated store state in a way that bypassed the store's own actions and silently broke persistence. Pinia stores already are the ViewModel.
 
-- `src/coordinators/` - Business logic orchestration between components
-- `src/adapters/` - Bridge Pinia stores to component interfaces
-- `src/types/component-interfaces.d.ts` - Type contracts for modular components
+- `src/types/component-interfaces.d.ts` - Prop/event contract for `TeleprompterFrameV2.vue` only (the one component kept deliberately decoupled because it's the most complex render/scroll component). Don't generalize this to other components.
 
 **Authentication Architecture**:
 
@@ -47,10 +45,6 @@ A modular, multi-platform teleprompter built with **Vue 3 + TypeScript**, **Vite
 
 ```
 src/
-├── coordinators/           # Component orchestration logic
-│   └── teleprompterCoordinator.ts
-├── adapters/              # Store-to-component bridges
-│   └── storeToComponent.ts
 ├── components/            # Modular Vue components
 ├── stores/               # Pinia state management
 │   ├── useTeleprompterStore.ts
@@ -95,28 +89,22 @@ src/
 
 - **AutoScroller class** (`utils/scrolling.ts`): Handles smooth `requestAnimationFrame`-based scrolling
 - **Virtual scroll offset**: Pixel-based positioning with line-height calculations
-- **Play/pause loop**: Store triggers AutoScroller start/stop via coordinator
+- **Play/pause loop**: `useTeleprompterStore().play()`/`.pause()` start/stop the AutoScroller directly
 
 ### Component Communication
 
-```typescript
-// Coordinator orchestrates multiple components
-const coordinator = useTeleprompterCoordinator()
-coordinator.teleprompterFrameProps // Reactive props from stores
-coordinator.toolbarHandlers.onPlay() // Actions bridge to stores
-```
-
-### Store-to-Component Adapter Pattern
+Most components call Pinia stores directly. The one exception is
+`TeleprompterFrameV2.vue`, which takes pure props/events; its parent
+(`TeleprompterPage.vue`) builds those props with a local `computed()` that
+reads `useTeleprompterStore()`/`usePrefsStore()`:
 
 ```typescript
-// Converts Pinia state to component props format
-export function useTeleprompterFrameProps(): ComputedRef<TeleprompterFrameProps> {
-  return computed(() => ({
-    content: { raw: store.contentRaw, html: store.contentHtml },
-    scrollState: { offset: store.scrollOffset, isPlaying: store.isPlaying },
-    // ... transforms store data to component interface
-  }))
-}
+// src/pages/TeleprompterPage.vue
+const teleprompterFrameProps = computed<TeleprompterFrameProps>(() => ({
+  content: { raw: teleprompterStore.contentRaw, html: teleprompterStore.contentHtml },
+  scrollState: { offset: teleprompterStore.scrollOffset, isPlaying: teleprompterStore.isPlaying, /* ... */ },
+  // ...
+}))
 ```
 
 ### Multi-Platform Builds
@@ -158,7 +146,8 @@ npm run coverage    # Coverage report
 
 ## Component Interface Contracts
 
-Components communicate via typed interfaces in `types/component-interfaces.d.ts`:
+`types/component-interfaces.d.ts` types only `TeleprompterFrameV2.vue`'s prop/event
+contract — it is not a general pattern for other components:
 
 ```typescript
 interface TeleprompterFrameProps {
@@ -168,8 +157,6 @@ interface TeleprompterFrameProps {
   highlightBand: HighlightBandConfig
 }
 ```
-
-This enables swapping component implementations without breaking the coordinator layer.
 
 ## Input Handling Architecture
 
@@ -216,9 +203,8 @@ Use existing build scripts in `scripts/` directory - don't recreate the wheel fo
 
 ## Key Files to Reference
 
-- `src/coordinators/teleprompterCoordinator.ts` - Component orchestration patterns
 - `src/stores/useTeleprompterStore.ts` - Core state management with AutoScroller
-- `src/stores/useDropboxStore.ts` - Dropbox OAuth & cloud file management
+- `src/stores/useCloudStore.ts` - Multi-provider cloud storage (Dropbox + Google Drive)
 - `src/utils/scrolling.ts` - Smooth scrolling implementation
 - `src/utils/tauri.ts` - Tauri desktop integration utilities
 - `vite.config.ts` - Build configuration with test coverage thresholds
