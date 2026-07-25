@@ -62,9 +62,8 @@ export default defineConfig({
         'src/plugins/**',
         // Exclude composables (UI-coupled, tested via e2e)
         'src/composables/**',
-        // Exclude cloud stores (platform-specific, integration tested)
+        // Exclude cloud store (platform-specific, integration tested)
         'src/stores/useCloudStore.ts',
-        'src/stores/useDropboxStore.ts',
         // Exclude platform-specific utils
         'src/utils/gamepad.ts',
         'src/utils/webFullscreen.ts',
