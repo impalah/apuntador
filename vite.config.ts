@@ -17,7 +17,7 @@ export default defineConfig({
     versionSync({
       packageJsonPath: './package.json',
       versionFilePath: './src/utils/version.ts',
-      updateInDev: true
+      updateInDev: true,
     }),
   ],
   resolve: {
@@ -27,9 +27,7 @@ export default defineConfig({
   },
   // Prevent pre-bundling of Tauri packages in development
   optimizeDeps: {
-    exclude: [
-      '@tauri-apps/api',
-    ],
+    exclude: ['@tauri-apps/api'],
   },
   css: {
     preprocessorOptions: {
