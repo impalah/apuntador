@@ -21,7 +21,7 @@ Apuntador — a Vue 3 + TypeScript + Vite + Vuetify teleprompter app that ships 
   - `npm run stylelint` (SCSS/Vue styles — not covered by ESLint)
   - `npm run format` (Prettier, write)
 - Tests: `npm run test` (Vitest, unit), `npm run test:e2e` (Playwright, auto-starts dev on :3000), `npm run coverage`
-- Coverage thresholds (`vitest.config.ts`): statements 50%, branches 75%, functions 55%, lines 50% — not the 85% mentioned in `.github/copilot-instructions.md` (stale).
+- Coverage thresholds (`vitest.config.ts`): 80% statements/branches/functions/lines, enforced only over the curated `include` scope (stores, utils, adapters, coordinators, `cloudProviderConfig.ts`, `component-services.ts`) — Vue components/pages/composables/plugins/native-bridge services are intentionally excluded and covered via Playwright e2e instead.
 - `Makefile` mirrors the npm scripts (`make lint`, `make test`, ...) and adds platform build targets.
 
 ## Code style (differs from defaults)
