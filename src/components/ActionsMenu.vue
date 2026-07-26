@@ -520,6 +520,42 @@
 
           <v-divider class="section-divider" />
 
+          <!-- Modo de avance Section -->
+          <div class="menu-section">
+            <h3 class="section-title">
+              {{ t('settings.scrollMode') }}
+            </h3>
+
+            <div class="button-grid-2">
+              <button
+                class="action-btn-frequent"
+                :class="{ active: prefsStore.scrollMode === 'auto' }"
+                data-testid="scroll-mode-auto-quick-button"
+                @click="handleScrollModeChange('auto')"
+              >
+                <v-icon
+                  icon="mdi-play-speed"
+                  size="32"
+                />
+                <span class="btn-text">{{ t('settings.scrollModeAuto') }}</span>
+              </button>
+              <button
+                class="action-btn-frequent"
+                :class="{ active: prefsStore.scrollMode === 'voice' }"
+                data-testid="scroll-mode-voice-quick-button"
+                @click="handleScrollModeChange('voice')"
+              >
+                <v-icon
+                  icon="mdi-microphone"
+                  size="32"
+                />
+                <span class="btn-text">{{ t('settings.scrollModeVoice') }}</span>
+              </button>
+            </div>
+          </div>
+
+          <v-divider class="section-divider" />
+
           <!-- Opciones Section -->
           <div class="menu-section">
             <h3 class="section-title">
@@ -566,7 +602,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettingsActions } from '@/composables/useSettingsActions'
-import { Z_INDEX } from '@/utils/constants'
+import { Z_INDEX, type ScrollMode } from '@/utils/constants'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
@@ -695,6 +731,11 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
   await prefsStore.save()
   // Don't close menu for text alignment changes
 }
+
+// Handle scroll mode (auto/voice) - don't close menu, same as other quick toggles
+function handleScrollModeChange(mode: ScrollMode) {
+  prefsStore.setScrollMode(mode)
+}
 </script>
 
 <style scoped lang="scss">
@@ -773,6 +814,14 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
 .button-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+/* Botones frecuentes (2 por fila, e.g. modo de avance auto/voz) */
+.button-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 12px;
 }
@@ -867,7 +916,8 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
     padding: 12px 16px calc(160px + env(safe-area-inset-bottom)) 16px;
   }
   
-  .button-grid {
+  .button-grid,
+  .button-grid-2 {
     gap: 8px;
   }
   
@@ -896,7 +946,8 @@ const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
     max-width: 600px;
   }
   
-  .button-grid {
+  .button-grid,
+  .button-grid-2 {
     gap: 16px;
   }
   

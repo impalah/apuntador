@@ -42,14 +42,14 @@ async function removeWebSpeechApi(page: Page) {
 }
 
 test.describe('Voice tracking mode', () => {
-  test('activates voice mode from Settings (behavior tab) and persists it', async ({ page }) => {
+  test('activates voice mode from the full Settings dialog (behavior tab, via #options deep-link) and persists it', async ({
+    page,
+  }) => {
     await mockWebSpeechApi(page)
 
     // SettingsDialog is reachable via the app's existing hash deep-link
     // (see TeleprompterPage.vue's parseHashNavigation, also used for cloud
-    // provider setup) - the visible "more menu" settings button currently
-    // opens ActionsMenu's own embedded mini-settings instead, which doesn't
-    // include the behavior tab.
+    // provider setup).
     await page.goto('/#options/behavior')
 
     const behaviorTab = page.locator('[data-testid="behavior-tab"]')
@@ -65,6 +65,40 @@ test.describe('Voice tracking mode', () => {
     await page.keyboard.press('Escape')
     const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
     await expect(quickToggle).toHaveClass(/active/)
+    await page.waitForTimeout(1000) // Wait for the async persistence write to flush
+
+    await page.reload()
+    await expect(page.locator('[data-testid="scroll-mode-quick-toggle"]')).toHaveClass(/active/)
+  })
+
+  test('activates voice mode from the visible Settings button (ActionsMenu quick toggle) and persists it', async ({
+    page,
+  }) => {
+    await mockWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    // This is the actual path a user reaches from the on-screen "more menu" ->
+    // "Settings" button - ActionsMenu.vue keeps its own embedded mini-settings
+    // view (no "behavior" tab), so the scroll-mode toggle lives as a quick
+    // action alongside mirror/theater/alignment, not inside that mini tab set.
+    const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+    await moreMenuButton.click()
+    await page.waitForTimeout(300)
+
+    const voiceQuickButton = page.locator('[data-testid="scroll-mode-voice-quick-button"]')
+    await expect(voiceQuickButton).toBeVisible()
+    await voiceQuickButton.click()
+    await expect(voiceQuickButton).toHaveClass(/active/)
+
+    const autoQuickButton = page.locator('[data-testid="scroll-mode-auto-quick-button"]')
+    await expect(autoQuickButton).not.toHaveClass(/active/)
+
+    // Close the menu and confirm the toolbar quick toggle reflects the same
+    // persisted preference, and that it survives a reload.
+    await page.keyboard.press('Escape')
+    await expect(page.locator('[data-testid="scroll-mode-quick-toggle"]')).toHaveClass(/active/)
+    await page.waitForTimeout(1000) // Wait for the async persistence write to flush
 
     await page.reload()
     await expect(page.locator('[data-testid="scroll-mode-quick-toggle"]')).toHaveClass(/active/)
