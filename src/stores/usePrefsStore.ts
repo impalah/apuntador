@@ -1,13 +1,13 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { z } from 'zod'
-import { storage } from '@/utils/persistence'
+import { storage } from '@/services/persistence'
 import type {
   CustomHotkeyMapping,
   HotkeyDefinition,
   CustomGamepadMapping,
 } from '@/types'
-import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/hotkeys'
+import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/input/hotkeys'
 import {
   DEFAULT_FONT_SIZE,
   DEFAULT_LINE_HEIGHT,

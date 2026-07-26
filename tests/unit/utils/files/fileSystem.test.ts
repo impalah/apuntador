@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import * as fileSystemUtils from '@/utils/fileSystem'
+import * as fileSystemUtils from '@/utils/files/fileSystem'
 import {
   saveFile,
   saveToFileHandle,
@@ -8,7 +8,7 @@ import {
   confirmOverwrite,
   getFileExtension,
   ensureMarkdownExtension
-} from '@/utils/fileSystem'
+} from '@/utils/files/fileSystem'
 
 describe('File System Utils', () => {
   let mockShowSaveFilePicker: any

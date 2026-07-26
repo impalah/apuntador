@@ -8,15 +8,15 @@ import {
   canSyncWithSource,
   getSyncStatusMessage,
   type SyncStatus
-} from '@/utils/fileSync'
+} from '@/utils/files/fileSync'
 
 // Mock fileSystem utilities
-vi.mock('@/utils/fileSystem', () => ({
+vi.mock('@/utils/files/fileSystem', () => ({
   openFile: vi.fn(),
   saveToFileHandle: vi.fn()
 }))
 
-import { saveToFileHandle } from '@/utils/fileSystem'
+import { saveToFileHandle } from '@/utils/files/fileSystem'
 
 describe('File Sync Utils', () => {
   let mockFileHandle: any

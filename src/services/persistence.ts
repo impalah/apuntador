@@ -1,5 +1,5 @@
 import localforage from 'localforage'
-import { STORAGE_KEYS } from './constants'
+import { STORAGE_KEYS } from '@/utils/constants'
 
 /**
  * Storage abstraction layer using localforage with localStorage fallback

@@ -154,7 +154,7 @@ import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { sanitizeMarkdown } from '@/utils/markdown'
 import { useFileStore } from '@/stores/useFileStore'
-import { openFile, isFileSystemAccessSupported, formatFileSize } from '@/utils/fileSystem'
+import { openFile, isFileSystemAccessSupported, formatFileSize } from '@/utils/files/fileSystem'
 
 // I18n
 const { t } = useI18n()

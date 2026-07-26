@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { DEFAULT_HOTKEYS, createDefaultMapping } from '@/utils/hotkeys'
+import { DEFAULT_HOTKEYS, createDefaultMapping } from '@/utils/input/hotkeys'
 
 describe('Text Alignment Hotkeys', () => {
   it('should include alignment hotkeys in DEFAULT_HOTKEYS', () => {

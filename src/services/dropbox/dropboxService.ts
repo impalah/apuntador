@@ -1,6 +1,6 @@
 import { Dropbox } from 'dropbox'
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
-import { storage } from '@/utils/persistence'
+import { storage } from '@/services/persistence'
 import { STORAGE_KEYS, OAUTH_TOKEN_ACTIVATION_DELAY } from '@/utils/constants'
 import { BaseOAuthService } from '@/services/oauth/baseOAuthService'
 

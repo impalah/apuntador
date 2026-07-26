@@ -49,7 +49,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { HotkeyDefinition } from '@/types'
-import { hotkeyManager } from '@/utils/hotkeys'
+import { hotkeyManager } from '@/utils/input/hotkeys'
 
 interface Props {
   hotkey: HotkeyDefinition

@@ -1,10 +1,10 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { GamepadManager, gamepadManager } from '@/utils/gamepadManager'
-import { useGamepad } from '@/utils/gamepad'
+import { GamepadManager, gamepadManager } from '@/utils/input/gamepadManager'
+import { useGamepad } from '@/utils/input/gamepad'
 import type { HotkeyAction, CustomGamepadMapping } from '@/types'
 
 // Mock the gamepad utility
-vi.mock('@/utils/gamepad')
+vi.mock('@/utils/input/gamepad')
 
 const mockUseGamepad = vi.mocked(useGamepad)
 

@@ -105,8 +105,8 @@ import {
   hotkeyManager,
   updateDescriptionsInMapping,
   updateDescriptionsInGamepadMapping,
-} from '@/utils/hotkeys'
-import { gamepadManager } from '@/utils/gamepadManager'
+} from '@/utils/input/hotkeys'
+import { gamepadManager } from '@/utils/input/gamepadManager'
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'

@@ -17,7 +17,7 @@ vi.mock('@/utils/scrolling', () => ({
 }))
 
 // Mock persistence
-vi.mock('@/utils/persistence', () => ({
+vi.mock('@/services/persistence', () => ({
   contentStorage: {
     get: vi.fn().mockResolvedValue(null),
     set: vi.fn().mockResolvedValue(undefined)
@@ -208,7 +208,7 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
   describe('Scroll position persistence', () => {
     it('should trigger save when manual scroll occurs', async () => {
       // Import the mocked persistence module
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       
       // Act
       store.syncScrollFromDOM(250)

@@ -3,7 +3,7 @@ import { setActivePinia, createPinia } from 'pinia'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 
 // Mock the persistence utilities
-vi.mock('@/utils/persistence', () => ({
+vi.mock('@/services/persistence', () => ({
   contentStorage: {
     get: vi.fn(() => Promise.resolve(null)),
     set: vi.fn(() => Promise.resolve()),
@@ -201,7 +201,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
   describe('Persistence', () => {
     it('should save content', async () => {
       const store = useTeleprompterStore()
-      const { contentStorage } = await import('@/utils/persistence')
+      const { contentStorage } = await import('@/services/persistence')
       
       await store.setContent('# Test Content')
       
@@ -210,7 +210,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
 
     it('should save content via saveContent method', async () => {
       const store = useTeleprompterStore()
-      const { contentStorage } = await import('@/utils/persistence')
+      const { contentStorage } = await import('@/services/persistence')
       
       store.contentRaw = '# Direct Content'
       await store.saveContent()
@@ -219,7 +219,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should load saved content', async () => {
-      const { contentStorage } = await import('@/utils/persistence')
+      const { contentStorage } = await import('@/services/persistence')
       vi.mocked(contentStorage.get).mockResolvedValue('# Saved Content')
       
       const store = useTeleprompterStore()
@@ -230,7 +230,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should handle content load errors gracefully', async () => {
-      const { contentStorage } = await import('@/utils/persistence')
+      const { contentStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(contentStorage.get).mockRejectedValue(new Error('Storage error'))
       
@@ -245,7 +245,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should handle content save errors gracefully', async () => {
-      const { contentStorage } = await import('@/utils/persistence')
+      const { contentStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(contentStorage.set).mockRejectedValue(new Error('Storage error'))
       
@@ -261,7 +261,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
 
     it('should save scroll position', async () => {
       const store = useTeleprompterStore()
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       
       store.setViewportHeight(400)
       store.setContentHeight(1000)
@@ -273,7 +273,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should load saved scroll position', async () => {
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(350)
       
       const store = useTeleprompterStore()
@@ -286,7 +286,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should handle scroll position load errors gracefully', async () => {
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(scrollPositionStorage.get).mockRejectedValue(new Error('Storage error'))
       
@@ -301,7 +301,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should handle scroll position save errors gracefully', async () => {
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(scrollPositionStorage.set).mockRejectedValue(new Error('Storage error'))
       
@@ -316,7 +316,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should not load scroll position if none saved', async () => {
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(null)
       
       const store = useTeleprompterStore()
@@ -331,7 +331,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should not load scroll position if undefined saved', async () => {
-      const { scrollPositionStorage } = await import('@/utils/persistence')
+      const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(null)
       
       const store = useTeleprompterStore()
@@ -346,7 +346,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
 
     it('should initialize by loading content and position', async () => {
-      const { contentStorage, scrollPositionStorage } = await import('@/utils/persistence')
+      const { contentStorage, scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(contentStorage.get).mockResolvedValue('# Initialized')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(200)
       

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { useGamepad } from '@/utils/gamepad'
+import { useGamepad } from '@/utils/input/gamepad'
 
 describe('Gamepad Utils', () => {
   let mockGetGamepads: any

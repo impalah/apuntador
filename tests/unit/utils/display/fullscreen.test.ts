@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { useFullscreen, detectPlatform } from '@/utils/fullscreen'
+import { useFullscreen, detectPlatform } from '@/utils/display/fullscreen'
 import { ref, computed } from 'vue'
 
 // Mock platform detection
@@ -27,7 +27,7 @@ vi.mock('@capacitor/core', () => ({
   },
 }))
 
-vi.mock('@/utils/webFullscreen', () => ({
+vi.mock('@/utils/display/webFullscreen', () => ({
   useWebFullscreen: vi.fn(() => ({
     isFullscreen: ref(false),
     isSupported: ref(true),
@@ -42,7 +42,7 @@ vi.mock('@/utils/webFullscreen', () => ({
   })),
 }))
 
-vi.mock('@/utils/immersiveMode', () => ({
+vi.mock('@/utils/display/immersiveMode', () => ({
   useImmersiveMode: vi.fn(() => ({
     isImmersive: ref(false),
     isSupported: ref(false),
@@ -105,7 +105,7 @@ describe('Unified Fullscreen Utils', () => {
 
   describe('useFullscreen', () => {
     it('should initialize with correct default state for web', async () => {
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
         isSupported: ref(true),
@@ -127,7 +127,7 @@ describe('Unified Fullscreen Utils', () => {
 
     it('should use web fullscreen implementation on web platform', async () => {
       const mockToggle = vi.fn().mockResolvedValue(true)
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
         isSupported: ref(true),
@@ -159,7 +159,7 @@ describe('Unified Fullscreen Utils', () => {
       vi.mocked(Capacitor.getPlatform).mockReturnValue('android')
 
       const mockToggleImmersive = vi.fn().mockResolvedValue(true)
-      const { useImmersiveMode } = await import('@/utils/immersiveMode')
+      const { useImmersiveMode } = await import('@/utils/display/immersiveMode')
       vi.mocked(useImmersiveMode).mockReturnValue({
         isImmersive: ref(false),
         isSupported: ref(true),
@@ -218,7 +218,7 @@ describe('Unified Fullscreen Utils', () => {
     it('should handle unsupported platform gracefully', async () => {
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
         isSupported: ref(false),
@@ -242,7 +242,7 @@ describe('Unified Fullscreen Utils', () => {
     it('should handle toggle fullscreen errors gracefully', async () => {
       const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
 
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       const mockToggle = vi.fn().mockRejectedValue(new Error('Fullscreen failed'))
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
@@ -267,7 +267,7 @@ describe('Unified Fullscreen Utils', () => {
 
     it('should enter fullscreen successfully', async () => {
       const mockEnter = vi.fn().mockResolvedValue(true)
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false),
         isSupported: ref(true),
@@ -289,7 +289,7 @@ describe('Unified Fullscreen Utils', () => {
 
     it('should exit fullscreen successfully', async () => {
       const mockExit = vi.fn().mockResolvedValue(false)
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(true),
         isSupported: ref(true),
@@ -311,7 +311,7 @@ describe('Unified Fullscreen Utils', () => {
     })
 
     it('should not enter fullscreen when already in fullscreen', async () => {
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       const mockWebFullscreen = vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(true), // Already in fullscreen
         isSupported: ref(true),
@@ -334,7 +334,7 @@ describe('Unified Fullscreen Utils', () => {
     })
 
     it('should not exit fullscreen when not in fullscreen', async () => {
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
       const mockWebFullscreen = vi.mocked(useWebFullscreen).mockReturnValue({
         isFullscreen: ref(false), // Not in fullscreen
         isSupported: ref(true),
@@ -373,7 +373,7 @@ describe('Unified Fullscreen Utils', () => {
         autoDetectPrimaryScreen: false,
       }
 
-      const { useWebFullscreen } = await import('@/utils/webFullscreen')
+      const { useWebFullscreen } = await import('@/utils/display/webFullscreen')
 
       useFullscreen(options)
 

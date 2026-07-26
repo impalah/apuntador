@@ -7,7 +7,7 @@ import { GOOGLE_DRIVE_CONFIG } from '@/services/googledrive/config'
 import { tauriService } from '@/services/tauriService'
 import { CertificateValidator } from '@/services/certificate/certificateValidator'
 import { cloudProviderConfig, type CloudProviderConfig } from '@/services/cloudProviderConfig'
-import { storage } from '@/utils/persistence'
+import { storage } from '@/services/persistence'
 import { STORAGE_KEYS } from '@/utils/constants'
 import type { CloudFile, CloudProvider, CloudProviderId, CloudService } from '@/types/cloud'
 

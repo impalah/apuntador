@@ -62,12 +62,10 @@ export default defineConfig({
         // Exclude cloud store (platform-specific, integration tested)
         'src/stores/useCloudStore.ts',
         // Exclude platform-specific utils
-        'src/utils/gamepad.ts',
-        'src/utils/webFullscreen.ts',
-        'src/utils/fullscreen.ts',
-        'src/utils/immersiveMode.ts',
-        'src/utils/persistence.ts',
-        'src/utils/sentryErrorHandler.ts',
+        'src/utils/input/gamepad.ts',
+        'src/utils/display/webFullscreen.ts',
+        'src/utils/display/fullscreen.ts',
+        'src/utils/display/immersiveMode.ts',
       ],
       include: [
         'src/stores/useTeleprompterStore.ts',
@@ -78,6 +76,7 @@ export default defineConfig({
         'src/services/cloudProviderConfig.ts',
         'src/services/unifiedMTLSService.ts',
         'src/services/mtls/**/*.ts',
+        'src/services/serviceErrorHandler.ts',
       ],
       thresholds: {
         statements: 80,

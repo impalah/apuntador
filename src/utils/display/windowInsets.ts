@@ -6,7 +6,7 @@ import {
   ANDROID_NAV_BAR_SCREEN_RATIO,
   INSET_UPDATE_DELAY,
   INSET_QUICK_UPDATE_DELAY,
-} from './constants'
+} from '../constants'
 // import { debugEdgeToEdge } from './debug' // Debug utility - disabled for production
 
 /**

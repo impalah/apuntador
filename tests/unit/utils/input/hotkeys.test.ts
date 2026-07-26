@@ -7,7 +7,7 @@ import {
   updateDescriptionsInMapping,
   updateDescriptionsInGamepadMapping,
   HotkeyManager,
-} from '@/utils/hotkeys'
+} from '@/utils/input/hotkeys'
 
 describe('hotkeys utils', () => {
   describe('DEFAULT_HOTKEYS', () => {

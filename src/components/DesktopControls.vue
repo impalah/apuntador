@@ -57,7 +57,7 @@
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTauri } from '@/utils/tauri'
-import { useFullscreen } from '@/utils/fullscreen'
+import { useFullscreen } from '@/utils/display/fullscreen'
 
 // I18n
 const { t } = useI18n()

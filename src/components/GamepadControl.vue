@@ -48,7 +48,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import type { GamepadMapping } from '@/types'
-import { useGamepad, type GamepadButton } from '@/utils/gamepad'
+import { useGamepad, type GamepadButton } from '@/utils/input/gamepad'
 
 interface Props {
   gamepadMapping: GamepadMapping

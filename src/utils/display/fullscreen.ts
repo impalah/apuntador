@@ -10,7 +10,7 @@ import { ref, computed, onMounted } from 'vue'
 import { Capacitor } from '@capacitor/core'
 import { useWebFullscreen } from './webFullscreen'
 import { useImmersiveMode } from './immersiveMode'
-import { useTauri, isTauri } from './tauri'
+import { useTauri, isTauri } from '../tauri'
 
 /**
  * Platform detection

@@ -5,7 +5,7 @@ import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
 import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
 import { isTauri } from '@/utils/tauri'
 import { tauriService } from '@/services/tauriService'
-import { createServiceErrorHandler, createServiceSuccessHandler } from '@/utils/serviceErrorHandler'
+import { createServiceErrorHandler, createServiceSuccessHandler } from '@/services/serviceErrorHandler'
 
 /**
  * Clase base abstracta para servicios OAuth

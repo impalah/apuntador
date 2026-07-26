@@ -1,5 +1,5 @@
 import type { CustomGamepadMapping, HotkeyAction } from '@/types'
-import { useGamepad, type GamepadButton } from '@/utils/gamepad'
+import { useGamepad, type GamepadButton } from '@/utils/input/gamepad'
 
 /**
  * Gamepad manager that bridges gamepad inputs to teleprompter actions

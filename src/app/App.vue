@@ -9,7 +9,7 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
 import { addSafeAreaInsets, isTouchDevice } from '@/utils/dom'
-import { useWindowInsets } from '@/utils/windowInsets'
+import { useWindowInsets } from '@/utils/display/windowInsets'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { useDeepLinks } from '@/composables/useDeepLinks'

@@ -24,7 +24,7 @@ vi.mock('@capacitor/status-bar', () => ({
 }))
 
 // Now import the composable after mocking
-import { useImmersiveMode } from '@/utils/immersiveMode'
+import { useImmersiveMode } from '@/utils/display/immersiveMode'
 
 // Test component to wrap the composable
 const TestComponent = defineComponent({

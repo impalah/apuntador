@@ -1,8 +1,8 @@
 import { computed } from 'vue'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
-import { useGamepad } from '@/utils/gamepad'
-import { storage } from '@/utils/persistence'
+import { useGamepad } from '@/utils/input/gamepad'
+import { storage } from '@/services/persistence'
 import { getVersionInfo } from '@/utils/version'
 import type { HotkeyDefinition } from '@/types'
 

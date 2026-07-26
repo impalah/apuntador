@@ -2,7 +2,7 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { compileMarkdown } from '@/utils/markdown'
 import { AutoScroller, clampScrollOffset } from '@/utils/scrolling'
-import { contentStorage, scrollPositionStorage } from '@/utils/persistence'
+import { contentStorage, scrollPositionStorage } from '@/services/persistence'
 import { LINE_HEIGHT_FALLBACK } from '@/utils/constants'
 import { usePrefsStore } from './usePrefsStore'
 

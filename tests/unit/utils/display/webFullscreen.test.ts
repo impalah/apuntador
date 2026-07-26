@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest'
-import { isFullscreenSupported, useWebFullscreen } from '@/utils/webFullscreen'
+import { isFullscreenSupported, useWebFullscreen } from '@/utils/display/webFullscreen'
 
 // Mock DOM APIs
 const mockRequestFullscreen = vi.fn()

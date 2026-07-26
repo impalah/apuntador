@@ -235,7 +235,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { useNotification } from '@/composables/useNotification'
-import { formatFileSize } from '@/utils/fileSystem'
+import { formatFileSize } from '@/utils/files/fileSystem'
 import type { CloudFile, CloudProviderId } from '@/types/cloud'
 
 // Props
