@@ -117,6 +117,7 @@ import { gamepadManager } from '@/utils/input/gamepadManager'
 import { SmoothScroller } from '@/utils/scrolling'
 import { useSpeechTracking } from '@/composables/speech/useSpeechTracking'
 import { resolveSpeechLanguage } from '@/utils/speech/resolveSpeechLanguage'
+import { SPEECH_SCROLL_ANIMATION_DURATION_MS } from '@/utils/constants'
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
@@ -148,12 +149,31 @@ const {
   progressRatio: voiceProgressRatio,
   start: startSpeechTracking,
   stop: stopSpeechTracking,
+  seekToRatio: seekVoiceCursorToRatio,
 } = useSpeechTracking(scriptText, speechLanguage)
 
 const voiceScrollAnimator = new SmoothScroller(
   (offset) => teleprompterStore.updateScrollOffset(offset),
   () => teleprompterStore.scrollOffset
 )
+
+/**
+ * Resyncs the voice-tracking cursor to wherever the visible scroll position
+ * currently is. Without this, the alignment cursor only ever advances on its
+ * own - any manual repositioning (step lines, home/end, manual drag) while in
+ * voice mode used to be permanently ignored by the matching logic (it never
+ * moves backward), and every pause/resume cycle silently restarted matching
+ * from the very beginning of the script regardless of where playback
+ * actually was.
+ */
+function resyncVoiceCursorToScroll() {
+  if (prefsStore.scrollMode !== 'voice') return
+  const ratio =
+    teleprompterStore.maxOffset > 0
+      ? teleprompterStore.scrollOffset / teleprompterStore.maxOffset
+      : 0
+  seekVoiceCursorToRatio(ratio)
+}
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
@@ -481,6 +501,7 @@ function startVoiceMode() {
     return
   }
 
+  resyncVoiceCursorToScroll()
   teleprompterStore.play({ skipAutoScroller: true })
   void startSpeechTracking()
 }
@@ -512,7 +533,10 @@ watch(voiceError, (err) => {
 // mode is active and playing - the presenter itself never knows the source.
 watch(voiceProgressRatio, (ratio) => {
   if (prefsStore.scrollMode !== 'voice' || !teleprompterStore.isPlaying) return
-  voiceScrollAnimator.scrollTo(ratio * teleprompterStore.maxOffset)
+  voiceScrollAnimator.scrollTo(
+    ratio * teleprompterStore.maxOffset,
+    SPEECH_SCROLL_ANIMATION_DURATION_MS
+  )
 })
 
 // Switching the quick-toggle mid-playback swaps the active driver immediately,
@@ -527,6 +551,7 @@ watch(
         prefsStore.setScrollMode('auto')
         return
       }
+      resyncVoiceCursorToScroll()
       teleprompterStore.pause()
       teleprompterStore.play({ skipAutoScroller: true })
       void startSpeechTracking()
@@ -541,14 +566,17 @@ watch(
 
 function onStepLines(lines: number) {
   teleprompterStore.stepLines(lines)
+  resyncVoiceCursorToScroll()
 }
 
 function onGoHome() {
   teleprompterStore.toHome()
+  resyncVoiceCursorToScroll()
 }
 
 function onGoEnd() {
   teleprompterStore.toEnd()
+  resyncVoiceCursorToScroll()
 }
 
 function onSpeedChange(delta: number) {
@@ -602,6 +630,7 @@ function onHighlightBandPositionChange(positionPct: number) {
 
 function onManualScroll(scrollTop: number) {
   teleprompterStore.syncScrollFromDOM(scrollTop)
+  resyncVoiceCursorToScroll()
 }
 
 function onTeleprompterTap() {

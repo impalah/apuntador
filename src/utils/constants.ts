@@ -65,6 +65,9 @@ export const SPEECH_NO_MATCH_TIMEOUT_MS = 4000 // listening with no confident co
 export const SPEECH_RESTART_DELAY_MS = 250 // delay before restarting recognition on 'end' - Chrome can throw
 // InvalidStateError if start() is called synchronously within the 'end' handler, before its internal
 // teardown finishes
+export const SPEECH_SCROLL_ANIMATION_DURATION_MS = 700 // longer than SCROLL_SMOOTH_DURATION - commits land
+// every few words rather than every frame, so a longer glide reads as continuous motion instead of
+// discrete hops between commits
 
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms

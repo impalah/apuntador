@@ -149,4 +149,34 @@ describe('useSpeechTracking', () => {
       expect(fakeEngine.start).toHaveBeenCalledWith('en-US')
     })
   })
+
+  it('seekToRatio moves the cursor to the expected token for a given scroll ratio', async () => {
+    const tracking = useSpeechTracking(ref(SCRIPT), ref('en-US'))
+    await tracking.start()
+
+    tracking.seekToRatio(0.5) // 10 tokens (0-9) -> round(0.5 * 9) = 5 ("seis")
+    expect(tracking.cursorIndex.value).toBe(5)
+
+    const match = tracking.progress.value
+    expect(match).toBeNull() // seeking alone doesn't commit a match
+
+    fakeEngine.emitTranscript('siete ocho nueve', true)
+    expect(tracking.progress.value?.sourceIndex).toBe(8)
+  })
+
+  it('does not reset the cursor back to zero on a stop/start cycle (pause/resume mid-script)', async () => {
+    const tracking = useSpeechTracking(ref(SCRIPT), ref('en-US'))
+    await tracking.start()
+
+    fakeEngine.emitTranscript('uno dos tres', true)
+    expect(tracking.cursorIndex.value).toBe(2)
+
+    await tracking.stop()
+    await tracking.start()
+
+    // Previously start() unconditionally reset the alignment cursor to 0,
+    // meaning every pause/resume silently restarted matching from the very
+    // beginning regardless of where playback actually was.
+    expect(tracking.cursorIndex.value).toBe(2)
+  })
 })

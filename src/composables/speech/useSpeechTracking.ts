@@ -16,12 +16,7 @@ import { useScriptAlignment, type AlignmentMatch } from './useScriptAlignment'
 
 export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechLanguage>) {
   const engine = createSpeechEngine()
-  const {
-    tokens,
-    cursorIndex,
-    processTranscript,
-    reset: resetAlignment,
-  } = useScriptAlignment(scriptText)
+  const { tokens, cursorIndex, processTranscript, seek } = useScriptAlignment(scriptText)
 
   const isSupported = engine.isSupported
   const status = ref<SpeechEngineStatus>('idle')
@@ -41,6 +36,20 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
   })
 
   const isListening = computed(() => status.value === 'listening' || status.value === 'no-match')
+
+  /**
+   * Resyncs the alignment cursor to a 0-1 scroll ratio - the inverse of
+   * progressRatio. TeleprompterPage calls this after any manual
+   * repositioning (step lines, home/end, manual drag) and before (re)starting
+   * voice tracking, so it resumes matching from wherever the reader actually
+   * is instead of wherever it last left off (which used to mean *always*
+   * restarting from position 0, effectively never catching up on a script of
+   * any length once paused/resumed).
+   */
+  function seekToRatio(ratio: number): void {
+    const maxIndex = Math.max(0, tokens.value.length - 1)
+    seek(Math.round(Math.max(0, Math.min(1, ratio)) * maxIndex))
+  }
 
   let noMatchTimer: number | null = null
   let unsubscribeTranscript: (() => void) | null = null
@@ -89,7 +98,6 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
 
     error.value = null
     progress.value = null
-    resetAlignment()
     unsubscribeAll()
 
     unsubscribeTranscript = engine.onTranscript((event) => {
@@ -148,5 +156,6 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     cursorIndex,
     start,
     stop,
+    seekToRatio,
   }
 }

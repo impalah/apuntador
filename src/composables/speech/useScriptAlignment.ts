@@ -68,10 +68,22 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
   let pendingIndex: number | null = null
   let pendingStreak = 0
 
-  function reset(): void {
-    cursorIndex.value = 0
+  /**
+   * Resyncs the cursor to an arbitrary position (e.g. after a manual scroll,
+   * or before resuming voice tracking mid-script) and clears pending match
+   * state. Without this, cursorIndex only ever moves forward on its own, so
+   * jumping backward manually would permanently reject any real match found
+   * there (the monotonic-forward guard in processTranscript).
+   */
+  function seek(sourceIndex: number): void {
+    const maxIndex = Math.max(0, tokens.value.length - 1)
+    cursorIndex.value = Math.max(0, Math.min(sourceIndex, maxIndex))
     pendingIndex = null
     pendingStreak = 0
+  }
+
+  function reset(): void {
+    seek(0)
   }
 
   function commit(sourceIndex: number, confidence: number): AlignmentMatch {
@@ -88,7 +100,17 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
    */
   function processTranscript(text: string, isFinal: boolean): AlignmentMatch | null {
     const scriptTokens = tokens.value
-    const queryWords = normalizeWords(text).slice(-SPEECH_ALIGNMENT_QUERY_WORDS)
+
+    // Near the end of the script, fewer than SPEECH_ALIGNMENT_QUERY_WORDS
+    // tokens may remain - without shrinking the query to fit, buildCandidates
+    // silently produces zero candidates (cursor + queryLength never fits
+    // within the remaining tokens) and alignment stalls permanently with no
+    // further commits, even though the reader is still speaking correctly.
+    const remainingTokens = scriptTokens.length - cursorIndex.value
+    if (remainingTokens <= 0) return null
+
+    const maxQueryLength = Math.min(SPEECH_ALIGNMENT_QUERY_WORDS, remainingTokens)
+    const queryWords = normalizeWords(text).slice(-maxQueryLength)
     if (queryWords.length === 0) return null
 
     const queryLength = queryWords.length
@@ -189,5 +211,6 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
     cursorIndex,
     processTranscript,
     reset,
+    seek,
   }
 }

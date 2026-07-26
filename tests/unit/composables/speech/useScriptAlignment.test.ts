@@ -85,4 +85,44 @@ describe('useScriptAlignment', () => {
     const { processTranscript } = useScriptAlignment(ref(''))
     expect(processTranscript('uno dos tres', true)).toBeNull()
   })
+
+  it('seek() resyncs the cursor so previously-rejected earlier matches work again', () => {
+    const { cursorIndex, processTranscript, seek } = useScriptAlignment(ref(SCRIPT))
+
+    processTranscript('siete ocho nueve', true)
+    expect(cursorIndex.value).toBe(8)
+
+    // Manually scrolled back to the middle - without seek(), any real match
+    // here would be rejected forever by the monotonic-forward guard.
+    seek(2)
+    expect(cursorIndex.value).toBe(2)
+
+    const match = processTranscript('tres cuatro cinco', true)
+    expect(match?.sourceIndex).toBe(4)
+    expect(cursorIndex.value).toBe(4)
+  })
+
+  it('seek() clamps to the valid token range', () => {
+    const { cursorIndex, seek } = useScriptAlignment(ref(SCRIPT))
+
+    seek(-5)
+    expect(cursorIndex.value).toBe(0)
+
+    seek(9999)
+    expect(cursorIndex.value).toBe(9) // last token index (10 tokens, 0-9)
+  })
+
+  it('keeps matching right up to the last word of the script (no silent stall near the end)', () => {
+    const { cursorIndex, processTranscript, seek } = useScriptAlignment(ref(SCRIPT))
+
+    // Fewer than SPEECH_ALIGNMENT_QUERY_WORDS (5) tokens remain from here -
+    // buildCandidates used to return zero candidates in this situation,
+    // silently blocking any further commit for the rest of the script.
+    seek(6) // "siete" - 3 tokens remain (siete, ocho, nueve... wait diez is 10th)
+    const match = processTranscript('ocho nueve diez', true)
+
+    expect(match).not.toBeNull()
+    expect(match?.sourceIndex).toBe(9)
+    expect(cursorIndex.value).toBe(9)
+  })
 })
