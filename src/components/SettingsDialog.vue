@@ -220,6 +220,40 @@
           <!-- Behavior Tab -->
           <v-tabs-window-item value="behavior">
             <v-form class="mt-4">
+              <!-- Scroll Mode -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.scrollMode') }}
+                </h3>
+
+                <v-btn-toggle
+                  :model-value="prefsStore.scrollMode"
+                  mandatory
+                  density="comfortable"
+                  data-testid="scroll-mode-toggle"
+                  @update:model-value="onScrollModeChange"
+                >
+                  <v-btn
+                    value="auto"
+                    data-testid="scroll-mode-auto-button"
+                  >
+                    <v-icon start>
+                      mdi-play-speed
+                    </v-icon>
+                    {{ t('settings.scrollModeAuto') }}
+                  </v-btn>
+                  <v-btn
+                    value="voice"
+                    data-testid="scroll-mode-voice-button"
+                  >
+                    <v-icon start>
+                      mdi-microphone
+                    </v-icon>
+                    {{ t('settings.scrollModeVoice') }}
+                  </v-btn>
+                </v-btn-toggle>
+              </div>
+
               <!-- Speed Settings -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">
@@ -503,6 +537,7 @@ import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import { isTauri } from '@/utils/tauri'
+import type { ScrollMode } from '@/utils/constants'
 
 // I18n
 const { t } = useI18n()
@@ -564,6 +599,12 @@ const {
 
 function onClearAllData() {
   return clearAllData(t('settings.clearDataConfirm'))
+}
+
+function onScrollModeChange(mode: ScrollMode) {
+  if (mode) {
+    prefsStore.setScrollMode(mode)
+  }
 }
 
 // State

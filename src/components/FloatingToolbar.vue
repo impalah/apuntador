@@ -1,5 +1,5 @@
 <template>
-  <!-- Simplified Bottom Toolbar - Always 3 buttons -->
+  <!-- Simplified Bottom Toolbar - 3 fixed buttons plus the voice-mode quick toggle -->
   <div
     v-if="props.isVisible"
     class="floating-toolbar"
@@ -15,6 +15,22 @@
       <v-icon 
         :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'" 
         size="32"
+      />
+    </button>
+
+    <!-- Voice-mode quick toggle -->
+    <button
+      class="toolbar-btn"
+      :class="{ active: prefsStore.scrollMode === 'voice' }"
+      :aria-label="
+        prefsStore.scrollMode === 'voice' ? t('toolbar.scrollModeVoiceOn') : t('toolbar.scrollModeVoiceOff')
+      "
+      data-testid="scroll-mode-quick-toggle"
+      @click="toggleScrollMode"
+    >
+      <v-icon
+        :icon="prefsStore.scrollMode === 'voice' ? 'mdi-microphone' : 'mdi-microphone-outline'"
+        size="28"
       />
     </button>
 
@@ -240,6 +256,10 @@ function onSpeedChange(delta: number) {
   emit('speedChange', delta)
 }
 
+function toggleScrollMode() {
+  prefsStore.setScrollMode(prefsStore.scrollMode === 'voice' ? 'auto' : 'voice')
+}
+
 function onFontSizeChange(delta: number) {
   emit('fontSizeChange', delta)
 }
@@ -333,6 +353,14 @@ onUnmounted(() => {
 .toolbar-btn:active {
   transform: scale(0.95);
   background: #222;
+}
+
+.toolbar-btn.active {
+  background: rgba(var(--v-theme-primary), 0.3);
+}
+
+.toolbar-btn.active:hover {
+  background: rgba(var(--v-theme-primary), 0.4);
 }
 
 /* Responsive adjustments */

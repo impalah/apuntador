@@ -48,10 +48,12 @@ export class SmoothScroller {
   private targetOffset: number = 0
   private duration: number = 0
   private readonly onUpdate: (_offset: number) => void
+  private readonly getCurrentOffset: () => number
   private onComplete?: () => void
 
-  constructor(onUpdate: (_offset: number) => void) {
+  constructor(onUpdate: (_offset: number) => void, getCurrentOffset: () => number = () => 0) {
     this.onUpdate = onUpdate
+    this.getCurrentOffset = getCurrentOffset
   }
 
   /**
@@ -71,14 +73,6 @@ export class SmoothScroller {
     this.onComplete = onComplete
 
     this.animate()
-  }
-
-  /**
-   * Get current scroll offset (to be implemented by consumer)
-   */
-  private getCurrentOffset(): number {
-    // This should be overridden or passed as parameter
-    return 0
   }
 
   /**

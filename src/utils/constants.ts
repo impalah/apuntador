@@ -45,6 +45,24 @@ export const DEFAULT_TEXT_ALIGNMENT = 'center'
 export const TEXT_ALIGNMENTS = ['left', 'center', 'right'] as const
 export type TextAlignment = (typeof TEXT_ALIGNMENTS)[number]
 
+// Scroll mode (auto-scroll vs. voice-tracking)
+export const DEFAULT_SCROLL_MODE = 'auto'
+export const SCROLL_MODES = ['auto', 'voice'] as const
+export type ScrollMode = (typeof SCROLL_MODES)[number]
+
+// Speech tracking: supported recognition languages
+export const SPEECH_LANGUAGES = ['es-ES', 'en-US'] as const
+export type SpeechLanguage = (typeof SPEECH_LANGUAGES)[number]
+export const DEFAULT_SPEECH_LANGUAGE: SpeechLanguage = 'en-US'
+
+// Speech tracking: sliding-window alignment tuning
+export const SPEECH_ALIGNMENT_QUERY_WORDS = 5 // last N recognized words used as the match query
+export const SPEECH_ALIGNMENT_WINDOW_SIZE = 24 // look-ahead tokens scanned from the cursor
+export const SPEECH_ALIGNMENT_CONFIDENCE_THRESHOLD = 0.4 // fuse.js score below which a match is confident (0=perfect)
+export const SPEECH_ALIGNMENT_AMBIGUITY_EPSILON = 0.05 // max score gap still considered "tied"
+export const SPEECH_ALIGNMENT_COMMIT_STREAK = 2 // consecutive interim events required before committing a cursor advance
+export const SPEECH_NO_MATCH_TIMEOUT_MS = 4000 // listening with no confident commit for this long -> 'no-match' status
+
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms
 export const SCROLL_SMOOTH_DURATION = 300 // ms for scrollTo operations

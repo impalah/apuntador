@@ -10,6 +10,13 @@
       @tap="onTeleprompterTap"
     />
 
+    <!-- Voice-tracking status: always visible while voice mode is selected -->
+    <VoiceStatusOverlay
+      v-if="prefsStore.scrollMode === 'voice'"
+      :status="voiceStatus"
+      :error-code="voiceError?.code"
+    />
+
     <!-- Modular FloatingToolbar - Using component interfaces -->
     <FloatingToolbar
       :scroll-state="{
@@ -107,11 +114,15 @@ import {
   updateDescriptionsInGamepadMapping,
 } from '@/utils/input/hotkeys'
 import { gamepadManager } from '@/utils/input/gamepadManager'
+import { SmoothScroller } from '@/utils/scrolling'
+import { useSpeechTracking } from '@/composables/speech/useSpeechTracking'
+import { resolveSpeechLanguage } from '@/utils/speech/resolveSpeechLanguage'
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import FileLoader from '@/components/FileLoader.vue'
+import VoiceStatusOverlay from '@/components/VoiceStatusOverlay.vue'
 import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 
 // Stores
@@ -124,6 +135,25 @@ const fileStore = useFileStore()
 const { locale, t } = useI18n()
 const { xs, sm } = useDisplay()
 const router = useRouter()
+
+// Voice-tracking mode: alternative scroll driver, isolated from AutoScroller.
+// See docs/voice-tracking-design.md - TeleprompterFrameV2 stays untouched,
+// this only feeds teleprompterStore.updateScrollOffset via SmoothScroller.
+const scriptText = computed(() => teleprompterStore.contentRaw)
+const speechLanguage = computed(() => resolveSpeechLanguage(i18nStore.currentLanguage))
+const {
+  isSupported: isVoiceTrackingSupported,
+  status: voiceStatus,
+  error: voiceError,
+  progressRatio: voiceProgressRatio,
+  start: startSpeechTracking,
+  stop: stopSpeechTracking,
+} = useSpeechTracking(scriptText, speechLanguage)
+
+const voiceScrollAnimator = new SmoothScroller(
+  (offset) => teleprompterStore.updateScrollOffset(offset),
+  () => teleprompterStore.scrollOffset
+)
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
@@ -423,13 +453,91 @@ watch(
 // Teleprompter actions
 function onPlay() {
   console.log('[ANDROID DEBUG] TeleprompterPage onPlay() called')
+  if (prefsStore.scrollMode === 'voice') {
+    startVoiceMode()
+    return
+  }
   teleprompterStore.play()
 }
 
 function onPause() {
   console.log('[ANDROID DEBUG] TeleprompterPage onPause() called')
+  if (prefsStore.scrollMode === 'voice') {
+    voiceScrollAnimator.cancel()
+    void stopSpeechTracking()
+  }
   teleprompterStore.pause()
 }
+
+/**
+ * Starts voice-driven playback. If the platform doesn't support speech
+ * recognition at all, falls back to automatic scroll immediately and
+ * visibly, rather than leaving the script frozen (spec requirement).
+ */
+function startVoiceMode() {
+  if (!isVoiceTrackingSupported) {
+    prefsStore.setScrollMode('auto')
+    teleprompterStore.play()
+    return
+  }
+
+  teleprompterStore.play({ skipAutoScroller: true })
+  void startSpeechTracking()
+}
+
+/**
+ * Mid-session fallback: a hard engine error (no support / permission denied)
+ * while voice mode is active switches back to automatic scroll so the reader
+ * is never left stuck with a frozen script.
+ */
+function fallbackToAutoMode() {
+  voiceScrollAnimator.cancel()
+  void stopSpeechTracking()
+  prefsStore.setScrollMode('auto')
+
+  if (teleprompterStore.isPlaying) {
+    teleprompterStore.pause()
+    teleprompterStore.play()
+  }
+}
+
+watch(voiceError, (err) => {
+  if (!err || prefsStore.scrollMode !== 'voice') return
+  if (err.code === 'not-supported' || err.code === 'permission-denied') {
+    fallbackToAutoMode()
+  }
+})
+
+// Drive the scroll offset from the estimated script position while voice
+// mode is active and playing - the presenter itself never knows the source.
+watch(voiceProgressRatio, (ratio) => {
+  if (prefsStore.scrollMode !== 'voice' || !teleprompterStore.isPlaying) return
+  voiceScrollAnimator.scrollTo(ratio * teleprompterStore.maxOffset)
+})
+
+// Switching the quick-toggle mid-playback swaps the active driver immediately,
+// instead of waiting for the next pause/play.
+watch(
+  () => prefsStore.scrollMode,
+  (mode) => {
+    if (!teleprompterStore.isPlaying) return
+
+    if (mode === 'voice') {
+      if (!isVoiceTrackingSupported) {
+        prefsStore.setScrollMode('auto')
+        return
+      }
+      teleprompterStore.pause()
+      teleprompterStore.play({ skipAutoScroller: true })
+      void startSpeechTracking()
+    } else {
+      voiceScrollAnimator.cancel()
+      void stopSpeechTracking()
+      teleprompterStore.pause()
+      teleprompterStore.play()
+    }
+  }
+)
 
 function onStepLines(lines: number) {
   teleprompterStore.stepLines(lines)

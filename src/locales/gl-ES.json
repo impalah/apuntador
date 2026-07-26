@@ -38,6 +38,8 @@
     "end": "Final",
     "speedDown": "Reducir velocidade",
     "speedUp": "Aumentar velocidade",
+    "scrollModeVoiceOn": "Modo voz activado",
+    "scrollModeVoiceOff": "Modo voz desactivado",
     "fontSizeDown": "Reducir tamaño de letra",
     "fontSizeUp": "Aumentar tamaño de letra",
     "mirrorH": "Espello H",
@@ -85,6 +87,9 @@
     "scrollSpeed": "Velocidade de desprazamento",
     "speedMin": "Velocidade mínima",
     "speedMax": "Velocidade máxima",
+    "scrollMode": "Modo de avance",
+    "scrollModeAuto": "Automático",
+    "scrollModeVoice": "Por voz",
     "mirrorHorizontal": "Espello horizontal",
     "mirrorVertical": "Espello vertical",
     "autoHideToolbar": "Ocultar barra automaticamente",
@@ -239,6 +244,17 @@
     "startButton": "Botón Start",
     "leftStickButton": "Botón stick esquerdo",
     "rightStickButton": "Botón stick dereito"
+  },
+  "voiceTracking": {
+    "statusIdle": "Modo voz preparado",
+    "statusListening": "Escoitando...",
+    "statusNoMatch": "En pausa (non se detecta voz)",
+    "statusStopped": "Modo voz detido",
+    "errorNotSupported": "O seguimento por voz non é compatible aquí",
+    "errorPermissionDenied": "Permiso de micrófono denegado",
+    "errorNetwork": "Erro de rede",
+    "errorAborted": "O recoñecemento de voz detívose inesperadamente",
+    "errorUnknown": "Erro de seguimento por voz"
   },
   "errors": {
     "fileNotFound": "Arquivo non atopado",

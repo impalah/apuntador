@@ -57,8 +57,13 @@ export default defineConfig({
         'src/config/api.ts',
         // Exclude plugins (native bridges)
         'src/plugins/**',
-        // Exclude composables (UI-coupled, tested via e2e)
-        'src/composables/**',
+        // Exclude composables (UI-coupled, tested via e2e) - except
+        // src/composables/speech/**, which has real Vitest unit coverage
+        // (see the "include" list below) and isn't UI-coupled.
+        'src/composables/useDeepLinks.ts',
+        'src/composables/useNotification.ts',
+        'src/composables/useSettingsActions.ts',
+        'src/composables/useTheaterMode.ts',
         // Exclude cloud store (platform-specific, integration tested)
         'src/stores/useCloudStore.ts',
         // Exclude platform-specific utils
@@ -77,6 +82,8 @@ export default defineConfig({
         'src/services/unifiedMTLSService.ts',
         'src/services/mtls/**/*.ts',
         'src/services/serviceErrorHandler.ts',
+        'src/services/speech/**/*.ts',
+        'src/composables/speech/**/*.ts',
       ],
       thresholds: {
         statements: 80,

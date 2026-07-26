@@ -38,6 +38,8 @@
     "end": "Final",
     "speedDown": "Reduir velocitat",
     "speedUp": "Augmentar velocitat",
+    "scrollModeVoiceOn": "Mode veu activat",
+    "scrollModeVoiceOff": "Mode veu desactivat",
     "fontSizeDown": "Reduir mida de lletra",
     "fontSizeUp": "Augmentar mida de lletra",
     "mirrorH": "Mirall H",
@@ -85,6 +87,9 @@
     "scrollSpeed": "Velocitat de desplaçament",
     "speedMin": "Velocitat mínima",
     "speedMax": "Velocitat màxima",
+    "scrollMode": "Mode d'avanç",
+    "scrollModeAuto": "Automàtic",
+    "scrollModeVoice": "Per veu",
     "mirrorHorizontal": "Mirall horitzontal",
     "mirrorVertical": "Mirall vertical",
     "autoHideToolbar": "Ocultar barra automàticament",
@@ -239,6 +244,17 @@
     "startButton": "Botó Start",
     "leftStickButton": "Botó stick esquerre",
     "rightStickButton": "Botó stick dret"
+  },
+  "voiceTracking": {
+    "statusIdle": "Mode veu preparat",
+    "statusListening": "Escoltant...",
+    "statusNoMatch": "En pausa (no es detecta veu)",
+    "statusStopped": "Mode veu aturat",
+    "errorNotSupported": "El seguiment per veu no és compatible aquí",
+    "errorPermissionDenied": "Permís de micròfon denegat",
+    "errorNetwork": "Error de xarxa",
+    "errorAborted": "El reconeixement de veu s'ha aturat inesperadament",
+    "errorUnknown": "Error de seguiment per veu"
   },
   "errors": {
     "fileNotFound": "Arxiu no trobat",
