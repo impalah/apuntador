@@ -28,6 +28,7 @@ import {
   SETTINGS_SPEED_MIN_CONSTRAINT,
   SETTINGS_SPEED_MAX_CONSTRAINT,
   SETTINGS_MAX_FONT_SIZE,
+  STORAGE_KEYS,
 } from '@/utils/constants'
 
 // Zod schema for preferences validation
@@ -111,7 +112,7 @@ export const usePrefsStore = defineStore('preferences', () => {
   // Actions
   async function load() {
     try {
-      const saved = await storage.get('preferences')
+      const saved = await storage.get(STORAGE_KEYS.PREFERENCES)
       if (saved) {
         const validated = preferencesSchema.parse(saved)
 
@@ -168,7 +169,7 @@ export const usePrefsStore = defineStore('preferences', () => {
         customGamepadMappings: customGamepadMappings.value,
       }
 
-      await storage.set('preferences', prefs)
+      await storage.set(STORAGE_KEYS.PREFERENCES, prefs)
     } catch (error) {
       console.warn('Failed to save preferences:', error)
     }

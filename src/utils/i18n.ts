@@ -1,4 +1,5 @@
 import { createI18n } from 'vue-i18n'
+import { STORAGE_KEYS } from '@/utils/constants'
 import esES from '@/locales/es-ES.json'
 import enUS from '@/locales/en-US.json'
 import caES from '@/locales/ca-ES.json'
@@ -49,7 +50,7 @@ function getBrowserLanguage(): string {
 // Obtener idioma guardado o detectar automáticamente
 function getStoredLanguage(): string {
   try {
-    const stored = localStorage.getItem('apuntador-language')
+    const stored = localStorage.getItem(STORAGE_KEYS.LANGUAGE)
     if (stored === 'auto' || !stored) {
       return getBrowserLanguage()
     }
@@ -81,9 +82,9 @@ export const i18n = createI18n({
 export function setLanguage(locale: string) {
   if (locale === 'auto') {
     locale = getBrowserLanguage()
-    localStorage.setItem('apuntador-language', 'auto')
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, 'auto')
   } else {
-    localStorage.setItem('apuntador-language', locale)
+    localStorage.setItem(STORAGE_KEYS.LANGUAGE, locale)
   }
 
   i18n.global.locale.value = locale as any

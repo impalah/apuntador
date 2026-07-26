@@ -1,7 +1,7 @@
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
 import { GOOGLE_API_URLS } from '@/config/api'
 import { storage } from '@/utils/persistence'
-import { STORAGE_KEYS } from '@/utils/constants'
+import { STORAGE_KEYS, OAUTH_TOKEN_ACTIVATION_DELAY } from '@/utils/constants'
 import { BaseOAuthService } from '@/services/oauth/baseOAuthService'
 
 /**
@@ -139,7 +139,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
 
       // Small delay to ensure token is active on Google servers
       console.log('⏳ GoogleDriveService: Waiting 1 second for token to become active...')
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, OAUTH_TOKEN_ACTIVATION_DELAY))
 
       await this.getUserInfo()
       console.log('GoogleDriveService: Session restored successfully')

@@ -142,15 +142,6 @@ export const storage = new StorageService()
 /**
  * Type-safe storage helpers for specific data types
  */
-export const preferencesStorage = {
-  async get() {
-    return storage.get(STORAGE_KEYS.PREFERENCES)
-  },
-  async set(preferences: any) {
-    return storage.set(STORAGE_KEYS.PREFERENCES, preferences)
-  },
-}
-
 export const contentStorage = {
   async get() {
     return storage.get<string>(STORAGE_KEYS.CONTENT)

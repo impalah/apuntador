@@ -1,7 +1,7 @@
 import { Dropbox } from 'dropbox'
 import type { CloudService, CloudFile, OAuthConfig } from '@/types/cloud'
 import { storage } from '@/utils/persistence'
-import { STORAGE_KEYS } from '@/utils/constants'
+import { STORAGE_KEYS, OAUTH_TOKEN_ACTIVATION_DELAY } from '@/utils/constants'
 import { BaseOAuthService } from '@/services/oauth/baseOAuthService'
 
 export class DropboxService extends BaseOAuthService implements CloudService {
@@ -146,7 +146,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
 
       // Small delay to ensure token is active on Dropbox servers
       console.log('⏳ Service: Waiting 1 second for token to become active...')
-      await new Promise((resolve) => setTimeout(resolve, 1000))
+      await new Promise((resolve) => setTimeout(resolve, OAUTH_TOKEN_ACTIVATION_DELAY))
 
       await this.getUserInfo()
       console.log('Service: Session restored successfully')

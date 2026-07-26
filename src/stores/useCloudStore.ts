@@ -7,6 +7,8 @@ import { GOOGLE_DRIVE_CONFIG } from '@/services/googledrive/config'
 import { tauriService } from '@/services/tauriService'
 import { CertificateValidator } from '@/services/certificate/certificateValidator'
 import { cloudProviderConfig, type CloudProviderConfig } from '@/services/cloudProviderConfig'
+import { storage } from '@/utils/persistence'
+import { STORAGE_KEYS } from '@/utils/constants'
 import type { CloudFile, CloudProvider, CloudProviderId, CloudService } from '@/types/cloud'
 
 /**
@@ -118,7 +120,7 @@ export const useCloudStore = defineStore('cloud', () => {
     }
 
     // STEP 2: Cargar proveedor activo del localStorage
-    const savedProviderId = localStorage.getItem('cloud_active_provider') as CloudProviderId | null
+    const savedProviderId = await storage.get<CloudProviderId>(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER)
 
     if (savedProviderId && services[savedProviderId]) {
       activeProviderId.value = savedProviderId
@@ -168,7 +170,7 @@ export const useCloudStore = defineStore('cloud', () => {
         // Ya hay credenciales válidas, solo cambiar el proveedor activo
         console.log('Store: Session restored successfully, switching provider')
         activeProviderId.value = providerId
-        localStorage.setItem('cloud_active_provider', providerId)
+        await storage.set(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER, providerId)
 
         // Cargar información del usuario
         await refreshConnectionStatus()
@@ -275,7 +277,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
       // Establecer como proveedor activo
       activeProviderId.value = providerId
-      localStorage.setItem('cloud_active_provider', providerId)
+      await storage.set(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER, providerId)
 
       await refreshConnectionStatus()
     } catch (err) {
@@ -313,7 +315,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
       // Establecer como proveedor activo
       activeProviderId.value = targetProviderId
-      localStorage.setItem('cloud_active_provider', targetProviderId)
+      await storage.set(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER, targetProviderId)
 
       await refreshConnectionStatus()
     } catch (err) {
@@ -358,7 +360,7 @@ export const useCloudStore = defineStore('cloud', () => {
       }
 
       activeProviderId.value = null
-      localStorage.removeItem('cloud_active_provider')
+      await storage.remove(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER)
       currentFiles.value = []
       currentPath.value = ''
     } catch (err) {
@@ -386,7 +388,7 @@ export const useCloudStore = defineStore('cloud', () => {
         }
 
         activeProviderId.value = null
-        localStorage.removeItem('cloud_active_provider')
+        await storage.remove(STORAGE_KEYS.CLOUD_ACTIVE_PROVIDER)
         currentFiles.value = []
         currentPath.value = ''
       }

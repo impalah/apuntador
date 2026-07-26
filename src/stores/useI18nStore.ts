@@ -1,13 +1,14 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { setLanguage, getCurrentLanguage, getAvailableLanguages } from '@/utils/i18n'
+import { STORAGE_KEYS } from '@/utils/constants'
 
 export const useI18nStore = defineStore('i18n', () => {
   // Estado
   const currentLanguage = ref(getCurrentLanguage())
   const isAutoDetect = ref(
-    localStorage.getItem('apuntador-language') === 'auto' ||
-      !localStorage.getItem('apuntador-language')
+    localStorage.getItem(STORAGE_KEYS.LANGUAGE) === 'auto' ||
+      !localStorage.getItem(STORAGE_KEYS.LANGUAGE)
   )
 
   // Getters

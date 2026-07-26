@@ -54,6 +54,7 @@ export const SNACKBAR_TIMEOUT = 3000 // ms
 export const GAMEPAD_MESSAGE_TIMEOUT = 3000 // ms
 export const INSET_UPDATE_DELAY = 500 // ms
 export const INSET_QUICK_UPDATE_DELAY = 100 // ms
+export const OAUTH_TOKEN_ACTIVATION_DELAY = 1000 // ms - wait for a freshly issued token to become active
 
 // Touch and interaction
 export const MIN_TOUCH_TARGET_SIZE = 44 // px
@@ -66,12 +67,6 @@ export const TAP_MOVEMENT_MAX = 10 // px
 export const TELEPROMPTER_CONTENT_PADDING = 24 // px
 export const VIEWPORT_PADDING_HEIGHT = '50vh' // CSS value
 export const VIEWPORT_PADDING_MIN_HEIGHT = '300px' // CSS value
-
-// UI Layout
-export const FLOATING_TOOLBAR_Z_INDEX = 100
-export const IMPLEMENTATION_TOGGLE_Z_INDEX = 2000
-export const HIGHLIGHT_BAND_Z_INDEX = 10
-export const DIMMING_OVERLAY_Z_INDEX = 5
 
 // Menu and popover spacing
 export const MENU_OFFSET = 16 // px
@@ -100,21 +95,20 @@ export const ANDROID_NAV_BAR_SCREEN_RATIO = 0.06 // 6% of screen height
 
 // Persistence keys
 export const STORAGE_KEYS = {
-  PREFERENCES: 'apuntador:preferences',
+  // NOTE: PREFERENCES intentionally does not use the "apuntador:" prefix used
+  // by the other keys below - it must stay 'preferences' to match what's
+  // already persisted for existing users (see usePrefsStore.ts).
+  PREFERENCES: 'preferences',
   CONTENT: 'apuntador:content',
   SCROLL_POSITION: 'apuntador:scrollPosition',
   DROPBOX_TOKEN: 'apuntador:dropbox_token',
   DROPBOX_REFRESH_TOKEN: 'apuntador:dropbox_refresh_token',
   GOOGLEDRIVE_TOKEN: 'apuntador:googledrive_token',
   GOOGLEDRIVE_REFRESH_TOKEN: 'apuntador:googledrive_refresh_token',
-} as const
-
-// Breakpoints (matching Vuetify)
-export const BREAKPOINTS = {
-  XS: 600,
-  SM: 960,
-  MD: 1264,
-  LG: 1904,
+  // NOTE: these two also intentionally keep their existing (unprefixed)
+  // values to match what's already persisted for existing users.
+  LANGUAGE: 'apuntador-language',
+  CLOUD_ACTIVE_PROVIDER: 'cloud_active_provider',
 } as const
 
 // Line stepping
@@ -133,9 +127,15 @@ export const ALIGNMENT_HOTKEYS = {
 } as const
 
 // Z-index hierarchy
+//
+// Only covers values bound from templates/TS (component props, :style
+// bindings) - most z-index values in this codebase live in scoped <style>
+// blocks (plain CSS), which can't reference these constants without a
+// SCSS<->TS variable bridge this project doesn't have. Those are left as
+// literals rather than adding unused entries here.
 export const Z_INDEX = {
-  DIMMING_OVERLAY: 5,
-  HIGHLIGHT_BAND: 10,
-  FLOATING_TOOLBAR: 100,
-  IMPLEMENTATION_TOGGLE: 2000,
+  // Floating controls that must sit above fixed UI chrome and page content
+  ALWAYS_ON_TOP: 9999,
+  // Bottom sheets/dialogs that must sit above ALWAYS_ON_TOP
+  ALWAYS_ON_TOP_NESTED: 10000,
 } as const

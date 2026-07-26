@@ -199,7 +199,7 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
   async function loadContent() {
     try {
       const saved = await contentStorage.get()
-      if (saved) {
+      if (typeof saved === 'string' && saved) {
         contentRaw.value = saved
         await compileMarkdownContent()
       }
