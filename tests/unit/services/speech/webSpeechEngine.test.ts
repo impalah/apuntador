@@ -45,6 +45,20 @@ function makeResultEvent(transcript: string, isFinal: boolean) {
   }
 }
 
+/**
+ * Simulates continuous:true reporting multiple segments in a single
+ * onresult call (e.g. an already-final earlier segment plus a newly-forming
+ * one) - the real-world pattern that used to be split into separate,
+ * interleaved transcript events instead of one concatenated string.
+ */
+function makeMultiSegmentResultEvent(segments: { transcript: string; isFinal: boolean }[]) {
+  const results: { length: number; [i: number]: MockResult } = { length: segments.length }
+  segments.forEach((segment, i) => {
+    results[i] = { isFinal: segment.isFinal, length: 1, 0: { transcript: segment.transcript } }
+  })
+  return { resultIndex: 0, results }
+}
+
 describe('WebSpeechEngine', () => {
   const originalSpeechRecognition = (window as any).SpeechRecognition
   const originalWebkitSpeechRecognition = (window as any).webkitSpeechRecognition
@@ -133,6 +147,29 @@ describe('WebSpeechEngine', () => {
     expect(transcriptHandler).toHaveBeenNthCalledWith(
       2,
       expect.objectContaining({ text: 'hello world', isFinal: true })
+    )
+  })
+
+  it('concatenates multiple segments from a single onresult call into one transcript event', async () => {
+    const engine = new WebSpeechEngine()
+    const transcriptHandler = vi.fn()
+    engine.onTranscript(transcriptHandler)
+
+    await engine.start('en-US')
+    const instance = MockSpeechRecognition.instances[0]!
+
+    // A finalized earlier segment plus a still-interim new one, as Chrome
+    // can report them together in continuous mode.
+    instance.onresult?.(
+      makeMultiSegmentResultEvent([
+        { transcript: 'hello there', isFinal: true },
+        { transcript: 'how are', isFinal: false },
+      ])
+    )
+
+    expect(transcriptHandler).toHaveBeenCalledTimes(1)
+    expect(transcriptHandler).toHaveBeenCalledWith(
+      expect.objectContaining({ text: 'hello there how are', isFinal: false })
     )
   })
 

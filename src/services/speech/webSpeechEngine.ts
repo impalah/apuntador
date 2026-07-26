@@ -156,26 +156,44 @@ export class WebSpeechEngine implements SpeechEngine {
     }
 
     recognition.onresult = (event) => {
+      // continuous:true accumulates multiple segments in event.results (one
+      // per speech pause the recognizer detects), and a single onresult call
+      // can report several of them at once (from event.resultIndex onward -
+      // typically an already-final earlier segment plus the newly-forming
+      // one). They must be concatenated into one growing utterance-so-far
+      // string, not emitted as separate transcript events: doing the latter
+      // used to feed useScriptAlignment two interleaved, contradictory
+      // "streams" of text, which kept resetting its interim commit streak
+      // and made voice tracking stall even though recognition itself was
+      // working fine.
+      let combinedText = ''
+      let isFinal = false
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i]
         const alternative = result?.[0]
         if (!alternative) continue
 
-        if (import.meta.env.DEV) {
-          console.log(
-            '[VoiceTracking] transcript:',
-            JSON.stringify(alternative.transcript),
-            result.isFinal ? '(final)' : '(interim)'
-          )
-        }
-
-        const transcriptEvent: SpeechTranscriptEvent = {
-          text: alternative.transcript,
-          isFinal: result.isFinal,
-          timestamp: performance.now(),
-        }
-        this.transcriptHandlers.forEach((handler) => handler(transcriptEvent))
+        combinedText += (combinedText ? ' ' : '') + alternative.transcript
+        isFinal = result.isFinal
       }
+
+      if (!combinedText) return
+
+      if (import.meta.env.DEV) {
+        console.log(
+          '[VoiceTracking] transcript:',
+          JSON.stringify(combinedText),
+          isFinal ? '(final)' : '(interim)'
+        )
+      }
+
+      const transcriptEvent: SpeechTranscriptEvent = {
+        text: combinedText,
+        isFinal,
+        timestamp: performance.now(),
+      }
+      this.transcriptHandlers.forEach((handler) => handler(transcriptEvent))
     }
 
     recognition.onerror = (event) => {
