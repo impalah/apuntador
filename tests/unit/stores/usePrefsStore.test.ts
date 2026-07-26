@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePrefsStore } from '@/stores/usePrefsStore'
-import { storage } from '@/utils/persistence'
+import { storage } from '@/services/persistence'
 
 // Mock localStorage
 const localStorageMock = (() => {

@@ -14,7 +14,7 @@ const vuetify = createVuetify({
 })
 
 // Mock the hotkey manager
-vi.mock('@/utils/hotkeys', () => ({
+vi.mock('@/utils/input/hotkeys', () => ({
   hotkeyManager: {
     getKeyDisplayName: vi.fn((hotkey) => {
       if (hotkey.key === ' ') return 'Space'

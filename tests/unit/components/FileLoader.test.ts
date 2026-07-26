@@ -11,8 +11,8 @@ vi.mock('@/utils/markdown', () => ({
 
 // Mock fileSystem utils (formatFileSize is kept as the real implementation
 // since it's a pure function under test below, not a browser/native API)
-vi.mock('@/utils/fileSystem', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/fileSystem')>()
+vi.mock('@/utils/files/fileSystem', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/files/fileSystem')>()
   return {
     ...actual,
     openFile: vi.fn(),
