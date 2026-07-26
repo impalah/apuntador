@@ -12,7 +12,7 @@ import type {
   SpeechEngineStatus,
   SpeechTranscriptEvent,
 } from './speechEngine'
-import type { SpeechLanguage } from '@/utils/constants'
+import { SPEECH_RESTART_DELAY_MS, type SpeechLanguage } from '@/utils/constants'
 
 interface WebSpeechRecognitionAlternative {
   transcript: string
@@ -149,6 +149,9 @@ export class WebSpeechEngine implements SpeechEngine {
     recognition.lang = language
 
     recognition.onstart = () => {
+      if (import.meta.env.DEV) {
+        console.log('[VoiceTracking] engine started, lang:', language)
+      }
       this.setStatus('listening')
     }
 
@@ -157,6 +160,14 @@ export class WebSpeechEngine implements SpeechEngine {
         const result = event.results[i]
         const alternative = result?.[0]
         if (!alternative) continue
+
+        if (import.meta.env.DEV) {
+          console.log(
+            '[VoiceTracking] transcript:',
+            JSON.stringify(alternative.transcript),
+            result.isFinal ? '(final)' : '(interim)'
+          )
+        }
 
         const transcriptEvent: SpeechTranscriptEvent = {
           text: alternative.transcript,
@@ -169,6 +180,10 @@ export class WebSpeechEngine implements SpeechEngine {
 
     recognition.onerror = (event) => {
       const code = mapErrorCode(event.error)
+
+      if (import.meta.env.DEV) {
+        console.log('[VoiceTracking] engine error:', event.error, '-> mapped to', code)
+      }
 
       // Prolonged silence is an expected, recoverable condition (not an engine
       // failure) - surface it as a status so the UI can show "paused", not an error.
@@ -186,6 +201,10 @@ export class WebSpeechEngine implements SpeechEngine {
     }
 
     recognition.onend = () => {
+      if (import.meta.env.DEV) {
+        console.log('[VoiceTracking] engine ended, shouldBeListening:', this.shouldBeListening)
+      }
+
       // Some browsers end recognition after a period of silence or a fixed
       // duration even with continuous:true; restart transparently while the
       // engine is still supposed to be listening (i.e. stop() wasn't called).
@@ -194,12 +213,21 @@ export class WebSpeechEngine implements SpeechEngine {
         return
       }
 
-      try {
-        recognition.start()
-      } catch (error) {
-        this.setStatus('error')
-        this.emitError('unknown', 'Failed to restart speech recognition', error)
-      }
+      // Chrome can throw InvalidStateError if start() is called synchronously
+      // within 'end' - its internal teardown isn't always finished yet. A
+      // short delay avoids that without being perceptible to the reader.
+      window.setTimeout(() => {
+        if (!this.shouldBeListening) return
+        try {
+          recognition.start()
+        } catch (error) {
+          if (import.meta.env.DEV) {
+            console.log('[VoiceTracking] restart failed:', error)
+          }
+          this.setStatus('error')
+          this.emitError('unknown', 'Failed to restart speech recognition', error)
+        }
+      }, SPEECH_RESTART_DELAY_MS)
     }
 
     return recognition

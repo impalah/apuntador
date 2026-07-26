@@ -59,6 +59,13 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     clearNoMatchTimer()
     noMatchTimer = window.setTimeout(() => {
       if (status.value === 'listening') {
+        if (import.meta.env.DEV) {
+          console.log(
+            '[VoiceTracking] no confident commit for',
+            SPEECH_NO_MATCH_TIMEOUT_MS,
+            'ms -> no-match'
+          )
+        }
         status.value = 'no-match'
       }
     }, SPEECH_NO_MATCH_TIMEOUT_MS)
@@ -99,6 +106,9 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     })
 
     unsubscribeStatus = engine.onStatusChange((newStatus) => {
+      if (import.meta.env.DEV) {
+        console.log('[VoiceTracking] status:', status.value, '->', newStatus)
+      }
       status.value = newStatus
       if (newStatus === 'listening') {
         armNoMatchTimer()

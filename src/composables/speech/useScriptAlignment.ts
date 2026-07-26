@@ -25,6 +25,7 @@ export interface AlignmentMatch {
 interface ScoredCandidate {
   sourceIndex: number
   score: number
+  text: string
 }
 
 function buildCandidates(tokens: ScriptToken[], cursorIndex: number, queryLength: number) {
@@ -103,14 +104,40 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
 
     const query = queryWords.join(' ')
     const results = fuse.search(query)
-    if (results.length === 0) return null
+
+    if (results.length === 0) {
+      if (import.meta.env.DEV) {
+        console.log(
+          '[VoiceTracking] alignment: no fuse.js results for query',
+          JSON.stringify(query)
+        )
+      }
+      return null
+    }
 
     const scored: ScoredCandidate[] = results.map((result) => ({
       sourceIndex: result.item.sourceIndex,
       score: result.score ?? 1,
+      text: result.item.text,
     }))
 
     const best = pickBest(scored)
+
+    if (import.meta.env.DEV) {
+      console.log(
+        '[VoiceTracking] alignment: query',
+        JSON.stringify(query),
+        'best candidate',
+        best ? JSON.stringify(best.text) : null,
+        'score',
+        best?.score,
+        '(threshold',
+        SPEECH_ALIGNMENT_CONFIDENCE_THRESHOLD,
+        ') cursor',
+        cursorIndex.value
+      )
+    }
+
     if (!best) return null
     if (best.score > SPEECH_ALIGNMENT_CONFIDENCE_THRESHOLD) return null
     if (best.sourceIndex < cursorIndex.value) return null // never move backward
@@ -118,6 +145,9 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
     const confidence = 1 - best.score
 
     if (isFinal) {
+      if (import.meta.env.DEV) {
+        console.log('[VoiceTracking] alignment: committed (final) -> sourceIndex', best.sourceIndex)
+      }
       return commit(best.sourceIndex, confidence)
     }
 
@@ -131,7 +161,24 @@ export function useScriptAlignment(scriptText: Ref<string> | ComputedRef<string>
     }
 
     if (pendingStreak >= SPEECH_ALIGNMENT_COMMIT_STREAK) {
+      if (import.meta.env.DEV) {
+        console.log(
+          '[VoiceTracking] alignment: committed (interim streak) -> sourceIndex',
+          best.sourceIndex
+        )
+      }
       return commit(best.sourceIndex, confidence)
+    }
+
+    if (import.meta.env.DEV) {
+      console.log(
+        '[VoiceTracking] alignment: pending streak',
+        pendingStreak,
+        '/',
+        SPEECH_ALIGNMENT_COMMIT_STREAK,
+        'for sourceIndex',
+        best.sourceIndex
+      )
     }
 
     return null

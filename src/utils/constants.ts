@@ -62,6 +62,9 @@ export const SPEECH_ALIGNMENT_CONFIDENCE_THRESHOLD = 0.4 // fuse.js score below 
 export const SPEECH_ALIGNMENT_AMBIGUITY_EPSILON = 0.05 // max score gap still considered "tied"
 export const SPEECH_ALIGNMENT_COMMIT_STREAK = 2 // consecutive interim events required before committing a cursor advance
 export const SPEECH_NO_MATCH_TIMEOUT_MS = 4000 // listening with no confident commit for this long -> 'no-match' status
+export const SPEECH_RESTART_DELAY_MS = 250 // delay before restarting recognition on 'end' - Chrome can throw
+// InvalidStateError if start() is called synchronously within the 'end' handler, before its internal
+// teardown finishes
 
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms

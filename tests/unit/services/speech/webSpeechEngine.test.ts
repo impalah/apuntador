@@ -172,13 +172,23 @@ describe('WebSpeechEngine', () => {
   })
 
   it('auto-restarts recognition on unexpected end while still supposed to be listening', async () => {
-    const engine = new WebSpeechEngine()
-    await engine.start('en-US')
+    vi.useFakeTimers()
+    try {
+      const engine = new WebSpeechEngine()
+      await engine.start('en-US')
 
-    const instance = MockSpeechRecognition.instances[0]!
-    instance.onend?.()
+      const instance = MockSpeechRecognition.instances[0]!
+      instance.onend?.()
 
-    expect(instance.start).toHaveBeenCalledTimes(2)
+      // Restart is deliberately deferred (see SPEECH_RESTART_DELAY_MS) to
+      // avoid Chrome's InvalidStateError when start() is called synchronously
+      // within 'end'.
+      expect(instance.start).toHaveBeenCalledTimes(1)
+      await vi.advanceTimersByTimeAsync(300)
+      expect(instance.start).toHaveBeenCalledTimes(2)
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('does not restart recognition after an explicit stop()', async () => {
