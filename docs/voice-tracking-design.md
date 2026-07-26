@@ -76,14 +76,14 @@ Status: proposal, no production code. Branch: `feature/voice-tracking-fase-0-dis
   Coverage (`vitest.config.ts`) uses explicit `include`/`exclude` lists, not a blanket
   glob — `src/composables/**` and `src/components/**` are currently **excluded** from
   coverage entirely ("UI-coupled, tested via e2e" / "tested via e2e"). New speech
-  composables (`useTextAlignment`, `useSpeechTracking`) will need real Vitest unit
+  composables (`useScriptAlignment`, `useSpeechTracking`) will need real Vitest unit
   tests per the spec, but for their numbers to count toward the coverage gate, Fase 1
   must add `src/composables/speech/**` (and `src/services/speech/**`) to the `include`
   list — otherwise the tests run and pass but don't move the coverage numbers. Flagging
   now so Fase 1 doesn't silently skip that config change.
 - Playwright e2e: `tests/e2e/*.spec.ts`, auto-starts `npm run dev` on `:3000`
   (`playwright.config.ts`), runs against chromium/firefox/webkit + 2 mobile viewports.
-  There's already a "text alignment" feature (`useTextAlignment` name collision risk —
+  There's already a "text alignment" feature (`useScriptAlignment` name collision risk —
   see open question below): `src/components/TextAlignmentControls.vue` +
   `tests/e2e/text-alignment*.spec.ts` are about CSS `text-align` (left/center/right),
   unrelated to script-position alignment. No code collision, only a naming one.
@@ -141,7 +141,7 @@ Notes:
   already used elsewhere, e.g. event listener cleanup in
   `TeleprompterFrameV2.vue:293-311`), avoiding a bespoke event-emitter dependency.
 - `status` intentionally separates `'no-match'` (recognizer running, no confident
-  alignment found — a `useTextAlignment` concern layered on top) from `'error'`
+  alignment found — a `useScriptAlignment` concern layered on top) from `'error'`
   (engine-level failure). Only the engine layer needs to model support detection and
   hard failures; alignment confidence is not part of this interface.
 
@@ -155,8 +155,8 @@ src/services/speech/
   createSpeechEngine.ts     # runtime selector (Capacitor.isNativePlatform() ? ... : ...)
 
 src/composables/speech/
-  useTextAlignment.ts       # fuse.js-based script-position estimator (Fase 1)
-  useSpeechTracking.ts      # wires SpeechEngine + useTextAlignment, exposes reactive state (Fase 1)
+  useScriptAlignment.ts     # fuse.js-based script-position estimator (Fase 1)
+  useSpeechTracking.ts      # wires SpeechEngine + useScriptAlignment, exposes reactive state (Fase 1)
 ```
 
 No `src/components/presenter/` directory is proposed — see decision below.
@@ -257,29 +257,27 @@ What voice mode *does* need, cleanly separated from the presenter:
   too slow or the scoring not discriminating enough between adjacent candidates (likely
   failure mode: many near-identical short phrases scoring similarly), the documented
   fallback is a direct token-level Levenshtein/Damerau-Levenshtein similarity computed
-  by hand over the same candidate windows — same interface (`useTextAlignment` returns
+  by hand over the same candidate windows — same interface (`useScriptAlignment` returns
   `{ sourceIndex, confidence }`), swappable implementation, decided and documented at
   that point rather than speculatively built now.
 
-## 6. Open questions for approval before Fase 1
+## 6. Decisions (resolved 2026-07-26)
 
-1. **Naming collision risk**: `useTextAlignment` (spec's name, script-position
-   estimation) vs. the existing, unrelated `TextAlignmentControls.vue` /
-   `prefsStore.textAlignment` (CSS `text-align: left/center/right`). No code
-   collision, but reviewers/future contributors may conflate them. OK to keep
-   `useTextAlignment` as specified, or would a distinct name (e.g.
-   `useScriptAlignment`) be preferred to avoid confusion?
-2. **Settings tab placement**: propose adding "Modo de avance: Automático / Por voz"
-   to the existing `behavior` tab in `SettingsDialog.vue` (already holds scroll-speed
-   settings) rather than a new tab. Agreed?
-3. **i18n scope**: add the new keys to all 9 locale files (with es-ES/en-US as the
-   only functionally-implemented languages, others get sensible translated strings
-   for UI labels only) to avoid vue-i18n missing-key fallback warnings — confirm
-   this is wanted rather than es-ES/en-US only.
-4. **Status indicator placement**: overlay inside `TeleprompterFrameV2`'s viewport
-   (most visible during reading) vs. a badge on the existing toolbar mic button
-   (simpler, less intrusive) — no strong architectural constraint either way, this is
-   a Fase 1 UX call.
+1. **Naming**: renamed `useTextAlignment` → **`useScriptAlignment`** everywhere in this
+   document and in the planned implementation, precisely to avoid any confusion with
+   the existing, unrelated `TextAlignmentControls.vue` / `prefsStore.textAlignment`
+   (CSS `text-align`).
+2. **Settings tab placement**: "Modo de avance: Automático / Por voz" goes in the
+   existing `behavior` tab of `SettingsDialog.vue`, alongside scroll-speed settings.
+3. **i18n scope**: new keys are added to all 9 locale files. es-ES and en-US are the
+   priority — if a translation is uncertain or awkward for another locale, a
+   best-effort literal/English-fallback string is acceptable there as long as es-ES/
+   en-US are correct and complete.
+4. **Status indicator placement**: an **always-visible overlay** inside the
+   presentation viewport whenever voice mode is the active scroll mode (not just on
+   error/no-match) — visible in `listening`/`no-match`/`error`/`not-supported` states
+   alike, so the user always has positive confirmation of which mode is driving the
+   scroll and its current status.
 
 ## 7. Explicitly out of scope for Fase 0
 
