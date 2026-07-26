@@ -3,7 +3,7 @@
     :model-value="modelValue"
     :persistent="false"
     :scrim="true"
-    :z-index="10000"
+    :z-index="Z_INDEX.ALWAYS_ON_TOP_NESTED"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card
@@ -217,6 +217,7 @@ import { ref, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useCloudStore } from '@/stores/useCloudStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { Z_INDEX } from '@/utils/constants'
 import type { CloudProviderId, CloudFile } from '@/types/cloud'
 import CloudFileExplorer from '@/components/cloud/CloudFileExplorer.vue'
 import ActionsMenu from '@/components/ActionsMenu.vue'

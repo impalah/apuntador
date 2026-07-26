@@ -17,7 +17,7 @@
       :model-value="cloudStore.isDownloading || cloudStore.isUploading"
       persistent
       class="align-center justify-center"
-      style="z-index: 9999"
+      :style="{ zIndex: Z_INDEX.ALWAYS_ON_TOP }"
     >
       <div class="text-center">
         <v-progress-circular
@@ -93,6 +93,7 @@
 import { ref, watch, onMounted, nextTick } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
+import { Z_INDEX } from '@/utils/constants'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { useFileStore } from '@/stores/useFileStore'
 import { useCloudStore } from '@/stores/useCloudStore'

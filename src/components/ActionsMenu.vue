@@ -3,7 +3,7 @@
     :model-value="modelValue"
     :persistent="false"
     :scrim="true"
-    :z-index="10000"
+    :z-index="Z_INDEX.ALWAYS_ON_TOP_NESTED"
     @update:model-value="$emit('update:modelValue', $event)"
   >
     <v-card
@@ -566,6 +566,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettingsActions } from '@/composables/useSettingsActions'
+import { Z_INDEX } from '@/utils/constants'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
