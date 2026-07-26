@@ -4,6 +4,8 @@
  * props alone.
  */
 
+import type { PreferencesState } from '@/stores/usePrefsStore'
+
 export interface TeleprompterContent {
   raw: string
   html: string
@@ -17,16 +19,21 @@ export interface ScrollState {
   progress: number // 0-100
 }
 
-export interface DisplayPreferences {
-  fontFamily: string
-  fontSizePx: number
-  lineHeight: number
-  fgColor: string
-  bgColor: string
-  mirrorH: boolean
-  mirrorV: boolean
-  textAlignment: 'left' | 'center' | 'right'
-}
+/**
+ * The subset of PreferencesState (the Zod-validated store type, which is the
+ * single source of truth) that TeleprompterFrameV2 needs for rendering.
+ */
+export type DisplayPreferences = Pick<
+  PreferencesState,
+  | 'fontFamily'
+  | 'fontSizePx'
+  | 'lineHeight'
+  | 'fgColor'
+  | 'bgColor'
+  | 'mirrorH'
+  | 'mirrorV'
+  | 'textAlignment'
+>
 
 export interface HighlightBandConfig {
   lines: 1 | 2
