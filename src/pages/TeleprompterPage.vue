@@ -114,7 +114,7 @@ import {
   updateDescriptionsInGamepadMapping,
 } from '@/utils/input/hotkeys'
 import { gamepadManager } from '@/utils/input/gamepadManager'
-import { SmoothScroller } from '@/utils/scrolling'
+import { SmoothScroller, clampScrollOffset } from '@/utils/scrolling'
 import { useSpeechTracking } from '@/composables/speech/useSpeechTracking'
 import { resolveSpeechLanguage } from '@/utils/speech/resolveSpeechLanguage'
 import { SPEECH_SCROLL_ANIMATION_DURATION_MS } from '@/utils/constants'
@@ -533,10 +533,22 @@ watch(voiceError, (err) => {
 // mode is active and playing - the presenter itself never knows the source.
 watch(voiceProgressRatio, (ratio) => {
   if (prefsStore.scrollMode !== 'voice' || !teleprompterStore.isPlaying) return
-  voiceScrollAnimator.scrollTo(
-    ratio * teleprompterStore.maxOffset,
-    SPEECH_SCROLL_ANIMATION_DURATION_MS
+
+  // ratio * maxOffset (the naive version) scrolls the estimated word to the
+  // very TOP of the viewport, not to the highlight band - the band sits at
+  // highlightBandPosPct% down from the top (see TeleprompterFrameV2's
+  // highlightBandStyle), so the target offset must subtract that much
+  // viewport height to actually bring the currently-read word up to the
+  // band instead of leaving it below the visible/expected reading line.
+  const estimatedContentPosition = ratio * teleprompterStore.contentHeightPx
+  const bandOffsetPx = teleprompterStore.viewportHeightPx * (prefsStore.highlightBandPosPct / 100)
+  const target = clampScrollOffset(
+    estimatedContentPosition - bandOffsetPx,
+    teleprompterStore.contentHeightPx,
+    teleprompterStore.viewportHeightPx
   )
+
+  voiceScrollAnimator.scrollTo(target, SPEECH_SCROLL_ANIMATION_DURATION_MS)
 })
 
 // Switching the quick-toggle mid-playback swaps the active driver immediately,
