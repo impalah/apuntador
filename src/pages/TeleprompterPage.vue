@@ -168,10 +168,18 @@ const voiceScrollAnimator = new SmoothScroller(
  */
 function resyncVoiceCursorToScroll() {
   if (prefsStore.scrollMode !== 'voice') return
-  const ratio =
-    teleprompterStore.maxOffset > 0
-      ? teleprompterStore.scrollOffset / teleprompterStore.maxOffset
-      : 0
+
+  const contentHeight = teleprompterStore.contentHeightPx
+  if (contentHeight <= 0) {
+    seekVoiceCursorToRatio(0)
+    return
+  }
+
+  // Must be the exact inverse of the forward mapping used below (progress
+  // ratio -> scroll offset, which targets the highlight band) - otherwise
+  // resyncing recomputes the wrong token position every time it runs.
+  const bandOffsetPx = teleprompterStore.viewportHeightPx * (prefsStore.highlightBandPosPct / 100)
+  const ratio = (teleprompterStore.scrollOffset + bandOffsetPx) / contentHeight
   seekVoiceCursorToRatio(ratio)
 }
 
@@ -642,7 +650,16 @@ function onHighlightBandPositionChange(positionPct: number) {
 
 function onManualScroll(scrollTop: number) {
   teleprompterStore.syncScrollFromDOM(scrollTop)
-  resyncVoiceCursorToScroll()
+
+  // syncScrollFromDOM itself is a no-op while playing (see
+  // useTeleprompterStore) - mirror that guard here too. Without it, native
+  // 'scroll' events firing during voice mode's own animated (700ms) scroll
+  // get misread as manual scrolls (the sync-suppression window in
+  // TeleprompterFrameV2 is far shorter than that animation), constantly
+  // resyncing the cursor to itself and corrupting the estimated position.
+  if (!teleprompterStore.isPlaying) {
+    resyncVoiceCursorToScroll()
+  }
 }
 
 function onTeleprompterTap() {
