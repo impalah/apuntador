@@ -139,7 +139,9 @@
     "minimatch": "^10.0.3",
     "rimraf": "^6.0.1",
     "editorconfig": "^3.0.2",
-    "@capacitor/cli": "$@capacitor/cli"
+    "@capacitor/cli": "$@capacitor/cli",
+    "vite": "$vite",
+    "esbuild": "$esbuild"
   },
   "engines": {
     "node": ">=22.0.0"
