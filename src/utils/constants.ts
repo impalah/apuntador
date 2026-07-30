@@ -50,6 +50,36 @@ export const DEFAULT_SCROLL_MODE = 'auto'
 export const SCROLL_MODES = ['auto', 'voice'] as const
 export type ScrollMode = (typeof SCROLL_MODES)[number]
 
+// Active presenter frame (markdown/HTML vs. plain monospace text)
+export const ACTIVE_FRAMES = ['markdown', 'monospace'] as const
+export type ActiveFrame = (typeof ACTIVE_FRAMES)[number]
+export const DEFAULT_ACTIVE_FRAME: ActiveFrame = 'markdown'
+
+// Monospace frame: font choices are constrained (schema-enforced, not just UI)
+// so voice-tracking's exact character-based positioning assumption always holds
+export const MONOSPACE_FONT_FAMILIES = [
+  'Courier New, monospace',
+  'Monaco, monospace',
+  'Consolas, monospace',
+  'ui-monospace, monospace',
+] as const
+export type MonospaceFontFamily = (typeof MONOSPACE_FONT_FAMILIES)[number]
+export const DEFAULT_MONO_FONT_FAMILY: MonospaceFontFamily = 'Courier New, monospace'
+
+// Monospace frame: leading/trailing blank *lines* (not a vh value like
+// compileMarkdown's padding) so scroll-position math stays exact - see
+// useMonospaceLayout.ts
+export const MONO_FRAME_PADDING_VIEWPORT_RATIO = 0.5
+// Repeated-character sample used to measure the monospace font's exact
+// per-character pixel width (more accurate than measuring a single char)
+export const MONO_CHAR_MEASURE_SAMPLE_LENGTH = 100
+
+// Teleprompter scroll/touch sync (used by useTeleprompterScrollSync.ts, the
+// monospace frame's version of TeleprompterFrameV2's inline equivalents)
+export const SCROLL_SYNC_DEBOUNCE_MS = 50 // debounce manual-scroll DOM events before emitting
+export const SCROLL_SYNC_SUPPRESS_MS = 10 // window during which a programmatic scrollTop write is not read back as manual
+export const RESIZE_OBSERVER_THROTTLE_MS = 100 // throttle for ResizeObserver-driven remeasurement
+
 // Speech tracking: supported recognition languages
 export const SPEECH_LANGUAGES = ['es-ES', 'en-US'] as const
 export type SpeechLanguage = (typeof SPEECH_LANGUAGES)[number]
@@ -123,6 +153,7 @@ export const STORAGE_KEYS = {
   // by the other keys below - it must stay 'preferences' to match what's
   // already persisted for existing users (see usePrefsStore.ts).
   PREFERENCES: 'preferences',
+  MONO_FRAME_PREFERENCES: 'apuntador:monoFramePreferences',
   CONTENT: 'apuntador:content',
   SCROLL_POSITION: 'apuntador:scrollPosition',
   DROPBOX_TOKEN: 'apuntador:dropbox_token',

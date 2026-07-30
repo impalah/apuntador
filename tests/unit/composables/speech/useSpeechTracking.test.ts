@@ -164,6 +164,17 @@ describe('useSpeechTracking', () => {
     expect(tracking.progress.value?.sourceIndex).toBe(8)
   })
 
+  it('seekToIndex moves the cursor directly to a token index (used by the monospace frame)', async () => {
+    const tracking = useSpeechTracking(ref(SCRIPT), ref('en-US'))
+    await tracking.start()
+
+    tracking.seekToIndex(3)
+    expect(tracking.cursorIndex.value).toBe(3)
+
+    fakeEngine.emitTranscript('cinco seis siete', true)
+    expect(tracking.progress.value?.sourceIndex).toBe(6)
+  })
+
   it('does not reset the cursor back to zero on a stop/start cycle (pause/resume mid-script)', async () => {
     const tracking = useSpeechTracking(ref(SCRIPT), ref('en-US'))
     await tracking.start()

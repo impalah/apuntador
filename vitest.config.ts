@@ -75,6 +75,7 @@ export default defineConfig({
       include: [
         'src/stores/useTeleprompterStore.ts',
         'src/stores/usePrefsStore.ts',
+        'src/stores/useMonoFramePrefsStore.ts',
         'src/stores/useFileStore.ts',
         'src/stores/useI18nStore.ts',
         'src/utils/**/*.ts',
@@ -84,6 +85,8 @@ export default defineConfig({
         'src/services/serviceErrorHandler.ts',
         'src/services/speech/**/*.ts',
         'src/composables/speech/**/*.ts',
+        'src/composables/useMonospaceLayout.ts',
+        'src/composables/useActiveFrameAppearance.ts',
       ],
       thresholds: {
         statements: 80,

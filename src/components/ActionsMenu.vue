@@ -83,36 +83,51 @@
                     />
                   </div>
 
+                  <!-- Which frame's appearance is being edited -->
+                  <v-alert
+                    type="info"
+                    variant="tonal"
+                    density="compact"
+                    class="mb-4"
+                    data-testid="appearance-editing-frame"
+                  >
+                    {{
+                      activeAppearance.isMono.value
+                        ? t('settings.editingFrameMonospace')
+                        : t('settings.editingFrameMarkdown')
+                    }}
+                  </v-alert>
+
                   <!-- Font Settings -->
                   <div class="mb-6">
                     <h3 class="text-subtitle-1 mb-3">
                       {{ t('settings.fontFamily') }}
                     </h3>
                     <v-select
-                      v-model="prefsStore.fontFamily"
+                      :model-value="activeAppearance.fontFamily.value"
                       :label="t('settings.fontFamily')"
-                      :items="fontFamilies"
-                      @update:model-value="savePrefs"
+                      :items="activeAppearance.fontFamilyOptions.value"
+                      @update:model-value="activeAppearance.setFontFamily"
                     />
 
                     <SliderControl
-                      v-model="prefsStore.fontSizePx"
+                      :model-value="activeAppearance.fontSizePx.value"
                       :label="t('settings.fontSize')"
                       :min="12"
                       :max="200"
                       :step="2"
                       show-input
                       input-suffix="px"
-                      @change="savePrefs"
+                      @update:model-value="activeAppearance.setFontSizePx"
                     />
 
                     <SliderControl
-                      v-model="prefsStore.lineHeight"
+                      :model-value="activeAppearance.lineHeight.value"
                       :label="t('settings.lineHeight')"
                       :min="1"
                       :max="3"
                       :step="0.1"
-                      @change="savePrefs"
+                      @update:model-value="activeAppearance.setLineHeight"
                     />
                   </div>
 
@@ -124,18 +139,18 @@
                     <v-row>
                       <v-col cols="6">
                         <v-text-field
-                          v-model="prefsStore.fgColor"
+                          :model-value="activeAppearance.fgColor.value"
                           :label="t('settings.foregroundColor')"
                           type="color"
-                          @change="savePrefs"
+                          @update:model-value="activeAppearance.setFgColor"
                         />
                       </v-col>
                       <v-col cols="6">
                         <v-text-field
-                          v-model="prefsStore.bgColor"
+                          :model-value="activeAppearance.bgColor.value"
                           :label="t('settings.backgroundColor')"
                           type="color"
-                          @change="savePrefs"
+                          @update:model-value="activeAppearance.setBgColor"
                         />
                       </v-col>
                     </v-row>
@@ -479,9 +494,9 @@
 
             <!-- Segunda fila: Alinear izquierda, centro, derecha -->
             <div class="button-grid">
-              <button 
-                class="action-btn-frequent" 
-                :class="{ active: prefsStore.textAlignment === 'left' }"
+              <button
+                class="action-btn-frequent"
+                :class="{ active: activeAppearance.textAlignment.value === 'left' }"
                 data-testid="align-left-button"
                 @click="handleTextAlign('left')"
               >
@@ -491,9 +506,9 @@
                 />
                 <span class="btn-text">{{ t('toolbar.alignLeft') }}</span>
               </button>
-              <button 
-                class="action-btn-frequent" 
-                :class="{ active: prefsStore.textAlignment === 'center' }"
+              <button
+                class="action-btn-frequent"
+                :class="{ active: activeAppearance.textAlignment.value === 'center' }"
                 data-testid="align-center-button"
                 @click="handleTextAlign('center')"
               >
@@ -503,9 +518,9 @@
                 />
                 <span class="btn-text">{{ t('toolbar.alignCenter') }}</span>
               </button>
-              <button 
-                class="action-btn-frequent" 
-                :class="{ active: prefsStore.textAlignment === 'right' }"
+              <button
+                class="action-btn-frequent"
+                :class="{ active: activeAppearance.textAlignment.value === 'right' }"
                 data-testid="align-right-button"
                 @click="handleTextAlign('right')"
               >
@@ -602,6 +617,7 @@
 import { ref } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useSettingsActions } from '@/composables/useSettingsActions'
+import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import { Z_INDEX, type ScrollMode } from '@/utils/constants'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
@@ -610,11 +626,13 @@ import SliderControl from './SliderControl.vue'
 
 const { t } = useI18n()
 
+// Per-frame appearance (font/size/colors/alignment) - see useActiveFrameAppearance.ts
+const activeAppearance = useActiveFrameAppearance()
+
 // Shared preferences/hotkeys/gamepad/data-management actions (also used by SettingsDialog)
 const {
   prefsStore,
   i18nStore,
-  fontFamilies,
   versionInfo,
   gamepadSupported,
   connectedGamepads,
@@ -725,10 +743,9 @@ const handleAction = (action: string, ...args: any[]) => {
   // Don't close menu by default (only openEditor and openSettings close it)
 }
 
-// Handle text alignment
-const handleTextAlign = async (alignment: 'left' | 'center' | 'right') => {
-  prefsStore.textAlignment = alignment
-  await prefsStore.save()
+// Handle text alignment - routes to whichever frame's appearance store is active
+const handleTextAlign = (alignment: 'left' | 'center' | 'right') => {
+  activeAppearance.setTextAlignment(alignment)
   // Don't close menu for text alignment changes
 }
 

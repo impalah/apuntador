@@ -41,6 +41,76 @@ async function removeWebSpeechApi(page: Page) {
   })
 }
 
+/**
+ * Like mockWebSpeechApi, but keeps a handle to the live recognition instance
+ * on window so the test can fire onresult events on demand via emitTranscript.
+ */
+async function mockControllableWebSpeechApi(page: Page) {
+  await page.addInitScript(() => {
+    class MockSpeechRecognition {
+      continuous = false
+      interimResults = false
+      lang = ''
+      onstart: (() => void) | null = null
+      onend: (() => void) | null = null
+      onerror: ((event: unknown) => void) | null = null
+      onresult: ((event: unknown) => void) | null = null
+
+      start() {
+        ;(window as any).__mockSpeechRecognition = this
+        setTimeout(() => this.onstart?.(), 0)
+      }
+
+      stop() {
+        setTimeout(() => this.onend?.(), 0)
+      }
+    }
+    ;(window as any).SpeechRecognition = MockSpeechRecognition
+    ;(window as any).webkitSpeechRecognition = MockSpeechRecognition
+  })
+}
+
+async function emitTranscript(page: Page, text: string, isFinal: boolean) {
+  await page.evaluate(
+    ({ text, isFinal }) => {
+      const instance = (window as any).__mockSpeechRecognition
+      instance?.onresult?.({
+        resultIndex: 0,
+        results: { length: 1, 0: { isFinal, length: 1, 0: { transcript: text } } },
+      })
+    },
+    { text, isFinal }
+  )
+}
+
+/**
+ * Loads plain-text content into the teleprompter via the editor's real "open
+ * local file" flow (an in-memory file handed to the native file chooser),
+ * since content only actually commits to teleprompterStore on save/open -
+ * typing into the editor's textarea alone does not persist it.
+ */
+async function loadPlainTextContent(page: Page, content: string) {
+  const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
+  if (await moreMenuButton.isVisible()) {
+    await moreMenuButton.click()
+  }
+  await page.locator('[data-testid="editor-button"]').first().click()
+  await page.waitForURL('**/edit')
+
+  await page.locator('[data-testid="open-file-button"]').click()
+  const fileChooserPromise = page.waitForEvent('filechooser')
+  await page.locator('[data-testid="local-file-option"]').click()
+  const fileChooser = await fileChooserPromise
+  await fileChooser.setFiles({
+    name: 'script.txt',
+    mimeType: 'text/plain',
+    buffer: Buffer.from(content),
+  })
+
+  await page.locator('[data-testid="close-button"]').click()
+  await page.waitForURL('**/')
+}
+
 test.describe('Voice tracking mode', () => {
   test('activates voice mode from the full Settings dialog (behavior tab, via #options deep-link) and persists it', async ({
     page,
@@ -158,5 +228,42 @@ test.describe('Voice tracking mode', () => {
     await page.locator('.teleprompter-frame').click()
     await expect(quickToggle).not.toHaveClass(/active/)
     await expect(playButton).toHaveAttribute('aria-label', /pause/i)
+  })
+
+  test('advances the scroll offset under the monospace frame as mocked transcripts arrive', async ({
+    page,
+  }) => {
+    await mockControllableWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    await loadPlainTextContent(
+      page,
+      'Hoy quiero hablar de algo importante.\n\n' +
+        'Cada palabra que digo debería mover el texto hacia arriba poco a poco.\n\n' +
+        'Y este seguimiento por voz debería funcionar igual de bien en el modo monoespaciado.'
+    )
+
+    await page.locator('[data-testid="frame-picker-toggle"]').click()
+    const monoContent = page.locator('[data-testid="teleprompter-mono-content"]')
+    await expect(monoContent).toBeVisible()
+
+    await page.locator('[data-testid="scroll-mode-quick-toggle"]').click()
+    await page.locator('[data-testid="play-pause-button"]').first().click()
+    await page.waitForTimeout(300) // let the (mocked) engine report 'listening'
+
+    const scrollContainer = page.locator('.teleprompter-container-mono')
+    const initialOffset = await scrollContainer.evaluate((el) => el.scrollTop)
+
+    // Grows the recognized transcript across several onresult events, as the
+    // real engine would while the reader progresses through the script.
+    await emitTranscript(page, 'Hoy quiero hablar de algo', false)
+    await emitTranscript(page, 'Hoy quiero hablar de algo importante', true)
+    await emitTranscript(page, 'Cada palabra que digo debería', false)
+    await emitTranscript(page, 'Cada palabra que digo debería mover', false)
+    await page.waitForTimeout(1200) // allow the 700ms scroll animation to settle
+
+    const laterOffset = await scrollContainer.evaluate((el) => el.scrollTop)
+    expect(laterOffset).toBeGreaterThan(initialOffset)
   })
 })

@@ -51,6 +51,15 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     seek(Math.round(Math.max(0, Math.min(1, ratio)) * maxIndex))
   }
 
+  /**
+   * Resyncs directly to a token index - used by the monospace frame, whose
+   * exact line-based layout can name a token index precisely instead of
+   * needing to go through a 0-1 ratio approximation.
+   */
+  function seekToIndex(tokenIndex: number): void {
+    seek(tokenIndex)
+  }
+
   let noMatchTimer: number | null = null
   let unsubscribeTranscript: (() => void) | null = null
   let unsubscribeError: (() => void) | null = null
@@ -157,5 +166,6 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     start,
     stop,
     seekToRatio,
+    seekToIndex,
   }
 }
