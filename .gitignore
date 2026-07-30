@@ -156,3 +156,6 @@ certificates/
 *.pfx
 *.p12
 
+# graphify - generated knowledge graph (regenerate with `graphify update .`)
+graphify-out/
+

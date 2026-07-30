@@ -90,13 +90,13 @@ make clean      # Clean build artifacts
 ```
 apuntador/
 ├── src/
-│   ├── components/         # Vue components (modular architecture)
-│   ├── coordinators/       # Component orchestration logic
-│   ├── adapters/          # Store-to-component bridges
-│   ├── stores/            # Pinia state management
-│   ├── utils/             # Pure utility functions
-│   ├── types/             # TypeScript definitions
-│   └── pages/             # Route components
+│   ├── components/         # Vue components (talk directly to stores/services)
+│   ├── pages/              # Route components
+│   ├── stores/             # Pinia state management (the ViewModel layer)
+│   ├── services/           # oauth, dropbox, googledrive, http, certificate
+│   ├── composables/        # Shared reactive logic used by 2+ components
+│   ├── utils/              # Pure utility functions
+│   └── types/              # TypeScript definitions
 ├── tests/
 │   ├── unit/              # Unit tests (Vitest)
 │   └── e2e/               # End-to-end tests (Playwright)
@@ -108,8 +108,12 @@ apuntador/
 ### Key Architectural Patterns
 
 - **Modular Components**: Components communicate via typed interfaces
-- **Coordinator Pattern**: Business logic orchestration between components
-- **Store Adapters**: Bridge Pinia stores to component interfaces
+- **Direct store access**: Components/pages talk directly to Pinia stores and
+  services — there is no coordinator/adapter indirection layer. A generalized
+  one was built and removed (2026-07) because it only covered the
+  teleprompter flow, duplicated logic the stores already exposed as getters,
+  and in one place mutated store state directly, bypassing store actions and
+  silently breaking persistence. See `docs/architecture/component-architecture.md`.
 - **Multi-Platform**: Web, Android (Capacitor), Desktop (Tauri)
 
 ## Development Workflow
@@ -371,7 +375,7 @@ make tauri-build-release     # Platform-specific builds
 ### Resources
 
 - **Documentation**: Check the `docs/` directory
-- **Architecture Guide**: `docs/MODULAR_ARCHITECTURE.md`
+- **Architecture Guide**: `docs/architecture/component-architecture.md`
 - **API Reference**: Generated TypeDoc documentation
 - **Examples**: Look at existing components and tests
 
