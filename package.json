@@ -1,7 +1,7 @@
 {
   "name": "apuntador",
   "private": true,
-  "version": "1.1.117",
+  "version": "1.1.119",
   "type": "module",
   "description": "Modular teleprompter platform with interchangeable components - built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
@@ -139,7 +139,8 @@
     "minimatch": "^10.0.3",
     "rimraf": "^6.0.1",
     "editorconfig": "^3.0.2",
-    "@capacitor/cli": "$@capacitor/cli"
+    "@capacitor/cli": "$@capacitor/cli",
+    "vite": "$vite"
   },
   "engines": {
     "node": ">=22.0.0"
