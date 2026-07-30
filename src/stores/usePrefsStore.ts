@@ -23,6 +23,12 @@ import {
   DEFAULT_TEXT_ALIGNMENT,
   TEXT_ALIGNMENTS,
   type TextAlignment,
+  DEFAULT_SCROLL_MODE,
+  SCROLL_MODES,
+  type ScrollMode,
+  DEFAULT_ACTIVE_FRAME,
+  ACTIVE_FRAMES,
+  type ActiveFrame,
   FONT_SIZE_STEP,
   SPEED_ADJUSTMENT_STEP,
   SETTINGS_SPEED_MIN_CONSTRAINT,
@@ -61,6 +67,8 @@ const preferencesSchema = z.object({
   highlightBandPosPct: z.number().min(0).max(100).default(DEFAULT_HIGHLIGHT_BAND_POS),
   dimmingIntensity: z.number().min(0).max(1).default(DEFAULT_DIMMING_INTENSITY),
   textAlignment: z.enum(TEXT_ALIGNMENTS).default(DEFAULT_TEXT_ALIGNMENT as TextAlignment),
+  scrollMode: z.enum(SCROLL_MODES).default(DEFAULT_SCROLL_MODE as ScrollMode),
+  activeFrame: z.enum(ACTIVE_FRAMES).default(DEFAULT_ACTIVE_FRAME as ActiveFrame),
   customHotkeys: z
     .record(
       z.string(),
@@ -106,6 +114,8 @@ export const usePrefsStore = defineStore('preferences', () => {
   const highlightBandPosPct = ref(DEFAULT_HIGHLIGHT_BAND_POS)
   const dimmingIntensity = ref(DEFAULT_DIMMING_INTENSITY)
   const textAlignment = ref<TextAlignment>(DEFAULT_TEXT_ALIGNMENT as TextAlignment)
+  const scrollMode = ref<ScrollMode>(DEFAULT_SCROLL_MODE as ScrollMode)
+  const activeFrame = ref<ActiveFrame>(DEFAULT_ACTIVE_FRAME as ActiveFrame)
   const customHotkeys = ref<CustomHotkeyMapping>(createDefaultMapping())
   const customGamepadMappings = ref<CustomGamepadMapping>(createDefaultGamepadMapping())
 
@@ -130,6 +140,8 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandPosPct.value = validated.highlightBandPosPct
         dimmingIntensity.value = validated.dimmingIntensity
         textAlignment.value = validated.textAlignment
+        scrollMode.value = validated.scrollMode
+        activeFrame.value = validated.activeFrame
 
         // Handle custom hotkeys with fallback to defaults
         const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
@@ -165,6 +177,8 @@ export const usePrefsStore = defineStore('preferences', () => {
         highlightBandPosPct: highlightBandPosPct.value,
         dimmingIntensity: dimmingIntensity.value,
         textAlignment: textAlignment.value,
+        scrollMode: scrollMode.value,
+        activeFrame: activeFrame.value,
         customHotkeys: customHotkeys.value,
         customGamepadMappings: customGamepadMappings.value,
       }
@@ -190,6 +204,8 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandPosPct.value = DEFAULT_HIGHLIGHT_BAND_POS
     dimmingIntensity.value = DEFAULT_DIMMING_INTENSITY
     textAlignment.value = DEFAULT_TEXT_ALIGNMENT as TextAlignment
+    scrollMode.value = DEFAULT_SCROLL_MODE as ScrollMode
+    activeFrame.value = DEFAULT_ACTIVE_FRAME as ActiveFrame
     customHotkeys.value = createDefaultMapping()
     customGamepadMappings.value = createDefaultGamepadMapping()
   }
@@ -227,6 +243,16 @@ export const usePrefsStore = defineStore('preferences', () => {
 
   function setTextAlignment(alignment: TextAlignment) {
     textAlignment.value = alignment
+    save()
+  }
+
+  function setScrollMode(mode: ScrollMode) {
+    scrollMode.value = mode
+    save()
+  }
+
+  function setActiveFrame(frame: ActiveFrame) {
+    activeFrame.value = frame
     save()
   }
 
@@ -290,6 +316,8 @@ export const usePrefsStore = defineStore('preferences', () => {
     highlightBandPosPct,
     dimmingIntensity,
     textAlignment,
+    scrollMode,
+    activeFrame,
     customHotkeys,
     customGamepadMappings,
 
@@ -304,6 +332,8 @@ export const usePrefsStore = defineStore('preferences', () => {
     toggleMirrorH,
     toggleMirrorV,
     setTextAlignment,
+    setScrollMode,
+    setActiveFrame,
     applyCSSVariables,
     updateHotkey,
     resetHotkeys,

@@ -1,7 +1,7 @@
 {
   "name": "apuntador",
   "private": true,
-  "version": "1.1.115",
+  "version": "1.1.116",
   "type": "module",
   "description": "Modular teleprompter platform with interchangeable components - built with Vue 3 + TypeScript + Vite + Vuetify",
   "scripts": {
@@ -82,6 +82,7 @@
     "@mdi/font": "^7.3.0",
     "@tauri-apps/api": "~2.9.0",
     "dropbox": "^10.34.0",
+    "fuse.js": "^7.5.0",
     "localforage": "^1.10.0",
     "markdown-it": "^14.0.0",
     "markdown-it-anchor": "^9.2.0",

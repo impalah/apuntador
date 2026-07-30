@@ -48,7 +48,14 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     }
   }
 
-  function play() {
+  /**
+   * skipAutoScroller lets an alternative driver (e.g. voice tracking) mark the
+   * teleprompter as playing without starting the interval-based AutoScroller -
+   * it stays isPlaying=true (so pause/UI/auto-pause-at-end logic keeps working)
+   * while some other caller drives updateScrollOffset directly. Default (no
+   * options) behavior is unchanged for every existing caller.
+   */
+  function play(options?: { skipAutoScroller?: boolean }) {
     // console.log('[ANDROID DEBUG] play() called, current isPlaying:', isPlaying.value)
     if (isPlaying.value) {
       // console.log('[ANDROID DEBUG] play() - already playing, returning')
@@ -59,6 +66,10 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     // console.log('[ANDROID DEBUG] play() - dimensions check: contentHeight:', contentHeightPx.value, 'viewportHeight:', viewportHeightPx.value, 'maxOffset:', maxOffset.value)
     // console.log('[ANDROID DEBUG] play() - current scrollOffset:', scrollOffset.value, 'lineHeight:', lineHeightPx.value)
     isPlaying.value = true
+
+    if (options?.skipAutoScroller) {
+      return
+    }
 
     if (autoScroller) {
       // console.log('[ANDROID DEBUG] play() - restarting existing AutoScroller, speed:', preferences.speedPxPerSec)

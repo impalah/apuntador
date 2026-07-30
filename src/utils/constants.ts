@@ -45,6 +45,60 @@ export const DEFAULT_TEXT_ALIGNMENT = 'center'
 export const TEXT_ALIGNMENTS = ['left', 'center', 'right'] as const
 export type TextAlignment = (typeof TEXT_ALIGNMENTS)[number]
 
+// Scroll mode (auto-scroll vs. voice-tracking)
+export const DEFAULT_SCROLL_MODE = 'auto'
+export const SCROLL_MODES = ['auto', 'voice'] as const
+export type ScrollMode = (typeof SCROLL_MODES)[number]
+
+// Active presenter frame (markdown/HTML vs. plain monospace text)
+export const ACTIVE_FRAMES = ['markdown', 'monospace'] as const
+export type ActiveFrame = (typeof ACTIVE_FRAMES)[number]
+export const DEFAULT_ACTIVE_FRAME: ActiveFrame = 'markdown'
+
+// Monospace frame: font choices are constrained (schema-enforced, not just UI)
+// so voice-tracking's exact character-based positioning assumption always holds
+export const MONOSPACE_FONT_FAMILIES = [
+  'Courier New, monospace',
+  'Monaco, monospace',
+  'Consolas, monospace',
+  'ui-monospace, monospace',
+] as const
+export type MonospaceFontFamily = (typeof MONOSPACE_FONT_FAMILIES)[number]
+export const DEFAULT_MONO_FONT_FAMILY: MonospaceFontFamily = 'Courier New, monospace'
+
+// Monospace frame: leading/trailing blank *lines* (not a vh value like
+// compileMarkdown's padding) so scroll-position math stays exact - see
+// useMonospaceLayout.ts
+export const MONO_FRAME_PADDING_VIEWPORT_RATIO = 0.5
+// Repeated-character sample used to measure the monospace font's exact
+// per-character pixel width (more accurate than measuring a single char)
+export const MONO_CHAR_MEASURE_SAMPLE_LENGTH = 100
+
+// Teleprompter scroll/touch sync (used by useTeleprompterScrollSync.ts, the
+// monospace frame's version of TeleprompterFrameV2's inline equivalents)
+export const SCROLL_SYNC_DEBOUNCE_MS = 50 // debounce manual-scroll DOM events before emitting
+export const SCROLL_SYNC_SUPPRESS_MS = 10 // window during which a programmatic scrollTop write is not read back as manual
+export const RESIZE_OBSERVER_THROTTLE_MS = 100 // throttle for ResizeObserver-driven remeasurement
+
+// Speech tracking: supported recognition languages
+export const SPEECH_LANGUAGES = ['es-ES', 'en-US'] as const
+export type SpeechLanguage = (typeof SPEECH_LANGUAGES)[number]
+export const DEFAULT_SPEECH_LANGUAGE: SpeechLanguage = 'en-US'
+
+// Speech tracking: sliding-window alignment tuning
+export const SPEECH_ALIGNMENT_QUERY_WORDS = 5 // last N recognized words used as the match query
+export const SPEECH_ALIGNMENT_WINDOW_SIZE = 24 // look-ahead tokens scanned from the cursor
+export const SPEECH_ALIGNMENT_CONFIDENCE_THRESHOLD = 0.4 // fuse.js score below which a match is confident (0=perfect)
+export const SPEECH_ALIGNMENT_AMBIGUITY_EPSILON = 0.05 // max score gap still considered "tied"
+export const SPEECH_ALIGNMENT_COMMIT_STREAK = 2 // consecutive interim events required before committing a cursor advance
+export const SPEECH_NO_MATCH_TIMEOUT_MS = 4000 // listening with no confident commit for this long -> 'no-match' status
+export const SPEECH_RESTART_DELAY_MS = 250 // delay before restarting recognition on 'end' - Chrome can throw
+// InvalidStateError if start() is called synchronously within the 'end' handler, before its internal
+// teardown finishes
+export const SPEECH_SCROLL_ANIMATION_DURATION_MS = 700 // longer than SCROLL_SMOOTH_DURATION - commits land
+// every few words rather than every frame, so a longer glide reads as continuous motion instead of
+// discrete hops between commits
+
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms
 export const SCROLL_SMOOTH_DURATION = 300 // ms for scrollTo operations
@@ -99,6 +153,7 @@ export const STORAGE_KEYS = {
   // by the other keys below - it must stay 'preferences' to match what's
   // already persisted for existing users (see usePrefsStore.ts).
   PREFERENCES: 'preferences',
+  MONO_FRAME_PREFERENCES: 'apuntador:monoFramePreferences',
   CONTENT: 'apuntador:content',
   SCROLL_POSITION: 'apuntador:scrollPosition',
   DROPBOX_TOKEN: 'apuntador:dropbox_token',

@@ -5,6 +5,8 @@
  */
 
 import type { PreferencesState } from '@/stores/usePrefsStore'
+import type { MonoPreferencesState } from '@/stores/useMonoFramePrefsStore'
+import type { MonoLine } from '@/composables/useMonospaceLayout'
 
 export interface TeleprompterContent {
   raw: string
@@ -58,4 +60,36 @@ export interface TeleprompterEvents {
   'swipe-up': []
   'swipe-down': []
   'press-hold': []
+}
+
+/**
+ * Prop/event contract for TeleprompterFrameMono - the plain-text, monospace
+ * alternative to TeleprompterFrameV2. Reuses ScrollState/HighlightBandConfig
+ * and the base event set as-is; `content` is the one deliberate divergence
+ * (precomputed lines instead of raw/html - see useMonospaceLayout.ts, owned
+ * by TeleprompterPage.vue, not this component) and it adds
+ * 'viewport-width-changed' since line-wrapping needs the container width.
+ */
+export type MonoDisplayPreferences = Pick<
+  MonoPreferencesState,
+  'fontFamily' | 'fontSizePx' | 'lineHeight' | 'fgColor' | 'bgColor' | 'textAlignment'
+> &
+  Pick<PreferencesState, 'mirrorH' | 'mirrorV'>
+
+export interface MonoTeleprompterContent {
+  lines: MonoLine[]
+  /** Exact, page-measured line height (useMonospaceLayout) - the frame uses this
+   *  directly for highlight-band placement rather than re-measuring itself. */
+  lineHeightPx: number
+}
+
+export interface MonoTeleprompterFrameProps {
+  content: MonoTeleprompterContent
+  scrollState: ScrollState
+  displayPrefs: MonoDisplayPreferences
+  highlightBand: HighlightBandConfig
+}
+
+export interface MonoTeleprompterEvents extends TeleprompterEvents {
+  'viewport-width-changed': [width: number]
 }

@@ -1,5 +1,5 @@
 <template>
-  <!-- Simplified Bottom Toolbar - Always 3 buttons -->
+  <!-- Simplified Bottom Toolbar - 3 fixed buttons plus the voice-mode quick toggle -->
   <div
     v-if="props.isVisible"
     class="floating-toolbar"
@@ -17,6 +17,25 @@
         size="32"
       />
     </button>
+
+    <!-- Voice-mode quick toggle -->
+    <button
+      class="toolbar-btn"
+      :class="{ active: prefsStore.scrollMode === 'voice' }"
+      :aria-label="
+        prefsStore.scrollMode === 'voice' ? t('toolbar.scrollModeVoiceOn') : t('toolbar.scrollModeVoiceOff')
+      "
+      data-testid="scroll-mode-quick-toggle"
+      @click="toggleScrollMode"
+    >
+      <v-icon
+        :icon="prefsStore.scrollMode === 'voice' ? 'mdi-microphone' : 'mdi-microphone-outline'"
+        size="28"
+      />
+    </button>
+
+    <!-- Frame picker: markdown vs monospace -->
+    <FramePickerControl />
 
     <!-- Speed Control -->
     <SpeedControl
@@ -79,6 +98,7 @@ import { useTauri } from '@/utils/tauri'
 import { useTheaterMode } from '@/composables/useTheaterMode'
 import SpeedControl from './SpeedControl.vue'
 import ActionsMenu from './ActionsMenu.vue'
+import FramePickerControl from './FramePickerControl.vue'
 
 // I18n
 const { t } = useI18n()
@@ -240,6 +260,10 @@ function onSpeedChange(delta: number) {
   emit('speedChange', delta)
 }
 
+function toggleScrollMode() {
+  prefsStore.setScrollMode(prefsStore.scrollMode === 'voice' ? 'auto' : 'voice')
+}
+
 function onFontSizeChange(delta: number) {
   emit('fontSizeChange', delta)
 }
@@ -296,7 +320,7 @@ onUnmounted(() => {
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
-  min-width: 320px !important;
+  min-width: 360px !important;
   max-width: calc(100vw - 40px) !important;
   border-radius: 28px !important;
   background: #1a1a1a !important; /* Gris oscuro como ActionsMenu */
@@ -335,13 +359,21 @@ onUnmounted(() => {
   background: #222;
 }
 
+.toolbar-btn.active {
+  background: rgba(var(--v-theme-primary), 0.3);
+}
+
+.toolbar-btn.active:hover {
+  background: rgba(var(--v-theme-primary), 0.4);
+}
+
 /* Responsive adjustments */
 @media (max-width: 360px) {
   .floating-toolbar {
-    min-width: 280px !important;
+    min-width: 300px !important;
     bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    gap: 12px;
-    padding: 8px 16px;
+    gap: 10px;
+    padding: 8px 14px;
   }
   
   .toolbar-btn {
@@ -353,7 +385,7 @@ onUnmounted(() => {
 
 @media (min-width: 600px) {
   .floating-toolbar {
-    max-width: 500px;
+    max-width: 560px;
     bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     gap: 20px;
     padding: 10px 24px;

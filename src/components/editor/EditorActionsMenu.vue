@@ -49,6 +49,7 @@
             <v-card
               class="operation-card"
               variant="outlined"
+              data-testid="local-file-option"
               @click="onLocalFile"
             >
               <v-card-text class="d-flex align-center">

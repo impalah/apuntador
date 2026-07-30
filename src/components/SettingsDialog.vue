@@ -82,6 +82,21 @@
                 />
               </div>
 
+              <!-- Which frame's appearance is being edited -->
+              <v-alert
+                type="info"
+                variant="tonal"
+                density="compact"
+                class="mb-4"
+                data-testid="appearance-editing-frame"
+              >
+                {{
+                  activeAppearance.isMono.value
+                    ? t('settings.editingFrameMonospace')
+                    : t('settings.editingFrameMarkdown')
+                }}
+              </v-alert>
+
               <!-- Font Settings -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">
@@ -89,41 +104,41 @@
                 </h3>
 
                 <v-select
-                  v-model="prefsStore.fontFamily"
+                  :model-value="activeAppearance.fontFamily.value"
                   :label="t('settings.fontFamily')"
-                  :items="fontFamilies"
-                  @update:model-value="savePrefs"
+                  :items="activeAppearance.fontFamilyOptions.value"
+                  @update:model-value="activeAppearance.setFontFamily"
                 />
 
                 <v-slider
-                  v-model="prefsStore.fontSizePx"
+                  :model-value="activeAppearance.fontSizePx.value"
                   :label="t('settings.fontSize')"
                   :min="12"
                   :max="200"
                   :step="2"
                   thumb-label
-                  @end="savePrefs"
+                  @update:model-value="activeAppearance.setFontSizePx"
                 >
                   <template #append>
                     <v-text-field
-                      v-model.number="prefsStore.fontSizePx"
+                      :model-value="activeAppearance.fontSizePx.value"
                       type="number"
                       style="width: 80px"
                       density="compact"
                       suffix="px"
-                      @change="savePrefs"
+                      @update:model-value="(v) => activeAppearance.setFontSizePx(Number(v))"
                     />
                   </template>
                 </v-slider>
 
                 <v-slider
-                  v-model="prefsStore.lineHeight"
+                  :model-value="activeAppearance.lineHeight.value"
                   :label="t('settings.lineHeight')"
                   :min="1"
                   :max="3"
                   :step="0.1"
                   thumb-label
-                  @end="savePrefs"
+                  @update:model-value="activeAppearance.setLineHeight"
                 />
               </div>
 
@@ -136,18 +151,18 @@
                 <v-row>
                   <v-col cols="6">
                     <v-text-field
-                      v-model="prefsStore.fgColor"
+                      :model-value="activeAppearance.fgColor.value"
                       :label="t('settings.foregroundColor')"
                       type="color"
-                      @change="savePrefs"
+                      @update:model-value="activeAppearance.setFgColor"
                     />
                   </v-col>
                   <v-col cols="6">
                     <v-text-field
-                      v-model="prefsStore.bgColor"
+                      :model-value="activeAppearance.bgColor.value"
                       :label="t('settings.backgroundColor')"
                       type="color"
-                      @change="savePrefs"
+                      @update:model-value="activeAppearance.setBgColor"
                     />
                   </v-col>
                 </v-row>
@@ -220,6 +235,40 @@
           <!-- Behavior Tab -->
           <v-tabs-window-item value="behavior">
             <v-form class="mt-4">
+              <!-- Scroll Mode -->
+              <div class="mb-6">
+                <h3 class="text-subtitle-1 mb-3">
+                  {{ t('settings.scrollMode') }}
+                </h3>
+
+                <v-btn-toggle
+                  :model-value="prefsStore.scrollMode"
+                  mandatory
+                  density="comfortable"
+                  data-testid="scroll-mode-toggle"
+                  @update:model-value="onScrollModeChange"
+                >
+                  <v-btn
+                    value="auto"
+                    data-testid="scroll-mode-auto-button"
+                  >
+                    <v-icon start>
+                      mdi-play-speed
+                    </v-icon>
+                    {{ t('settings.scrollModeAuto') }}
+                  </v-btn>
+                  <v-btn
+                    value="voice"
+                    data-testid="scroll-mode-voice-button"
+                  >
+                    <v-icon start>
+                      mdi-microphone
+                    </v-icon>
+                    {{ t('settings.scrollModeVoice') }}
+                  </v-btn>
+                </v-btn-toggle>
+              </div>
+
               <!-- Speed Settings -->
               <div class="mb-6">
                 <h3 class="text-subtitle-1 mb-3">
@@ -499,13 +548,18 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Capacitor } from '@capacitor/core'
 import { useSettingsActions } from '@/composables/useSettingsActions'
+import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import { isTauri } from '@/utils/tauri'
+import type { ScrollMode } from '@/utils/constants'
 
 // I18n
 const { t } = useI18n()
+
+// Per-frame appearance (font/size/colors/alignment) - see useActiveFrameAppearance.ts
+const activeAppearance = useActiveFrameAppearance()
 
 // Router
 const router = useRouter()
@@ -549,7 +603,6 @@ const emit = defineEmits<{
 const {
   prefsStore,
   i18nStore,
-  fontFamilies,
   versionInfo,
   gamepadSupported,
   connectedGamepads,
@@ -564,6 +617,12 @@ const {
 
 function onClearAllData() {
   return clearAllData(t('settings.clearDataConfirm'))
+}
+
+function onScrollModeChange(mode: ScrollMode) {
+  if (mode) {
+    prefsStore.setScrollMode(mode)
+  }
 }
 
 // State

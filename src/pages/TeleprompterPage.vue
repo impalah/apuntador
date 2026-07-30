@@ -1,6 +1,7 @@
 <template>
   <div class="teleprompter-page">
     <TeleprompterFrameV2
+      v-if="prefsStore.activeFrame === 'markdown'"
       ref="teleprompterRef"
       v-bind="teleprompterFrameProps"
       @content-height-changed="onContentHeightChanged"
@@ -8,6 +9,24 @@
       @highlight-band-position-change="onHighlightBandPositionChange"
       @manual-scroll="onManualScroll"
       @tap="onTeleprompterTap"
+    />
+    <TeleprompterFrameMono
+      v-else
+      ref="teleprompterMonoRef"
+      v-bind="monoTeleprompterFrameProps"
+      @content-height-changed="onContentHeightChanged"
+      @viewport-height-changed="onViewportHeightChanged"
+      @viewport-width-changed="onMonoViewportWidthChanged"
+      @highlight-band-position-change="onHighlightBandPositionChange"
+      @manual-scroll="onManualScroll"
+      @tap="onTeleprompterTap"
+    />
+
+    <!-- Voice-tracking status: always visible while voice mode is selected -->
+    <VoiceStatusOverlay
+      v-if="prefsStore.scrollMode === 'voice'"
+      :status="voiceStatus"
+      :error-code="voiceError?.code"
     />
 
     <!-- Modular FloatingToolbar - Using component interfaces -->
@@ -98,25 +117,43 @@ import { Capacitor } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
+import { useMonoFramePrefsStore } from '@/stores/useMonoFramePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { useFileStore } from '@/stores/useFileStore'
-import type { TeleprompterFrameProps } from '@/types/component-interfaces'
+import type { TeleprompterFrameProps, MonoTeleprompterFrameProps } from '@/types/component-interfaces'
 import {
   hotkeyManager,
   updateDescriptionsInMapping,
   updateDescriptionsInGamepadMapping,
 } from '@/utils/input/hotkeys'
 import { gamepadManager } from '@/utils/input/gamepadManager'
+import { SmoothScroller, clampScrollOffset } from '@/utils/scrolling'
+import { useSpeechTracking } from '@/composables/speech/useSpeechTracking'
+import { resolveSpeechLanguage } from '@/utils/speech/resolveSpeechLanguage'
+import {
+  useMonospaceLayout,
+  monoRowToScrollOffset,
+  scrollOffsetToMonoRow,
+} from '@/composables/useMonospaceLayout'
+import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
+import {
+  SPEECH_SCROLL_ANIMATION_DURATION_MS,
+  MONO_FRAME_PADDING_VIEWPORT_RATIO,
+  type TextAlignment,
+} from '@/utils/constants'
 // Components
 import TeleprompterFrameV2 from '@/components/TeleprompterFrameV2.vue'
+import TeleprompterFrameMono from '@/components/TeleprompterFrameMono.vue'
 import FloatingToolbar from '@/components/FloatingToolbar.vue'
 import SettingsDialog from '@/components/SettingsDialog.vue'
 import FileLoader from '@/components/FileLoader.vue'
+import VoiceStatusOverlay from '@/components/VoiceStatusOverlay.vue'
 import { isMobile, getCurrentOrientation } from '@/utils/capacitor'
 
 // Stores
 const teleprompterStore = useTeleprompterStore()
 const prefsStore = usePrefsStore()
+const monoFramePrefsStore = useMonoFramePrefsStore()
 const i18nStore = useI18nStore()
 const fileStore = useFileStore()
 
@@ -124,6 +161,85 @@ const fileStore = useFileStore()
 const { locale, t } = useI18n()
 const { xs, sm } = useDisplay()
 const router = useRouter()
+const activeFrameAppearance = useActiveFrameAppearance()
+
+// Voice-tracking mode: alternative scroll driver, isolated from AutoScroller.
+// See docs/voice-tracking-design.md - TeleprompterFrameV2 stays untouched,
+// this only feeds teleprompterStore.updateScrollOffset via SmoothScroller.
+const scriptText = computed(() => teleprompterStore.contentRaw)
+const speechLanguage = computed(() => resolveSpeechLanguage(i18nStore.currentLanguage))
+const {
+  isSupported: isVoiceTrackingSupported,
+  status: voiceStatus,
+  error: voiceError,
+  progressRatio: voiceProgressRatio,
+  cursorIndex: voiceCursorIndex,
+  start: startSpeechTracking,
+  stop: stopSpeechTracking,
+  seekToRatio: seekVoiceCursorToRatio,
+  seekToIndex: seekVoiceCursorToIndex,
+} = useSpeechTracking(scriptText, speechLanguage)
+
+const voiceScrollAnimator = new SmoothScroller(
+  (offset) => teleprompterStore.updateScrollOffset(offset),
+  () => teleprompterStore.scrollOffset
+)
+
+// Exact line-based layout for the monospace frame - see useMonospaceLayout.ts.
+// Owned here (not by TeleprompterFrameMono) so voice tracking can read
+// lineIndexForTokenIndex/tokenIndexForRow directly, whether or not that
+// frame is currently mounted.
+const monoContainerWidthPx = ref(0)
+const monoLayout = useMonospaceLayout(
+  scriptText,
+  computed(() => monoFramePrefsStore.fontFamily),
+  computed(() => monoFramePrefsStore.fontSizePx),
+  computed(() => monoFramePrefsStore.lineHeight),
+  monoContainerWidthPx,
+  computed(() => teleprompterStore.viewportHeightPx),
+  MONO_FRAME_PADDING_VIEWPORT_RATIO
+)
+
+/**
+ * Resyncs the voice-tracking cursor to wherever the visible scroll position
+ * currently is. Without this, the alignment cursor only ever advances on its
+ * own - any manual repositioning (step lines, home/end, manual drag) while in
+ * voice mode used to be permanently ignored by the matching logic (it never
+ * moves backward), and every pause/resume cycle silently restarted matching
+ * from the very beginning of the script regardless of where playback
+ * actually was.
+ *
+ * Branches on the active frame: the monospace frame has an exact line-index
+ * mapping (useMonospaceLayout), while the markdown frame keeps its original
+ * proportional-ratio approximation, completely unchanged.
+ */
+function resyncVoiceCursorToScroll() {
+  if (prefsStore.scrollMode !== 'voice') return
+
+  if (prefsStore.activeFrame === 'monospace') {
+    const row = scrollOffsetToMonoRow(
+      teleprompterStore.scrollOffset,
+      monoLayout.measuredLineHeightPx.value,
+      teleprompterStore.viewportHeightPx,
+      prefsStore.highlightBandPosPct
+    )
+    seekVoiceCursorToIndex(monoLayout.tokenIndexForRow(row))
+    return
+  }
+
+  const contentHeight = teleprompterStore.contentHeightPx
+  if (contentHeight <= 0) {
+    seekVoiceCursorToRatio(0)
+    return
+  }
+
+  // Must be the exact inverse of the forward mapping used below (progress
+  // ratio -> scroll offset, which targets the highlight band) - otherwise
+  // resyncing recomputes the wrong token position every time it runs.
+  const bandOffsetPx = teleprompterStore.viewportHeightPx * (prefsStore.highlightBandPosPct / 100)
+  const ratio = (teleprompterStore.scrollOffset + bandOffsetPx) / contentHeight
+  seekVoiceCursorToRatio(ratio)
+}
 
 // Responsive computed
 const isMinimalLayout = computed(() => xs.value || sm.value)
@@ -165,8 +281,57 @@ const teleprompterFrameProps = computed<TeleprompterFrameProps>(() => ({
   },
 }))
 
+// Props for TeleprompterFrameMono - shares scrollState/highlightBand with the
+// markdown frame (behavior is identical regardless of which frame is
+// active), diverges only in content (precomputed lines, not raw/html) and
+// displayPrefs (the per-frame appearance store instead of usePrefsStore).
+const monoTeleprompterFrameProps = computed<MonoTeleprompterFrameProps>(() => ({
+  content: {
+    lines: monoLayout.lines.value,
+    lineHeightPx: monoLayout.measuredLineHeightPx.value,
+  },
+  scrollState: teleprompterFrameProps.value.scrollState,
+  displayPrefs: {
+    fontFamily: monoFramePrefsStore.fontFamily,
+    fontSizePx: monoFramePrefsStore.fontSizePx,
+    lineHeight: monoFramePrefsStore.lineHeight,
+    fgColor: monoFramePrefsStore.fgColor,
+    bgColor: monoFramePrefsStore.bgColor,
+    textAlignment: monoFramePrefsStore.textAlignment,
+    mirrorH: prefsStore.mirrorH,
+    mirrorV: prefsStore.mirrorV,
+  },
+  highlightBand: teleprompterFrameProps.value.highlightBand,
+}))
+
 // Component refs
 const teleprompterRef = ref<InstanceType<typeof TeleprompterFrameV2>>()
+const teleprompterMonoRef = ref<InstanceType<typeof TeleprompterFrameMono>>()
+
+/** Calls measureDimensions() on whichever frame is currently mounted. */
+function measureActiveFrame() {
+  teleprompterRef.value?.measureDimensions()
+  teleprompterMonoRef.value?.measureDimensions()
+}
+
+/**
+ * Page-level CSS custom properties (--teleprompter-bg/-fg etc., used as the
+ * outer page container's background/color - see .teleprompter-page below).
+ * Sourced from the active frame's appearance store instead of always
+ * usePrefsStore, so this stays consistent with whichever frame is actually
+ * showing. highlightBandLines/dimmingIntensity are intentionally NOT here -
+ * they're shared/global (decision 3), not per-frame.
+ */
+function applyTeleprompterCSSVariables() {
+  const root = document.documentElement
+  root.style.setProperty('--font-family', activeFrameAppearance.fontFamily.value)
+  root.style.setProperty('--font-size', `${activeFrameAppearance.fontSizePx.value}px`)
+  root.style.setProperty('--line-height', activeFrameAppearance.lineHeight.value.toString())
+  root.style.setProperty('--teleprompter-fg', activeFrameAppearance.fgColor.value)
+  root.style.setProperty('--teleprompter-bg', activeFrameAppearance.bgColor.value)
+  root.style.setProperty('--dimming-intensity', prefsStore.dimmingIntensity.toString())
+  root.style.setProperty('--text-alignment', activeFrameAppearance.textAlignment.value)
+}
 
 // UI state
 const settingsOpen = ref(false)
@@ -258,9 +423,7 @@ const handleOrientationChange = async () => {
 
     // Trigger layout recalculation after orientation change
     nextTick(() => {
-      if (teleprompterRef.value) {
-        teleprompterRef.value.measureDimensions()
-      }
+      measureActiveFrame()
     })
   }
 }
@@ -308,10 +471,10 @@ function showExitToast() {
 // Lifecycle
 onMounted(async () => {
   // Initialize stores
-  await Promise.all([teleprompterStore.initialize(), prefsStore.load()])
+  await Promise.all([teleprompterStore.initialize(), prefsStore.load(), monoFramePrefsStore.load()])
 
   // Apply CSS variables
-  prefsStore.applyCSSVariables()
+  applyTeleprompterCSSVariables()
 
   // Check for hash-based navigation (e.g., /#options/cloud)
   parseHashNavigation()
@@ -378,9 +541,17 @@ watch(
 )
 
 watch(
-  () => [prefsStore.fontSizePx, prefsStore.lineHeight, prefsStore.fontFamily],
+  () => [
+    activeFrameAppearance.fontSizePx.value,
+    activeFrameAppearance.lineHeight.value,
+    activeFrameAppearance.fontFamily.value,
+    activeFrameAppearance.fgColor.value,
+    activeFrameAppearance.bgColor.value,
+    activeFrameAppearance.textAlignment.value,
+    prefsStore.activeFrame,
+  ],
   () => {
-    prefsStore.applyCSSVariables()
+    applyTeleprompterCSSVariables()
   }
 )
 
@@ -423,24 +594,178 @@ watch(
 // Teleprompter actions
 function onPlay() {
   console.log('[ANDROID DEBUG] TeleprompterPage onPlay() called')
+  if (prefsStore.scrollMode === 'voice') {
+    startVoiceMode()
+    return
+  }
   teleprompterStore.play()
 }
 
 function onPause() {
   console.log('[ANDROID DEBUG] TeleprompterPage onPause() called')
+  if (prefsStore.scrollMode === 'voice') {
+    voiceScrollAnimator.cancel()
+    void stopSpeechTracking()
+  }
   teleprompterStore.pause()
 }
 
+/**
+ * Starts voice-driven playback. If the platform doesn't support speech
+ * recognition at all, falls back to automatic scroll immediately and
+ * visibly, rather than leaving the script frozen (spec requirement).
+ */
+function startVoiceMode() {
+  if (!isVoiceTrackingSupported) {
+    prefsStore.setScrollMode('auto')
+    teleprompterStore.play()
+    return
+  }
+
+  resyncVoiceCursorToScroll()
+  teleprompterStore.play({ skipAutoScroller: true })
+  void startSpeechTracking()
+}
+
+/**
+ * Mid-session fallback: a hard engine error (no support / permission denied)
+ * while voice mode is active switches back to automatic scroll so the reader
+ * is never left stuck with a frozen script.
+ */
+function fallbackToAutoMode() {
+  voiceScrollAnimator.cancel()
+  void stopSpeechTracking()
+  prefsStore.setScrollMode('auto')
+
+  if (teleprompterStore.isPlaying) {
+    teleprompterStore.pause()
+    teleprompterStore.play()
+  }
+}
+
+watch(voiceError, (err) => {
+  if (!err || prefsStore.scrollMode !== 'voice') return
+  if (err.code === 'not-supported' || err.code === 'permission-denied') {
+    fallbackToAutoMode()
+  }
+})
+
+// Drive the scroll offset from the estimated script position while voice
+// mode is active and playing - the presenter itself never knows the source.
+// Split by active frame so the markdown path stays byte-for-byte the
+// approximation it always was (isolation), while the monospace path gets
+// the exact line-based positioning that's the whole point of that frame.
+
+// Markdown frame: proportional ratio approximation - unchanged.
+watch(voiceProgressRatio, (ratio) => {
+  if (prefsStore.activeFrame !== 'markdown' || prefsStore.scrollMode !== 'voice' || !teleprompterStore.isPlaying)
+    return
+
+  // ratio * maxOffset (the naive version) scrolls the estimated word to the
+  // very TOP of the viewport, not to the highlight band - the band sits at
+  // highlightBandPosPct% down from the top (see TeleprompterFrameV2's
+  // highlightBandStyle), so the target offset must subtract that much
+  // viewport height to actually bring the currently-read word up to the
+  // band instead of leaving it below the visible/expected reading line.
+  const estimatedContentPosition = ratio * teleprompterStore.contentHeightPx
+  const bandOffsetPx = teleprompterStore.viewportHeightPx * (prefsStore.highlightBandPosPct / 100)
+  const target = clampScrollOffset(
+    estimatedContentPosition - bandOffsetPx,
+    teleprompterStore.contentHeightPx,
+    teleprompterStore.viewportHeightPx
+  )
+
+  voiceScrollAnimator.scrollTo(target, SPEECH_SCROLL_ANIMATION_DURATION_MS)
+})
+
+// Monospace frame: exact line-based position (see useMonospaceLayout.ts) -
+// cursorIndex (a token index) maps to an exact line via lineIndexForTokenIndex,
+// since both are built from the identical word stream.
+watch(voiceCursorIndex, (tokenIndex) => {
+  if (
+    prefsStore.activeFrame !== 'monospace' ||
+    prefsStore.scrollMode !== 'voice' ||
+    !teleprompterStore.isPlaying
+  )
+    return
+
+  const row = monoLayout.lineIndexForTokenIndex(tokenIndex)
+  const target = clampScrollOffset(
+    monoRowToScrollOffset(
+      row,
+      monoLayout.measuredLineHeightPx.value,
+      teleprompterStore.viewportHeightPx,
+      prefsStore.highlightBandPosPct
+    ),
+    teleprompterStore.contentHeightPx,
+    teleprompterStore.viewportHeightPx
+  )
+
+  voiceScrollAnimator.scrollTo(target, SPEECH_SCROLL_ANIMATION_DURATION_MS)
+})
+
+// Switching the quick-toggle mid-playback swaps the active driver immediately,
+// instead of waiting for the next pause/play.
+watch(
+  () => prefsStore.scrollMode,
+  (mode) => {
+    if (!teleprompterStore.isPlaying) return
+
+    if (mode === 'voice') {
+      if (!isVoiceTrackingSupported) {
+        prefsStore.setScrollMode('auto')
+        return
+      }
+      resyncVoiceCursorToScroll()
+      teleprompterStore.pause()
+      teleprompterStore.play({ skipAutoScroller: true })
+      void startSpeechTracking()
+    } else {
+      voiceScrollAnimator.cancel()
+      void stopSpeechTracking()
+      teleprompterStore.pause()
+      teleprompterStore.play()
+    }
+  }
+)
+
+// Switching the markdown/monospace frame mid-playback: same pause/resync/
+// resume approach as the scrollMode watcher above. A visible scroll jump is
+// possible right after the swap (the two frames have very different height
+// scales) until the newly-mounted frame's measureDimensions() fires - not a
+// crash, self-corrects immediately.
+watch(
+  () => prefsStore.activeFrame,
+  () => {
+    if (!teleprompterStore.isPlaying) return
+
+    voiceScrollAnimator.cancel()
+    if (prefsStore.scrollMode === 'voice') {
+      void stopSpeechTracking()
+      teleprompterStore.pause()
+      teleprompterStore.play({ skipAutoScroller: true })
+      resyncVoiceCursorToScroll()
+      void startSpeechTracking()
+    } else {
+      teleprompterStore.pause()
+      teleprompterStore.play()
+    }
+  }
+)
+
 function onStepLines(lines: number) {
   teleprompterStore.stepLines(lines)
+  resyncVoiceCursorToScroll()
 }
 
 function onGoHome() {
   teleprompterStore.toHome()
+  resyncVoiceCursorToScroll()
 }
 
 function onGoEnd() {
   teleprompterStore.toEnd()
+  resyncVoiceCursorToScroll()
 }
 
 function onSpeedChange(delta: number) {
@@ -453,10 +778,14 @@ function onSpeedChange(delta: number) {
 
 function onFontSizeChange(delta: number) {
   if (delta > 0) {
-    prefsStore.increaseFontSize()
+    activeFrameAppearance.increaseFontSize()
   } else {
-    prefsStore.decreaseFontSize()
+    activeFrameAppearance.decreaseFontSize()
   }
+}
+
+function onTextAlignmentChange(alignment: TextAlignment) {
+  activeFrameAppearance.setTextAlignment(alignment)
 }
 
 function onMirrorToggle(axis: 'h' | 'v') {
@@ -488,12 +817,26 @@ function onViewportHeightChanged(height: number) {
   teleprompterStore.setViewportHeight(height)
 }
 
+function onMonoViewportWidthChanged(width: number) {
+  monoContainerWidthPx.value = width
+}
+
 function onHighlightBandPositionChange(positionPct: number) {
   prefsStore.highlightBandPosPct = positionPct
 }
 
 function onManualScroll(scrollTop: number) {
   teleprompterStore.syncScrollFromDOM(scrollTop)
+
+  // syncScrollFromDOM itself is a no-op while playing (see
+  // useTeleprompterStore) - mirror that guard here too. Without it, native
+  // 'scroll' events firing during voice mode's own animated (700ms) scroll
+  // get misread as manual scrolls (the sync-suppression window in
+  // TeleprompterFrameV2 is far shorter than that animation), constantly
+  // resyncing the cursor to itself and corrupting the estimated position.
+  if (!teleprompterStore.isPlaying) {
+    resyncVoiceCursorToScroll()
+  }
 }
 
 function onTeleprompterTap() {
@@ -604,9 +947,9 @@ function setupHotkeys() {
     'open-editor': onOpenEditor,
     'open-settings': onOpenSettings,
     'open-file': onOpenFile,
-    'align-left': () => prefsStore.setTextAlignment('left'),
-    'align-center': () => prefsStore.setTextAlignment('center'),
-    'align-right': () => prefsStore.setTextAlignment('right'),
+    'align-left': () => onTextAlignmentChange('left'),
+    'align-center': () => onTextAlignmentChange('center'),
+    'align-right': () => onTextAlignmentChange('right'),
     'close-modal': () => {
       settingsOpen.value = false
       fileLoaderOpen.value = false
@@ -641,9 +984,9 @@ function setupGamepad() {
     'open-editor': onOpenEditor,
     'open-settings': onOpenSettings,
     'open-file': onOpenFile,
-    'align-left': () => prefsStore.setTextAlignment('left'),
-    'align-center': () => prefsStore.setTextAlignment('center'),
-    'align-right': () => prefsStore.setTextAlignment('right'),
+    'align-left': () => onTextAlignmentChange('left'),
+    'align-center': () => onTextAlignmentChange('center'),
+    'align-right': () => onTextAlignmentChange('right'),
     'close-modal': () => {
       settingsOpen.value = false
       fileLoaderOpen.value = false

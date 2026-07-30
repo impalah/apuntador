@@ -687,4 +687,147 @@ describe('usePrefsStore', () => {
       expect(mockRoot.style.setProperty).toHaveBeenCalledWith('--text-alignment', 'left')
     })
   })
+
+  describe('Scroll Mode (voice tracking)', () => {
+    it('should default to auto', () => {
+      const store = usePrefsStore()
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('should set scroll mode and persist it', async () => {
+      const store = usePrefsStore()
+
+      store.setScrollMode('voice')
+      expect(store.scrollMode).toBe('voice')
+
+      const savedData = JSON.parse(localStorageMock.getItem('preferences') || '{}')
+      expect(savedData.scrollMode).toBe('voice')
+    })
+
+    it('should save and load scroll mode preference', async () => {
+      const store = usePrefsStore()
+
+      store.setScrollMode('voice')
+      await store.save()
+
+      setActivePinia(createPinia())
+
+      const newStore = usePrefsStore()
+      await newStore.load()
+
+      expect(newStore.scrollMode).toBe('voice')
+    })
+
+    it('should reset scroll mode to default', () => {
+      const store = usePrefsStore()
+
+      store.setScrollMode('voice')
+      expect(store.scrollMode).toBe('voice')
+
+      store.reset()
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('falls back to auto when saved scroll mode is invalid', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        scrollMode: 'not-a-real-mode',
+        customHotkeys: {},
+        customGamepadMappings: {},
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const store = usePrefsStore()
+      await store.load()
+
+      expect(store.scrollMode).toBe('auto')
+      warnSpy.mockRestore()
+    })
+  })
+
+  describe('Active Frame (markdown vs monospace)', () => {
+    it('should default to markdown', () => {
+      const store = usePrefsStore()
+      expect(store.activeFrame).toBe('markdown')
+    })
+
+    it('should set active frame and persist it', async () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      expect(store.activeFrame).toBe('monospace')
+
+      const savedData = JSON.parse(localStorageMock.getItem('preferences') || '{}')
+      expect(savedData.activeFrame).toBe('monospace')
+    })
+
+    it('should save and load active frame preference', async () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      await store.save()
+
+      setActivePinia(createPinia())
+
+      const newStore = usePrefsStore()
+      await newStore.load()
+
+      expect(newStore.activeFrame).toBe('monospace')
+    })
+
+    it('should reset active frame to default', () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      expect(store.activeFrame).toBe('monospace')
+
+      store.reset()
+      expect(store.activeFrame).toBe('markdown')
+    })
+
+    it('falls back to markdown when saved active frame is invalid', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        scrollMode: 'auto',
+        activeFrame: 'not-a-real-frame',
+        customHotkeys: {},
+        customGamepadMappings: {},
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+      const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+      const store = usePrefsStore()
+      await store.load()
+
+      expect(store.activeFrame).toBe('markdown')
+      warnSpy.mockRestore()
+    })
+  })
 })
