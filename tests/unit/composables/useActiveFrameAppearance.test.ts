@@ -119,6 +119,23 @@ describe('useActiveFrameAppearance', () => {
     expect(monoStore.bgColor).toBe('#444444')
   })
 
+  it('always reads/writes voiceReadColor on useMonoFramePrefsStore, regardless of the active frame', () => {
+    const prefsStore = usePrefsStore()
+    const monoStore = useMonoFramePrefsStore()
+    const appearance = useActiveFrameAppearance()
+
+    expect(appearance.isMono.value).toBe(false) // markdown frame active
+    expect(appearance.voiceReadColor.value).toBe('#FFEB3B')
+
+    appearance.setVoiceReadColor('#ff9900')
+    expect(monoStore.voiceReadColor).toBe('#ff9900')
+    expect(appearance.voiceReadColor.value).toBe('#ff9900') // no markdown-frame fallback to read from
+
+    prefsStore.setActiveFrame('monospace')
+    expect(appearance.isMono.value).toBe(true)
+    expect(appearance.voiceReadColor.value).toBe('#ff9900')
+  })
+
   it('routes setFontSizePx/setLineHeight to the active store', () => {
     const prefsStore = usePrefsStore()
     const monoStore = useMonoFramePrefsStore()

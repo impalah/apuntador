@@ -142,6 +142,12 @@ export const usePrefsStore = defineStore('preferences', () => {
         textAlignment.value = validated.textAlignment
         scrollMode.value = validated.scrollMode
         activeFrame.value = validated.activeFrame
+        // Voice mode requires the monospace frame (exact line-index mapping) -
+        // guard against stale persisted state from before that constraint
+        // existed, or from external edits to the storage payload.
+        if (scrollMode.value === 'voice' && activeFrame.value !== 'monospace') {
+          scrollMode.value = 'auto'
+        }
 
         // Handle custom hotkeys with fallback to defaults
         const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
@@ -246,13 +252,24 @@ export const usePrefsStore = defineStore('preferences', () => {
     save()
   }
 
+  /**
+   * Voice mode requires the monospace frame - it's the only one with an
+   * exact line-index mapping (useMonospaceLayout) for the alignment cursor
+   * to target. Rejects the switch to 'voice' outright rather than falling
+   * back, so callers (buttons, hotkeys) see it simply not take effect.
+   */
   function setScrollMode(mode: ScrollMode) {
+    if (mode === 'voice' && activeFrame.value !== 'monospace') return
     scrollMode.value = mode
     save()
   }
 
+  /** Leaving the monospace frame while voice mode is active drops back to 'auto' - see setScrollMode. */
   function setActiveFrame(frame: ActiveFrame) {
     activeFrame.value = frame
+    if (frame !== 'monospace' && scrollMode.value === 'voice') {
+      scrollMode.value = 'auto'
+    }
     save()
   }
 

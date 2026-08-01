@@ -21,9 +21,6 @@
     "line": "Zeile",
     "lines": "Zeilen",
     "navigation": "Navigation",
-    "left": "Links",
-    "center": "Mitte",
-    "right": "Rechts",
     "home": "Anfang",
     "end": "Ende"
   },
@@ -54,7 +51,6 @@
     "theater": "Theater-Modus",
     "exitTheater": "Theater verlassen",
     "openEditor": "Editor öffnen",
-    "openSettings": "Einstellungen öffnen",
     "openFile": "Datei öffnen",
     "more": "Mehr",
     "less": "Weniger",
@@ -68,7 +64,6 @@
     "title": "Einstellungen",
     "options": "Optionen",
     "appearance": "Erscheinungsbild",
-    "behavior": "Verhalten",
     "behaviorMovedToToolbar": "Verhaltensoptionen sind jetzt in der Symbolleiste",
     "dataMovedToAbout": "Datenoptionen wurden in die Registerkarte 'Über' verschoben",
     "controls": "Steuerung",
@@ -83,12 +78,10 @@
     "lineHeight": "Zeilenhöhe",
     "foregroundColor": "Textfarbe",
     "backgroundColor": "Hintergrundfarbe",
+    "voiceReadColor": "Sprach-Hervorhebungsfarbe",
     "highlightBandHeight": "Höhe des Hervorhebungsbands",
     "highlightBandPosition": "Position des Hervorhebungsbands",
     "dimmingIntensity": "Abdunklungsintensität",
-    "scrollSpeed": "Scroll-Geschwindigkeit",
-    "speedMin": "Mindestgeschwindigkeit",
-    "speedMax": "Höchstgeschwindigkeit",
     "scrollMode": "Scroll-Modus",
     "scrollModeAuto": "Automatisch",
     "scrollModeVoice": "Sprachgesteuert",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Horizontale Spiegelung umschalten",
     "mirrorVertical": "Vertikale Spiegelung umschalten",
     "openEditor": "Editor öffnen",
-    "openSettings": "Einstellungen öffnen",
     "openFile": "Datei öffnen",
     "newFile": "Neue Datei",
     "save": "Datei speichern",
@@ -335,13 +327,6 @@
         "renewed": "Zertifikat erfolgreich erneuert"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Fenster minimieren",
-    "maximize": "Fenster maximieren",
-    "close": "Fenster schließen",
-    "alwaysOnTop": "Immer im Vordergrund",
-    "fullscreen": "Vollbild umschalten"
   },
   "cloud": {
     "activeProvider": "Aktiver Anbieter",

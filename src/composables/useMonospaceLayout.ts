@@ -19,8 +19,22 @@ import { computed, ref, watch, type ComputedRef, type Ref } from 'vue'
 import { buildWordStream, type WordStreamEntry } from '@/utils/plainText'
 import { LINE_HEIGHT_FALLBACK, MONO_CHAR_MEASURE_SAMPLE_LENGTH } from '@/utils/constants'
 
+export interface MonoWord {
+  text: string
+  /**
+   * Alignment token index to compare against the voice-tracking cursor for
+   * read/unread coloring. Equal to the word's own sourceIndex for indexable
+   * words; for a punctuation-only word (sourceIndex null - it carries no
+   * alignment token of its own) this is the nearest *preceding* indexable
+   * word's index instead, so it colors in step with its neighbor rather than
+   * flickering independently. -1 before any indexable word has occurred yet.
+   */
+  renderIndex: number
+}
+
 export interface MonoLine {
   text: string
+  words: MonoWord[]
   /** Index (in the token stream) of the first indexable word on this line, or null if none (e.g. a blank/paragraph-separator line). */
   startTokenIndex: number | null
   /** Index of the last indexable word on this line, or null if none. */
@@ -41,7 +55,11 @@ export function computeCharsPerLine(containerWidthPx: number, charWidthPx: numbe
 export function wrapWordStreamIntoLines(stream: WordStreamEntry[], charsPerLine: number): MonoLine[] {
   const lines: MonoLine[] = []
   let currentWords: WordStreamEntry[] = []
+  let currentRenderIndices: number[] = []
   let currentLength = 0
+  // Tracked across the whole stream (not reset per line) so a punctuation-only
+  // word right after a line break still inherits the previous line's last index.
+  let lastIndexableIndex = -1
 
   function flushLine(): void {
     if (currentWords.length === 0) return
@@ -50,18 +68,22 @@ export function wrapWordStreamIntoLines(stream: WordStreamEntry[], charsPerLine:
       .filter((index): index is number => index !== null)
     lines.push({
       text: currentWords.map((entry) => entry.word).join(' '),
+      words: currentWords.map((entry, i) => ({ text: entry.word, renderIndex: currentRenderIndices[i]! })),
       startTokenIndex: indices.length > 0 ? indices[0]! : null,
       endTokenIndex: indices.length > 0 ? indices[indices.length - 1]! : null,
     })
     currentWords = []
+    currentRenderIndices = []
     currentLength = 0
   }
 
   for (const entry of stream) {
     if (entry.paragraphBreakBefore) {
       flushLine()
-      lines.push({ text: '', startTokenIndex: null, endTokenIndex: null })
+      lines.push({ text: '', words: [], startTokenIndex: null, endTokenIndex: null })
     }
+
+    if (entry.sourceIndex !== null) lastIndexableIndex = entry.sourceIndex
 
     const projectedLength =
       currentWords.length === 0 ? entry.word.length : currentLength + 1 + entry.word.length
@@ -71,6 +93,7 @@ export function wrapWordStreamIntoLines(stream: WordStreamEntry[], charsPerLine:
     }
 
     currentWords.push(entry)
+    currentRenderIndices.push(lastIndexableIndex)
     currentLength =
       currentWords.length === 1 ? entry.word.length : currentLength + 1 + entry.word.length
   }
@@ -152,7 +175,7 @@ export function scrollOffsetToMonoRow(
   return (offset + bandOffsetPx) / measuredLineHeightPx
 }
 
-const BLANK_LINE: MonoLine = { text: '', startTokenIndex: null, endTokenIndex: null }
+const BLANK_LINE: MonoLine = { text: '', words: [], startTokenIndex: null, endTokenIndex: null }
 
 /**
  * Reactive wrapper: measures the monospace font's real character width/line

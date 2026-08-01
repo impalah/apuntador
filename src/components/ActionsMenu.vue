@@ -154,6 +154,21 @@
                         />
                       </v-col>
                     </v-row>
+
+                    <!-- Voice-tracking highlight color: only takes visible effect in the
+                         monospace frame (voice mode requires it), but always shown here so
+                         it's easy to find regardless of which frame is currently active. -->
+                    <v-row>
+                      <v-col cols="6">
+                        <v-text-field
+                          :model-value="activeAppearance.voiceReadColor.value"
+                          :label="t('settings.voiceReadColor')"
+                          type="color"
+                          data-testid="voice-read-color-input"
+                          @update:model-value="activeAppearance.setVoiceReadColor"
+                        />
+                      </v-col>
+                    </v-row>
                   </div>
 
                   <!-- Highlight Band -->
@@ -360,6 +375,43 @@
                       </v-btn>
                     </div>
                   </div>
+
+                  <!-- Debug navigation - dev/native builds only -->
+                  <template v-if="isDevMode && (isNativePlatform || isTauriPlatform)">
+                    <v-divider class="my-6" />
+                    <div class="d-flex flex-column gap-2">
+                      <v-btn
+                        v-if="isNativePlatform"
+                        color="secondary"
+                        variant="text"
+                        prepend-icon="mdi-shield-check"
+                        block
+                        @click="goToEnrollmentTest"
+                      >
+                        Device Enrollment Test
+                      </v-btn>
+                      <v-btn
+                        v-if="isNativePlatform"
+                        color="info"
+                        variant="text"
+                        prepend-icon="mdi-lock-check"
+                        block
+                        @click="goToMTLSTest"
+                      >
+                        mTLS Client Test
+                      </v-btn>
+                      <v-btn
+                        v-if="isTauriPlatform"
+                        color="success"
+                        variant="text"
+                        prepend-icon="mdi-desktop-mac"
+                        block
+                        @click="goToDesktopMTLSTest"
+                      >
+                        Desktop mTLS Test
+                      </v-btn>
+                    </div>
+                  </template>
                 </div>
               </v-tabs-window-item>
             </v-tabs-window>
@@ -614,22 +666,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
 import { useSettingsActions } from '@/composables/useSettingsActions'
 import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import { Z_INDEX, type ScrollMode } from '@/utils/constants'
+import { isTauri } from '@/utils/tauri'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import SliderControl from './SliderControl.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
 // Per-frame appearance (font/size/colors/alignment) - see useActiveFrameAppearance.ts
 const activeAppearance = useActiveFrameAppearance()
 
-// Shared preferences/hotkeys/gamepad/data-management actions (also used by SettingsDialog)
+// Device enrollment / mTLS debug pages must never be reachable outside development builds
+const isDevMode = import.meta.env.DEV
+const isNativePlatform = computed(() => Capacitor.isNativePlatform())
+const isTauriPlatform = computed(() => isTauri())
+
+// Shared preferences/hotkeys/gamepad/data-management actions (also used by the editor's own settings view)
 const {
   prefsStore,
   i18nStore,
@@ -689,11 +750,25 @@ const emit = defineEmits<{
   'toggleTheater': []
   'openFile': []
   'openEditor': []
-  'openSettings': []
   'minimizeWindow': []
   'maximizeWindow': []
   'toggleFullscreen': []
 }>()
+
+function goToEnrollmentTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'device-enrollment-test' })
+}
+
+function goToMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'mtls-client-test' })
+}
+
+function goToDesktopMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'desktop-mtls-test' })
+}
 
 // Handle action and optionally close menu
 const handleAction = (action: string, ...args: any[]) => {

@@ -21,9 +21,6 @@
     "line": "liña",
     "lines": "liñas",
     "navigation": "Navegación",
-    "left": "Esquerda",
-    "center": "Centro",
-    "right": "Dereita",
     "home": "Inicio",
     "end": "Final"
   },
@@ -54,7 +51,6 @@
     "theater": "Modo Teatro",
     "exitTheater": "Saír do Teatro",
     "openEditor": "Abrir editor",
-    "openSettings": "Abrir configuración",
     "openFile": "Abrir arquivo",
     "more": "Máis",
     "less": "Menos",
@@ -68,7 +64,6 @@
     "title": "Configuración",
     "options": "Opcións",
     "appearance": "Aparencia",
-    "behavior": "Comportamento",
     "behaviorMovedToToolbar": "As opcións de comportamento agora están na barra de ferramentas",
     "dataMovedToAbout": "As opcións de datos movéronse á pestana 'Acerca de'",
     "controls": "Controis",
@@ -83,12 +78,10 @@
     "lineHeight": "Altura de liña",
     "foregroundColor": "Cor do texto",
     "backgroundColor": "Cor de fondo",
+    "voiceReadColor": "Cor de resaltado por voz",
     "highlightBandHeight": "Altura de banda de realce",
     "highlightBandPosition": "Posición de banda de realce",
     "dimmingIntensity": "Intensidade de atenuación",
-    "scrollSpeed": "Velocidade de desprazamento",
-    "speedMin": "Velocidade mínima",
-    "speedMax": "Velocidade máxima",
     "scrollMode": "Modo de avance",
     "scrollModeAuto": "Automático",
     "scrollModeVoice": "Por voz",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Alternar espello horizontal",
     "mirrorVertical": "Alternar espello vertical",
     "openEditor": "Abrir editor",
-    "openSettings": "Abrir configuración",
     "openFile": "Abrir arquivo",
     "newFile": "Novo arquivo",
     "save": "Gardar arquivo",
@@ -335,13 +327,6 @@
         "renewed": "Certificado renovado con éxito"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Minimizar ventá",
-    "maximize": "Maximizar ventá",
-    "close": "Pechar ventá",
-    "alwaysOnTop": "Sempre arriba",
-    "fullscreen": "Alternar pantalla completa"
   },
   "cloud": {
     "activeProvider": "Provedor activo",

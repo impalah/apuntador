@@ -69,14 +69,46 @@ describe('wrapWordStreamIntoLines', () => {
   it('returns an empty array for an empty stream', () => {
     expect(wrapWordStreamIntoLines([], 40)).toEqual([])
   })
+
+  it('gives each word a renderIndex matching its own token index', () => {
+    const stream = buildWordStream('one two three four five')
+    const lines = wrapWordStreamIntoLines(stream, 10)
+    expect(lines.map((l) => l.words.map((w) => w.renderIndex))).toEqual([
+      [0, 1],
+      [2, 3],
+      [4],
+    ])
+  })
+
+  it('gives a punctuation-only word the renderIndex of the nearest preceding indexable word', () => {
+    const stream = buildWordStream('one --- two')
+    const lines = wrapWordStreamIntoLines(stream, 80)
+    expect(lines[0]!.words.map((w) => ({ text: w.text, renderIndex: w.renderIndex }))).toEqual([
+      { text: 'one', renderIndex: 0 },
+      { text: '---', renderIndex: 0 },
+      { text: 'two', renderIndex: 1 },
+    ])
+  })
+
+  it('gives leading punctuation before any indexable word a renderIndex of -1', () => {
+    const stream = buildWordStream('--- one')
+    const lines = wrapWordStreamIntoLines(stream, 80)
+    expect(lines[0]!.words.map((w) => w.renderIndex)).toEqual([-1, 0])
+  })
+
+  it('carries the last indexable index across a paragraph break for the following blank line', () => {
+    const stream = buildWordStream('first paragraph\n\nsecond paragraph')
+    const lines = wrapWordStreamIntoLines(stream, 80)
+    expect(lines.map((l) => l.words.length)).toEqual([2, 0, 2])
+  })
 })
 
 describe('lineIndexForToken', () => {
   const lines: MonoLine[] = [
-    { text: 'one two', startTokenIndex: 0, endTokenIndex: 1 },
-    { text: '', startTokenIndex: null, endTokenIndex: null },
-    { text: 'three four', startTokenIndex: 2, endTokenIndex: 3 },
-    { text: 'five', startTokenIndex: 4, endTokenIndex: 4 },
+    { text: 'one two', words: [], startTokenIndex: 0, endTokenIndex: 1 },
+    { text: '', words: [], startTokenIndex: null, endTokenIndex: null },
+    { text: 'three four', words: [], startTokenIndex: 2, endTokenIndex: 3 },
+    { text: 'five', words: [], startTokenIndex: 4, endTokenIndex: 4 },
   ]
 
   it('finds the exact line for a token within its range', () => {
@@ -96,16 +128,16 @@ describe('lineIndexForToken', () => {
   })
 
   it('returns 0 when there are no indexable lines at all', () => {
-    const allBlank: MonoLine[] = [{ text: '', startTokenIndex: null, endTokenIndex: null }]
+    const allBlank: MonoLine[] = [{ text: '', words: [], startTokenIndex: null, endTokenIndex: null }]
     expect(lineIndexForToken(allBlank, 0)).toBe(0)
   })
 })
 
 describe('tokenIndexForLine', () => {
   const lines: MonoLine[] = [
-    { text: 'one two', startTokenIndex: 0, endTokenIndex: 1 },
-    { text: '', startTokenIndex: null, endTokenIndex: null },
-    { text: 'three four', startTokenIndex: 2, endTokenIndex: 3 },
+    { text: 'one two', words: [], startTokenIndex: 0, endTokenIndex: 1 },
+    { text: '', words: [], startTokenIndex: null, endTokenIndex: null },
+    { text: 'three four', words: [], startTokenIndex: 2, endTokenIndex: 3 },
   ]
 
   it('returns the token index directly for a line that carries one', () => {

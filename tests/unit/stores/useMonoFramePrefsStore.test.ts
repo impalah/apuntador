@@ -53,6 +53,7 @@ describe('useMonoFramePrefsStore', () => {
     expect(store.fontFamily).toBe('Courier New, monospace')
     expect(store.fontSizePx).toBe(24)
     expect(store.textAlignment).toBe('center')
+    expect(store.voiceReadColor).toBe('#FFEB3B')
   })
 
   it('sets font family and persists it', async () => {
@@ -103,21 +104,66 @@ describe('useMonoFramePrefsStore', () => {
     store.setTextAlignment('left')
     store.setFgColor('#00ff00')
     store.setBgColor('#111111')
+    store.setVoiceReadColor('#ff9900')
 
     expect(store.textAlignment).toBe('left')
     expect(store.fgColor).toBe('#00ff00')
     expect(store.bgColor).toBe('#111111')
+    expect(store.voiceReadColor).toBe('#ff9900')
 
     const saved = JSON.parse(localStorageMock.getItem('apuntador:monoFramePreferences') || '{}')
     expect(saved.textAlignment).toBe('left')
     expect(saved.fgColor).toBe('#00ff00')
     expect(saved.bgColor).toBe('#111111')
+    expect(saved.voiceReadColor).toBe('#ff9900')
+  })
+
+  it('falls back to the default voice read color when the saved value is malformed', async () => {
+    localStorageMock.setItem(
+      'apuntador:monoFramePreferences',
+      JSON.stringify({
+        fontFamily: 'Courier New, monospace',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#ffffff',
+        bgColor: '#000000',
+        voiceReadColor: 'not-a-hex-color',
+        textAlignment: 'center',
+      })
+    )
+    const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
+    const store = useMonoFramePrefsStore()
+    await store.load()
+
+    expect(store.voiceReadColor).toBe('#FFEB3B')
+    warnSpy.mockRestore()
+  })
+
+  it('defaults the voice read color when loading a payload saved before the field existed', async () => {
+    localStorageMock.setItem(
+      'apuntador:monoFramePreferences',
+      JSON.stringify({
+        fontFamily: 'Courier New, monospace',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#ffffff',
+        bgColor: '#000000',
+        textAlignment: 'center',
+      })
+    )
+
+    const store = useMonoFramePrefsStore()
+    await store.load()
+
+    expect(store.voiceReadColor).toBe('#FFEB3B')
   })
 
   it('round-trips save/load', async () => {
     const store = useMonoFramePrefsStore()
     store.setFontFamily('Consolas, monospace')
     store.setTextAlignment('right')
+    store.setVoiceReadColor('#00ccff')
     await store.save()
 
     setActivePinia(createPinia())
@@ -126,17 +172,20 @@ describe('useMonoFramePrefsStore', () => {
 
     expect(newStore.fontFamily).toBe('Consolas, monospace')
     expect(newStore.textAlignment).toBe('right')
+    expect(newStore.voiceReadColor).toBe('#00ccff')
   })
 
   it('resets to defaults', () => {
     const store = useMonoFramePrefsStore()
     store.setFontFamily('Monaco, monospace')
     store.setTextAlignment('left')
+    store.setVoiceReadColor('#00ccff')
 
     store.reset()
 
     expect(store.fontFamily).toBe('Courier New, monospace')
     expect(store.textAlignment).toBe('center')
+    expect(store.voiceReadColor).toBe('#FFEB3B')
   })
 
   it('logs a warning instead of throwing when persisting fails', async () => {

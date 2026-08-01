@@ -25,11 +25,18 @@
         :style="contentStyle"
         data-testid="teleprompter-mono-content"
       >
-        <div
-          v-for="(line, index) in content.lines"
-          :key="index"
-          class="mono-line"
-        >{{ line.text || blankLinePlaceholder }}</div>
+        <div v-for="(line, index) in content.lines" :key="index" class="mono-line">
+          <template v-if="line.words.length > 0">
+            <span
+              v-for="(word, wordIndex) in line.words"
+              :key="wordIndex"
+              :class="{ 'mono-word-read': isWordRead(word) }"
+              >{{ word.text }}{{ wordIndex < line.words.length - 1 ? ' ' : '' }}</span
+            ></template
+          ><template v-else>
+            {{ blankLinePlaceholder }}
+          </template>
+        </div>
       </div>
     </div>
 
@@ -75,6 +82,7 @@ import { isTauri } from '@/utils/tauri'
 import { useTeleprompterScrollSync } from '@/composables/useTeleprompterScrollSync'
 import HighlightBandHandle from './HighlightBandHandle.vue'
 import type { MonoTeleprompterFrameProps, MonoTeleprompterEvents } from '@/types/component-interfaces'
+import type { MonoWord } from '@/composables/useMonospaceLayout'
 
 interface Props {
   content: MonoTeleprompterFrameProps['content']
@@ -90,6 +98,17 @@ const emit = defineEmits<MonoTeleprompterEvents>()
 // a non-breaking space keeps blank/paragraph-separator lines at the same
 // height as text lines without showing anything visible.
 const blankLinePlaceholder = '\u00A0'
+
+/**
+ * Word-level "already read" state for voice-tracking coloring - purely a
+ * function of the current alignment cursor (props.content.readUpToIndex), so
+ * scrolling backward or re-seeking the cursor un-highlights text for free:
+ * there is no separate "highlighted so far" state to reset.
+ */
+function isWordRead(word: MonoWord): boolean {
+  const readUpToIndex = props.content.readUpToIndex
+  return readUpToIndex !== null && word.renderIndex >= 0 && word.renderIndex <= readUpToIndex
+}
 
 const containerRef = ref<HTMLElement>()
 const transformedContainerRef = ref<HTMLElement>()
@@ -252,6 +271,10 @@ defineExpose({
 
 .teleprompter-content-mono {
   padding: 2rem;
+}
+
+.mono-word-read {
+  color: v-bind('props.displayPrefs.voiceReadColor');
 }
 
 .mono-line {

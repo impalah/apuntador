@@ -21,9 +21,6 @@
     "line": "ligne",
     "lines": "lignes",
     "navigation": "Navigation",
-    "left": "Gauche",
-    "center": "Centre",
-    "right": "Droite",
     "home": "Début",
     "end": "Fin"
   },
@@ -54,7 +51,6 @@
     "theater": "Mode Théâtre",
     "exitTheater": "Quitter le Théâtre",
     "openEditor": "Ouvrir l'éditeur",
-    "openSettings": "Ouvrir les paramètres",
     "openFile": "Ouvrir un fichier",
     "more": "Plus",
     "less": "Moins",
@@ -68,7 +64,6 @@
     "title": "Paramètres",
     "options": "Options",
     "appearance": "Apparence",
-    "behavior": "Comportement",
     "behaviorMovedToToolbar": "Les options de comportement sont maintenant dans la barre d'outils",
     "dataMovedToAbout": "Les options de données ont été déplacées vers l'onglet 'À propos'",
     "controls": "Contrôles",
@@ -83,12 +78,10 @@
     "lineHeight": "Hauteur de ligne",
     "foregroundColor": "Couleur du texte",
     "backgroundColor": "Couleur d'arrière-plan",
+    "voiceReadColor": "Couleur de surbrillance vocale",
     "highlightBandHeight": "Hauteur de la bande de surbrillance",
     "highlightBandPosition": "Position de la bande de surbrillance",
     "dimmingIntensity": "Intensité d'assombrissement",
-    "scrollSpeed": "Vitesse de défilement",
-    "speedMin": "Vitesse minimale",
-    "speedMax": "Vitesse maximale",
     "scrollMode": "Mode de défilement",
     "scrollModeAuto": "Automatique",
     "scrollModeVoice": "Par la voix",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Basculer le miroir horizontal",
     "mirrorVertical": "Basculer le miroir vertical",
     "openEditor": "Ouvrir l'éditeur",
-    "openSettings": "Ouvrir les paramètres",
     "openFile": "Ouvrir un fichier",
     "newFile": "Nouveau fichier",
     "save": "Enregistrer le fichier",
@@ -335,13 +327,6 @@
         "renewed": "Certificat renouvelé avec succès"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Réduire la fenêtre",
-    "maximize": "Agrandir la fenêtre",
-    "close": "Fermer la fenêtre",
-    "alwaysOnTop": "Toujours au premier plan",
-    "fullscreen": "Basculer en plein écran"
   },
   "cloud": {
     "activeProvider": "Fournisseur actif",

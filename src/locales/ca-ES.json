@@ -21,9 +21,6 @@
     "line": "línia",
     "lines": "línies",
     "navigation": "Navegació",
-    "left": "Esquerra",
-    "center": "Centre",
-    "right": "Dreta",
     "home": "Inici",
     "end": "Final"
   },
@@ -54,7 +51,6 @@
     "theater": "Mode Teatre",
     "exitTheater": "Sortir del Teatre",
     "openEditor": "Obrir editor",
-    "openSettings": "Obrir configuració",
     "openFile": "Obrir arxiu",
     "more": "Més",
     "less": "Menys",
@@ -68,7 +64,6 @@
     "title": "Configuració",
     "options": "Opcions",
     "appearance": "Aparència",
-    "behavior": "Comportament",
     "behaviorMovedToToolbar": "Les opcions de comportament ara estan a la barra d'eines",
     "dataMovedToAbout": "Les opcions de dades s'han mogut a la pestanya 'Quant a'",
     "controls": "Controls",
@@ -83,12 +78,10 @@
     "lineHeight": "Alçada de línia",
     "foregroundColor": "Color del text",
     "backgroundColor": "Color de fons",
+    "voiceReadColor": "Color de ressaltat per veu",
     "highlightBandHeight": "Alçada de banda de ressaltat",
     "highlightBandPosition": "Posició de banda de ressaltat",
     "dimmingIntensity": "Intensitat d'atenuació",
-    "scrollSpeed": "Velocitat de desplaçament",
-    "speedMin": "Velocitat mínima",
-    "speedMax": "Velocitat màxima",
     "scrollMode": "Mode d'avanç",
     "scrollModeAuto": "Automàtic",
     "scrollModeVoice": "Per veu",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Alternar mirall horitzontal",
     "mirrorVertical": "Alternar mirall vertical",
     "openEditor": "Obrir editor",
-    "openSettings": "Obrir configuració",
     "openFile": "Obrir arxiu",
     "newFile": "Nou arxiu",
     "save": "Desar arxiu",
@@ -335,13 +327,6 @@
         "renewed": "Certificat renovat amb èxit"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Minimitzar finestra",
-    "maximize": "Maximitzar finestra",
-    "close": "Tancar finestra",
-    "alwaysOnTop": "Sempre a dalt",
-    "fullscreen": "Alternar pantalla completa"
   },
   "cloud": {
     "activeProvider": "Proveïdor actiu",

@@ -21,9 +21,6 @@
     "line": "linha",
     "lines": "linhas",
     "navigation": "Navegação",
-    "left": "Esquerda",
-    "center": "Centro",
-    "right": "Direita",
     "home": "Início",
     "end": "Fim"
   },
@@ -54,7 +51,6 @@
     "theater": "Modo Teatro",
     "exitTheater": "Sair do Teatro",
     "openEditor": "Abrir editor",
-    "openSettings": "Abrir definições",
     "openFile": "Abrir ficheiro",
     "more": "Mais",
     "less": "Menos",
@@ -68,7 +64,6 @@
     "title": "Definições",
     "options": "Opções",
     "appearance": "Aparência",
-    "behavior": "Comportamento",
     "behaviorMovedToToolbar": "As opções de comportamento estão agora na barra de ferramentas",
     "dataMovedToAbout": "As opções de dados foram movidas para o separador 'Sobre'",
     "controls": "Controlos",
@@ -83,12 +78,10 @@
     "lineHeight": "Altura da linha",
     "foregroundColor": "Cor do texto",
     "backgroundColor": "Cor de fundo",
+    "voiceReadColor": "Cor de destaque por voz",
     "highlightBandHeight": "Altura da faixa de realce",
     "highlightBandPosition": "Posição da faixa de realce",
     "dimmingIntensity": "Intensidade de escurecimento",
-    "scrollSpeed": "Velocidade de deslocamento",
-    "speedMin": "Velocidade mínima",
-    "speedMax": "Velocidade máxima",
     "scrollMode": "Modo de avanço",
     "scrollModeAuto": "Automático",
     "scrollModeVoice": "Por voz",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Alternar espelho horizontal",
     "mirrorVertical": "Alternar espelho vertical",
     "openEditor": "Abrir editor",
-    "openSettings": "Abrir definições",
     "openFile": "Abrir ficheiro",
     "newFile": "Novo ficheiro",
     "save": "Guardar ficheiro",
@@ -335,13 +327,6 @@
         "renewed": "Certificado renovado com sucesso"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Minimizar janela",
-    "maximize": "Maximizar janela",
-    "close": "Fechar janela",
-    "alwaysOnTop": "Sempre no topo",
-    "fullscreen": "Alternar ecrã inteiro"
   },
   "cloud": {
     "activeProvider": "Fornecedor activo",

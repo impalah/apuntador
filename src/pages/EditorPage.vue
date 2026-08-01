@@ -60,7 +60,7 @@
       mode="open"
       @local-file="onOpenLocalFile"
       @file-selected="onCloudFileSelected"
-      @open-settings="onOpenSettingsDialog"
+      @open-settings="onOpenSettings"
     />
 
     <!-- Editor Actions Menu for Save -->
@@ -70,21 +70,14 @@
       :suggested-file-name="suggestedFileName"
       @local-file="onSaveLocalFile"
       @save-cloud="onSaveCloudFile"
-      @open-settings="onOpenSettingsDialog"
+      @open-settings="onOpenSettings"
     />
 
     <!-- Editor Actions Menu for Settings -->
     <EditorActionsMenu
       v-model="showActionsMenuSettings"
       mode="settings"
-      @open-settings="onOpenSettingsDialog"
-    />
-
-    <!-- Settings Dialog -->
-    <SettingsDialog
-      v-model="settingsOpen"
-      :initial-tab="settingsInitialTab"
-      @file-imported="onFileImported"
+      @open-settings="onOpenSettings"
     />
   </div>
 </template>
@@ -107,7 +100,6 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
-import SettingsDialog from '@/components/SettingsDialog.vue'
 
 // Composables
 const router = useRouter()
@@ -131,10 +123,6 @@ const showActionsMenuOpen = ref(false)
 const showActionsMenuSave = ref(false)
 const showActionsMenuSettings = ref(false)
 const suggestedFileName = ref('')
-
-// Settings dialog state
-const settingsOpen = ref(false)
-const settingsInitialTab = ref<string>('cloud')
 
 // Initialize content from teleprompter store
 onMounted(() => {
@@ -294,11 +282,6 @@ async function onSaveCloudFile(fileName: string) {
 
 function onOpenSettings() {
   showActionsMenuSettings.value = true
-}
-
-function onOpenSettingsDialog() {
-  settingsInitialTab.value = 'cloud'
-  settingsOpen.value = true
 }
 
 async function onMarkdownHelp() {

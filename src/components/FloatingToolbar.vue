@@ -79,7 +79,6 @@
     @toggle-theater="toggleTheaterMode"
     @open-file="$emit('openFile')"
     @open-editor="$emit('openEditor')"
-    @open-settings="$emit('openSettings')"
     @minimize-window="minimizeWindow"
     @maximize-window="maximizeWindow"
     @toggle-fullscreen="toggleFullscreen"
@@ -153,7 +152,6 @@ const emit = defineEmits<{
   fontSizeChange: [delta: number]
   mirrorToggle: [axis: 'h' | 'v']
   openEditor: []
-  openSettings: []
   openFile: []
 }>()
 

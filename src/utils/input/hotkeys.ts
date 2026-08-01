@@ -42,8 +42,6 @@ function getLocalizedDescription(action: string): string {
       return t('hotkeys.mirrorVertical')
     case 'open-editor':
       return t('hotkeys.openEditor')
-    case 'open-settings':
-      return t('hotkeys.openSettings')
     case 'open-file':
       return t('hotkeys.openFile')
     case 'close-modal':
@@ -281,7 +279,6 @@ export const DEFAULT_HOTKEYS: HotkeyDefinition[] = [
   { key: 'h', action: 'mirror-h', description: getLocalizedDescription('mirror-h') },
   { key: 'v', action: 'mirror-v', description: getLocalizedDescription('mirror-v') },
   { key: 'e', action: 'open-editor', description: getLocalizedDescription('open-editor') },
-  { key: 's', action: 'open-settings', description: getLocalizedDescription('open-settings') },
   { key: 'f', action: 'open-file', description: getLocalizedDescription('open-file') },
   { key: 'Escape', action: 'close-modal', description: getLocalizedDescription('close-modal') },
   { key: '1', action: 'align-left', description: getLocalizedDescription('align-left') },
@@ -328,11 +325,6 @@ export const DEFAULT_GAMEPAD_MAPPINGS: GamepadMapping[] = [
   { buttonIndex: null, action: 'mirror-h', description: getLocalizedDescription('mirror-h') },
   { buttonIndex: null, action: 'mirror-v', description: getLocalizedDescription('mirror-v') },
   { buttonIndex: null, action: 'open-editor', description: getLocalizedDescription('open-editor') },
-  {
-    buttonIndex: null,
-    action: 'open-settings',
-    description: getLocalizedDescription('open-settings'),
-  },
   { buttonIndex: null, action: 'open-file', description: getLocalizedDescription('open-file') },
   { buttonIndex: null, action: 'close-modal', description: getLocalizedDescription('close-modal') },
   { buttonIndex: null, action: 'align-left', description: getLocalizedDescription('align-left') },

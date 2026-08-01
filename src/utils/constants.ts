@@ -98,6 +98,9 @@ export const SPEECH_RESTART_DELAY_MS = 250 // delay before restarting recognitio
 export const SPEECH_SCROLL_ANIMATION_DURATION_MS = 700 // longer than SCROLL_SMOOTH_DURATION - commits land
 // every few words rather than every frame, so a longer glide reads as continuous motion instead of
 // discrete hops between commits
+export const DEFAULT_VOICE_READ_COLOR = '#FFEB3B' // monospace frame: default color for text already
+// read during voice tracking (word-level, driven by the alignment cursor). User-configurable via
+// useMonoFramePrefsStore.voiceReadColor (Settings -> Appearance).
 
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms
