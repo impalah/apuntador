@@ -57,9 +57,6 @@ export interface TeleprompterEvents {
   'highlight-band-position-change': [positionPct: number]
   'manual-scroll': [scrollTop: number]
   tap: []
-  'swipe-up': []
-  'swipe-down': []
-  'press-hold': []
 }
 
 /**
