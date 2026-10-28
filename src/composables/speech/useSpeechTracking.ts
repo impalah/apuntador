@@ -16,45 +16,21 @@ import { useScriptAlignment, type AlignmentMatch } from './useScriptAlignment'
 
 export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechLanguage>) {
   const engine = createSpeechEngine()
-  const { tokens, cursorIndex, processTranscript, seek } = useScriptAlignment(scriptText)
+  const { cursorIndex, processTranscript, seek } = useScriptAlignment(scriptText)
 
   const isSupported = engine.isSupported
   const status = ref<SpeechEngineStatus>('idle')
   const error = ref<SpeechEngineError | null>(null)
   const progress = ref<AlignmentMatch | null>(null)
 
-  /**
-   * Estimated position in the script as a 0-1 ratio (token-count based
-   * approximation - see docs/voice-tracking-design.md section 5). The caller
-   * (TeleprompterPage) multiplies this by maxOffset to get a pixel target for
-   * SmoothScroller, without needing to know about tokens/cursorIndex itself.
-   */
-  const progressRatio = computed(() => {
-    const totalTokens = tokens.value.length
-    if (totalTokens <= 1) return 0
-    return Math.min(1, Math.max(0, cursorIndex.value / (totalTokens - 1)))
-  })
-
   const isListening = computed(() => status.value === 'listening' || status.value === 'no-match')
 
   /**
-   * Resyncs the alignment cursor to a 0-1 scroll ratio - the inverse of
-   * progressRatio. TeleprompterPage calls this after any manual
-   * repositioning (step lines, home/end, manual drag) and before (re)starting
-   * voice tracking, so it resumes matching from wherever the reader actually
-   * is instead of wherever it last left off (which used to mean *always*
-   * restarting from position 0, effectively never catching up on a script of
-   * any length once paused/resumed).
-   */
-  function seekToRatio(ratio: number): void {
-    const maxIndex = Math.max(0, tokens.value.length - 1)
-    seek(Math.round(Math.max(0, Math.min(1, ratio)) * maxIndex))
-  }
-
-  /**
-   * Resyncs directly to a token index - used by the monospace frame, whose
-   * exact line-based layout can name a token index precisely instead of
-   * needing to go through a 0-1 ratio approximation.
+   * Resyncs the alignment cursor to a token index. TeleprompterPage calls this
+   * after any manual repositioning (step lines, home/end, manual drag) and
+   * before (re)starting voice tracking, so matching resumes from wherever the
+   * reader actually is. Voice mode only runs on the monospace frame, whose
+   * line-based layout maps a scroll position to an exact token index.
    */
   function seekToIndex(tokenIndex: number): void {
     seek(tokenIndex)
@@ -161,11 +137,9 @@ export function useSpeechTracking(scriptText: Ref<string>, language: Ref<SpeechL
     status,
     error,
     progress,
-    progressRatio,
     cursorIndex,
     start,
     stop,
-    seekToRatio,
     seekToIndex,
   }
 }

@@ -115,7 +115,6 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { sanitizeMarkdown } from '@/utils/markdown'
 import { useFileStore } from '@/stores/useFileStore'
 import { openFile, isFileSystemAccessSupported, formatFileSize } from '@/utils/files/fileSystem'
 
@@ -188,10 +187,11 @@ async function processFile(file: File) {
   fileInfo.value = null
 
   try {
+    // Raw text is kept as-is: it is the file's real content (and is saved back
+    // later). HTML safety is handled when rendering (compileMarkdown/DOMPurify).
     const content = await readFileAsText(file)
-    const sanitized = sanitizeMarkdown(content)
 
-    fileContent.value = sanitized
+    fileContent.value = content
     fileInfo.value = {
       name: file.name,
       size: file.size,
@@ -203,10 +203,10 @@ async function processFile(file: File) {
     if (props.autoImport) {
       // Update file store without handle (traditional file input)
       fileStore.setFileHandle(null, file.name)
-      fileStore.setContent(sanitized)
+      fileStore.setContent(content)
 
       // Emit fileImported event
-      emit('fileImported', sanitized, { name: file.name, handle: null })
+      emit('fileImported', content, { name: file.name, handle: null })
       // DON'T close dialog automatically - let user decide when to exit
       resetState()
     }
@@ -254,13 +254,11 @@ async function openWithFileAPI() {
 
     const result = await openFile()
     if (result) {
-      const sanitized = sanitizeMarkdown(result.content)
-
       // Update file store with handle
       fileStore.setFileHandle(result.handle, result.name)
-      fileStore.setContent(sanitized)
+      fileStore.setContent(result.content)
 
-      fileContent.value = sanitized
+      fileContent.value = result.content
       fileInfo.value = {
         name: result.name,
         size: result.content.length,
@@ -269,7 +267,7 @@ async function openWithFileAPI() {
 
       // Auto-import if enabled
       if (props.autoImport) {
-        emit('fileImported', sanitized, { name: result.name, handle: result.handle })
+        emit('fileImported', result.content, { name: result.name, handle: result.handle })
         // DON'T close dialog automatically - let user decide when to exit
         resetState()
       }

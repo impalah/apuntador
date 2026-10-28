@@ -17,7 +17,6 @@ export const SPEED_ADJUSTMENT_STEP = 5 // px/sec increment/decrement
 
 // Line height calculation
 export const LINE_HEIGHT_FALLBACK = 24 // px - used when measurement unavailable
-export const NORMAL_LINE_HEIGHT_MULTIPLIER = 1.2 // multiplier for 'normal' line-height
 
 // Highlight band
 export const DEFAULT_HIGHLIGHT_BAND_LINES = 2
