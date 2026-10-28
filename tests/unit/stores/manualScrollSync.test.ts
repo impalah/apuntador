@@ -13,24 +13,24 @@ vi.mock('@/utils/scrolling', () => ({
     start = vi.fn()
     stop = vi.fn()
     setSpeed = vi.fn()
-  }
+  },
 }))
 
 // Mock persistence
 vi.mock('@/services/persistence', () => ({
   contentStorage: {
     get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(undefined)
+    set: vi.fn().mockResolvedValue(undefined),
   },
   scrollPositionStorage: {
     get: vi.fn().mockResolvedValue(null),
-    set: vi.fn().mockResolvedValue(undefined)
-  }
+    set: vi.fn().mockResolvedValue(undefined),
+  },
 }))
 
 // Mock markdown utility
 vi.mock('@/utils/markdown', () => ({
-  compileMarkdown: vi.fn((content: string) => `<p>${content}</p>`)
+  compileMarkdown: vi.fn((content: string) => `<p>${content}</p>`),
 }))
 
 describe('TeleprompterStore - Manual Scroll Sync', () => {
@@ -39,11 +39,11 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
   beforeEach(() => {
     setActivePinia(createPinia())
     store = useTeleprompterStore()
-    
+
     // Set up basic dimensions
     store.setContentHeight(1000)
     store.setViewportHeight(400)
-    
+
     vi.clearAllMocks()
   })
 
@@ -56,10 +56,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.scrollOffset = 100
       const newScrollTop = 250
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(250)
       expect(clampScrollOffset).toHaveBeenCalledWith(250, 1000, 400)
@@ -70,10 +70,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       store.scrollOffset = 100
       store.isPlaying = true
       const newScrollTop = 250
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(100) // Should remain unchanged
       expect(clampScrollOffset).not.toHaveBeenCalled()
@@ -83,10 +83,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.scrollOffset = 100
       const newScrollTop = 1500 // Beyond max offset (1000 - 400 = 600)
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(clampScrollOffset).toHaveBeenCalledWith(1500, 1000, 400)
       expect(store.scrollOffset).toBe(600) // Should be clamped to max offset
@@ -96,10 +96,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.scrollOffset = 100
       const newScrollTop = -50
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(clampScrollOffset).toHaveBeenCalledWith(-50, 1000, 400)
       expect(store.scrollOffset).toBe(0) // Should be clamped to 0
@@ -109,10 +109,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.scrollOffset = 0
       const newScrollTop = 300 // 50% of max offset (600)
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(300)
       expect(store.scrollProgress).toBe(50) // 300/600 * 100 = 50%
@@ -140,10 +140,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       store.setContentHeight(0)
       store.setViewportHeight(400)
       const newScrollTop = 100
-      
+
       // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(0) // Should be clamped to 0 when no content
     })
@@ -153,10 +153,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       store.setContentHeight(400)
       store.setViewportHeight(400)
       const newScrollTop = 100
-      
-      // Act  
+
+      // Act
       store.syncScrollFromDOM(newScrollTop)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(0) // Should be clamped to 0 when no scrollable content
     })
@@ -167,10 +167,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.isPlaying = false
       store.scrollOffset = 100
-      
+
       // Act
       store.syncScrollFromDOM(200)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(200)
     })
@@ -179,10 +179,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange
       store.isPlaying = true
       store.scrollOffset = 100
-      
+
       // Act
       store.syncScrollFromDOM(200)
-      
+
       // Assert
       expect(store.scrollOffset).toBe(100) // Should remain unchanged
     })
@@ -191,14 +191,14 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
       // Arrange - start playing
       store.isPlaying = true
       store.scrollOffset = 100
-      
+
       // Act - pause and manually scroll
       store.pause()
       expect(store.isPlaying).toBe(false)
-      
+
       store.syncScrollFromDOM(300)
       expect(store.scrollOffset).toBe(300)
-      
+
       // Resume playing - should continue from manual position
       store.play()
       expect(store.scrollOffset).toBe(300) // Should start from manual position
@@ -209,10 +209,10 @@ describe('TeleprompterStore - Manual Scroll Sync', () => {
     it('should trigger save when manual scroll occurs', async () => {
       // Import the mocked persistence module
       const { scrollPositionStorage } = await import('@/services/persistence')
-      
+
       // Act
       store.syncScrollFromDOM(250)
-      
+
       // Assert
       expect(scrollPositionStorage.set).toHaveBeenCalledWith(250)
     })

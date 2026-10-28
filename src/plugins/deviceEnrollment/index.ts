@@ -66,7 +66,7 @@ export interface EnrollmentStatus {
 export interface EnrollmentOptions {
   /** URL del backend (ej: https://api.apuntador.io) */
   backendUrl: string
-  /** 
+  /**
    * Si se debe intentar usar StrongBox (chip hardware dedicado).
    * Default: true (intentar StrongBox, fallback a TEE)
    */
@@ -83,13 +83,13 @@ export interface UnenrollOptions {
 
 /**
  * Plugin de Capacitor para enrollment de dispositivos con mTLS y HSM.
- * 
+ *
  * Características:
  * - Generación de claves en Hardware Security Module (StrongBox/TEE)
  * - Enrollment con Certificate Authority del backend
  * - Certificados de corta duración con auto-renovación
  * - Autenticación mTLS para API requests
- * 
+ *
  * Flujo típico:
  * 1. Obtener información del dispositivo: `getDeviceInfo()`
  * 2. Enrollar dispositivo: `enrollDevice({ backendUrl })`
@@ -100,9 +100,9 @@ export interface UnenrollOptions {
 export interface DeviceEnrollmentPlugin {
   /**
    * Obtiene información del dispositivo y capacidades de seguridad.
-   * 
+   *
    * @returns Información del dispositivo incluyendo capacidades HSM
-   * 
+   *
    * @example
    * ```typescript
    * const info = await DeviceEnrollment.getDeviceInfo()
@@ -115,23 +115,23 @@ export interface DeviceEnrollmentPlugin {
 
   /**
    * Enrolla el dispositivo en el backend con mTLS.
-   * 
+   *
    * Proceso:
    * 1. Genera par de claves en HSM (StrongBox o TEE)
    * 2. Crea Certificate Signing Request (CSR)
    * 3. Envía CSR al backend CA
    * 4. Recibe certificado firmado
    * 5. Almacena certificado en Keystore
-   * 
+   *
    * Si el dispositivo ya está enrollado con certificado válido (> 5 días),
    * no hace nada y retorna el estado actual.
-   * 
+   *
    * Si el certificado expira en < 5 días, automáticamente renueva.
-   * 
+   *
    * @param options Opciones de enrollment
    * @returns Resultado del enrollment
    * @throws Error si falla el enrollment o no hay conectividad
-   * 
+   *
    * @example
    * ```typescript
    * try {
@@ -139,7 +139,7 @@ export interface DeviceEnrollmentPlugin {
    *     backendUrl: 'https://api.apuntador.io',
    *     useStrongBox: true
    *   })
-   *   
+   *
    *   if (result.alreadyEnrolled) {
    *     console.log('Already enrolled, expires:', result.certificateExpiry)
    *   } else {
@@ -155,13 +155,13 @@ export interface DeviceEnrollmentPlugin {
 
   /**
    * Verifica si el dispositivo está enrollado y el estado del certificado.
-   * 
+   *
    * @returns Estado del enrollment
-   * 
+   *
    * @example
    * ```typescript
    * const status = await DeviceEnrollment.checkEnrollmentStatus()
-   * 
+   *
    * if (!status.isEnrolled) {
    *   console.log('Device not enrolled')
    *   // Llamar enrollDevice()
@@ -177,13 +177,13 @@ export interface DeviceEnrollmentPlugin {
 
   /**
    * Elimina el enrollment del dispositivo (revoca certificado).
-   * 
+   *
    * Elimina las claves y certificado del Keystore local.
    * Opcionalmente, puede notificar al backend para revocar en servidor.
-   * 
+   *
    * @param options Opciones de unenroll
    * @returns Resultado de la operación
-   * 
+   *
    * @example
    * ```typescript
    * await DeviceEnrollment.unenrollDevice({

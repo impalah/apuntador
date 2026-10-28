@@ -24,7 +24,9 @@ describe('services/dropbox/config.ts', () => {
 
     it('should have correct Dropbox scope', async () => {
       const { DROPBOX_CONFIG } = await import('@/services/dropbox/config')
-      expect(DROPBOX_CONFIG.scope).toBe('files.metadata.read files.content.read files.content.write')
+      expect(DROPBOX_CONFIG.scope).toBe(
+        'files.metadata.read files.content.read files.content.write'
+      )
     })
 
     it('should have all required OAuthConfig properties', async () => {

@@ -303,8 +303,12 @@ describe('CapacitorSpeechEngine', () => {
       ListenerName,
       Listener,
     ][]
-    const partialResultsRegistrations = calls.filter(([eventName]) => eventName === 'partialResults')
-    const listeningStateRegistrations = calls.filter(([eventName]) => eventName === 'listeningState')
+    const partialResultsRegistrations = calls.filter(
+      ([eventName]) => eventName === 'partialResults'
+    )
+    const listeningStateRegistrations = calls.filter(
+      ([eventName]) => eventName === 'listeningState'
+    )
 
     expect(partialResultsRegistrations).toHaveLength(1)
     expect(listeningStateRegistrations).toHaveLength(1)

@@ -350,7 +350,7 @@
       "uploading": "Subiendo archivo...",
       "empty": "No hay archivos en esta carpeta",
       "openFile": "Abrir desde la nube",
-      "saveFile": "Guardar en la nube", 
+      "saveFile": "Guardar en la nube",
       "deleteFile": "Eliminar archivo",
       "deleteConfirm": "¿Estás seguro de que quieres eliminar '{name}'?",
       "fileName": "Nombre del archivo",

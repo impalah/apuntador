@@ -12,7 +12,7 @@ describe('Gamepad Utils', () => {
     Object.defineProperty(navigator, 'getGamepads', {
       value: mockGetGamepads,
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     // Mock window.addEventListener
@@ -58,10 +58,10 @@ describe('Gamepad Utils', () => {
 
     it('should provide button display names', () => {
       const { getButtonDisplayName, GAMEPAD_BUTTON_NAMES } = useGamepad()
-      
+
       const mockButton = { gamepadIndex: 0, buttonIndex: 0, buttonName: 'A/X Button' }
       expect(getButtonDisplayName(mockButton)).toBe('A/X Button (Gamepad 0)')
-      
+
       // Test the constant mapping
       expect(GAMEPAD_BUTTON_NAMES[0]).toBe('A/X Button')
       expect(GAMEPAD_BUTTON_NAMES[1]).toBe('B/Circle Button')
@@ -69,17 +69,17 @@ describe('Gamepad Utils', () => {
 
     it('should allow registering button press callbacks', () => {
       const { onButtonPress } = useGamepad()
-      
+
       const callback = vi.fn()
       onButtonPress(callback)
-      
+
       // Verify callback was registered (we can't easily test the actual press detection)
       expect(callback).toBeDefined()
     })
 
     it('should check if button is pressed', () => {
       const { isButtonPressed } = useGamepad()
-      
+
       const mockButton = { gamepadIndex: 0, buttonIndex: 0, buttonName: 'A/X Button' }
       // This will return false since no gamepads are connected in our mock
       expect(isButtonPressed(mockButton)).toBe(false)
@@ -111,16 +111,19 @@ describe('Gamepad Utils', () => {
     it('should listen for gamepad events', () => {
       // Test that event listeners are set up
       useGamepad()
-      
+
       expect(window.addEventListener).toHaveBeenCalledWith('gamepadconnected', expect.any(Function))
-      expect(window.addEventListener).toHaveBeenCalledWith('gamepaddisconnected', expect.any(Function))
+      expect(window.addEventListener).toHaveBeenCalledWith(
+        'gamepaddisconnected',
+        expect.any(Function)
+      )
     })
   })
 
   describe('Action Execution', () => {
     it('should provide executeGamepadAction function', () => {
       const { executeGamepadAction } = useGamepad()
-      
+
       expect(executeGamepadAction).toBeDefined()
       expect(typeof executeGamepadAction).toBe('function')
     })

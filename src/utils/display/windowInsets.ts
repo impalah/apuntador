@@ -108,10 +108,22 @@ export function useWindowInsets() {
   function applyCssCustomProperties() {
     if (typeof document === 'undefined') return
 
-    document.documentElement.style.setProperty('--safe-area-inset-top', `${safeAreaInsets.value.top}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-bottom', `${safeAreaInsets.value.bottom}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-left', `${safeAreaInsets.value.left}px`)
-    document.documentElement.style.setProperty('--safe-area-inset-right', `${safeAreaInsets.value.right}px`)
+    document.documentElement.style.setProperty(
+      '--safe-area-inset-top',
+      `${safeAreaInsets.value.top}px`
+    )
+    document.documentElement.style.setProperty(
+      '--safe-area-inset-bottom',
+      `${safeAreaInsets.value.bottom}px`
+    )
+    document.documentElement.style.setProperty(
+      '--safe-area-inset-left',
+      `${safeAreaInsets.value.left}px`
+    )
+    document.documentElement.style.setProperty(
+      '--safe-area-inset-right',
+      `${safeAreaInsets.value.right}px`
+    )
   }
 
   function updateInsets() {

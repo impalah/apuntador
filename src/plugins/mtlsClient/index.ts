@@ -17,7 +17,7 @@ export interface MTLSClientPlugin {
 
   /**
    * Realiza un request HTTP GET con mTLS.
-   * 
+   *
    * @param options - Opciones del request
    * @returns Response del servidor
    */
@@ -25,23 +25,29 @@ export interface MTLSClientPlugin {
 
   /**
    * Realiza un request HTTP POST con mTLS.
-   * 
+   *
    * @param options - Opciones del request
    * @returns Response del servidor
    */
-  post(options: { url: string; body?: string | object }): Promise<{ data: string; statusCode: number }>
+  post(options: {
+    url: string
+    body?: string | object
+  }): Promise<{ data: string; statusCode: number }>
 
   /**
    * Realiza un request HTTP PUT con mTLS.
-   * 
+   *
    * @param options - Opciones del request
    * @returns Response del servidor
    */
-  put(options: { url: string; body?: string | object }): Promise<{ data: string; statusCode: number }>
+  put(options: {
+    url: string
+    body?: string | object
+  }): Promise<{ data: string; statusCode: number }>
 
   /**
    * Realiza un request HTTP DELETE con mTLS.
-   * 
+   *
    * @param options - Opciones del request
    * @returns Response del servidor
    */
@@ -49,7 +55,7 @@ export interface MTLSClientPlugin {
 
   /**
    * Inicia el servicio de renovación automática de certificados.
-   * 
+   *
    * @param options - Opciones del servicio
    * @returns Resultado de la operación
    */
@@ -57,21 +63,21 @@ export interface MTLSClientPlugin {
 
   /**
    * Detiene el servicio de renovación automática de certificados.
-   * 
+   *
    * @returns Resultado de la operación
    */
   stopRenewalService(): Promise<{ success: boolean }>
 
   /**
    * Resetea el cliente mTLS (útil después de renovar certificado).
-   * 
+   *
    * @returns Resultado de la operación
    */
   reset(): Promise<{ success: boolean }>
 }
 
 const MTLSClient = registerPlugin<MTLSClientPlugin>('MTLSClient', {
-  web: () => import('./web').then(m => new m.MTLSClientWeb()),
+  web: () => import('./web').then((m) => new m.MTLSClientWeb()),
 })
 
 export default MTLSClient

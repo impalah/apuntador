@@ -13,26 +13,26 @@ import {
   getCurrentOrientation,
   isLandscape,
   isMobile,
-  getPlatform
+  getPlatform,
 } from '@/utils/capacitor'
 
 // Mock Capacitor modules
 vi.mock('@capacitor/core', () => ({
   Capacitor: {
     isNativePlatform: vi.fn(),
-    getPlatform: vi.fn()
-  }
+    getPlatform: vi.fn(),
+  },
 }))
 
 vi.mock('@capacitor/status-bar', () => ({
   StatusBar: {
     setStyle: vi.fn(),
-    setBackgroundColor: vi.fn()
+    setBackgroundColor: vi.fn(),
   },
   Style: {
     Dark: 'DARK',
-    Light: 'LIGHT'
-  }
+    Light: 'LIGHT',
+  },
 }))
 
 vi.mock('@capacitor/screen-orientation', () => ({
@@ -40,28 +40,28 @@ vi.mock('@capacitor/screen-orientation', () => ({
     lock: vi.fn(),
     unlock: vi.fn(),
     orientation: vi.fn(),
-    addListener: vi.fn()
+    addListener: vi.fn(),
   },
   OrientationType: {
-    LANDSCAPE: 'landscape'
-  }
+    LANDSCAPE: 'landscape',
+  },
 }))
 
 vi.mock('@capacitor/haptics', () => ({
   Haptics: {
-    impact: vi.fn()
+    impact: vi.fn(),
   },
   ImpactStyle: {
     Heavy: 'HEAVY',
     Medium: 'MEDIUM',
-    Light: 'LIGHT'
-  }
+    Light: 'LIGHT',
+  },
 }))
 
 vi.mock('@capacitor/keyboard', () => ({
   Keyboard: {
-    addListener: vi.fn()
-  }
+    addListener: vi.fn(),
+  },
 }))
 
 describe('Capacitor Utils', () => {
@@ -70,7 +70,7 @@ describe('Capacitor Utils', () => {
     // Reset console.warn mock
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'log').mockImplementation(() => {})
-    
+
     // Set up default mock return values
     vi.mocked(StatusBar.setStyle).mockResolvedValue()
     vi.mocked(StatusBar.setBackgroundColor).mockResolvedValue()
@@ -109,7 +109,10 @@ describe('Capacitor Utils', () => {
       expect(StatusBar.setStyle).toHaveBeenCalledWith({ style: Style.Dark })
       expect(StatusBar.setBackgroundColor).toHaveBeenCalledWith({ color: '#1E1E1E' })
       expect(ScreenOrientation.unlock).toHaveBeenCalled()
-      expect(ScreenOrientation.addListener).toHaveBeenCalledWith('screenOrientationChange', expect.any(Function))
+      expect(ScreenOrientation.addListener).toHaveBeenCalledWith(
+        'screenOrientationChange',
+        expect.any(Function)
+      )
       expect(Keyboard.addListener).toHaveBeenCalledWith('keyboardWillShow', expect.any(Function))
       expect(Keyboard.addListener).toHaveBeenCalledWith('keyboardWillHide', expect.any(Function))
     })
@@ -128,7 +131,7 @@ describe('Capacitor Utils', () => {
       vi.mocked(StatusBar.setStyle).mockResolvedValue()
       vi.mocked(StatusBar.setBackgroundColor).mockResolvedValue()
       vi.mocked(ScreenOrientation.unlock).mockResolvedValue()
-      
+
       let orientationCallback: any
       vi.mocked(ScreenOrientation.addListener).mockImplementation((event, callback) => {
         if (event === 'screenOrientationChange') {
@@ -146,11 +149,13 @@ describe('Capacitor Utils', () => {
       // Trigger orientation change
       orientationCallback({ type: 'landscape-primary' })
 
-      expect(console.log).toHaveBeenCalledWith('Orientation changed:', { type: 'landscape-primary' })
+      expect(console.log).toHaveBeenCalledWith('Orientation changed:', {
+        type: 'landscape-primary',
+      })
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('resize'))
 
       // Wait for timeout
-      await new Promise(resolve => setTimeout(resolve, 150))
+      await new Promise((resolve) => setTimeout(resolve, 150))
       expect(dispatchEventSpy).toHaveBeenCalledWith(new Event('orientationchange'))
     })
 
@@ -160,7 +165,7 @@ describe('Capacitor Utils', () => {
       vi.mocked(StatusBar.setBackgroundColor).mockResolvedValue()
       vi.mocked(ScreenOrientation.unlock).mockResolvedValue()
       vi.mocked(ScreenOrientation.addListener).mockResolvedValue({ remove: vi.fn() })
-      
+
       let keyboardShowCallback: any
       let keyboardHideCallback: any
       vi.mocked(Keyboard.addListener).mockImplementation((event: any, callback: any) => {
@@ -245,7 +250,10 @@ describe('Capacitor Utils', () => {
 
       await forceLandscape()
 
-      expect(console.warn).toHaveBeenCalledWith('Screen orientation lock failed:', expect.any(Error))
+      expect(console.warn).toHaveBeenCalledWith(
+        'Screen orientation lock failed:',
+        expect.any(Error)
+      )
     })
   })
 
@@ -273,7 +281,10 @@ describe('Capacitor Utils', () => {
 
       await allowAllOrientations()
 
-      expect(console.warn).toHaveBeenCalledWith('Screen orientation unlock failed:', expect.any(Error))
+      expect(console.warn).toHaveBeenCalledWith(
+        'Screen orientation unlock failed:',
+        expect.any(Error)
+      )
     })
   })
 
@@ -299,7 +310,7 @@ describe('Capacitor Utils', () => {
   describe('getCurrentOrientation', () => {
     it('should return web-based orientation if not on native platform', async () => {
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false)
-      
+
       // Mock window dimensions for landscape
       Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true })
       Object.defineProperty(window, 'innerHeight', { value: 768, writable: true })
@@ -311,7 +322,7 @@ describe('Capacitor Utils', () => {
 
     it('should return portrait for web when height > width', async () => {
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(false)
-      
+
       Object.defineProperty(window, 'innerWidth', { value: 768, writable: true })
       Object.defineProperty(window, 'innerHeight', { value: 1024, writable: true })
 
@@ -322,8 +333,8 @@ describe('Capacitor Utils', () => {
 
     it('should get orientation from native API', async () => {
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true)
-      vi.mocked(ScreenOrientation.orientation).mockResolvedValue({ 
-        type: 'landscape-primary' as any
+      vi.mocked(ScreenOrientation.orientation).mockResolvedValue({
+        type: 'landscape-primary' as any,
       })
 
       const result = await getCurrentOrientation()
@@ -334,8 +345,8 @@ describe('Capacitor Utils', () => {
 
     it('should return portrait for native portrait orientation', async () => {
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true)
-      vi.mocked(ScreenOrientation.orientation).mockResolvedValue({ 
-        type: 'portrait-primary' as any
+      vi.mocked(ScreenOrientation.orientation).mockResolvedValue({
+        type: 'portrait-primary' as any,
       })
 
       const result = await getCurrentOrientation()
@@ -346,7 +357,7 @@ describe('Capacitor Utils', () => {
     it('should fallback to web orientation on native error', async () => {
       vi.mocked(Capacitor.isNativePlatform).mockReturnValue(true)
       vi.mocked(ScreenOrientation.orientation).mockRejectedValue(new Error('Orientation error'))
-      
+
       Object.defineProperty(window, 'innerWidth', { value: 1024, writable: true })
       Object.defineProperty(window, 'innerHeight', { value: 768, writable: true })
 

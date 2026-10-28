@@ -228,7 +228,7 @@ describe('FileLoader Component', () => {
         result: string | null = null
         onload: ((event: any) => void) | null = null
         onerror: ((event: any) => void) | null = null
-        
+
         readAsText() {
           // Simulate async file read
           setTimeout(() => {
@@ -247,7 +247,7 @@ describe('FileLoader Component', () => {
       await wrapper.vm.processFile(validFile)
 
       // Wait for all microtasks
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
 
       // Verify final state
       expect(wrapper.vm.loading).toBe(false)
@@ -271,7 +271,7 @@ describe('FileLoader Component', () => {
         result: string | null = null
         onload: ((event: any) => void) | null = null
         onerror: ((event: any) => void) | null = null
-        
+
         readAsText() {
           setTimeout(() => {
             this.result = '# Auto Import Test'
@@ -288,7 +288,7 @@ describe('FileLoader Component', () => {
       await wrapper.vm.processFile(validFile)
 
       // Wait for async operations
-      await new Promise(resolve => setTimeout(resolve, 10))
+      await new Promise((resolve) => setTimeout(resolve, 10))
       await wrapper.vm.$nextTick()
 
       // Verify fileImported event was emitted (which happens in onImport when autoImport is true)

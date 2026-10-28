@@ -1,15 +1,9 @@
 <template>
   <v-card class="ma-4 pa-4">
-    <v-card-title class="text-headline-small">
-      Desktop mTLS Enrollment Test
-    </v-card-title>
+    <v-card-title class="text-headline-small"> Desktop mTLS Enrollment Test </v-card-title>
 
     <v-card-text>
-      <v-alert
-        v-if="platform !== 'desktop'"
-        type="info"
-        class="mb-4"
-      >
+      <v-alert v-if="platform !== 'desktop'" type="info" class="mb-4">
         This test is only for Desktop (Tauri). Current platform: {{ platform }}
       </v-alert>
 
@@ -46,10 +40,7 @@
 
       <v-row v-if="enrollmentStatus">
         <v-col cols="12">
-          <v-alert
-            :type="enrollmentStatus.enrolled ? 'success' : 'info'"
-            class="mb-4"
-          >
+          <v-alert :type="enrollmentStatus.enrolled ? 'success' : 'info'" class="mb-4">
             <div class="text-title-large mb-2">
               {{ enrollmentStatus.enrolled ? 'Enrolled' : 'Not Enrolled' }}
             </div>
@@ -76,15 +67,8 @@
           <v-card variant="tonal">
             <v-card-title>Console Log</v-card-title>
             <v-card-text>
-              <v-list
-                density="compact"
-                class="log-list"
-              >
-                <v-list-item
-                  v-for="(entry, index) in log"
-                  :key="index"
-                  class="log-entry"
-                >
+              <v-list density="compact" class="log-list">
+                <v-list-item v-for="(entry, index) in log" :key="index" class="log-entry">
                   <v-list-item-title class="font-monospace text-body-small">
                     {{ entry }}
                   </v-list-item-title>
@@ -97,41 +81,12 @@
     </v-card-text>
 
     <v-card-actions>
-      <v-btn
-        color="primary"
-        :loading="loading"
-        @click="getDeviceInfo"
-      >
-        Get Device Info
-      </v-btn>
-      <v-btn
-        color="info"
-        :loading="loading"
-        @click="checkStatus"
-      >
-        Check Status
-      </v-btn>
-      <v-btn
-        color="success"
-        :loading="loading"
-        @click="enroll"
-      >
-        Enroll Device
-      </v-btn>
-      <v-btn
-        color="error"
-        :loading="loading"
-        @click="unenroll"
-      >
-        Unenroll
-      </v-btn>
+      <v-btn color="primary" :loading="loading" @click="getDeviceInfo"> Get Device Info </v-btn>
+      <v-btn color="info" :loading="loading" @click="checkStatus"> Check Status </v-btn>
+      <v-btn color="success" :loading="loading" @click="enroll"> Enroll Device </v-btn>
+      <v-btn color="error" :loading="loading" @click="unenroll"> Unenroll </v-btn>
       <v-spacer />
-      <v-btn
-        variant="text"
-        @click="clearLog"
-      >
-        Clear Log
-      </v-btn>
+      <v-btn variant="text" @click="clearLog"> Clear Log </v-btn>
     </v-card-actions>
   </v-card>
 </template>

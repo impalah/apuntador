@@ -32,9 +32,7 @@ let notificationCounter = 0
 const notifications = ref<Notification[]>([])
 
 // Current active notification (only show one at a time)
-const currentNotification = computed(() =>
-  notifications.value.find((n) => n.visible)
-)
+const currentNotification = computed(() => notifications.value.find((n) => n.visible))
 
 // ========================================
 // Notification Colors (Vuetify theme colors)

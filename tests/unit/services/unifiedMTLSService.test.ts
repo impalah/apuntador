@@ -75,9 +75,7 @@ describe('UnifiedMTLSService', () => {
 
   it('resolves the Android strategy on Android', async () => {
     getPlatform.mockReturnValue('android')
-    const { AndroidEnrollmentStrategy } = await import(
-      '@/services/mtls/androidEnrollmentStrategy'
-    )
+    const { AndroidEnrollmentStrategy } = await import('@/services/mtls/androidEnrollmentStrategy')
     const { UnifiedMTLSService } = await import('@/services/unifiedMTLSService')
 
     const service = UnifiedMTLSService.getInstance()
@@ -100,9 +98,7 @@ describe('UnifiedMTLSService', () => {
   it('resolves the desktop strategy under Tauri regardless of Capacitor platform', async () => {
     isTauri.mockReturnValue(true)
     getPlatform.mockReturnValue('web')
-    const { DesktopEnrollmentStrategy } = await import(
-      '@/services/mtls/desktopEnrollmentStrategy'
-    )
+    const { DesktopEnrollmentStrategy } = await import('@/services/mtls/desktopEnrollmentStrategy')
     const { UnifiedMTLSService } = await import('@/services/unifiedMTLSService')
 
     const service = UnifiedMTLSService.getInstance()

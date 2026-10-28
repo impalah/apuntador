@@ -195,7 +195,10 @@ describe('useMonoFramePrefsStore', () => {
 
     await expect(store.save()).resolves.toBeUndefined()
 
-    expect(warnSpy).toHaveBeenCalledWith('Failed to save mono frame preferences:', expect.any(Error))
+    expect(warnSpy).toHaveBeenCalledWith(
+      'Failed to save mono frame preferences:',
+      expect.any(Error)
+    )
     setSpy.mockRestore()
     warnSpy.mockRestore()
   })

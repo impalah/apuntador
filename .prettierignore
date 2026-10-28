@@ -1,0 +1,13 @@
+# Generated or vendored output
+dist/
+coverage/
+docs/api/
+docs/.vitepress/cache/
+docs/.vitepress/dist/
+graphify-out/
+android/
+ios/
+src-tauri/target/
+src-tauri/gen/
+package-lock.json
+src/utils/version.ts

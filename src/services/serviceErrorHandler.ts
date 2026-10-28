@@ -56,12 +56,7 @@ export function createServiceErrorHandler() {
    * Handle a service error
    */
   function handle(error: unknown, options: ServiceErrorOptions = {}) {
-    const {
-      severity = 'silent',
-      messageKey,
-      context,
-      logToConsole = true,
-    } = options
+    const { severity = 'silent', messageKey, context, logToConsole = true } = options
 
     // Always log to console if enabled
     if (logToConsole) {
@@ -188,10 +183,11 @@ export function createServiceErrorHandler() {
       })
     } else {
       // Generic file error
-      const messageKey = operation === 'read' 
-        ? 'errors.services.file.readFailed'
-        : 'errors.services.file.writeFailed'
-      
+      const messageKey =
+        operation === 'read'
+          ? 'errors.services.file.readFailed'
+          : 'errors.services.file.writeFailed'
+
       handle(error, {
         severity: 'user',
         messageKey,

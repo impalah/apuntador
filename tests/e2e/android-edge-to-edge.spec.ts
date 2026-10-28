@@ -17,14 +17,14 @@ test.describe('Android Edge-to-Edge Support', () => {
 
     // Check that the more menu button is visible and properly positioned
     const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    
+
     // Only test if button is visible (may not be on all mobile browsers)
     const isMenuVisible = await moreMenuButton.isVisible().catch(() => false)
     if (!isMenuVisible) {
       console.log('Menu button not available in this mobile browser - skipping interaction tests')
       return
     }
-    
+
     await expect(moreMenuButton).toBeVisible()
 
     // Verify that CSS custom properties are set
@@ -83,14 +83,14 @@ test.describe('Android Edge-to-Edge Support', () => {
     await page.waitForTimeout(500)
 
     const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
-    
+
     // Only test if button is visible (may not be on all mobile browsers)
     const isMenuVisible = await moreMenuButton.isVisible().catch(() => false)
     if (!isMenuVisible) {
       console.log('Menu button not available in this mobile browser - skipping interaction tests')
       return
     }
-    
+
     await expect(moreMenuButton).toBeVisible()
 
     // Switch to landscape
@@ -99,7 +99,7 @@ test.describe('Android Edge-to-Edge Support', () => {
 
     // Menu button should still be visible and properly positioned
     await expect(moreMenuButton).toBeVisible()
-    
+
     // Verify content is still accessible
     const content = page.locator('[data-testid="teleprompter-content"]')
     await expect(content).toBeVisible()

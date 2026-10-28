@@ -6,25 +6,15 @@
     :z-index="Z_INDEX.ALWAYS_ON_TOP_NESTED"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card
-      class="actions-menu"
-      :class="{ maximized: isMaximized }"
-      rounded="t-xl"
-    >
+    <v-card class="actions-menu" :class="{ maximized: isMaximized }" rounded="t-xl">
       <!-- Handle bar para indicar que es arrastrable -->
-      <div
-        class="handle-bar"
-        @click="toggleMaximize"
-      >
+      <div class="handle-bar" @click="toggleMaximize">
         <div class="handle" />
       </div>
 
       <v-card-text class="menu-content">
         <!-- Settings View (cuando showSettings es true) -->
-        <div
-          v-if="showSettings"
-          class="settings-container"
-        >
+        <div v-if="showSettings" class="settings-container">
           <!-- Header con título y botón volver -->
           <div class="settings-header">
             <v-btn
@@ -42,11 +32,7 @@
 
           <!-- Settings tabs y contenido -->
           <div class="settings-content">
-            <v-tabs
-              v-model="activeTab"
-              show-arrows
-              density="compact"
-            >
+            <v-tabs v-model="activeTab" show-arrows density="compact">
               <v-tab value="appearance">
                 {{ t('settings.appearance') }}
               </v-tab>
@@ -61,10 +47,7 @@
               </v-tab>
             </v-tabs>
 
-            <v-tabs-window
-              v-model="activeTab"
-              class="mt-4"
-            >
+            <v-tabs-window v-model="activeTab" class="mt-4">
               <!-- Appearance Tab -->
               <v-tabs-window-item value="appearance">
                 <v-form>
@@ -227,11 +210,7 @@
                     </div>
 
                     <div class="mt-4">
-                      <v-btn
-                        color="warning"
-                        prepend-icon="mdi-refresh"
-                        @click="onResetHotkeys"
-                      >
+                      <v-btn color="warning" prepend-icon="mdi-refresh" @click="onResetHotkeys">
                         {{ t('hotkeys.resetToDefaults') }}
                       </v-btn>
                     </div>
@@ -242,12 +221,7 @@
                     <h3 class="text-body-large mb-3">
                       {{ t('gamepad.status') }}
                     </h3>
-                    <v-alert
-                      v-if="!gamepadSupported"
-                      type="warning"
-                      variant="tonal"
-                      class="mb-4"
-                    >
+                    <v-alert v-if="!gamepadSupported" type="warning" variant="tonal" class="mb-4">
                       {{ t('gamepad.notSupported') }}
                     </v-alert>
 
@@ -260,12 +234,7 @@
                       {{ t('gamepad.noGamepads') }}
                     </v-alert>
 
-                    <v-alert
-                      v-else
-                      type="success"
-                      variant="tonal"
-                      class="mb-4"
-                    >
+                    <v-alert v-else type="success" variant="tonal" class="mb-4">
                       {{ t('gamepad.connected', { count: connectedGamepads }) }}
                     </v-alert>
                   </div>
@@ -365,12 +334,7 @@
                         {{ t('settings.resetSettings') }}
                       </v-btn>
 
-                      <v-btn
-                        color="error"
-                        prepend-icon="mdi-delete"
-                        block
-                        @click="onClearAllData"
-                      >
+                      <v-btn color="error" prepend-icon="mdi-delete" block @click="onClearAllData">
                         {{ t('settings.clearAllData') }}
                       </v-btn>
                     </div>
@@ -433,20 +397,11 @@
                 data-testid="rewind-button"
                 @click="handleAction('stepLines', -5)"
               >
-                <v-icon
-                  icon="mdi-skip-backward"
-                  size="32"
-                />
+                <v-icon icon="mdi-skip-backward" size="32" />
                 <span class="btn-text">{{ t('toolbar.rewind') }} 5</span>
               </button>
-              <button
-                class="action-btn-frequent"
-                @click="handleAction('goHome')"
-              >
-                <v-icon
-                  icon="mdi-home"
-                  size="32"
-                />
+              <button class="action-btn-frequent" @click="handleAction('goHome')">
+                <v-icon icon="mdi-home" size="32" />
                 <span class="btn-text">{{ t('toolbar.home') }}</span>
               </button>
               <button
@@ -454,44 +409,23 @@
                 data-testid="forward-button"
                 @click="handleAction('stepLines', 5)"
               >
-                <v-icon
-                  icon="mdi-skip-forward"
-                  size="32"
-                />
+                <v-icon icon="mdi-skip-forward" size="32" />
                 <span class="btn-text">{{ t('toolbar.forward') }} 5</span>
               </button>
             </div>
 
             <!-- Segunda fila: Retroceder 1, Fin, Avanzar 1 -->
             <div class="button-grid">
-              <button
-                class="action-btn-frequent"
-                @click="handleAction('stepLines', -1)"
-              >
-                <v-icon
-                  icon="mdi-chevron-up"
-                  size="32"
-                />
+              <button class="action-btn-frequent" @click="handleAction('stepLines', -1)">
+                <v-icon icon="mdi-chevron-up" size="32" />
                 <span class="btn-text">{{ t('toolbar.rewindLine') }}</span>
               </button>
-              <button
-                class="action-btn-frequent"
-                @click="handleAction('goEnd')"
-              >
-                <v-icon
-                  icon="mdi-format-vertical-align-bottom"
-                  size="32"
-                />
+              <button class="action-btn-frequent" @click="handleAction('goEnd')">
+                <v-icon icon="mdi-format-vertical-align-bottom" size="32" />
                 <span class="btn-text">{{ t('toolbar.end') }}</span>
               </button>
-              <button
-                class="action-btn-frequent"
-                @click="handleAction('stepLines', 1)"
-              >
-                <v-icon
-                  icon="mdi-chevron-down"
-                  size="32"
-                />
+              <button class="action-btn-frequent" @click="handleAction('stepLines', 1)">
+                <v-icon icon="mdi-chevron-down" size="32" />
                 <span class="btn-text">{{ t('toolbar.forwardLine') }}</span>
               </button>
             </div>
@@ -513,10 +447,7 @@
                 data-testid="mirror-h-button"
                 @click="handleAction('mirrorToggle', 'h')"
               >
-                <v-icon
-                  icon="mdi-flip-horizontal"
-                  size="32"
-                />
+                <v-icon icon="mdi-flip-horizontal" size="32" />
                 <span class="btn-text">{{ t('toolbar.mirrorH') }}</span>
               </button>
               <button
@@ -538,10 +469,7 @@
                 data-testid="mirror-v-button"
                 @click="handleAction('mirrorToggle', 'v')"
               >
-                <v-icon
-                  icon="mdi-flip-vertical"
-                  size="32"
-                />
+                <v-icon icon="mdi-flip-vertical" size="32" />
                 <span class="btn-text">{{ t('toolbar.mirrorV') }}</span>
               </button>
             </div>
@@ -554,10 +482,7 @@
                 data-testid="align-left-button"
                 @click="handleTextAlign('left')"
               >
-                <v-icon
-                  icon="mdi-format-align-left"
-                  size="32"
-                />
+                <v-icon icon="mdi-format-align-left" size="32" />
                 <span class="btn-text">{{ t('toolbar.alignLeft') }}</span>
               </button>
               <button
@@ -566,10 +491,7 @@
                 data-testid="align-center-button"
                 @click="handleTextAlign('center')"
               >
-                <v-icon
-                  icon="mdi-format-align-center"
-                  size="32"
-                />
+                <v-icon icon="mdi-format-align-center" size="32" />
                 <span class="btn-text">{{ t('toolbar.alignCenter') }}</span>
               </button>
               <button
@@ -578,10 +500,7 @@
                 data-testid="align-right-button"
                 @click="handleTextAlign('right')"
               >
-                <v-icon
-                  icon="mdi-format-align-right"
-                  size="32"
-                />
+                <v-icon icon="mdi-format-align-right" size="32" />
                 <span class="btn-text">{{ t('toolbar.alignRight') }}</span>
               </button>
             </div>
@@ -602,10 +521,7 @@
                 data-testid="scroll-mode-auto-quick-button"
                 @click="handleScrollModeChange('auto')"
               >
-                <v-icon
-                  icon="mdi-play-speed"
-                  size="32"
-                />
+                <v-icon icon="mdi-play-speed" size="32" />
                 <span class="btn-text">{{ t('settings.scrollModeAuto') }}</span>
               </button>
               <button
@@ -615,10 +531,7 @@
                 data-testid="scroll-mode-voice-quick-button"
                 @click="handleScrollModeChange('voice')"
               >
-                <v-icon
-                  icon="mdi-microphone"
-                  size="32"
-                />
+                <v-icon icon="mdi-microphone" size="32" />
                 <span class="btn-text">{{ t('settings.scrollModeVoice') }}</span>
               </button>
             </div>
@@ -639,10 +552,7 @@
                 data-testid="editor-button"
                 @click="handleAction('openEditor')"
               >
-                <v-icon
-                  icon="mdi-pencil"
-                  size="32"
-                />
+                <v-icon icon="mdi-pencil" size="32" />
                 <span class="btn-text">{{ t('toolbar.openEditor') }}</span>
               </button>
 
@@ -654,10 +564,7 @@
                 data-testid="settings-button"
                 @click="handleAction('openSettings')"
               >
-                <v-icon
-                  icon="mdi-tune-variant"
-                  size="32"
-                />
+                <v-icon icon="mdi-tune-variant" size="32" />
                 <span class="btn-text">{{ t('settings.title') }}</span>
               </button>
             </div>

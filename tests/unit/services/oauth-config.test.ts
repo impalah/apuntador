@@ -22,14 +22,14 @@ vi.mock('@/config/api', () => ({
 describe('services/oauth/config.ts', () => {
   // Guardar env original
   const originalEnv = { ...import.meta.env }
-  
+
   beforeEach(() => {
     vi.clearAllMocks()
   })
-  
+
   afterEach(() => {
     // Restaurar env original
-    Object.keys(import.meta.env).forEach(key => {
+    Object.keys(import.meta.env).forEach((key) => {
       if (!(key in originalEnv)) {
         delete import.meta.env[key]
       }
@@ -41,7 +41,7 @@ describe('services/oauth/config.ts', () => {
     it('should return a valid backend URL', async () => {
       const { getBackendUrl } = await import('@/services/oauth/config')
       const url = getBackendUrl()
-      
+
       expect(typeof url).toBe('string')
       expect(url).toMatch(/^https?:\/\//)
     })
@@ -49,7 +49,7 @@ describe('services/oauth/config.ts', () => {
     it('should call Capacitor.getPlatform()', async () => {
       const { getBackendUrl } = await import('@/services/oauth/config')
       getBackendUrl()
-      
+
       expect(Capacitor.getPlatform).toHaveBeenCalled()
     })
   })
@@ -58,7 +58,7 @@ describe('services/oauth/config.ts', () => {
     it('should return a valid redirect URI', async () => {
       const { getOAuthRedirectUri } = await import('@/services/oauth/config')
       const uri = getOAuthRedirectUri()
-      
+
       expect(typeof uri).toBe('string')
       expect(uri.length).toBeGreaterThan(0)
     })
@@ -66,7 +66,7 @@ describe('services/oauth/config.ts', () => {
     it('should return URI with valid protocol', async () => {
       const { getOAuthRedirectUri } = await import('@/services/oauth/config')
       const uri = getOAuthRedirectUri()
-      
+
       // Should be http://, https://, or custom scheme like apuntador://
       expect(uri).toMatch(/^[a-z]+:\/\//)
     })
@@ -75,7 +75,7 @@ describe('services/oauth/config.ts', () => {
   describe('OAUTH_URLS', () => {
     it('should have development URLs', async () => {
       const { OAUTH_URLS } = await import('@/services/oauth/config')
-      
+
       expect(OAUTH_URLS.development).toHaveProperty('backend')
       expect(OAUTH_URLS.development).toHaveProperty('redirect')
       expect(typeof OAUTH_URLS.development.backend).toBe('string')
@@ -84,7 +84,7 @@ describe('services/oauth/config.ts', () => {
 
     it('should have production URLs', async () => {
       const { OAUTH_URLS } = await import('@/services/oauth/config')
-      
+
       expect(OAUTH_URLS.production).toHaveProperty('backend')
       expect(OAUTH_URLS.production).toHaveProperty('redirect')
       expect(typeof OAUTH_URLS.production.backend).toBe('string')
@@ -93,7 +93,7 @@ describe('services/oauth/config.ts', () => {
 
     it('should have native URLs', async () => {
       const { OAUTH_URLS } = await import('@/services/oauth/config')
-      
+
       expect(OAUTH_URLS.native).toHaveProperty('backend')
       expect(OAUTH_URLS.native).toHaveProperty('redirect')
       expect(typeof OAUTH_URLS.native.backend).toBe('string')
@@ -102,7 +102,7 @@ describe('services/oauth/config.ts', () => {
 
     it('should have valid URL formats', async () => {
       const { OAUTH_URLS } = await import('@/services/oauth/config')
-      
+
       expect(OAUTH_URLS.development.backend).toMatch(/^https?:\/\//)
       expect(OAUTH_URLS.development.redirect).toMatch(/^[a-z]+:\/\//)
       expect(OAUTH_URLS.production.backend).toMatch(/^https:\/\//)

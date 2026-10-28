@@ -16,7 +16,7 @@ test.describe('Text Alignment Hotkeys', () => {
       const moreMenuButton = page.locator('[data-testid="more-menu-button"]')
       await moreMenuButton.click()
       await page.waitForTimeout(300)
-      
+
       const leftButton = page.locator('[data-testid="align-left-button"]')
       await leftButton.click()
       await page.waitForTimeout(300)
@@ -39,7 +39,7 @@ test.describe('Text Alignment Hotkeys', () => {
       await moreMenuButton.click()
       await page.waitForTimeout(300)
     }
-    
+
     const leftButton = page.locator('[data-testid="align-left-button"]')
     await expect(leftButton).toHaveClass(/active/)
   })
@@ -76,7 +76,7 @@ test.describe('Text Alignment Hotkeys', () => {
       await expect(moreMenuButton).toBeVisible()
       await moreMenuButton.click()
       await page.waitForTimeout(300)
-      
+
       const rightButton = page.locator('[data-testid="align-right-button"]')
       await expect(rightButton).toBeVisible()
       await rightButton.click()
@@ -100,7 +100,7 @@ test.describe('Text Alignment Hotkeys', () => {
       await moreMenuButton.click()
       await page.waitForTimeout(300)
     }
-    
+
     const rightButton = page.locator('[data-testid="align-right-button"]')
     await expect(rightButton).toHaveClass(/active/)
   })
@@ -191,7 +191,7 @@ test.describe('Text Alignment Hotkeys', () => {
       await expect(moreMenuButton).toBeVisible()
       await moreMenuButton.click()
       await page.waitForTimeout(300)
-      
+
       const leftButton = page.locator('[data-testid="align-left-button"]')
       await expect(leftButton).toBeVisible()
       await leftButton.click()

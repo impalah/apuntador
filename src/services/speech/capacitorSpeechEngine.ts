@@ -127,7 +127,10 @@ export class CapacitorSpeechEngine implements SpeechEngine {
       if (permission.speechRecognition !== 'granted') {
         this.shouldBeListening = false
         this.setStatus('error')
-        this.emitError('permission-denied', 'Microphone/speech recognition permission was not granted')
+        this.emitError(
+          'permission-denied',
+          'Microphone/speech recognition permission was not granted'
+        )
         return
       }
 
@@ -237,7 +240,10 @@ export class CapacitorSpeechEngine implements SpeechEngine {
     if (this.consecutiveRestarts > SPEECH_NATIVE_MAX_CONSECUTIVE_RESTARTS) {
       this.shouldBeListening = false
       this.setStatus('error')
-      this.emitError('unknown', 'Speech recognition kept stopping unexpectedly and gave up restarting')
+      this.emitError(
+        'unknown',
+        'Speech recognition kept stopping unexpectedly and gave up restarting'
+      )
       return
     }
 
@@ -246,9 +252,11 @@ export class CapacitorSpeechEngine implements SpeechEngine {
       this.restartTimer = null
       if (!this.shouldBeListening || !this.currentLanguage) return
 
-      SpeechRecognition.start({ language: this.currentLanguage, ...START_OPTIONS }).catch((error: unknown) => {
-        this.handleStartFailure(error)
-      })
+      SpeechRecognition.start({ language: this.currentLanguage, ...START_OPTIONS }).catch(
+        (error: unknown) => {
+          this.handleStartFailure(error)
+        }
+      )
     }, SPEECH_NATIVE_RESTART_DELAY_MS)
   }
 

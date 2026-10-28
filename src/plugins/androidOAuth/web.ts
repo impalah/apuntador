@@ -10,7 +10,11 @@ export class AndroidOAuthWeb extends WebPlugin implements AndroidOAuthPlugin {
     throw this.unimplemented('Not implemented on web. Use BackendOAuthClient instead.')
   }
 
-  async exchangeToken(): Promise<{ access_token: string; refresh_token?: string; expires_in: number }> {
+  async exchangeToken(): Promise<{
+    access_token: string
+    refresh_token?: string
+    expires_in: number
+  }> {
     throw this.unimplemented('Not implemented on web. Use BackendOAuthClient instead.')
   }
 

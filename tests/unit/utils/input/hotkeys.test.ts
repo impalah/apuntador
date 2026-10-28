@@ -25,7 +25,7 @@ describe('hotkeys utils', () => {
     it('should have step hotkeys for Arrow keys', () => {
       const upHotkey = DEFAULT_HOTKEYS.find((h: any) => h.key === 'ArrowUp')
       const downHotkey = DEFAULT_HOTKEYS.find((h: any) => h.key === 'ArrowDown')
-      
+
       expect(upHotkey).toBeDefined()
       expect(downHotkey).toBeDefined()
     })
@@ -34,7 +34,7 @@ describe('hotkeys utils', () => {
   describe('createDefaultMapping', () => {
     it('should create a mapping object', () => {
       const mapping = createDefaultMapping()
-      
+
       expect(mapping).toBeTypeOf('object')
       expect(mapping).toHaveProperty('toggle-play')
       expect(mapping).toHaveProperty('step-up')
@@ -43,11 +43,11 @@ describe('hotkeys utils', () => {
 
     it('should have descriptions for all actions', () => {
       const mapping = createDefaultMapping()
-      
+
       const keys = Object.keys(mapping)
       expect(keys.length).toBeGreaterThan(0)
-      
-      keys.forEach(key => {
+
+      keys.forEach((key) => {
         expect(mapping[key as keyof typeof mapping]).toHaveProperty('description')
       })
     })
@@ -68,14 +68,14 @@ describe('hotkeys utils', () => {
   describe('createDefaultGamepadMapping', () => {
     it('should create a gamepad mapping object', () => {
       const mapping = createDefaultGamepadMapping()
-      
+
       expect(mapping).toBeTypeOf('object')
       expect(Object.keys(mapping).length).toBeGreaterThan(0)
     })
 
     it('should have action keys', () => {
       const mapping = createDefaultGamepadMapping()
-      
+
       expect(mapping).toHaveProperty('toggle-play')
       expect(mapping['toggle-play']).toHaveProperty('description')
     })
@@ -85,7 +85,7 @@ describe('hotkeys utils', () => {
     it('should update descriptions in mapping', () => {
       const original = createDefaultMapping()
       const updated = updateDescriptionsInMapping(original)
-      
+
       expect(updated).toBeTypeOf('object')
       expect(Object.keys(updated).length).toBe(Object.keys(original).length)
     })
@@ -93,7 +93,7 @@ describe('hotkeys utils', () => {
     it('should preserve action assignments', () => {
       const original = createDefaultMapping()
       const updated = updateDescriptionsInMapping(original)
-      
+
       expect(updated['toggle-play']?.action).toBe('toggle-play')
     })
   })
@@ -102,7 +102,7 @@ describe('hotkeys utils', () => {
     it('should update descriptions in gamepad mapping', () => {
       const original = createDefaultGamepadMapping()
       const updated = updateDescriptionsInGamepadMapping(original)
-      
+
       expect(updated).toBeTypeOf('object')
       expect(Object.keys(updated).length).toBe(Object.keys(original).length)
     })
@@ -111,22 +111,21 @@ describe('hotkeys utils', () => {
   describe('HotkeyManager', () => {
     it('should create instance', () => {
       const manager = new HotkeyManager()
-      
+
       expect(manager).toBeDefined()
       expect(manager).toBeInstanceOf(HotkeyManager)
     })
 
     it('should have register method', () => {
       const manager = new HotkeyManager()
-      
+
       expect(manager.register).toBeTypeOf('function')
     })
 
     it('should have unregister method', () => {
       const manager = new HotkeyManager()
-      
+
       expect(manager.unregister).toBeTypeOf('function')
     })
   })
 })
-

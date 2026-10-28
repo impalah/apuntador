@@ -6,16 +6,9 @@
     :z-index="Z_INDEX.ALWAYS_ON_TOP_NESTED"
     @update:model-value="$emit('update:modelValue', $event)"
   >
-    <v-card
-      class="editor-actions-menu"
-      :class="{ maximized: isMaximized }"
-      rounded="t-xl"
-    >
+    <v-card class="editor-actions-menu" :class="{ maximized: isMaximized }" rounded="t-xl">
       <!-- Handle bar para indicar que es arrastrable -->
-      <div
-        class="handle-bar"
-        @click="toggleMaximize"
-      >
+      <div class="handle-bar" @click="toggleMaximize">
         <div class="handle" />
       </div>
 
@@ -32,10 +25,7 @@
         />
 
         <!-- File Operations View (when no provider selected) -->
-        <div
-          v-else-if="!selectedProvider"
-          class="file-operations-container"
-        >
+        <div v-else-if="!selectedProvider" class="file-operations-container">
           <!-- Header -->
           <div class="operations-header">
             <h2 class="operations-title">
@@ -53,11 +43,7 @@
               @click="onLocalFile"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon
-                  icon="mdi-laptop"
-                  size="32"
-                  class="mr-4"
-                />
+                <v-icon icon="mdi-laptop" size="32" class="mr-4" />
                 <div>
                   <div class="text-title-large">
                     {{ mode === 'open' ? t('cloud.files.openLocal') : t('cloud.files.saveLocal') }}
@@ -88,16 +74,9 @@
               @click="onSelectCloudProvider('googledrive')"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon
-                  icon="mdi-google-drive"
-                  size="32"
-                  class="mr-4"
-                  color="primary"
-                />
+                <v-icon icon="mdi-google-drive" size="32" class="mr-4" color="primary" />
                 <div class="flex-grow-1">
-                  <div class="text-title-large">
-                    Google Drive
-                  </div>
+                  <div class="text-title-large">Google Drive</div>
                   <div class="text-body-small text-medium-emphasis">
                     {{
                       isGoogleDriveConnected
@@ -107,12 +86,7 @@
                     }}
                   </div>
                 </div>
-                <v-chip
-                  v-if="!isGoogleDriveConnected"
-                  size="small"
-                  color="warning"
-                  variant="flat"
-                >
+                <v-chip v-if="!isGoogleDriveConnected" size="small" color="warning" variant="flat">
                   {{ t('cloud.notConnected') }}
                 </v-chip>
               </v-card-text>
@@ -126,16 +100,9 @@
               @click="onSelectCloudProvider('dropbox')"
             >
               <v-card-text class="d-flex align-center">
-                <v-icon
-                  icon="mdi-dropbox"
-                  size="32"
-                  class="mr-4"
-                  color="primary"
-                />
+                <v-icon icon="mdi-dropbox" size="32" class="mr-4" color="primary" />
                 <div class="flex-grow-1">
-                  <div class="text-title-large">
-                    Dropbox
-                  </div>
+                  <div class="text-title-large">Dropbox</div>
                   <div class="text-body-small text-medium-emphasis">
                     {{
                       isDropboxConnected
@@ -145,12 +112,7 @@
                     }}
                   </div>
                 </div>
-                <v-chip
-                  v-if="!isDropboxConnected"
-                  size="small"
-                  color="warning"
-                  variant="flat"
-                >
+                <v-chip v-if="!isDropboxConnected" size="small" color="warning" variant="flat">
                   {{ t('cloud.notConnected') }}
                 </v-chip>
               </v-card-text>
@@ -170,33 +132,20 @@
         </div>
 
         <!-- Cloud File Explorer View (when provider selected) -->
-        <div
-          v-else
-          class="cloud-explorer-container"
-        >
+        <div v-else class="cloud-explorer-container">
           <!-- Header with back button -->
           <div class="explorer-header d-flex align-center mb-4">
-            <v-btn
-              icon="mdi-arrow-left"
-              variant="text"
-              @click="onBackToProviders"
-            />
+            <v-btn icon="mdi-arrow-left" variant="text" @click="onBackToProviders" />
             <h2 class="operations-title ml-2">
               {{ selectedProvider === 'googledrive' ? 'Google Drive' : 'Dropbox' }}
             </h2>
           </div>
 
           <!-- Cloud File Explorer Component -->
-          <CloudFileExplorer
-            compact-mode
-            @file-selected="onCloudFileSelected"
-          />
+          <CloudFileExplorer compact-mode @file-selected="onCloudFileSelected" />
 
           <!-- File name input for save mode -->
-          <div
-            v-if="mode === 'save'"
-            class="mt-4"
-          >
+          <div v-if="mode === 'save'" class="mt-4">
             <v-text-field
               v-model="fileName"
               :label="t('fileDialog.fileName')"
@@ -206,12 +155,7 @@
               persistent-hint
               prepend-inner-icon="mdi-file-document"
             />
-            <v-btn
-              color="primary"
-              block
-              class="mt-3"
-              @click="onSaveToCloud"
-            >
+            <v-btn color="primary" block class="mt-3" @click="onSaveToCloud">
               {{ t('fileLoader.save') }}
             </v-btn>
           </div>

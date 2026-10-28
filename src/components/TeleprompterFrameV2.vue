@@ -13,13 +13,8 @@
   >
     <!-- DEBUG INFO - Temporary for Android debugging -->
     <!-- Debug Info Window - Controlled by environment variables -->
-    <div
-      v-if="showDebug"
-      class="debug-info"
-    >
-      <div class="debug-header">
-        DEBUG MODE
-      </div>
+    <div v-if="showDebug" class="debug-info">
+      <div class="debug-header">DEBUG MODE</div>
       <div class="debug-row">
         <span class="debug-label">Status:</span>
         <span :class="['debug-value', { playing: scrollState.isPlaying }]">
@@ -40,21 +35,19 @@
       </div>
       <div class="debug-row">
         <span class="debug-label">Scroll:</span>
-        <span class="debug-value">{{
-          Math.round(
-            (scrollState.offset /
-              Math.max(1, (measuredContentHeight || 1) - (viewportHeight || 1))) *
-              100
-          )
-        }}%</span>
+        <span class="debug-value"
+          >{{
+            Math.round(
+              (scrollState.offset /
+                Math.max(1, (measuredContentHeight || 1) - (viewportHeight || 1))) *
+                100
+            )
+          }}%</span
+        >
       </div>
     </div>
     <!-- Transformed content container -->
-    <div
-      ref="transformedContainerRef"
-      class="teleprompter-container"
-      :style="containerStyle"
-    >
+    <div ref="transformedContainerRef" class="teleprompter-container" :style="containerStyle">
       <!-- Content -->
       <div
         ref="contentRef"
@@ -74,25 +67,15 @@
     />
 
     <!-- Fixed dimming overlay (not transformed) -->
-    <div
-      v-if="highlightBand.enabled"
-      class="dimming-overlay"
-      :style="dimmingStyle"
-    />
+    <div v-if="highlightBand.enabled" class="dimming-overlay" :style="dimmingStyle" />
 
     <!-- Always visible triangular visual aids -->
     <div v-if="highlightBand.enabled">
       <!-- Left triangle (pointing right) -->
-      <div
-        class="triangle triangle-left"
-        :style="triangleStyle"
-      />
+      <div class="triangle triangle-left" :style="triangleStyle" />
 
       <!-- Right triangle (pointing left) -->
-      <div
-        class="triangle triangle-right"
-        :style="triangleStyle"
-      />
+      <div class="triangle triangle-right" :style="triangleStyle" />
     </div>
 
     <!-- Highlight band position handle -->

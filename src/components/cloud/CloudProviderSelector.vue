@@ -5,18 +5,10 @@
     </v-card-subtitle>
 
     <!-- Active Provider Info -->
-    <v-card
-      v-if="cloudStore.activeProvider"
-      class="mb-6"
-      variant="tonal"
-      color="primary"
-    >
+    <v-card v-if="cloudStore.activeProvider" class="mb-6" variant="tonal" color="primary">
       <v-card-text>
         <div class="d-flex align-center">
-          <v-icon
-            size="large"
-            class="me-3"
-          >
+          <v-icon size="large" class="me-3">
             {{ getProviderIcon(cloudStore.activeProvider.id) }}
           </v-icon>
           <div class="flex-grow-1">
@@ -33,12 +25,7 @@
               {{ cloudStore.activeProvider.userInfo.email }}
             </div>
           </div>
-          <v-btn
-            variant="text"
-            color="error"
-            :loading="isDisconnecting"
-            @click="onDisconnect"
-          >
+          <v-btn variant="text" color="error" :loading="isDisconnecting" @click="onDisconnect">
             {{ t('cloud.disconnect') }}
           </v-btn>
         </div>
@@ -51,12 +38,7 @@
     </div>
 
     <v-row>
-      <v-col
-        v-for="provider in cloudStore.availableProviders"
-        :key="provider.id"
-        cols="12"
-        md="6"
-      >
+      <v-col v-for="provider in cloudStore.availableProviders" :key="provider.id" cols="12" md="6">
         <v-card
           :variant="provider.isConnected ? 'tonal' : 'outlined'"
           :color="provider.isConnected ? 'success' : undefined"
@@ -78,31 +60,17 @@
                 <div class="text-body-large font-weight-medium">
                   {{ provider.name }}
                 </div>
-                <div
-                  v-if="provider.isConnected"
-                  class="text-body-small text-success"
-                >
-                  <v-icon
-                    size="small"
-                    class="me-1"
-                  >
-                    mdi-check-circle
-                  </v-icon>
+                <div v-if="provider.isConnected" class="text-body-small text-success">
+                  <v-icon size="small" class="me-1"> mdi-check-circle </v-icon>
                   {{ t('cloud.connected') }}
                 </div>
-                <div
-                  v-else
-                  class="text-body-small text-medium-emphasis"
-                >
+                <div v-else class="text-body-small text-medium-emphasis">
                   {{ t('cloud.notConnected') }}
                 </div>
               </div>
             </div>
 
-            <div
-              v-if="provider.userInfo"
-              class="mt-3 text-body-small"
-            >
+            <div v-if="provider.userInfo" class="mt-3 text-body-small">
               <div>{{ provider.userInfo.name }}</div>
               <div class="text-medium-emphasis">
                 {{ provider.userInfo.email }}
@@ -117,15 +85,12 @@
               :loading="isConnecting && connectingProviderId === provider.id"
               :disabled="
                 isConnecting ||
-                  isDisconnecting ||
-                  (provider.isConnected && cloudStore.activeProviderId === provider.id)
+                isDisconnecting ||
+                (provider.isConnected && cloudStore.activeProviderId === provider.id)
               "
               @click="onConnect(provider.id)"
             >
-              <v-icon
-                v-if="cloudStore.activeProviderId === provider.id"
-                start
-              >
+              <v-icon v-if="cloudStore.activeProviderId === provider.id" start>
                 mdi-check-circle
               </v-icon>
               {{

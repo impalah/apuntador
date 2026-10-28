@@ -23,7 +23,9 @@ describe('buildWordStream', () => {
 
   it('marks the first word of a new paragraph, not words within a paragraph', () => {
     const stream = buildWordStream('uno dos\n\ntres cuatro')
-    expect(stream.map((e) => ({ word: e.word, paragraphBreakBefore: e.paragraphBreakBefore }))).toEqual([
+    expect(
+      stream.map((e) => ({ word: e.word, paragraphBreakBefore: e.paragraphBreakBefore }))
+    ).toEqual([
       { word: 'uno', paragraphBreakBefore: false },
       { word: 'dos', paragraphBreakBefore: false },
       { word: 'tres', paragraphBreakBefore: true },

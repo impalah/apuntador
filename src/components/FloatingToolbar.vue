@@ -1,10 +1,6 @@
 <template>
   <!-- Simplified Bottom Toolbar - 3 fixed buttons plus the voice-mode quick toggle -->
-  <div
-    v-if="props.isVisible"
-    class="floating-toolbar"
-    data-testid="floating-toolbar"
-  >
+  <div v-if="props.isVisible" class="floating-toolbar" data-testid="floating-toolbar">
     <!-- Play/Pause Button -->
     <button
       class="toolbar-btn"
@@ -12,10 +8,7 @@
       data-testid="play-pause-button"
       @click="togglePlay"
     >
-      <v-icon
-        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
-        size="32"
-      />
+      <v-icon :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'" size="32" />
     </button>
 
     <!-- Voice-mode quick toggle - hidden where the platform can't support it
@@ -56,10 +49,7 @@
       data-testid="more-menu-button"
       @click="actionsMenuOpen = true"
     >
-      <v-icon
-        icon="mdi-dots-vertical"
-        size="32"
-      />
+      <v-icon icon="mdi-dots-vertical" size="32" />
     </button>
   </div>
 

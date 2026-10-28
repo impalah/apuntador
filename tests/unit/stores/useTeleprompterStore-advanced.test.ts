@@ -27,12 +27,12 @@ describe('useTeleprompterStore - Advanced Tests', () => {
   describe('Content Management', () => {
     it('should handle markdown compilation errors gracefully', async () => {
       const store = useTeleprompterStore()
-      
+
       // Invalid markdown that might cause issues
       const problematicMarkdown = '# Test\n\n<script>alert("XSS")</script>'
-      
+
       await store.setContent(problematicMarkdown)
-      
+
       // Should still compile (markdown-it sanitizes by default)
       expect(store.contentRaw).toBe(problematicMarkdown)
       expect(store.contentHtml).toBeDefined()
@@ -41,9 +41,9 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     it('should compile markdown content independently', async () => {
       const store = useTeleprompterStore()
       store.contentRaw = '# Heading\n\nParagraph'
-      
+
       await store.compileMarkdownContent()
-      
+
       expect(store.contentHtml).toContain('<h1')
       expect(store.contentHtml).toContain('Heading')
     })
@@ -54,17 +54,17 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const store = useTeleprompterStore()
       store.setViewportHeight(400)
       store.setContentHeight(1000)
-      
+
       // At top
       store.updateScrollOffset(0)
       expect(store.canScrollUp).toBe(false)
       expect(store.canScrollDown).toBe(true)
-      
+
       // In middle
       store.updateScrollOffset(300)
       expect(store.canScrollUp).toBe(true)
       expect(store.canScrollDown).toBe(true)
-      
+
       // At bottom
       store.updateScrollOffset(600)
       expect(store.canScrollUp).toBe(true)
@@ -76,9 +76,9 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.pause()
-      
+
       store.syncScrollFromDOM(250)
-      
+
       expect(store.scrollOffset).toBe(250)
     })
 
@@ -87,10 +87,10 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.pause()
-      
+
       // Try to sync beyond max
       store.syncScrollFromDOM(1500)
-      
+
       expect(store.scrollOffset).toBe(600) // Clamped to maxOffset
     })
 
@@ -99,10 +99,10 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.pause()
-      
+
       // Try to sync below min
       store.syncScrollFromDOM(-100)
-      
+
       expect(store.scrollOffset).toBe(0) // Clamped to 0
     })
   })
@@ -111,57 +111,57 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     it('should measure line height from element with normal line-height', () => {
       const store = useTeleprompterStore()
       const mockElement = document.createElement('div')
-      
+
       // Mock getComputedStyle
       vi.spyOn(window, 'getComputedStyle').mockReturnValue({
         lineHeight: 'normal',
         fontSize: '20px',
       } as CSSStyleDeclaration)
-      
+
       store.measureLineHeight(mockElement)
-      
+
       expect(store.lineHeightPx).toBe(24) // 20 * 1.2
     })
 
     it('should measure line height from element with px value', () => {
       const store = useTeleprompterStore()
       const mockElement = document.createElement('div')
-      
+
       vi.spyOn(window, 'getComputedStyle').mockReturnValue({
         lineHeight: '32px',
         fontSize: '20px',
       } as CSSStyleDeclaration)
-      
+
       store.measureLineHeight(mockElement)
-      
+
       expect(store.lineHeightPx).toBe(32)
     })
 
     it('should measure line height from element with unitless value', () => {
       const store = useTeleprompterStore()
       const mockElement = document.createElement('div')
-      
+
       vi.spyOn(window, 'getComputedStyle').mockReturnValue({
         lineHeight: '1.5',
         fontSize: '20px',
       } as CSSStyleDeclaration)
-      
+
       store.measureLineHeight(mockElement)
-      
+
       expect(store.lineHeightPx).toBe(30) // 20 * 1.5
     })
 
     it('should measure line height with em value', () => {
       const store = useTeleprompterStore()
       const mockElement = document.createElement('div')
-      
+
       vi.spyOn(window, 'getComputedStyle').mockReturnValue({
         lineHeight: '1.8',
         fontSize: '16px',
       } as CSSStyleDeclaration)
-      
+
       store.measureLineHeight(mockElement)
-      
+
       expect(store.lineHeightPx).toBe(28.8) // 16 * 1.8
     })
   })
@@ -169,30 +169,30 @@ describe('useTeleprompterStore - Advanced Tests', () => {
   describe('Dimension Management', () => {
     it('should set viewport height', () => {
       const store = useTeleprompterStore()
-      
+
       store.setViewportHeight(500)
-      
+
       expect(store.viewportHeightPx).toBe(500)
     })
 
     it('should set content height', () => {
       const store = useTeleprompterStore()
-      
+
       store.setContentHeight(1500)
-      
+
       expect(store.contentHeightPx).toBe(1500)
     })
 
     it('should recalculate maxOffset when dimensions change', () => {
       const store = useTeleprompterStore()
-      
+
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       expect(store.maxOffset).toBe(600)
-      
+
       store.setContentHeight(1500)
       expect(store.maxOffset).toBe(1100)
-      
+
       store.setViewportHeight(600)
       expect(store.maxOffset).toBe(900)
     })
@@ -202,29 +202,29 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     it('should save content', async () => {
       const store = useTeleprompterStore()
       const { contentStorage } = await import('@/services/persistence')
-      
+
       await store.setContent('# Test Content')
-      
+
       expect(contentStorage.set).toHaveBeenCalledWith('# Test Content')
     })
 
     it('should save content via saveContent method', async () => {
       const store = useTeleprompterStore()
       const { contentStorage } = await import('@/services/persistence')
-      
+
       store.contentRaw = '# Direct Content'
       await store.saveContent()
-      
+
       expect(contentStorage.set).toHaveBeenCalledWith('# Direct Content')
     })
 
     it('should load saved content', async () => {
       const { contentStorage } = await import('@/services/persistence')
       vi.mocked(contentStorage.get).mockResolvedValue('# Saved Content')
-      
+
       const store = useTeleprompterStore()
       await store.loadContent()
-      
+
       expect(store.contentRaw).toBe('# Saved Content')
       expect(store.contentHtml).toContain('<h1')
     })
@@ -233,14 +233,11 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const { contentStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(contentStorage.get).mockRejectedValue(new Error('Storage error'))
-      
+
       const store = useTeleprompterStore()
       await store.loadContent()
-      
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to load content:',
-        expect.any(Error)
-      )
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to load content:', expect.any(Error))
       consoleWarnSpy.mockRestore()
     })
 
@@ -248,40 +245,37 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const { contentStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(contentStorage.set).mockRejectedValue(new Error('Storage error'))
-      
+
       const store = useTeleprompterStore()
       await store.saveContent()
-      
-      expect(consoleWarnSpy).toHaveBeenCalledWith(
-        'Failed to save content:',
-        expect.any(Error)
-      )
+
+      expect(consoleWarnSpy).toHaveBeenCalledWith('Failed to save content:', expect.any(Error))
       consoleWarnSpy.mockRestore()
     })
 
     it('should save scroll position', async () => {
       const store = useTeleprompterStore()
       const { scrollPositionStorage } = await import('@/services/persistence')
-      
+
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.updateScrollOffset(250)
-      
+
       await store.saveScrollPosition()
-      
+
       expect(scrollPositionStorage.set).toHaveBeenCalledWith(250)
     })
 
     it('should load saved scroll position', async () => {
       const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(350)
-      
+
       const store = useTeleprompterStore()
       store.setViewportHeight(400)
       store.setContentHeight(1000)
-      
+
       await store.loadScrollPosition()
-      
+
       expect(store.scrollOffset).toBe(350)
     })
 
@@ -289,10 +283,10 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const { scrollPositionStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(scrollPositionStorage.get).mockRejectedValue(new Error('Storage error'))
-      
+
       const store = useTeleprompterStore()
       await store.loadScrollPosition()
-      
+
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Failed to load scroll position:',
         expect.any(Error)
@@ -304,10 +298,10 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const { scrollPositionStorage } = await import('@/services/persistence')
       const consoleWarnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
       vi.mocked(scrollPositionStorage.set).mockRejectedValue(new Error('Storage error'))
-      
+
       const store = useTeleprompterStore()
       await store.saveScrollPosition()
-      
+
       expect(consoleWarnSpy).toHaveBeenCalledWith(
         'Failed to save scroll position:',
         expect.any(Error)
@@ -318,14 +312,14 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     it('should not load scroll position if none saved', async () => {
       const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(null)
-      
+
       const store = useTeleprompterStore()
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.updateScrollOffset(100)
-      
+
       await store.loadScrollPosition()
-      
+
       // Should remain at 100 (not changed)
       expect(store.scrollOffset).toBe(100)
     })
@@ -333,14 +327,14 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     it('should not load scroll position if undefined saved', async () => {
       const { scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(null)
-      
+
       const store = useTeleprompterStore()
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.updateScrollOffset(150)
-      
+
       await store.loadScrollPosition()
-      
+
       // Should remain at 150 (not changed)
       expect(store.scrollOffset).toBe(150)
     })
@@ -349,13 +343,13 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const { contentStorage, scrollPositionStorage } = await import('@/services/persistence')
       vi.mocked(contentStorage.get).mockResolvedValue('# Initialized')
       vi.mocked(scrollPositionStorage.get).mockResolvedValue(200)
-      
+
       const store = useTeleprompterStore()
       store.setViewportHeight(400)
       store.setContentHeight(1000)
-      
+
       await store.initialize()
-      
+
       expect(store.contentRaw).toBe('# Initialized')
       expect(store.scrollOffset).toBe(200)
     })
@@ -367,7 +361,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.updateScrollOffset(0)
-      
+
       expect(store.scrollProgress).toBe(0)
     })
 
@@ -376,7 +370,7 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       store.setViewportHeight(400)
       store.setContentHeight(1000)
       store.updateScrollOffset(600)
-      
+
       expect(store.scrollProgress).toBe(100)
     })
 
@@ -384,9 +378,8 @@ describe('useTeleprompterStore - Advanced Tests', () => {
       const store = useTeleprompterStore()
       store.setViewportHeight(1000)
       store.setContentHeight(500)
-      
+
       expect(store.scrollProgress).toBe(0)
     })
   })
 })
-

@@ -20,11 +20,7 @@
       :style="{ zIndex: Z_INDEX.ALWAYS_ON_TOP }"
     >
       <div class="text-center">
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="64"
-        />
+        <v-progress-circular indeterminate color="primary" size="64" />
         <p class="text-title-large mt-4">
           {{ cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading') }}
         </p>
@@ -32,10 +28,7 @@
     </v-overlay>
 
     <!-- Editor Content Area -->
-    <v-container
-      fluid
-      class="editor-container pa-0"
-    >
+    <v-container fluid class="editor-container pa-0">
       <div class="editor-content">
         <div class="editor-panel">
           <TextEditor
@@ -48,11 +41,7 @@
     </v-container>
 
     <!-- File Loader (for backward compatibility, can be removed later) -->
-    <FileLoader
-      v-model="fileLoaderOpen"
-      auto-import
-      @file-imported="onFileImported"
-    />
+    <FileLoader v-model="fileLoaderOpen" auto-import @file-imported="onFileImported" />
 
     <!-- Editor Actions Menu for Open -->
     <EditorActionsMenu
