@@ -13,6 +13,15 @@ export default defineConfig({
   retries: process.env['CI'] ? 2 : 0,
   /* Opt out of parallel tests on CI. */
   workers: process.env['CI'] ? 1 : undefined,
+  /* Visual regression (tests/e2e/visual.spec.ts) */
+  expect: {
+    toHaveScreenshot: {
+      animations: 'disabled',
+      // Small tolerance for font antialiasing differences between runs
+      maxDiffPixelRatio: 0.01,
+      stylePath: './tests/e2e/visual/screenshot.css',
+    },
+  },
   /* Reporter to use. See https://playwright.dev/docs/test-reporters */
   reporter: [['list'], ['json', { outputFile: 'test-results/results.json' }]],
   /* Shared settings for all the projects below. See https://playwright.dev/docs/class-testoptions. */
