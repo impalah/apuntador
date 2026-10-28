@@ -212,18 +212,21 @@ onMounted(async () => {
   left: 50% !important;
   transform: translateX(-50%) !important;
   z-index: 9999 !important;
-  min-width: 360px !important;
-  max-width: calc(100vw - 40px) !important;
+
+  /* Size to content but never wider than the screen: with five controls the
+     old fixed 360px box overflowed and pushed the More button off-screen */
+  width: max-content;
+  max-width: calc(100vw - 16px);
   border-radius: 28px !important;
   background: #1a1a1a !important; /* Gris oscuro como ActionsMenu */
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
-  padding: 8px 20px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-  gap: 16px;
+  justify-content: center;
+  gap: 6px;
 }
 
 .toolbar-btn {
@@ -234,11 +237,11 @@ onMounted(async () => {
   border: none;
   color: white;
   cursor: pointer;
-  padding: 12px;
+  padding: 6px;
   border-radius: 50%;
   transition: all 0.2s ease;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
 }
 
@@ -259,24 +262,25 @@ onMounted(async () => {
   background: rgb(var(--v-theme-primary), 0.4);
 }
 
-/* Responsive adjustments */
+/* Responsive adjustments: phones get the compact layout above; very narrow
+   screens (320px) shrink a little more so all five controls still fit */
 @media (max-width: 360px) {
   .floating-toolbar {
-    min-width: 300px !important;
     bottom: calc(12px + env(safe-area-inset-bottom)) !important;
-    gap: 10px;
-    padding: 8px 14px;
+    gap: 4px;
+    padding: 6px;
   }
 
   .toolbar-btn {
-    width: 52px;
-    height: 52px;
-    padding: 10px;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
   }
 }
 
 @media (min-width: 600px) {
   .floating-toolbar {
+    min-width: 360px;
     max-width: 560px;
     bottom: calc(24px + env(safe-area-inset-bottom)) !important;
     gap: 20px;
