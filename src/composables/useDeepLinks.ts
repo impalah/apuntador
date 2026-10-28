@@ -1,6 +1,6 @@
 import { onMounted, onUnmounted } from 'vue'
 import { App } from '@capacitor/app'
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, type PluginListenerHandle } from '@capacitor/core'
 import { useRouter } from 'vue-router'
 
 export function useDeepLinks() {
@@ -86,6 +86,8 @@ export function useDeepLinks() {
     }
   }
 
+  let appUrlOpenHandle: PluginListenerHandle | null = null
+
   const setupDeepLinks = async () => {
     // Solo configurar deep links en plataformas nativas
     if (!Capacitor.isNativePlatform()) {
@@ -97,7 +99,7 @@ export function useDeepLinks() {
 
     try {
       // Listener para deep links cuando la app está activa
-      App.addListener('appUrlOpen', handleAppUrl)
+      appUrlOpenHandle = await App.addListener('appUrlOpen', handleAppUrl)
 
       // Verificar si la app se abrió con un deep link
       const initialUrl = await App.getLaunchUrl()
@@ -113,8 +115,11 @@ export function useDeepLinks() {
   }
 
   const cleanupDeepLinks = () => {
-    if (Capacitor.isNativePlatform()) {
-      App.removeAllListeners()
+    // Remove only our own listener: removeAllListeners() would also drop
+    // unrelated App listeners such as the Android back-button handler
+    if (appUrlOpenHandle) {
+      void appUrlOpenHandle.remove()
+      appUrlOpenHandle = null
       console.log('[CLEANUP] Deep link listeners cleaned up')
     }
   }

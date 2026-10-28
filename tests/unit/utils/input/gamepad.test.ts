@@ -86,9 +86,23 @@ describe('Gamepad Utils', () => {
     })
 
     it('should allow cleanup', () => {
-      const { cleanup } = useGamepad()
-      
+      const { cleanup, onButtonPress } = useGamepad()
+      onButtonPress(() => {})
+
       expect(() => cleanup()).not.toThrow()
+      expect(global.cancelAnimationFrame).toHaveBeenCalled()
+    })
+
+    it('does not poll until someone listens for button presses', () => {
+      vi.mocked(global.requestAnimationFrame).mockClear()
+      const { onButtonPress } = useGamepad()
+
+      expect(global.requestAnimationFrame).not.toHaveBeenCalled()
+
+      const unsubscribe = onButtonPress(() => {})
+      expect(global.requestAnimationFrame).toHaveBeenCalledTimes(1)
+
+      unsubscribe()
       expect(global.cancelAnimationFrame).toHaveBeenCalled()
     })
   })

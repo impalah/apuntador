@@ -62,8 +62,9 @@ export function useGamepad() {
       console.log('Gamepad API initialized')
     }
 
-    // Start polling for gamepad state
-    pollGamepads()
+    // Polling only runs while someone listens for button presses (see
+    // onButtonPress); a plain status read must not cost a 60fps loop
+    updateConnectedGamepads()
 
     // Listen for gamepad connection events
     globalThis.addEventListener('gamepadconnected', handleGamepadConnected)
@@ -103,9 +104,11 @@ export function useGamepad() {
    * Notify all button press listeners
    */
   const notifyButtonPress = (button: GamepadButton) => {
-    console.log(
-      `[GAMEPAD] Gamepad button detected: ${button.buttonName} (${button.buttonIndex}) on gamepad ${button.gamepadIndex}`
-    )
+    if (import.meta.env.DEV) {
+      console.log(
+        `[GAMEPAD] Gamepad button detected: ${button.buttonName} (${button.buttonIndex}) on gamepad ${button.gamepadIndex}`
+      )
+    }
 
     buttonPressCallbacks.forEach((callback) => {
       try {
@@ -264,17 +267,35 @@ export function useGamepad() {
       })
     })
 
-    // Continue polling at 60fps
+    // Continue polling at 60fps while there are listeners
+    if (buttonPressCallbacks.size === 0) {
+      animationFrameId = null
+      return
+    }
     animationFrameId = requestAnimationFrame(pollGamepads)
+  }
+
+  const startPolling = () => {
+    if (!isSupported.value || animationFrameId !== null) return
+    animationFrameId = requestAnimationFrame(pollGamepads)
+  }
+
+  const stopPolling = () => {
+    if (animationFrameId !== null) {
+      cancelAnimationFrame(animationFrameId)
+      animationFrameId = null
+    }
   }
 
   // Add listener for button presses
   const onButtonPress = (callback: (button: GamepadButton) => void) => {
     buttonPressCallbacks.add(callback)
+    startPolling()
 
     // Return cleanup function
     return () => {
       buttonPressCallbacks.delete(callback)
+      if (buttonPressCallbacks.size === 0) stopPolling()
     }
   }
 

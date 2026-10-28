@@ -23,6 +23,7 @@ export const NORMAL_LINE_HEIGHT_MULTIPLIER = 1.2 // multiplier for 'normal' line
 export const DEFAULT_HIGHLIGHT_BAND_LINES = 2
 export const DEFAULT_HIGHLIGHT_BAND_POS = 40 // percent from top
 export const HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS = 300 // coalesce prefs writes while dragging the band
+export const OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000 // desktop OAuth: wait for the browser callback
 export const DEFAULT_DIMMING_INTENSITY = 0.3
 
 // Colors

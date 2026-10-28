@@ -31,16 +31,17 @@ export function useSettingsActions() {
   const gamepadSupported = computed(() => gamepadComposable.isSupported.value)
   const connectedGamepads = computed(() => gamepadComposable.connectedGamepads.value.length)
 
+  // CSS variables are owned by TeleprompterPage, which applies the *active*
+  // frame's appearance; writing the markdown-frame values from here clobbered
+  // them while the monospace frame was active
   async function savePrefs() {
     await prefsStore.save()
-    prefsStore.applyCSSVariables()
   }
 
   async function onResetSettings() {
     prefsStore.reset()
     i18nStore.changeLanguage('auto')
     await prefsStore.save()
-    prefsStore.applyCSSVariables()
   }
 
   async function onResetHotkeys() {
@@ -65,7 +66,6 @@ export function useSettingsActions() {
     if (confirm(confirmMessage)) {
       await storage.clear()
       prefsStore.reset()
-      prefsStore.applyCSSVariables()
       globalThis.location.reload()
     }
   }

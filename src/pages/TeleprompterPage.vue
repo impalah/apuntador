@@ -523,6 +523,7 @@ watch(
     activeFrameAppearance.bgColor.value,
     activeFrameAppearance.textAlignment.value,
     prefsStore.activeFrame,
+    prefsStore.dimmingIntensity,
   ],
   () => {
     applyTeleprompterCSSVariables()

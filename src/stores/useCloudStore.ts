@@ -261,7 +261,13 @@ export const useCloudStore = defineStore('cloud', () => {
 
         // STEP 3: Start OAuth flow (opens browser with backend URL)
         console.log('Opening browser for OAuth (backend proxy)...')
-        await service.connect() // This opens browser to backend URL
+        try {
+          await service.connect() // This opens browser to backend URL
+        } catch (connectError) {
+          // Nobody will await callbackPromise: drop the listener and its timeout
+          tauriService.cancelOAuthCallback()
+          throw connectError
+        }
 
         // STEP 4: Wait for callback from localhost:8080
         console.log('[WAIT] Waiting for OAuth callback from browser...')

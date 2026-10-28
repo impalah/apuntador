@@ -1,6 +1,8 @@
 // Dynamic imports to avoid bundling issues in web builds
 // These modules are only available in Tauri desktop environment
 
+import { OAUTH_CALLBACK_TIMEOUT_MS } from '@/utils/constants'
+
 export interface TauriDropboxFile {
   name: string
   path: string
@@ -13,6 +15,10 @@ export interface TauriOAuthResponse {
 
 export class TauriService {
   private oauthCallbackListener: (() => void) | null = null
+  private oauthTimeout: ReturnType<typeof setTimeout> | null = null
+  // Bumped whenever the current OAuth wait is torn down, so callbacks from a
+  // superseded or cancelled flow (timeout, late listen() resolution) are ignored
+  private oauthGeneration = 0
 
   async isAvailable(): Promise<boolean> {
     try {
@@ -167,39 +173,62 @@ export class TauriService {
   async listenForOAuthCallback(): Promise<{ code: string; state: string }> {
     console.log('[LISTEN] TauriService: Setting up listener for oauth-callback')
 
-    this.stopOAuthListener() // Clean up previous listener
+    this.stopOAuthListener() // Clean up previous listener and its timeout
+    const generation = this.oauthGeneration
 
     return new Promise((resolve, reject) => {
-      const timeout = setTimeout(() => {
-        console.log('TauriService: OAuth timeout after 5 minutes')
+      this.oauthTimeout = setTimeout(() => {
+        if (generation !== this.oauthGeneration) return
+        console.log('TauriService: OAuth timeout waiting for callback')
         this.stopOAuthListener()
         reject(new Error('OAuth timeout'))
-      }, 300000) // 5 minutes timeout
+      }, OAUTH_CALLBACK_TIMEOUT_MS)
 
       // Import and set up listener asynchronously
       import('@tauri-apps/api/event')
         .then(({ listen }) => {
           // listen() returns a Promise that resolves to the unlisten function
           return listen('oauth-callback', (event: any) => {
+            if (generation !== this.oauthGeneration) return
             console.log('[CALL] TauriService: oauth-callback event received')
-            clearTimeout(timeout)
             this.stopOAuthListener()
             resolve(event.payload)
           })
         })
         .then((unlistenFn) => {
+          // The flow may already be over (callback, timeout or cancel) by the
+          // time listen() resolves; don't leave a stray listener behind
+          if (generation !== this.oauthGeneration) {
+            unlistenFn()
+            return
+          }
           this.oauthCallbackListener = unlistenFn
           console.log('TauriService: oauth-callback listener configured')
         })
         .catch((error) => {
+          if (generation !== this.oauthGeneration) return
           console.error('[ERROR] TauriService: Error setting up listener:', error)
-          clearTimeout(timeout)
+          this.stopOAuthListener()
           reject(error)
         })
     })
   }
 
+  /**
+   * Abandons the pending OAuth wait (e.g. opening the browser failed). The
+   * pending promise is left unsettled on purpose so nobody gets an unhandled
+   * rejection when the caller has already moved on.
+   */
+  cancelOAuthCallback() {
+    this.stopOAuthListener()
+  }
+
   private stopOAuthListener() {
+    this.oauthGeneration++
+    if (this.oauthTimeout) {
+      clearTimeout(this.oauthTimeout)
+      this.oauthTimeout = null
+    }
     if (this.oauthCallbackListener) {
       this.oauthCallbackListener()
       this.oauthCallbackListener = null
