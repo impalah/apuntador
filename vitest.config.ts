@@ -44,7 +44,6 @@ export default defineConfig({
         'src/pages/**',
         'src/components/**',
         // Exclude platform-specific and hard-to-test services
-        'src/services/oauth/**',
         'src/services/dropbox/**',
         'src/services/googledrive/**',
         'src/services/tauriService.ts',
@@ -64,8 +63,6 @@ export default defineConfig({
         'src/composables/useNotification.ts',
         'src/composables/useSettingsActions.ts',
         'src/composables/useTheaterMode.ts',
-        // Exclude cloud store (platform-specific, integration tested)
-        'src/stores/useCloudStore.ts',
         // Exclude platform-specific utils
         'src/utils/input/gamepad.ts',
         'src/utils/display/webFullscreen.ts',
@@ -78,8 +75,11 @@ export default defineConfig({
         'src/stores/useMonoFramePrefsStore.ts',
         'src/stores/useFileStore.ts',
         'src/stores/useI18nStore.ts',
+        'src/stores/useCloudStore.ts',
         'src/utils/**/*.ts',
         'src/services/cloudProviderConfig.ts',
+        'src/services/oauth/baseOAuthService.ts',
+        'src/services/oauth/backendOAuthClient.ts',
         'src/services/unifiedMTLSService.ts',
         'src/services/mtls/**/*.ts',
         'src/services/serviceErrorHandler.ts',
