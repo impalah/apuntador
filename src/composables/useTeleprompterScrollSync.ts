@@ -1,7 +1,7 @@
 /**
- * Touch gesture handling + scroll-offset sync (Pinia store <-> DOM) shared by
- * both presenter frames (TeleprompterFrameV2 and TeleprompterFrameMono): swipe,
- * press-and-hold and tap detection, debounced manual-scroll reporting, pushing
+ * Tap handling + scroll-offset sync (Pinia store <-> DOM) shared by both
+ * presenter frames (TeleprompterFrameV2 and TeleprompterFrameMono): tap
+ * detection for touch and mouse, debounced manual-scroll reporting, pushing
  * store offsets into scrollTop without echoing them back, and ResizeObserver
  * driven remeasurement.
  */
@@ -9,8 +9,8 @@
 import { onMounted, onUnmounted, watch, type Ref } from 'vue'
 import { throttle } from '@/utils/dom'
 import {
-  SWIPE_THRESHOLD,
-  PRESS_AND_HOLD_DURATION,
+  TAP_MOVEMENT_MAX,
+  TAP_DURATION_MAX,
   SCROLL_SYNC_DEBOUNCE_MS,
   SCROLL_SYNC_SUPPRESS_MS,
   TOUCH_CLICK_SUPPRESS_MS,
@@ -19,9 +19,6 @@ import {
 
 export interface TeleprompterScrollSyncCallbacks {
   onTap: () => void
-  onSwipeUp: () => void
-  onSwipeDown: () => void
-  onPressHold: () => void
   onManualScroll: (_scrollTop: number) => void
   onResize: () => void
 }
@@ -57,19 +54,8 @@ export function useTeleprompterScrollSync(
     const deltaY = touch.clientY - touchStartY
     const duration = Date.now() - touchStartTime
 
-    if (duration >= PRESS_AND_HOLD_DURATION && Math.abs(deltaY) < SWIPE_THRESHOLD) {
-      callbacks.onPressHold()
-      return
-    }
-
-    if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-      if (deltaY > 0) {
-        callbacks.onSwipeDown()
-      } else {
-        callbacks.onSwipeUp()
-      }
-      return
-    }
+    // A drag (manual scroll) or a long press is not a tap
+    if (Math.abs(deltaY) > TAP_MOVEMENT_MAX || duration >= TAP_DURATION_MAX) return
 
     // Report touch taps from touchend: while the text auto-scrolls, WebKit
     // drops the follow-up click (the element under the finger changes between

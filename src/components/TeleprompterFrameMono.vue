@@ -113,9 +113,6 @@ const { onClick: onFrameClick } = useTeleprompterScrollSync(
   scrollOffset,
   {
     onTap: () => emit('tap'),
-    onSwipeUp: () => emit('swipe-up'),
-    onSwipeDown: () => emit('swipe-down'),
-    onPressHold: () => emit('press-hold'),
     onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
     onResize: () => measureDimensions(),
   }

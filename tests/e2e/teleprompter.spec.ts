@@ -284,20 +284,6 @@ test.describe('Mobile Responsiveness', () => {
     expect(buttonCount).toBeLessThanOrEqual(6) // Adjusted for SpeedControl internal buttons
   })
 
-  test('should respond to touch gestures', async ({ page, isMobile }) => {
-    if (!isMobile) {
-      test.skip()
-    }
-
-    // Simulate swipe down (scroll up)
-    await page.touchscreen.tap(200, 300)
-    await page.touchscreen.tap(200, 350)
-
-    // Simulate swipe up (scroll down)
-    await page.touchscreen.tap(200, 350)
-    await page.touchscreen.tap(200, 300)
-  })
-
   test.skip('should keep toolbar visible during playback on mobile', async ({ page, isMobile }) => {
     if (!isMobile) {
       test.skip()

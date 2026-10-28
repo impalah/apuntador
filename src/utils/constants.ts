@@ -125,10 +125,8 @@ export const OAUTH_TOKEN_ACTIVATION_DELAY = 1000 // ms - wait for a freshly issu
 
 // Touch and interaction
 export const MIN_TOUCH_TARGET_SIZE = 44 // px
-export const SWIPE_THRESHOLD = 50 // px
-export const PRESS_AND_HOLD_DURATION = 500 // ms
-export const TAP_DURATION_MAX = 300 // ms
-export const TAP_MOVEMENT_MAX = 10 // px
+export const TAP_MOVEMENT_MAX = 50 // px - a touch that moves further is a drag, not a tap
+export const TAP_DURATION_MAX = 500 // ms - a touch held this long is a long press, not a tap
 
 // Padding and spacing
 export const TELEPROMPTER_CONTENT_PADDING = 24 // px
