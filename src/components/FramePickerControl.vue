@@ -41,11 +41,11 @@ function toggleFrame(): void {
   border: none;
   color: white;
   cursor: pointer;
-  padding: 12px;
+  padding: 6px;
   border-radius: 50%;
   transition: all 0.2s ease;
-  width: 56px;
-  height: 56px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
 }
 
@@ -66,11 +66,12 @@ function toggleFrame(): void {
   background: rgb(var(--v-theme-primary), 0.4);
 }
 
+/* Keep in sync with FloatingToolbar's .toolbar-btn sizes */
 @media (max-width: 360px) {
   .toolbar-btn {
-    width: 52px;
-    height: 52px;
-    padding: 10px;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
   }
 }
 

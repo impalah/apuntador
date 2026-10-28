@@ -104,6 +104,20 @@ function decreaseSpeed() {
   flex-grow: 0 !important;
 }
 
+/* Phones: narrower so the five toolbar controls fit on screen */
+@media (max-width: 599px) {
+  .speed-control {
+    width: 112px;
+    min-width: 112px;
+    max-width: 112px;
+    padding: 4px;
+  }
+
+  .speed-display {
+    width: 36px;
+  }
+}
+
 /* Tablet optimizations */
 @media (min-width: 600px) and (max-width: 1263px) {
   .speed-control {
