@@ -53,6 +53,14 @@ export default defineConfig({
     // Tauri APIs are not externalized: the desktop app ships this same bundle.
     // Shared code keeps them out of web/mobile paths with dynamic import().
     rolldownOptions: {
+      // Production bundles drop console.log/info/debug (warn/error stay);
+      // `npm run build:debug` (VITE_DEBUG_MODE=true) keeps them
+      treeshake: {
+        manualPureFunctions:
+          process.env.VITE_DEBUG_MODE === 'true'
+            ? []
+            : ['console.log', 'console.info', 'console.debug'],
+      },
       output: {
         // Vendor chunk groups to improve bundle splitting
         codeSplitting: {
