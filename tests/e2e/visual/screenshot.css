@@ -1,0 +1,6 @@
+/* Applied only while taking visual-regression screenshots */
+
+/* Dev-only debug panel: shows live offsets, not part of the shipped UI */
+.debug-info {
+  visibility: hidden !important;
+}
