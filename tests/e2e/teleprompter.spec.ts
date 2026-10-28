@@ -68,9 +68,11 @@ test.describe('Teleprompter Basic Functionality', () => {
     // Wait for playback to start and toolbar to auto-hide
     await page.waitForTimeout(800)
 
-    // Tap teleprompter to show toolbar again (force click to avoid scrolling instability)
-    const teleprompterContent = page.locator('.teleprompter-content')
-    await teleprompterContent.click({ position: { x: 10, y: 10 }, force: true })
+    // Tap the visible reading area to show the toolbar again, as a user would.
+    // (A forced click at the content's top-left corner targeted a point that
+    // auto-scroll had already moved off-screen.)
+    const viewport = page.viewportSize()!
+    await page.mouse.click(Math.round(viewport.width / 2), Math.round(viewport.height * 0.45))
 
     // Wait longer for webkit/safari
     await page.waitForTimeout(500)
