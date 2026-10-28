@@ -87,7 +87,7 @@ This devcontainer provides a **complete and isolated development environment** f
    colima status
    ```
 
-   **⚙️ Recommended Resources for Colima (Full Stack Development)**:
+   **Recommended Resources for Colima (Full Stack Development)**:
    - **CPUs**: Minimum 6, recommended 8+ (for Rust compilation, Android builds, Tauri)
    - **Memory**: Minimum 12GB, recommended 16GB (Android SDK + Gradle + Rust)
    - **Disk**: At least 80GB (Android SDK ~30GB, Rust cache, npm packages)
@@ -112,7 +112,7 @@ This devcontainer provides a **complete and isolated development environment** f
 2. **Visual Studio Code** with the **Dev Containers** extension
    - Install from: [Dev Containers Extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers)
 
-## 🏃 How to Use the DevContainer
+## How to Use the DevContainer
 
 ### Option 1: Open in Container (Recommended)
 
@@ -407,7 +407,7 @@ colima start --cpu 6 --memory 10 --disk 60
 
 **Docker Desktop** (macOS / Windows):
 
-1. Docker Desktop → ⚙️ Settings/Preferences
+1. Docker Desktop → Settings/Preferences
 2. Resources → Advanced
 3. Adjust CPUs and Memory
 4. Apply & Restart

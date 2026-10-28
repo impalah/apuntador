@@ -92,7 +92,7 @@ Paste any console errors here
 - [ ] Tested with different content
 - [ ] Other: **\*\***\_\_\_\_**\*\***
 
-## 💥 Impact Assessment
+## Impact Assessment
 
 <!-- How severe is this bug for your usage? -->
 

@@ -41,7 +41,7 @@ extract_sha1() {
         return 1
     fi
     
-    echo -e "${GREEN}✓ SHA-1 obtenido exitosamente${NC}"
+    echo -e "${GREEN}[OK] SHA-1 obtenido exitosamente${NC}"
     echo ""
     echo "=================================================="
     echo -e "${GREEN}SHA-1 Fingerprint:${NC}"
@@ -151,7 +151,7 @@ case $option in
 esac
 
 echo ""
-echo -e "${GREEN}✓ Proceso completado${NC}"
+echo -e "${GREEN}[OK] Proceso completado${NC}"
 echo ""
 echo "Próximos pasos:"
 echo "  1. Ve a: https://console.cloud.google.com/apis/credentials"

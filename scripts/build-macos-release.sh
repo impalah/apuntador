@@ -275,7 +275,7 @@ find_generated_files() {
     
     local build_path="src-tauri/target/$target_dir/$BUILD_TYPE"
     
-    echo -e "${CYAN}📁 Archivos generados:${NC}"
+    echo -e "${CYAN}Archivos generados:${NC}"
     echo ""
     
     # Buscar .app bundle
@@ -283,7 +283,7 @@ find_generated_files() {
     if [[ -n "$app_bundle" ]]; then
         local app_size=$(du -sh "$app_bundle" | cut -f1)
         echo -e "  App Bundle: ${GREEN}$(basename "$app_bundle")${NC} ($app_size)"
-        echo -e "     📍 $app_bundle"
+        echo -e "     $app_bundle"
     else
         log_warning "No se encontró .app bundle"
     fi
@@ -292,8 +292,8 @@ find_generated_files() {
     local dmg_file=$(find "$build_path" -name "*.dmg" 2>/dev/null | head -1)
     if [[ -n "$dmg_file" ]]; then
         local dmg_size=$(du -sh "$dmg_file" | cut -f1)
-        echo -e "  💿 DMG Installer: ${GREEN}$(basename "$dmg_file")${NC} ($dmg_size)"
-        echo -e "     📍 $dmg_file"
+        echo -e "  DMG Installer: ${GREEN}$(basename "$dmg_file")${NC} ($dmg_size)"
+        echo -e "     $dmg_file"
     else
         if [[ "$GENERATE_DMG" == "true" ]]; then
             log_warning "No se encontró instalador DMG"

@@ -52,7 +52,7 @@ keystore-base64.txt
 keystore.txt
 ```
 
-## 🚫 What NOT to Do
+## [BLOCKED] What NOT to Do
 
 - [ERROR] Never commit `*.keystore` files
 - [ERROR] Never commit `key.properties` with real passwords
@@ -79,7 +79,7 @@ For GitHub Actions, use encrypted secrets:
 
 See [GITHUB_SECRETS.md](./GITHUB_SECRETS.md) for setup instructions.
 
-## 🆘 If You Accidentally Commit Sensitive Files
+## If You Accidentally Commit Sensitive Files
 
 ### 1. Remove from Git History
 

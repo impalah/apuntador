@@ -10,7 +10,7 @@ assignees: ''
 
 <!-- Provide a clear and concise description of the feature you'd like to see -->
 
-## 💭 Motivation & Use Case
+## Motivation & Use Case
 
 <!-- Explain why this feature would be valuable and what problem it solves -->
 <!-- Example: "As a [type of user], I want [feature] so that [benefit]" -->

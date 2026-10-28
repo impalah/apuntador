@@ -323,4 +323,4 @@ jobs:
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
           echo "versions.json updated successfully"
-          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+          echo "Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"

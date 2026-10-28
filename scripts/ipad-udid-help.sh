@@ -26,7 +26,7 @@ echo "1. Open Finder → Check sidebar for your iPad"
 echo "2. Click on iPad → Look for device information"
 echo ""
 
-echo "🎵 Method 4: Check Music app"
+echo "Method 4: Check Music app"
 echo "============================="
 echo "1. Music app → Account → View My Account"
 echo "2. Manage Devices → Look for your iPad"

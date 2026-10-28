@@ -95,7 +95,7 @@ jobs:
           EOF
           echo ".env file created successfully"
           echo "Variables configured (masked):"
-          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
+          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   [OK] /' || echo "   (no variables found)"
 
       - name: Setup environment variables
         run: |
@@ -194,7 +194,7 @@ jobs:
 
           # Buscar archivos generados en diferentes ubicaciones
           if [ -d "src-tauri/target/universal-apple-darwin" ]; then
-            echo "📂 Universal build directory contents:"
+            echo "Universal build directory contents:"
             find src-tauri/target/universal-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
               echo "  $(basename "$file") ($size) - $file"
@@ -204,7 +204,7 @@ jobs:
           fi
 
           if [ -d "src-tauri/target/aarch64-apple-darwin" ]; then
-            echo "📂 ARM64 build directory contents:"
+            echo "ARM64 build directory contents:"
             find src-tauri/target/aarch64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
               echo "  $(basename "$file") ($size) - $file"
@@ -212,7 +212,7 @@ jobs:
           fi
 
           if [ -d "src-tauri/target/x86_64-apple-darwin" ]; then
-            echo "📂 Intel build directory contents:"
+            echo "Intel build directory contents:"
             find src-tauri/target/x86_64-apple-darwin -name "*.app" -o -name "*.dmg" | while read file; do
               size=$(du -h "$file" | cut -f1)
               echo "  $(basename "$file") ($size) - $file"
@@ -272,7 +272,7 @@ jobs:
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
           APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
         run: |
-          echo "🔏 Starting code signing and notarization process..."
+          echo "Starting code signing and notarization process..."
 
           # Find the .app bundle
           APP_PATH=""
@@ -390,7 +390,7 @@ jobs:
             "src-tauri/target/$buildType/bundle/macos" \
             "src-tauri/target/bundle/macos"; do
             if [ -d "$searchPath" ]; then
-              echo "📂 Checking directory: $searchPath"
+              echo "Checking directory: $searchPath"
               found=$(find "$searchPath" -name "*.app" 2>/dev/null | head -1)
               if [ -n "$found" ]; then
                 appPath="$found"
@@ -610,7 +610,7 @@ jobs:
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
           echo "versions.json updated successfully"
-          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+          echo "Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
 
       - name: Build Summary
         run: |
@@ -621,7 +621,7 @@ jobs:
 
           find artifacts -type f | while read file; do
             size=$(du -h "$file" | cut -f1)
-            echo "  📁 $(basename "$file") ($size)"
+            echo "  $(basename "$file") ($size)"
           done
 
           echo ""

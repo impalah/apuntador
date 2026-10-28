@@ -32,7 +32,7 @@ Write-Host "Exportando certificado público..." -ForegroundColor Cyan
 Export-Certificate -Cert $cert -FilePath $cerPath | Out-Null
 
 # Mostrar información
-Write-Host "`n✓ Certificado creado exitosamente!" -ForegroundColor Green
+Write-Host "`n[OK] Certificado creado exitosamente!" -ForegroundColor Green
 Write-Host "  Thumbprint: $($cert.Thumbprint)" -ForegroundColor Yellow
 Write-Host "  PFX: $pfxPath" -ForegroundColor Yellow
 Write-Host "  CER: $cerPath" -ForegroundColor Yellow

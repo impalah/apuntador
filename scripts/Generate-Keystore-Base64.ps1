@@ -27,7 +27,7 @@ try {
     $base64 | Out-File -Encoding ascii $outputFile
     
     Write-Host "Base64 generated successfully!" -ForegroundColor Green
-    Write-Host "📁 File saved to: $outputFile" -ForegroundColor Cyan
+    Write-Host "File saved to: $outputFile" -ForegroundColor Cyan
     
     # Show information
     Write-Host "`nINFORMATION FOR GITHUB SECRETS:" -ForegroundColor Magenta

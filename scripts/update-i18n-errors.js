@@ -138,7 +138,7 @@ const translations = {
 
 // Los otros idiomas los generaremos con traducciones automáticas (Google Translate API sería ideal, pero usaremos aproximaciones)
 
-console.log('📝 Actualizando archivos de idioma con errors.services...\n')
+console.log('Actualizando archivos de idioma con errors.services...\n')
 
 // Leer todos los archivos JSON en el directorio de locales
 const files = fs
@@ -178,7 +178,7 @@ for (const file of files) {
       fs.writeFileSync(filePath, JSON.stringify(content, null, 2) + '\n', 'utf8')
       console.log(`  ${lang} actualizado`)
     } else {
-      console.log(`  ⚠️  ${lang} sin traducciones definidas - se saltará`)
+      console.log(`  WARNING:  ${lang} sin traducciones definidas - se saltará`)
     }
   } catch (error) {
     console.error(`  Error procesando ${lang}:`, error.message)

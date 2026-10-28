@@ -106,7 +106,7 @@ teleprompter,prompter,video,presentation,speech,streaming,content creator
 
 ---
 
-## 📸 Screenshots Needed
+## Screenshots Needed
 
 ### iPhone (6.7" display)
 - [ ] **Main interface** - teleprompter showing text
@@ -123,7 +123,7 @@ teleprompter,prompter,video,presentation,speech,streaming,content creator
 
 ---
 
-## 🔒 Privacy & Legal
+## Privacy & Legal
 
 ### Privacy Policy (Required)
 Create at: https://privacypolicytemplate.net/ or similar
@@ -173,7 +173,7 @@ npm run ios:appstore
 
 ---
 
-## 🚨 Common Issues & Fixes
+## [ALERT] Common Issues & Fixes
 
 ### "No signing certificate" or "No devices registered"
 **Cause**: Apple Developer needs at least one registered device

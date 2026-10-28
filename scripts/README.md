@@ -110,7 +110,7 @@ This will:
 2. Create `android/key.properties`
 3. Set environment variables
 
-## 📁 Output
+## Output
 
 Built bundles will be placed in:
 

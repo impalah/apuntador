@@ -29,13 +29,13 @@ There are three ways to get content into Apuntador:
 
 **Option B: Import a File**
 
-1. Click the **Import** button (📁 icon)
+1. Click the **Import** button (icon)
 2. Select a `.md` or `.txt` file from your device
 3. Content loads automatically
 
 **Option C: Use the Editor**
 
-1. Click the **Editor** button (✏️ icon)
+1. Click the **Editor** button (icon)
 2. Type or paste your script
 3. Use markdown formatting for headers, emphasis, etc.
 4. Click **Save** when finished
@@ -64,7 +64,7 @@ There are three ways to get content into Apuntador:
 
 **Font and Display**
 
-1. Open **Settings** (⚙️ icon)
+1. Open **Settings** (icon)
 2. Adjust **Font Size** (16-200px)
 3. Change **Font Family** if desired
 4. Set **Colors** for text and background
@@ -193,4 +193,4 @@ Now that you're familiar with the basics:
 3. **Experiment with highlight band positioning**
 4. **Practice with different scroll speeds**
 
-Ready to create amazing content with Apuntador! 🎬
+Ready to create amazing content with Apuntador! 

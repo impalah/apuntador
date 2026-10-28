@@ -82,7 +82,7 @@ jobs:
           EOF
           echo ".env file created successfully"
           echo "Variables configured (masked):"
-          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (no variables found)"
+          grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   [OK] /' || echo "   (no variables found)"
 
       - name: npm build
         run: |

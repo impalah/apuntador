@@ -178,7 +178,7 @@ make ios-icons               # Generate icons & splash
 
 #### TestFlight Automation (Recommended)
 
-**Status**: **Manual Xcode ➔ TestFlight upload SUCCESSFUL!**
+**Status**: **Manual Xcode TestFlight upload SUCCESSFUL!**
 
 Automate iOS builds and TestFlight uploads with GitHub Actions:
 
@@ -346,7 +346,7 @@ apuntador/
 │   ├── stores/             # [STORE] Pinia state management
 │   ├── utils/              # Utility functions
 │   ├── types/              # TypeScript definitions
-│   └── styles/             # 💅 Global styles
+│   └── styles/             # Global styles
 ├── tests/
 │   ├── unit/               # Unit tests (Vitest)
 │   └── e2e/                # [MASK] E2E tests (Playwright)
@@ -711,7 +711,7 @@ We welcome contributions! Please see our [Contributing Guide](./CONTRIBUTING.md)
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🆘 Support & Community
+## Support & Community
 
 - **[Complete Documentation](./docs/)** - Comprehensive guides and API reference
 - **[Issue Tracker](https://github.com/impalah/apuntador/issues)** - Bug reports and feature requests
@@ -737,7 +737,7 @@ Complete professional teleprompter with multi-platform support, advanced scrolli
 - **Voice Control** - Hands-free operation
 - **AI Integration** - Script optimization suggestions
 
-**[👉 View Complete Roadmap](./ROADMAP.md)** for detailed features, timelines, and contribution opportunities.
+**[View Complete Roadmap](./ROADMAP.md)** for detailed features, timelines, and contribution opportunities.
 
 ---
 

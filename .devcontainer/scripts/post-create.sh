@@ -7,7 +7,7 @@ echo "Installing project dependencies..."
 npm install
 
 # Install Rust dependencies (build cache for faster subsequent builds)
-echo "🦀 Pre-building Rust dependencies..."
+echo "Pre-building Rust dependencies..."
 cd src-tauri
 cargo fetch
 cd ..

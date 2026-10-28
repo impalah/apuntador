@@ -130,7 +130,7 @@ Write-Host "Created: $keyPropertiesPath" -ForegroundColor Green
 
 # Set environment variables
 Write-Host ""
-Write-Host "🌍 Setting up environment variables..." -ForegroundColor Magenta
+Write-Host "Setting up environment variables..." -ForegroundColor Magenta
 
 [Environment]::SetEnvironmentVariable("ANDROID_KEYSTORE_PASSWORD", $storePasswordPlain, "User")
 [Environment]::SetEnvironmentVariable("ANDROID_KEY_PASSWORD", $keyPasswordPlain, "User")
