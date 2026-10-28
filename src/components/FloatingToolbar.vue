@@ -211,7 +211,11 @@ onMounted(async () => {
   bottom: calc(16px + env(safe-area-inset-bottom)) !important;
   left: 50% !important;
   transform: translateX(-50%) !important;
-  z-index: 9999 !important;
+
+  /* Below Vuetify overlays (2000+), like the editor toolbar: sheets, dialogs
+     and snackbars must cover it. At 9999 it competed with them, and an
+     overlay stacked on a visible snackbar (z 2010) ended up underneath it */
+  z-index: 1000 !important;
 
   /* Size to content but never wider than the screen: with five controls the
      old fixed 360px box overflowed and pushed the More button off-screen */

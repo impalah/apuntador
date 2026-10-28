@@ -199,9 +199,14 @@ export const ALIGNMENT_HOTKEYS = {
 // blocks (plain CSS), which can't reference these constants without a
 // SCSS<->TS variable bridge this project doesn't have. Those are left as
 // literals rather than adding unused entries here.
+// Layering rule: floating controls (teleprompter and editor toolbars) stay at
+// z-index 1000 in their CSS, below Vuetify overlays, which start at 2000 and
+// stack upwards. Vuetify stacks an overlay opened while another is active
+// (e.g. a snackbar) at that overlay's z-index + 10, ignoring these values, so
+// controls must not sit in the 2000+ range.
 export const Z_INDEX = {
-  // Floating controls that must sit above fixed UI chrome and page content
+  // Overlays that must cover everything (e.g. the editor's loading overlay)
   ALWAYS_ON_TOP: 9999,
-  // Bottom sheets/dialogs that must sit above ALWAYS_ON_TOP
+  // Bottom sheets opened from the toolbars
   ALWAYS_ON_TOP_NESTED: 10000,
 } as const

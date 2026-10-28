@@ -776,7 +776,16 @@ function handleScrollModeChange(mode: ScrollMode) {
 }
 
 .menu-content {
-  padding: 16px 24px calc(180px + env(safe-area-inset-bottom));
+  /* These paddings were dead under Vuetify 3 (.v-card-text's own padding won)
+     and only took effect once Vuetify 4 moved its styles into cascade layers:
+     the 160-180px bottom padding then pushed the settings view's header and
+     tabs out of the small bottom sheet. Kept at what was actually rendered. */
+  padding: 16px 24px calc(24px + env(safe-area-inset-bottom));
+
+  /* margin: auto disables cross-axis stretch in the card's flex column, so
+     without an explicit width the box grew to its content's width and the
+     settings view overflowed phone screens */
+  width: 100%;
   max-width: 500px;
   margin: 0 auto;
   overflow-y: auto;
@@ -905,10 +914,6 @@ function handleScrollModeChange(mode: ScrollMode) {
 
 /* Responsive: móviles pequeños */
 @media (max-width: 360px) {
-  .menu-content {
-    padding: 12px 16px calc(160px + env(safe-area-inset-bottom));
-  }
-
   .button-grid,
   .button-grid-2 {
     gap: 8px;
@@ -935,7 +940,6 @@ function handleScrollModeChange(mode: ScrollMode) {
 /* Tablets y desktop */
 @media (min-width: 600px) {
   .menu-content {
-    padding: 20px 32px calc(180px + env(safe-area-inset-bottom));
     max-width: 600px;
   }
 

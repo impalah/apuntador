@@ -132,18 +132,21 @@ function onMarkdownHelp() {
 
 .editor-toolbar {
   pointer-events: auto;
-  min-width: 320px;
-  max-width: calc(100vw - 40px);
+
+  /* Size to content, never wider than the screen: six fixed 52px buttons
+     used to overflow phones and push the close button off the edge */
+  width: max-content;
+  max-width: calc(100vw - 16px);
   border-radius: 28px;
   background: #1a1a1a; /* Gris oscuro como FloatingToolbar */
   -webkit-backdrop-filter: blur(12px);
   backdrop-filter: blur(12px);
   box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
-  padding: 8px 20px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  justify-content: space-evenly;
-  gap: 12px;
+  justify-content: center;
+  gap: 6px;
 }
 
 .toolbar-btn {
@@ -154,11 +157,11 @@ function onMarkdownHelp() {
   border: none;
   color: white;
   cursor: pointer;
-  padding: 12px;
+  padding: 6px;
   border-radius: 50%;
   transition: all 0.2s ease;
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
 }
 
@@ -179,20 +182,20 @@ function onMarkdownHelp() {
 /* Responsive adjustments */
 @media (max-width: 360px) {
   .editor-toolbar {
-    min-width: 280px;
-    gap: 8px;
-    padding: 8px 16px;
+    gap: 4px;
+    padding: 6px;
   }
 
   .toolbar-btn {
-    width: 48px;
-    height: 48px;
-    padding: 10px;
+    width: 40px;
+    height: 40px;
+    padding: 4px;
   }
 }
 
 @media (min-width: 600px) {
   .editor-toolbar {
+    min-width: 320px;
     max-width: 600px;
     gap: 16px;
     padding: 10px 24px;
