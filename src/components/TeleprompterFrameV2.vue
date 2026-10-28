@@ -88,15 +88,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
-import { throttle } from '@/utils/dom'
-import {
-  SWIPE_THRESHOLD,
-  PRESS_AND_HOLD_DURATION,
-  SCROLL_SYNC_SUPPRESS_MS,
-  CONTENT_REMEASURE_DELAY_MS,
-} from '@/utils/constants'
+import { ref, computed, onMounted, watch, nextTick } from 'vue'
+import { CONTENT_REMEASURE_DELAY_MS } from '@/utils/constants'
 import { isTauri } from '@/utils/tauri'
+import { useTeleprompterScrollSync } from '@/composables/useTeleprompterScrollSync'
 import HighlightBandHandle from './HighlightBandHandle.vue'
 import type { TeleprompterFrameProps, TeleprompterEvents } from '@/types/component-interfaces'
 
@@ -125,19 +120,19 @@ const contentRef = ref<HTMLElement>()
 const highlightBandRef = ref<HTMLElement>()
 
 // ========================================
-// Touch Handling State
+// Touch gestures, scroll sync (store <-> DOM) and resize observation
 // ========================================
 
-let touchStartY = 0
-let touchStartTime = 0
+const scrollOffset = computed(() => props.scrollState.offset)
 
-// ========================================
-// Scroll Synchronization State
-// ========================================
-
-let isScrollingSynchronizing = false // Flag to prevent infinite loops
-let scrollTimeout: number | null = null
-const SCROLL_DEBOUNCE_MS = 50 // Debounce scroll events
+useTeleprompterScrollSync(containerRef, transformedContainerRef, contentRef, scrollOffset, {
+  onTap: () => emit('tap'),
+  onSwipeUp: () => emit('swipe-up'),
+  onSwipeDown: () => emit('swipe-down'),
+  onPressHold: () => emit('press-hold'),
+  onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
+  onResize: () => measureDimensions(),
+})
 
 // ========================================
 // Computed Styles
@@ -183,16 +178,7 @@ const viewportHeight = ref(0)
 const showDebug = ref(false)
 
 // Set debug visibility based on environment
-if (import.meta.env.DEV) {
-  showDebug.value = true
-  console.log('Debug enabled: development mode')
-} else if (import.meta.env.VITE_DEBUG_MODE === 'true') {
-  showDebug.value = true
-  console.log('Debug enabled: VITE_DEBUG_MODE=true')
-} else {
-  showDebug.value = false
-  console.log('Debug disabled: production mode')
-}
+showDebug.value = import.meta.env.DEV || import.meta.env.VITE_DEBUG_MODE === 'true'
 
 function measureLineHeight() {
   if (!contentRef.value) return
@@ -256,45 +242,11 @@ const triangleStyle = computed(() => ({
 // Lifecycle & Measurements
 // ========================================
 
-let resizeObserver: ResizeObserver | null = null
-
 onMounted(() => {
   measureDimensions()
-  setupResizeObserver()
-
-  // Add passive touch event listeners for better performance
-  if (containerRef.value) {
-    containerRef.value.addEventListener('touchstart', onTouchStart, { passive: true })
-    containerRef.value.addEventListener('touchend', onTouchEnd, { passive: true })
-  }
-
-  // Add scroll listener to sync manual scroll with store
-  if (transformedContainerRef.value) {
-    transformedContainerRef.value.addEventListener('scroll', onManualScroll, { passive: true })
-  }
 
   // Initial measurement after content loads
   nextTick(measureDimensions)
-})
-
-onUnmounted(() => {
-  cleanupResizeObserver()
-
-  // Remove touch event listeners
-  if (containerRef.value) {
-    containerRef.value.removeEventListener('touchstart', onTouchStart)
-    containerRef.value.removeEventListener('touchend', onTouchEnd)
-  }
-
-  // Remove scroll event listener
-  if (transformedContainerRef.value) {
-    transformedContainerRef.value.removeEventListener('scroll', onManualScroll)
-  }
-
-  // Clean up scroll timeout
-  if (scrollTimeout) {
-    clearTimeout(scrollTimeout)
-  }
 })
 
 // ========================================
@@ -314,28 +266,6 @@ watch(
   }
 )
 
-// Watch for scroll offset changes and update container scrollTop * WITH DEBUG & SYNC *
-watch(
-  () => props.scrollState.offset,
-  (newOffset: number) => {
-    // console.log('[SCROLL SYNC] Store offset changed to:', newOffset.toFixed(1))
-    if (transformedContainerRef.value && !isScrollingSynchronizing) {
-      const el = transformedContainerRef.value
-      // console.log('[SCROLL SYNC] Updating DOM scrollTop from', el.scrollTop.toFixed(1), 'to', newOffset.toFixed(1))
-
-      // Set flag to prevent sync loop
-      isScrollingSynchronizing = true
-      el.scrollTop = newOffset
-
-      // Reset flag after a brief moment
-      setTimeout(() => {
-        isScrollingSynchronizing = false
-      }, SCROLL_SYNC_SUPPRESS_MS)
-    }
-  },
-  { flush: 'sync' } // Force immediate execution, don't wait for Vue's batch updates
-)
-
 // Watch for font changes
 watch(
   () => [props.displayPrefs.fontSizePx, props.displayPrefs.lineHeight],
@@ -343,30 +273,6 @@ watch(
     nextTick(measureDimensions)
   }
 )
-
-// ========================================
-// Resize Observer
-// ========================================
-
-function setupResizeObserver() {
-  if (typeof ResizeObserver === 'undefined') return
-
-  resizeObserver = new ResizeObserver(throttle(measureDimensions, 100))
-
-  if (containerRef.value) {
-    resizeObserver.observe(containerRef.value)
-  }
-  if (contentRef.value) {
-    resizeObserver.observe(contentRef.value)
-  }
-}
-
-function cleanupResizeObserver() {
-  if (resizeObserver) {
-    resizeObserver.disconnect()
-    resizeObserver = null
-  }
-}
 
 // ========================================
 // Measurements
@@ -389,49 +295,6 @@ function measureDimensions() {
 }
 
 // ========================================
-// Touch Interactions
-// ========================================
-
-function onTouchStart(event: TouchEvent) {
-  if (event.touches.length !== 1) return
-
-  const touch = event.touches[0]
-  if (!touch) return
-  touchStartY = touch.clientY
-  touchStartTime = Date.now()
-}
-
-function onTouchEnd(event: TouchEvent) {
-  if (event.changedTouches.length !== 1) return
-
-  const touch = event.changedTouches[0]
-  if (!touch) return
-  const touchEndY = touch.clientY
-  const touchEndTime = Date.now()
-  const deltaY = touchEndY - touchStartY
-  const duration = touchEndTime - touchStartTime
-
-  // Check for press and hold
-  if (duration >= PRESS_AND_HOLD_DURATION && Math.abs(deltaY) < SWIPE_THRESHOLD) {
-    emit('press-hold')
-    return
-  }
-
-  // Check for swipe
-  if (Math.abs(deltaY) > SWIPE_THRESHOLD) {
-    if (deltaY > 0) {
-      emit('swipe-down')
-    } else {
-      emit('swipe-up')
-    }
-    return
-  }
-
-  // Regular tap
-  emit('tap')
-}
-
-// ========================================
 // Event Handlers
 // ========================================
 
@@ -441,32 +304,6 @@ function onTap() {
 
 function onHighlightBandPositionChange(position: number) {
   emit('highlight-band-position-change', position)
-}
-
-// ========================================
-// Manual Scroll Synchronization
-// ========================================
-
-function onManualScroll(event: Event) {
-  // Skip if we're in the middle of programmatic scrolling
-  if (isScrollingSynchronizing) {
-    return
-  }
-
-  const target = event.target as HTMLElement
-  const scrollTop = target.scrollTop
-
-  // console.log('[SCROLL SYNC] Manual scroll detected:', scrollTop.toFixed(1))
-
-  // Debounce the scroll events to avoid too many updates
-  if (scrollTimeout) {
-    clearTimeout(scrollTimeout)
-  }
-
-  scrollTimeout = window.setTimeout(() => {
-    // console.log('[SCROLL SYNC] Emitting manual scroll offset:', scrollTop.toFixed(1))
-    emit('manual-scroll', scrollTop)
-  }, SCROLL_DEBOUNCE_MS)
 }
 
 // ========================================

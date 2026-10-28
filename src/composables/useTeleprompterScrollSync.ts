@@ -1,12 +1,9 @@
 /**
- * Touch gesture handling + scroll-offset sync (Pinia store <-> DOM), written
- * fresh for the monospace presenter frame by reading TeleprompterFrameV2.vue
- * as reference. TeleprompterFrameV2.vue is deliberately NOT modified to
- * consume this - it's mid-debugging on this branch, and isolating the new
- * frame from it is the point of this feature. This is an acknowledged,
- * deliberate duplication (~150 lines), not an oversight; retiring it by
- * migrating V2 onto this composable is a reasonable follow-up once
- * voice-tracking on V2 stabilizes.
+ * Touch gesture handling + scroll-offset sync (Pinia store <-> DOM) shared by
+ * both presenter frames (TeleprompterFrameV2 and TeleprompterFrameMono): swipe,
+ * press-and-hold and tap detection, debounced manual-scroll reporting, pushing
+ * store offsets into scrollTop without echoing them back, and ResizeObserver
+ * driven remeasurement.
  */
 
 import { onMounted, onUnmounted, watch, type Ref } from 'vue'
