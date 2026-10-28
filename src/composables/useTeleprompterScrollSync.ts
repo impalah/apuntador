@@ -13,6 +13,7 @@ import {
   PRESS_AND_HOLD_DURATION,
   SCROLL_SYNC_DEBOUNCE_MS,
   SCROLL_SYNC_SUPPRESS_MS,
+  TOUCH_CLICK_SUPPRESS_MS,
   RESIZE_OBSERVER_THROTTLE_MS,
 } from '@/utils/constants'
 
@@ -36,6 +37,8 @@ export function useTeleprompterScrollSync(
   let touchStartTime = 0
   let isScrollingSynchronizing = false
   let scrollTimeout: number | null = null
+  let suppressTimeout: number | null = null
+  let lastTouchTapAt = 0
   let resizeObserver: ResizeObserver | null = null
 
   function onTouchStart(event: TouchEvent): void {
@@ -68,6 +71,20 @@ export function useTeleprompterScrollSync(
       return
     }
 
+    // Report touch taps from touchend: while the text auto-scrolls, WebKit
+    // drops the follow-up click (the element under the finger changes between
+    // press and release), so relying on click alone loses taps on iOS
+    lastTouchTapAt = Date.now()
+    callbacks.onTap()
+  }
+
+  /**
+   * Click handler for the frame root. Ignores the synthetic click a browser
+   * fires right after a touch tap that touchend already reported (that pair
+   * used to toggle the toolbar on and straight back off); mouse clicks pass.
+   */
+  function onClick(): void {
+    if (Date.now() - lastTouchTapAt < TOUCH_CLICK_SUPPRESS_MS) return
     callbacks.onTap()
   }
 
@@ -87,17 +104,20 @@ export function useTeleprompterScrollSync(
 
   // Push store scrollOffset changes into the DOM, suppressing the 'scroll'
   // listener briefly so the programmatic write isn't misread as a manual scroll.
+  // Every change is written: skipping writes while the suppress window was open
+  // left the visible text behind the store on fast bursts (key repeat, gamepad).
   watch(
     scrollOffset,
     (newOffset) => {
-      if (scrollContainerRef.value && !isScrollingSynchronizing) {
-        const el = scrollContainerRef.value
-        isScrollingSynchronizing = true
-        el.scrollTop = newOffset
-        window.setTimeout(() => {
-          isScrollingSynchronizing = false
-        }, SCROLL_SYNC_SUPPRESS_MS)
-      }
+      const el = scrollContainerRef.value
+      if (!el) return
+      isScrollingSynchronizing = true
+      el.scrollTop = newOffset
+      if (suppressTimeout) window.clearTimeout(suppressTimeout)
+      suppressTimeout = window.setTimeout(() => {
+        isScrollingSynchronizing = false
+        suppressTimeout = null
+      }, SCROLL_SYNC_SUPPRESS_MS)
     },
     { flush: 'sync' }
   )
@@ -122,5 +142,10 @@ export function useTeleprompterScrollSync(
     if (scrollTimeout) {
       window.clearTimeout(scrollTimeout)
     }
+    if (suppressTimeout) {
+      window.clearTimeout(suppressTimeout)
+    }
   })
+
+  return { onClick }
 }

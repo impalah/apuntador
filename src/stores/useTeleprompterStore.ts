@@ -136,21 +136,16 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
 
     scrollOffset.value = clampedOffset
 
-    // Auto-pause when reaching the end of text while playing
-    // Only auto-pause if:
-    // 1. We are playing
-    // 2. We reached the maximum offset
-    // 3. We were scrolling forward (not seeking/jumping)
-    // 4. There was significant movement (> 5px to avoid tiny adjustments)
-    const scrollDelta = Math.abs(newOffset - previousOffset)
+    // Auto-pause when playback moves forward into the end of the text. There
+    // is deliberately no minimum step: the auto-scroller advances well under
+    // a pixel per frame at normal speeds, so the old "> 5px" guard meant this
+    // never fired and playback sat at the end with the toolbar hidden.
     if (
       isPlaying.value &&
-      clampedOffset >= maxOffset.value &&
+      maxOffset.value > 0 && // only if there's actual content to scroll
       newOffset > previousOffset &&
-      scrollDelta > 5 && // Require more meaningful movement
-      maxOffset.value > 0
+      clampedOffset >= maxOffset.value
     ) {
-      // Only if there's actual content to scroll
       pause()
     }
   }

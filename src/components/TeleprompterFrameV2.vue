@@ -9,7 +9,7 @@
     ref="containerRef"
     class="teleprompter-frame"
     :class="{ 'tauri-desktop': isTauri() }"
-    @click="onTap"
+    @click="onFrameClick"
   >
     <!-- DEBUG INFO - Temporary for Android debugging -->
     <!-- Debug Info Window - Controlled by environment variables -->
@@ -125,14 +125,20 @@ const highlightBandRef = ref<HTMLElement>()
 
 const scrollOffset = computed(() => props.scrollState.offset)
 
-useTeleprompterScrollSync(containerRef, transformedContainerRef, contentRef, scrollOffset, {
-  onTap: () => emit('tap'),
-  onSwipeUp: () => emit('swipe-up'),
-  onSwipeDown: () => emit('swipe-down'),
-  onPressHold: () => emit('press-hold'),
-  onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
-  onResize: () => measureDimensions(),
-})
+const { onClick: onFrameClick } = useTeleprompterScrollSync(
+  containerRef,
+  transformedContainerRef,
+  contentRef,
+  scrollOffset,
+  {
+    onTap: () => emit('tap'),
+    onSwipeUp: () => emit('swipe-up'),
+    onSwipeDown: () => emit('swipe-down'),
+    onPressHold: () => emit('press-hold'),
+    onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
+    onResize: () => measureDimensions(),
+  }
+)
 
 // ========================================
 // Computed Styles
@@ -297,10 +303,6 @@ function measureDimensions() {
 // ========================================
 // Event Handlers
 // ========================================
-
-function onTap() {
-  emit('tap')
-}
 
 function onHighlightBandPositionChange(position: number) {
   emit('highlight-band-position-change', position)

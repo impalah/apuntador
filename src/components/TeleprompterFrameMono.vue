@@ -12,7 +12,7 @@
     ref="containerRef"
     class="teleprompter-frame-mono"
     :class="{ 'tauri-desktop': isTauri() }"
-    @click="onTap"
+    @click="onFrameClick"
   >
     <div ref="transformedContainerRef" class="teleprompter-container-mono" :style="containerStyle">
       <div
@@ -106,14 +106,20 @@ const highlightBandRef = ref<HTMLElement>()
 
 const scrollOffset = computed(() => props.scrollState.offset)
 
-useTeleprompterScrollSync(containerRef, transformedContainerRef, contentRef, scrollOffset, {
-  onTap: () => emit('tap'),
-  onSwipeUp: () => emit('swipe-up'),
-  onSwipeDown: () => emit('swipe-down'),
-  onPressHold: () => emit('press-hold'),
-  onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
-  onResize: () => measureDimensions(),
-})
+const { onClick: onFrameClick } = useTeleprompterScrollSync(
+  containerRef,
+  transformedContainerRef,
+  contentRef,
+  scrollOffset,
+  {
+    onTap: () => emit('tap'),
+    onSwipeUp: () => emit('swipe-up'),
+    onSwipeDown: () => emit('swipe-down'),
+    onPressHold: () => emit('press-hold'),
+    onManualScroll: (scrollTop) => emit('manual-scroll', scrollTop),
+    onResize: () => measureDimensions(),
+  }
+)
 
 const containerStyle = computed(() => {
   const scaleX = props.displayPrefs.mirrorH ? 'scaleX(-1)' : 'scaleX(1)'
@@ -178,10 +184,6 @@ function measureDimensions(): void {
   emit('content-height-changed', newContentHeight)
   emit('viewport-height-changed', newViewportHeight)
   emit('viewport-width-changed', newViewportWidth)
-}
-
-function onTap(): void {
-  emit('tap')
 }
 
 function onHighlightBandPositionChange(position: number): void {

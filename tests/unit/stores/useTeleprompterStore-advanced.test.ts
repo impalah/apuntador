@@ -107,6 +107,40 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
   })
 
+  describe('Auto-pause at the end of the text', () => {
+    it('pauses when small auto-scroll steps reach the end', () => {
+      const store = useTeleprompterStore()
+      store.setViewportHeight(400)
+      store.setContentHeight(1000)
+      store.updateScrollOffset(599)
+      store.play({ skipAutoScroller: true })
+
+      // Normal auto-scroll speeds move well under a pixel per frame
+      store.updateScrollOffset(599.8)
+      expect(store.isPlaying).toBe(true)
+      store.updateScrollOffset(600.6)
+
+      expect(store.scrollOffset).toBe(600)
+      expect(store.isPlaying).toBe(false)
+    })
+
+    it('does not pause when moving backwards or while paused', () => {
+      const store = useTeleprompterStore()
+      store.setViewportHeight(400)
+      store.setContentHeight(1000)
+      store.updateScrollOffset(600)
+      store.play({ skipAutoScroller: true })
+
+      store.updateScrollOffset(550)
+      expect(store.isPlaying).toBe(true)
+
+      store.pause()
+      store.updateScrollOffset(700)
+      expect(store.isPlaying).toBe(false)
+      expect(store.scrollOffset).toBe(600)
+    })
+  })
+
   describe('Line Height', () => {
     it('steps by the line height reported by the active frame', () => {
       const store = useTeleprompterStore()

@@ -79,6 +79,7 @@ export const MONO_CHAR_MEASURE_SAMPLE_LENGTH = 100
 // Teleprompter scroll/touch sync (used by useTeleprompterScrollSync.ts, the
 // monospace frame's version of TeleprompterFrameV2's inline equivalents)
 export const SCROLL_SYNC_DEBOUNCE_MS = 50 // debounce manual-scroll DOM events before emitting
+export const TOUCH_CLICK_SUPPRESS_MS = 700 // ignore the synthetic click that follows a touch tap
 export const SCROLL_SYNC_SUPPRESS_MS = 10 // window during which a programmatic scrollTop write is not read back as manual
 export const RESIZE_OBSERVER_THROTTLE_MS = 100 // throttle for ResizeObserver-driven remeasurement
 export const CONTENT_REMEASURE_DELAY_MS = 100 // second measurement after new content, once late layout (fonts) settles
