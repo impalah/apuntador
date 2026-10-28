@@ -103,7 +103,7 @@ Dos formas de instalar:
 ### Desde VS Code:
 
 1. Abrir VS Code
-2. Ir a Extensions (⌘+Shift+X)
+2. Ir a Extensions (Cmd+Shift+X)
 3. Buscar "Dev Containers"
 4. Instalar "Dev Containers" por Microsoft
 

@@ -42,7 +42,7 @@ if ! gh auth status &> /dev/null; then
 fi
 
 echo "Variables encontradas en .env:"
-grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   ✓ /' || echo "   (ninguna)"
+grep -E '^[^#]' .env | cut -d'=' -f1 | sed 's/^/   [OK] /' || echo "   (ninguna)"
 echo ""
 
 # Confirmación
@@ -56,7 +56,7 @@ fi
 
 # Crear el secret
 echo ""
-echo "📤 Creando secret ENV_FILE..."
+echo "Creando secret ENV_FILE..."
 
 if gh secret set ENV_FILE < .env; then
     echo "Secret ENV_FILE creado/actualizado correctamente"

@@ -5,12 +5,12 @@ const messages = {
   'en-US': {
     common: {
       left: 'Left',
-      center: 'Center', 
+      center: 'Center',
       right: 'Right',
       home: 'Home',
       end: 'End',
       play: 'Play',
-      pause: 'Pause'
+      pause: 'Pause',
     },
     toolbar: {
       alignLeft: 'Align Left',
@@ -19,18 +19,18 @@ const messages = {
       mirrorHorizontal: 'Mirror Horizontal',
       mirrorVertical: 'Mirror Vertical',
       fullscreen: 'Fullscreen',
-      exitFullscreen: 'Exit Fullscreen'
-    }
+      exitFullscreen: 'Exit Fullscreen',
+    },
   },
   'es-ES': {
     common: {
       left: 'Izquierda',
       center: 'Centro',
-      right: 'Derecha', 
+      right: 'Derecha',
       home: 'Inicio',
       end: 'Final',
       play: 'Reproducir',
-      pause: 'Pausar'
+      pause: 'Pausar',
     },
     toolbar: {
       alignLeft: 'Alinear a la izquierda',
@@ -39,9 +39,9 @@ const messages = {
       mirrorHorizontal: 'Espejo horizontal',
       mirrorVertical: 'Espejo vertical',
       fullscreen: 'Pantalla completa',
-      exitFullscreen: 'Salir de pantalla completa'
-    }
-  }
+      exitFullscreen: 'Salir de pantalla completa',
+    },
+  },
 }
 
 export function createTestI18n() {
@@ -49,6 +49,6 @@ export function createTestI18n() {
     legacy: false,
     locale: 'en-US',
     fallbackLocale: 'en-US',
-    messages
+    messages,
   })
 }

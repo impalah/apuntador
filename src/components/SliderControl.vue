@@ -10,10 +10,7 @@
     @update:model-value="$emit('update:modelValue', $event)"
     @end="$emit('change')"
   >
-    <template
-      v-if="showInput"
-      #append
-    >
+    <template v-if="showInput" #append>
       <v-text-field
         :model-value="modelValue"
         type="number"
@@ -52,11 +49,11 @@ withDefaults(defineProps<Props>(), {
   thumbLabel: 'always',
   suffix: '',
   showInput: false,
-  inputSuffix: ''
+  inputSuffix: '',
 })
 
 defineEmits<{
   'update:modelValue': [value: number]
-  'change': []
+  change: []
 }>()
 </script>

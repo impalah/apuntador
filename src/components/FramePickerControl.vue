@@ -13,10 +13,7 @@
     data-testid="frame-picker-toggle"
     @click="toggleFrame"
   >
-    <v-icon
-      :icon="isMono ? 'mdi-console' : 'mdi-file-document-outline'"
-      size="26"
-    />
+    <v-icon :icon="isMono ? 'mdi-console' : 'mdi-file-document-outline'" size="26" />
   </button>
 </template>
 

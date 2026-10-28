@@ -188,7 +188,7 @@ This document outlines the current features and planned development roadmap for 
 
 ---
 
-## 🎬 Version 1.3 - Professional Features & Analytics (Q2 2026)
+## Version 1.3 - Professional Features & Analytics (Q2 2026)
 
 **Status**: **Planned**  
 _Introduces professional-grade features while maintaining client-only architecture_
@@ -227,7 +227,7 @@ _Introduces professional-grade features while maintaining client-only architectu
 
 ---
 
-## 🏭 Version 1.4 - Advanced Professional Studio Features (Q3 2026)
+## Version 1.4 - Advanced Professional Studio Features (Q3 2026)
 
 **Status**: **Future Planning**  
 _Requires major architectural changes and backend infrastructure_

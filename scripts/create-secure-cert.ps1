@@ -21,7 +21,7 @@ if ($Interactive) {
 
 if (!(Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
-    Write-Host "📁 Created directory: $OutputDir" -ForegroundColor Cyan
+    Write-Host "Created directory: $OutputDir" -ForegroundColor Cyan
 }
 
 $CertParams = @{
@@ -48,7 +48,7 @@ try {
         
         $pfxPath = Join-Path $OutputDir "apuntador-codesigning.pfx"
         
-        Write-Host "📤 Exporting PFX certificate..." -ForegroundColor Yellow
+        Write-Host "Exporting PFX certificate..." -ForegroundColor Yellow
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $CertPassword | Out-Null
         
         if (Test-Path $pfxPath) {

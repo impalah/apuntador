@@ -21,7 +21,7 @@ if [ -f "temp_splash/splash_25percent.png" ]; then
     cp temp_splash/splash_25percent.png ios/App/App/Assets.xcassets/Splash.imageset/Default@3x~universal~anyany.png
     
     # Reemplazar también las versiones dark mode
-    echo "🌙 Updating dark mode splash screens..."
+    echo "Updating dark mode splash screens..."
     cp temp_splash/splash_25percent.png ios/App/App/Assets.xcassets/Splash.imageset/Default@1x~universal~anyany-dark.png
     cp temp_splash/splash_25percent.png ios/App/App/Assets.xcassets/Splash.imageset/Default@2x~universal~anyany-dark.png
     cp temp_splash/splash_25percent.png ios/App/App/Assets.xcassets/Splash.imageset/Default@3x~universal~anyany-dark.png

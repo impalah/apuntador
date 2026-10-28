@@ -31,7 +31,7 @@ function Get-SHA1Fingerprint {
         if ($sha1Line) {
             $sha1 = ($sha1Line -split ":")[1].Trim()
             
-            Write-Host "✓ SHA-1 obtenido exitosamente" -ForegroundColor Green
+            Write-Host "[OK] SHA-1 obtenido exitosamente" -ForegroundColor Green
             Write-Host ""
             Write-Host "==================================================" -ForegroundColor Cyan
             Write-Host "SHA-1 Fingerprint:" -ForegroundColor Green
@@ -168,7 +168,7 @@ switch ($option) {
 }
 
 Write-Host ""
-Write-Host "✓ Proceso completado" -ForegroundColor Green
+Write-Host "[OK] Proceso completado" -ForegroundColor Green
 Write-Host ""
 Write-Host "Próximos pasos:" -ForegroundColor Yellow
 Write-Host "  1. Ve a: https://console.cloud.google.com/apis/credentials"

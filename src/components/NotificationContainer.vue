@@ -10,21 +10,12 @@
     @click="hideCurrent"
   >
     <div class="notification-content">
-      <v-icon
-        :icon="getIcon(currentNotification.type)"
-        size="small"
-        class="mr-2"
-      />
+      <v-icon :icon="getIcon(currentNotification.type)" size="small" class="mr-2" />
       <span class="notification-message">{{ currentNotification.message }}</span>
     </div>
 
     <template #actions>
-      <v-btn
-        icon="mdi-close"
-        size="small"
-        variant="text"
-        @click.stop="hideCurrent"
-      />
+      <v-btn icon="mdi-close" size="small" variant="text" @click.stop="hideCurrent" />
     </template>
   </v-snackbar>
 </template>

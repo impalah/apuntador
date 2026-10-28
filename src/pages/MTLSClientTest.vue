@@ -1,52 +1,28 @@
 <template>
-  <v-container
-    fluid
-    class="pa-4"
-  >
+  <v-container fluid class="pa-4">
     <v-card>
       <v-card-title class="text-headline-small d-flex align-center">
-        <v-btn
-          icon="mdi-arrow-left"
-          variant="text"
-          class="mr-2"
-          @click="goBack"
-        />
+        <v-btn icon="mdi-arrow-left" variant="text" class="mr-2" @click="goBack" />
         mTLS Client Test
       </v-card-title>
 
       <v-card-text>
-        <v-alert
-          v-if="!isAndroid"
-          type="warning"
-          class="mb-4"
-        >
+        <v-alert v-if="!isAndroid" type="warning" class="mb-4">
           mTLS is only available on Android (physical devices with HSM)
         </v-alert>
 
         <!-- mTLS Status -->
-        <v-card
-          variant="outlined"
-          class="mb-4"
-        >
-          <v-card-title class="text-body-large">
-            mTLS Client Status
-          </v-card-title>
+        <v-card variant="outlined" class="mb-4">
+          <v-card-title class="text-body-large"> mTLS Client Status </v-card-title>
           <v-card-text>
             <v-row density="compact">
               <v-col cols="12">
-                <v-chip
-                  :color="clientStatus.isReady ? 'success' : 'error'"
-                  label
-                  class="mb-2"
-                >
+                <v-chip :color="clientStatus.isReady ? 'success' : 'error'" label class="mb-2">
                   {{ clientStatus.isReady ? 'Ready' : '[ERROR] Not Ready' }}
                 </v-chip>
               </v-col>
 
-              <v-col
-                v-if="clientStatus.certificateInfo"
-                cols="12"
-              >
+              <v-col v-if="clientStatus.certificateInfo" cols="12">
                 <v-list density="compact">
                   <v-list-item>
                     <v-list-item-title>Subject:</v-list-item-title>
@@ -70,26 +46,15 @@
               </v-col>
             </v-row>
 
-            <v-btn
-              color="primary"
-              variant="outlined"
-              block
-              class="mt-2"
-              @click="checkStatus"
-            >
+            <v-btn color="primary" variant="outlined" block class="mt-2" @click="checkStatus">
               Refresh Status
             </v-btn>
           </v-card-text>
         </v-card>
 
         <!-- Test Endpoint -->
-        <v-card
-          variant="outlined"
-          class="mb-4"
-        >
-          <v-card-title class="text-body-large">
-            Test mTLS Request
-          </v-card-title>
+        <v-card variant="outlined" class="mb-4">
+          <v-card-title class="text-body-large"> Test mTLS Request </v-card-title>
           <v-card-text>
             <!-- Quick Test Buttons -->
             <div class="mb-3">
@@ -148,14 +113,8 @@
               Send Request
             </v-btn>
 
-            <v-card
-              v-if="testResponse"
-              variant="tonal"
-              class="mt-4"
-            >
-              <v-card-title class="text-title-small">
-                Response:
-              </v-card-title>
+            <v-card v-if="testResponse" variant="tonal" class="mt-4">
+              <v-card-title class="text-title-small"> Response: </v-card-title>
               <v-card-text>
                 <pre class="text-body-small">{{ testResponse }}</pre>
               </v-card-text>
@@ -164,10 +123,7 @@
         </v-card>
 
         <!-- Renewal Service -->
-        <v-card
-          variant="outlined"
-          class="mb-4"
-        >
+        <v-card variant="outlined" class="mb-4">
           <v-card-title class="text-body-large">
             [RECYCLE] Certificate Renewal Service
           </v-card-title>
@@ -205,12 +161,7 @@
               </v-col>
             </v-row>
 
-            <v-alert
-              v-if="renewalServiceRunning"
-              type="info"
-              density="compact"
-              class="mt-2"
-            >
+            <v-alert v-if="renewalServiceRunning" type="info" density="compact" class="mt-2">
               Service checks certificate every 24 hours and renews if &lt; 5 days remaining
             </v-alert>
           </v-card-text>
@@ -221,12 +172,7 @@
           <v-card-title class="text-body-large">
             Logs
             <v-spacer />
-            <v-btn
-              size="small"
-              variant="text"
-              icon="mdi-delete"
-              @click="clearLogs"
-            />
+            <v-btn size="small" variant="text" icon="mdi-delete" @click="clearLogs" />
           </v-card-title>
           <v-card-text>
             <div

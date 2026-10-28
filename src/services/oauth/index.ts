@@ -1,6 +1,6 @@
 /**
  * OAuth Services
- * 
+ *
  * Servicios para autenticación OAuth a través de apuntador-backend
  */
 

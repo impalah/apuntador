@@ -40,7 +40,7 @@ if ($LASTEXITCODE -ne 0) {
 Write-Host "Variables encontradas en .env:" -ForegroundColor Cyan
 Get-Content .env | Where-Object { $_ -match '^[^#]' } | ForEach-Object { 
     $varName = ($_ -split '=')[0]
-    Write-Host "   ✓ $varName" -ForegroundColor Green
+    Write-Host "   [OK] $varName" -ForegroundColor Green
 }
 Write-Host ""
 
@@ -53,7 +53,7 @@ if ($confirmation -notmatch '^[SsYy]$') {
 
 # Crear el secret
 Write-Host ""
-Write-Host "📤 Creando secret ENV_FILE..." -ForegroundColor Yellow
+Write-Host "Creando secret ENV_FILE..." -ForegroundColor Yellow
 
 $envContent = Get-Content .env -Raw
 $envContent | gh secret set ENV_FILE

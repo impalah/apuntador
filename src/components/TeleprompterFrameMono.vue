@@ -14,29 +14,22 @@
     :class="{ 'tauri-desktop': isTauri() }"
     @click="onTap"
   >
-    <div
-      ref="transformedContainerRef"
-      class="teleprompter-container-mono"
-      :style="containerStyle"
-    >
+    <div ref="transformedContainerRef" class="teleprompter-container-mono" :style="containerStyle">
       <div
         ref="contentRef"
         class="teleprompter-content-mono"
         :style="contentStyle"
         data-testid="teleprompter-mono-content"
       >
-        <div
-          v-for="(line, index) in content.lines"
-          :key="index"
-          class="mono-line"
-        >
+        <div v-for="(line, index) in content.lines" :key="index" class="mono-line">
           <template v-if="line.words.length > 0">
             <span
               v-for="(word, wordIndex) in line.words"
               :key="wordIndex"
               :class="{ 'mono-word-read': isWordRead(word) }"
-            >{{ word.text }}{{ wordIndex < line.words.length - 1 ? ' ' : '' }}</span>
-          </template><template v-else>
+              >{{ word.text }}{{ wordIndex < line.words.length - 1 ? ' ' : '' }}</span
+            > </template
+          ><template v-else>
             {{ blankLinePlaceholder }}
           </template>
         </div>
@@ -52,22 +45,12 @@
     />
 
     <!-- Fixed dimming overlay (not transformed) -->
-    <div
-      v-if="highlightBand.enabled"
-      class="dimming-overlay"
-      :style="dimmingStyle"
-    />
+    <div v-if="highlightBand.enabled" class="dimming-overlay" :style="dimmingStyle" />
 
     <!-- Always visible triangular visual aids -->
     <div v-if="highlightBand.enabled">
-      <div
-        class="triangle triangle-left"
-        :style="triangleStyle"
-      />
-      <div
-        class="triangle triangle-right"
-        :style="triangleStyle"
-      />
+      <div class="triangle triangle-left" :style="triangleStyle" />
+      <div class="triangle triangle-right" :style="triangleStyle" />
     </div>
 
     <!-- Highlight band position handle -->

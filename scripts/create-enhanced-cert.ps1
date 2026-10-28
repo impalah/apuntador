@@ -36,7 +36,7 @@ if ($Interactive) {
 if (!(Test-Path $OutputDir)) {
     Write-Verbose "Creating output directory: $OutputDir"
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
-    Write-Host "📁 Created directory: $OutputDir" -ForegroundColor Cyan
+    Write-Host "Created directory: $OutputDir" -ForegroundColor Cyan
 }
 
 # Certificate parameters
@@ -69,7 +69,7 @@ try {
         $pfxPath = Join-Path $OutputDir "apuntador-codesigning.pfx"
         Write-Verbose "Exporting to PFX: $pfxPath"
         
-        Write-Host "📤 Exporting PFX certificate..." -ForegroundColor Yellow
+        Write-Host "Exporting PFX certificate..." -ForegroundColor Yellow
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $CertPassword | Out-Null
         
         if (Test-Path $pfxPath) {

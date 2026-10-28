@@ -11,7 +11,11 @@
 import { computed } from 'vue'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useMonoFramePrefsStore } from '@/stores/useMonoFramePrefsStore'
-import { MONOSPACE_FONT_FAMILIES, type TextAlignment, type MonospaceFontFamily } from '@/utils/constants'
+import {
+  MONOSPACE_FONT_FAMILIES,
+  type TextAlignment,
+  type MonospaceFontFamily,
+} from '@/utils/constants'
 import { SETTINGS_FONT_FAMILIES } from '@/composables/useSettingsActions'
 
 export function useActiveFrameAppearance() {
@@ -27,7 +31,9 @@ export function useActiveFrameAppearance() {
   const bgColor = computed(() => (isMono.value ? monoStore.bgColor : prefsStore.bgColor))
   /** Voice-tracking highlight color - monospace frame only, no markdown-frame equivalent (voice mode requires it, see usePrefsStore.setScrollMode). */
   const voiceReadColor = computed(() => monoStore.voiceReadColor)
-  const textAlignment = computed(() => (isMono.value ? monoStore.textAlignment : prefsStore.textAlignment))
+  const textAlignment = computed(() =>
+    isMono.value ? monoStore.textAlignment : prefsStore.textAlignment
+  )
 
   /** Restrict the picker to monospace choices while the mono frame is active - enforces "monospace only" in the UI, not just the schema. */
   const fontFamilyOptions = computed<readonly string[]>(() =>

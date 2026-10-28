@@ -14,7 +14,7 @@ cd /Users/linus/projects/press-any-key/apuntador
 npm run build
 
 # 3. Construir backend Rust
-echo "🦀 Construyendo backend Rust..."
+echo "Construyendo backend Rust..."
 cargo build --manifest-path src-tauri/Cargo.toml --release
 
 # 4. Crear estructura de app

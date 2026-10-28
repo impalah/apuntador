@@ -73,11 +73,7 @@ describe('wrapWordStreamIntoLines', () => {
   it('gives each word a renderIndex matching its own token index', () => {
     const stream = buildWordStream('one two three four five')
     const lines = wrapWordStreamIntoLines(stream, 10)
-    expect(lines.map((l) => l.words.map((w) => w.renderIndex))).toEqual([
-      [0, 1],
-      [2, 3],
-      [4],
-    ])
+    expect(lines.map((l) => l.words.map((w) => w.renderIndex))).toEqual([[0, 1], [2, 3], [4]])
   })
 
   it('gives a punctuation-only word the renderIndex of the nearest preceding indexable word', () => {
@@ -128,7 +124,9 @@ describe('lineIndexForToken', () => {
   })
 
   it('returns 0 when there are no indexable lines at all', () => {
-    const allBlank: MonoLine[] = [{ text: '', words: [], startTokenIndex: null, endTokenIndex: null }]
+    const allBlank: MonoLine[] = [
+      { text: '', words: [], startTokenIndex: null, endTokenIndex: null },
+    ]
     expect(lineIndexForToken(allBlank, 0)).toBe(0)
   })
 })
@@ -166,7 +164,12 @@ describe('monoRowToScrollOffset / scrollOffsetToMonoRow (exact inverses)', () =>
     const highlightBandPosPct = 40
 
     for (const row of [0, 5, 12.5, 100]) {
-      const offset = monoRowToScrollOffset(row, measuredLineHeightPx, viewportHeightPx, highlightBandPosPct)
+      const offset = monoRowToScrollOffset(
+        row,
+        measuredLineHeightPx,
+        viewportHeightPx,
+        highlightBandPosPct
+      )
       const roundTripped = scrollOffsetToMonoRow(
         offset,
         measuredLineHeightPx,

@@ -30,7 +30,7 @@ This guide covers the complete process to prepare and submit Apuntador to the Ap
    - **Bundle ID**: `io.apuntador.app` (Explicit)
    - **Capabilities**: None needed initially
 
-**📖 Detailed guide**: `docs/APPLE_DEVELOPER_APP_ID.md`
+**Detailed guide**: `docs/APPLE_DEVELOPER_APP_ID.md`
 
 ### 1.2 Create App Store Connect Record
 1. Go to https://appstoreconnect.apple.com
@@ -286,7 +286,7 @@ Create `scripts/build-ios-appstore.sh`:
 #!/bin/bash
 set -e
 
-echo "🍎 Building Apuntador for App Store submission..."
+echo "Building Apuntador for App Store submission..."
 
 # Build web assets
 echo "[PACKAGE] Building web assets..."

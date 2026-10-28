@@ -110,7 +110,7 @@ ios-setup:
 	@echo "iOS setup complete. Run 'make ios-pods' to install CocoaPods"
 
 ios-pods:
-	@echo "☕ Installing CocoaPods dependencies..."
+	@echo "Installing CocoaPods dependencies..."
 	cd ios/App && pod install --repo-update
 
 ios-build: build

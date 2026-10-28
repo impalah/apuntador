@@ -1,4 +1,6 @@
 import { ref, onMounted, onUnmounted } from 'vue'
+import { THEATER_MODE_POLL_MS } from '@/utils/constants'
+import { isTauri as detectTauri } from '@/utils/tauri'
 
 // Loaded lazily so this shared module never pulls Tauri APIs into web/mobile paths
 async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
@@ -11,14 +13,7 @@ export function useTheaterMode() {
   const isLoading = ref(false)
   const error = ref<string | null>(null)
 
-  // Detectar si estamos en Tauri usando una verificación más robusta
-  let isTauri = false
-  try {
-    // @ts-ignore - window.__TAURI__ está disponible en Tauri
-    isTauri = typeof window !== 'undefined' && window.__TAURI__ !== undefined
-  } catch {
-    isTauri = false
-  }
+  const isTauri = detectTauri()
 
   // Polling interval para detectar cambios externos
   let pollInterval: ReturnType<typeof setInterval> | null = null
@@ -28,10 +23,10 @@ export function useTheaterMode() {
       try {
         await updateTheaterStatus()
 
-        // Poll cada 500ms para detectar cambios externos (ej: menú de macOS)
+        // Poll to detect external changes (e.g. the macOS menu)
         pollInterval = setInterval(() => {
           updateTheaterStatus()
-        }, 500)
+        }, THEATER_MODE_POLL_MS)
       } catch (e) {
         console.error('[useTheaterMode] Error in onMounted:', e)
       }

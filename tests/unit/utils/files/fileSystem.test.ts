@@ -7,7 +7,7 @@ import {
   openFile,
   confirmOverwrite,
   getFileExtension,
-  ensureMarkdownExtension
+  ensureMarkdownExtension,
 } from '@/utils/files/fileSystem'
 
 describe('File System Utils', () => {
@@ -32,10 +32,10 @@ describe('File System Utils', () => {
     // Mock console methods
     vi.spyOn(console, 'warn').mockImplementation(() => {})
     vi.spyOn(console, 'error').mockImplementation(() => {})
-    
+
     // Mock HTMLAnchorElement.remove() for test environment
     if (!HTMLAnchorElement.prototype.remove) {
-      HTMLAnchorElement.prototype.remove = function() {
+      HTMLAnchorElement.prototype.remove = function () {
         if (this.parentNode) {
           this.parentNode.removeChild(this)
         }
@@ -45,19 +45,19 @@ describe('File System Utils', () => {
     // Mock writable stream
     mockWritable = {
       write: vi.fn(),
-      close: vi.fn()
+      close: vi.fn(),
     }
 
     // Mock file handle
     mockFileHandle = {
       createWritable: vi.fn(() => Promise.resolve(mockWritable)),
-      getFile: vi.fn()
+      getFile: vi.fn(),
     }
 
     // Mock file
     mockFile = {
       text: vi.fn(),
-      name: 'test.md'
+      name: 'test.md',
     }
 
     // Mock file system API
@@ -67,13 +67,13 @@ describe('File System Utils', () => {
     Object.defineProperty(window, 'showSaveFilePicker', {
       value: mockShowSaveFilePicker,
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     Object.defineProperty(window, 'showOpenFilePicker', {
       value: mockShowOpenFilePicker,
       writable: true,
-      configurable: true
+      configurable: true,
     })
 
     // Mock DOM methods
@@ -82,41 +82,41 @@ describe('File System Utils', () => {
       download: '',
       style: { display: '' },
       click: vi.fn(),
-      remove: vi.fn()
+      remove: vi.fn(),
     }
 
     mockCreateElement = vi.fn(() => mockLink)
-    
+
     Object.defineProperty(document, 'createElement', {
       value: mockCreateElement,
-      writable: true
+      writable: true,
     })
 
     Object.defineProperty(document.body, 'appendChild', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     })
 
     Object.defineProperty(document.body, 'removeChild', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     })
 
     // Mock URL methods
     Object.defineProperty(URL, 'createObjectURL', {
       value: vi.fn(() => 'blob:mock-url'),
-      writable: true
+      writable: true,
     })
 
     Object.defineProperty(URL, 'revokeObjectURL', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     })
 
     // Mock confirm dialog
     Object.defineProperty(window, 'confirm', {
       value: vi.fn(),
-      writable: true
+      writable: true,
     })
   })
 
@@ -128,14 +128,14 @@ describe('File System Utils', () => {
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: originalShowSaveFilePicker,
         writable: true,
-        configurable: true
+        configurable: true,
       })
     }
     if (originalShowOpenFilePicker !== undefined) {
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: originalShowOpenFilePicker,
         writable: true,
-        configurable: true
+        configurable: true,
       })
     }
   })
@@ -175,7 +175,7 @@ describe('File System Utils', () => {
 
       expect(mockShowSaveFilePicker).toHaveBeenCalledWith({
         suggestedName: 'script.md',
-        types: expect.any(Array)
+        types: expect.any(Array),
       })
       expect(mockFileHandle.createWritable).toHaveBeenCalled()
       expect(mockWritable.write).toHaveBeenCalledWith(content)
@@ -187,14 +187,14 @@ describe('File System Utils', () => {
       const content = 'test content'
       const options = {
         suggestedName: 'custom.md',
-        types: [{ description: 'Custom', accept: { 'text/plain': ['.txt'] } }]
+        types: [{ description: 'Custom', accept: { 'text/plain': ['.txt'] } }],
       }
 
       await saveFile(content, options)
 
       expect(mockShowSaveFilePicker).toHaveBeenCalledWith({
         suggestedName: 'custom.md',
-        types: options.types
+        types: options.types,
       })
     })
 
@@ -215,7 +215,10 @@ describe('File System Utils', () => {
 
       const result = await saveFile('content')
 
-      expect(console.warn).toHaveBeenCalledWith('File System Access API failed, falling back to download:', error)
+      expect(console.warn).toHaveBeenCalledWith(
+        'File System Access API failed, falling back to download:',
+        error
+      )
       expect(mockCreateElement).toHaveBeenCalledWith('a')
       expect(result).toBe(null)
     })
@@ -224,14 +227,14 @@ describe('File System Utils', () => {
       // Mock the function directly by replacing the window properties
       const originalSave = (window as any).showSaveFilePicker
       const originalOpen = (window as any).showOpenFilePicker
-      
+
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
 
       const result = await saveFile('content')
@@ -239,15 +242,15 @@ describe('File System Utils', () => {
       expect(mockCreateElement).toHaveBeenCalledWith('a')
       expect(mockLink.download).toBe('script.md')
       expect(result).toBe(null)
-      
+
       // Restore
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: originalSave,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: originalOpen,
-        configurable: true
+        configurable: true,
       })
     })
 
@@ -255,14 +258,14 @@ describe('File System Utils', () => {
       // Mock the function directly by replacing the window properties
       const originalSave = (window as any).showSaveFilePicker
       const originalOpen = (window as any).showOpenFilePicker
-      
+
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
 
       await saveFile('test content', { suggestedName: 'test.md' })
@@ -274,15 +277,15 @@ describe('File System Utils', () => {
       expect(document.body.appendChild).toHaveBeenCalledWith(mockLink)
       expect(mockLink.click).toHaveBeenCalled()
       expect(mockLink.remove).toHaveBeenCalled()
-      
+
       // Restore
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: originalSave,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: originalOpen,
-        configurable: true
+        configurable: true,
       })
     })
 
@@ -290,14 +293,14 @@ describe('File System Utils', () => {
       // Mock the function directly by replacing the window properties
       const originalSave = (window as any).showSaveFilePicker
       const originalOpen = (window as any).showOpenFilePicker
-      
+
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: undefined,
-        configurable: true
+        configurable: true,
       })
 
       await saveFile('content')
@@ -305,15 +308,15 @@ describe('File System Utils', () => {
       // Fast-forward past the setTimeout
       vi.runAllTimers()
       expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:mock-url')
-      
+
       // Restore
       Object.defineProperty(window, 'showSaveFilePicker', {
         value: originalSave,
-        configurable: true
+        configurable: true,
       })
       Object.defineProperty(window, 'showOpenFilePicker', {
         value: originalOpen,
-        configurable: true
+        configurable: true,
       })
     })
   })
@@ -377,28 +380,28 @@ describe('File System Utils', () => {
 
       expect(mockShowOpenFilePicker).toHaveBeenCalledWith({
         types: expect.any(Array),
-        multiple: false
+        multiple: false,
       })
       expect(mockFileHandle.getFile).toHaveBeenCalled()
       expect(mockFile.text).toHaveBeenCalled()
       expect(result).toEqual({
         handle: mockFileHandle,
         content: 'file content',
-        name: 'test.md'
+        name: 'test.md',
       })
     })
 
     it('should use custom options when provided', async () => {
       const options = {
         types: [{ description: 'Custom', accept: { 'text/plain': ['.txt'] } }],
-        multiple: true
+        multiple: true,
       }
 
       await openFile(options)
 
       expect(mockShowOpenFilePicker).toHaveBeenCalledWith({
         types: options.types,
-        multiple: true
+        multiple: true,
       })
     })
 
@@ -415,7 +418,7 @@ describe('File System Utils', () => {
     it('should handle File System Access API errors', async () => {
       // Test the happy path and error handling that we can reliably test
       mockShowOpenFilePicker.mockRejectedValue(new Error('API Error'))
-      
+
       await expect(openFile()).rejects.toThrow('API Error')
     })
 
@@ -439,7 +442,9 @@ describe('File System Utils', () => {
 
       const result = await confirmOverwrite('test.md')
 
-      expect(window.confirm).toHaveBeenCalledWith('The file "test.md" already exists. Do you want to overwrite it?')
+      expect(window.confirm).toHaveBeenCalledWith(
+        'The file "test.md" already exists. Do you want to overwrite it?'
+      )
       expect(result).toBe(true)
     })
 

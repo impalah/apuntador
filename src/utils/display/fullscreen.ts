@@ -29,18 +29,20 @@ function detectPlatform(): 'web' | 'android' | 'desktop' {
  * Unified Fullscreen Composable
  * Automatically selects the appropriate implementation based on platform
  */
-export function useFullscreen(options: {
-  /**
-   * Element to make fullscreen (web only)
-   * Defaults to document.documentElement
-   */
-  element?: Element
-  /**
-   * Whether to detect primary screen automatically
-   * @default true
-   */
-  autoDetectPrimaryScreen?: boolean
-} = {}) {
+export function useFullscreen(
+  options: {
+    /**
+     * Element to make fullscreen (web only)
+     * Defaults to document.documentElement
+     */
+    element?: Element
+    /**
+     * Whether to detect primary screen automatically
+     * @default true
+     */
+    autoDetectPrimaryScreen?: boolean
+  } = {}
+) {
   // Platform detection
   const platform = detectPlatform()
 
@@ -49,7 +51,7 @@ export function useFullscreen(options: {
     element: options.element,
     autoDetectPrimaryScreen: options.autoDetectPrimaryScreen,
   })
-  
+
   const androidImmersive = useImmersiveMode()
   const tauriDesktop = useTauri()
 
@@ -189,12 +191,12 @@ export function useFullscreen(options: {
     isSupported,
     screenInfo,
     platform: ref(platform),
-    
+
     // Actions
     toggleFullscreen,
     enterFullscreen,
     exitFullscreen,
-    
+
     // Platform-specific composables (for advanced usage)
     webFullscreen,
     androidImmersive,

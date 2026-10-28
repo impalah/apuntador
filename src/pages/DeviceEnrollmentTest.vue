@@ -1,44 +1,24 @@
 <template>
   <v-container>
-    <v-card
-      class="mx-auto"
-      max-width="800"
-    >
+    <v-card class="mx-auto" max-width="800">
       <v-card-title class="text-headline-small d-flex align-center">
-        <v-btn
-          icon="mdi-arrow-left"
-          variant="text"
-          class="mr-2"
-          @click="goBack"
-        />
+        <v-btn icon="mdi-arrow-left" variant="text" class="mr-2" @click="goBack" />
         Device Enrollment Test (mTLS + HSM)
       </v-card-title>
 
       <v-card-text>
         <!-- Device Info Section -->
-        <v-card
-          class="mb-4"
-          variant="tonal"
-          color="primary"
-        >
+        <v-card class="mb-4" variant="tonal" color="primary">
           <v-card-title>Device Information</v-card-title>
           <v-card-text>
             <div v-if="deviceInfo">
-              <div class="mb-2">
-                <strong>Device ID:</strong> {{ deviceInfo.deviceId }}
-              </div>
-              <div class="mb-2">
-                <strong>Manufacturer:</strong> {{ deviceInfo.manufacturer }}
-              </div>
-              <div class="mb-2">
-                <strong>Model:</strong> {{ deviceInfo.model }}
-              </div>
+              <div class="mb-2"><strong>Device ID:</strong> {{ deviceInfo.deviceId }}</div>
+              <div class="mb-2"><strong>Manufacturer:</strong> {{ deviceInfo.manufacturer }}</div>
+              <div class="mb-2"><strong>Model:</strong> {{ deviceInfo.model }}</div>
               <div class="mb-2">
                 <strong>Android Version:</strong> {{ deviceInfo.androidVersion }}
               </div>
-              <div class="mb-2">
-                <strong>API Level:</strong> {{ deviceInfo.apiLevel }}
-              </div>
+              <div class="mb-2"><strong>API Level:</strong> {{ deviceInfo.apiLevel }}</div>
               <v-chip
                 :color="deviceInfo.hasStrongBox ? 'success' : 'warning'"
                 size="small"
@@ -46,10 +26,7 @@
               >
                 StrongBox: {{ deviceInfo.hasStrongBox ? 'yes' : 'no' }}
               </v-chip>
-              <v-chip
-                :color="deviceInfo.hasTEE ? 'success' : 'warning'"
-                size="small"
-              >
+              <v-chip :color="deviceInfo.hasTEE ? 'success' : 'warning'" size="small">
                 TEE: {{ deviceInfo.hasTEE ? 'yes' : 'no' }}
               </v-chip>
             </div>
@@ -66,20 +43,13 @@
         </v-card>
 
         <!-- Enrollment Status Section -->
-        <v-card
-          class="mb-4"
-          variant="tonal"
-          :color="enrollmentStatusColor"
-        >
+        <v-card class="mb-4" variant="tonal" :color="enrollmentStatusColor">
           <v-card-title>Enrollment Status</v-card-title>
           <v-card-text>
             <div v-if="enrollmentStatus">
               <div class="mb-2">
                 <strong>Enrolled:</strong>
-                <v-chip
-                  :color="enrollmentStatus.isEnrolled ? 'success' : 'error'"
-                  size="small"
-                >
+                <v-chip :color="enrollmentStatus.isEnrolled ? 'success' : 'error'" size="small">
                   {{ enrollmentStatus.isEnrolled ? 'YES' : 'NO' }}
                 </v-chip>
               </div>
@@ -145,9 +115,7 @@
               size="large"
               @click="enrollDevice"
             >
-              <v-icon start>
-                mdi-shield-check
-              </v-icon>
+              <v-icon start> mdi-shield-check </v-icon>
               Enroll Device
             </v-btn>
           </v-col>
@@ -160,40 +128,22 @@
               size="large"
               @click="unenrollDevice"
             >
-              <v-icon start>
-                mdi-shield-remove
-              </v-icon>
+              <v-icon start> mdi-shield-remove </v-icon>
               Unenroll
             </v-btn>
           </v-col>
         </v-row>
 
         <!-- Logs Section -->
-        <v-card
-          class="mt-4"
-          variant="tonal"
-        >
+        <v-card class="mt-4" variant="tonal">
           <v-card-title>
             Logs
             <v-spacer />
-            <v-btn
-              size="small"
-              variant="text"
-              icon="mdi-delete"
-              @click="logs = []"
-            />
+            <v-btn size="small" variant="text" icon="mdi-delete" @click="logs = []" />
           </v-card-title>
           <v-card-text>
-            <div
-              v-if="logs.length === 0"
-              class="text-center text-grey"
-            >
-              No logs yet
-            </div>
-            <div
-              v-else
-              style="max-height: 300px; overflow-y: auto"
-            >
+            <div v-if="logs.length === 0" class="text-center text-grey">No logs yet</div>
+            <div v-else style="max-height: 300px; overflow-y: auto">
               <div
                 v-for="(log, index) in logs"
                 :key="index"
@@ -204,10 +154,7 @@
                   {{ log.timestamp }}
                 </div>
                 <div>{{ log.message }}</div>
-                <pre
-                  v-if="log.data"
-                  class="text-body-small mt-1"
-                >{{
+                <pre v-if="log.data" class="text-body-small mt-1">{{
                   JSON.stringify(log.data, null, 2)
                 }}</pre>
               </div>

@@ -87,7 +87,7 @@ jobs:
           Write-Host "Variables configured (masked):" -ForegroundColor Cyan
           Get-Content .env | Where-Object { $_ -match '^[^#]' } | ForEach-Object {
             $varName = ($_ -split '=')[0]
-            Write-Host "   ✓ $varName" -ForegroundColor White
+            Write-Host "   [OK] $varName" -ForegroundColor White
           }
 
       - name: Setup environment variables
@@ -463,7 +463,7 @@ jobs:
             --metadata "last-updated=$(Get-Date -Format 'yyyy-MM-ddTHH:mm:ssZ')"
 
           Write-Host "versions.json updated successfully" -ForegroundColor Green
-          Write-Host "📍 Public URL: https://${env:S3_BUCKET}.s3.amazonaws.com/downloads/versions.json" -ForegroundColor Cyan
+          Write-Host "Public URL: https://${env:S3_BUCKET}.s3.amazonaws.com/downloads/versions.json" -ForegroundColor Cyan
 
       - name: Generate Winget Manifests
         if: ${{ github.event.inputs.buildType == 'release' && github.event.inputs.generateInstallers == 'true' }}
@@ -513,7 +513,7 @@ jobs:
             
             $outputFile = Join-Path $manifestDir $_.Name
             $content | Out-File -FilePath $outputFile -Encoding UTF8 -NoNewline
-            Write-Host "   ✓ $($_.Name)" -ForegroundColor Green
+            Write-Host "   [OK] $($_.Name)" -ForegroundColor Green
           }
 
           Write-Host ""
@@ -541,7 +541,7 @@ jobs:
 
           Get-ChildItem "artifacts" -Recurse -File | ForEach-Object {
             $sizeMB = [math]::Round($_.Length / 1MB, 2)
-            Write-Host "  📁 $($_.Name) ($sizeMB MB)" -ForegroundColor Cyan
+            Write-Host "  $($_.Name) ($sizeMB MB)" -ForegroundColor Cyan
           }
 
           Write-Host ""

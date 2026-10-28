@@ -2,7 +2,7 @@
 
 ## Create App ID (Bundle ID) in Apple Developer Portal
 
-### 📍 Location
+### Location
 1. Go to: https://developer.apple.com/account/
 2. **Certificates, Identifiers & Profiles**
 3. **Identifiers** → **+** (blue button)
@@ -192,7 +192,7 @@ Capabilities: NONE (for now)
 ```
 
 ### [TIMER] **Estimated Time**: 5-10 minutes
-### 💰 **Cost**: Included in Apple Developer Program
+### **Cost**: Included in Apple Developer Program
 ### [REFRESH] **Reversible**: Yes, capabilities can be added later
 
-With this you'll have your App ID ready to create the app in App Store Connect! 🍎[FEATURE]
+With this you'll have your App ID ready to create the app in App Store Connect! [FEATURE]

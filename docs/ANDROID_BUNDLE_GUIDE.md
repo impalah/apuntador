@@ -125,7 +125,7 @@ The build process consists of these steps:
 5. **[SECURE] Setup Keystore**: Configure signing (release only)
 6. **[MOBILE] Build Bundle**: Generate AAB file
 
-## 📁 Output Files
+## Output Files
 
 ### File Locations
 
@@ -214,7 +214,7 @@ Check these files for detailed error information:
 - Gradle console output
 - GitHub Actions logs (for CI builds)
 
-## 🔒 Security Best Practices
+## Security Best Practices
 
 ### Keystore Security
 

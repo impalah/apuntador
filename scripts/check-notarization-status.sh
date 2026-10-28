@@ -74,12 +74,12 @@ if [ -z "$APPLE_ID" ] || [ -z "$APPLE_APP_SPECIFIC_PASSWORD" ] || [ -z "$APPLE_T
 fi
 
 echo -e "${BLUE}Submission ID:${NC} $SUBMISSION_ID"
-echo -e "${BLUE}🆔 Apple ID:${NC} $APPLE_ID"
-echo -e "${BLUE}👥 Team ID:${NC} $APPLE_TEAM_ID"
+echo -e "${BLUE}Apple ID:${NC} $APPLE_ID"
+echo -e "${BLUE}Team ID:${NC} $APPLE_TEAM_ID"
 echo ""
 
 # Consultar el estado
-echo -e "${YELLOW}⏳ Consultando estado con Apple...${NC}"
+echo -e "${YELLOW}[WAIT] Consultando estado con Apple...${NC}"
 echo ""
 
 OUTPUT=$(xcrun notarytool info "$SUBMISSION_ID" \
@@ -127,7 +127,7 @@ case "$STATUS" in
         ;;
         
     "In Progress")
-        echo -e "${YELLOW}⏳ NOTARIZACIÓN EN PROGRESO${NC}"
+        echo -e "${YELLOW}[WAIT] NOTARIZACIÓN EN PROGRESO${NC}"
         echo "════════════════════════════════════════════════════════════════"
         echo ""
         echo "Apple todavía está procesando la aplicación."

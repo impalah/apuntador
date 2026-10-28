@@ -26,10 +26,10 @@ features:
   - icon: [FEATURE]
     title: Highlight Band
     details: Focus on current reading line with adjustable highlight band and dimming effects.
-  - icon: 🪞
+  - icon: 
     title: Mirror Modes
     details: Professional mirror modes for beam-splitter glass setups (horizontal, vertical, both).
-  - icon: ⌨️
+  - icon: 
     title: Keyboard Shortcuts
     details: Full keyboard control for desktop use with intuitive shortcuts.
   - icon: [NOTE]

@@ -15,7 +15,7 @@ Write-Host ""
 # Crear directorio para certificados si no existe
 if (!(Test-Path $OutputDir)) {
     New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
-    Write-Host "📁 Directorio '$OutputDir' creado" -ForegroundColor Cyan
+    Write-Host "Directorio '$OutputDir' creado" -ForegroundColor Cyan
 }
 
 # Configuración del certificado
@@ -47,7 +47,7 @@ try {
         $pfxPath = Join-Path $OutputDir "apuntador-codesigning.pfx"
         $password = ConvertTo-SecureString -String "apuntador2024!" -Force -AsPlainText
         
-        Write-Host "📤 Exportando certificado PFX..." -ForegroundColor Yellow
+        Write-Host "Exportando certificado PFX..." -ForegroundColor Yellow
         Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password | Out-Null
         
         if (Test-Path $pfxPath) {

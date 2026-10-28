@@ -23,7 +23,7 @@ if [ -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
 fi
 
 # Create directories
-echo "📁 Creating directories..."
+echo "Creating directories..."
 mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools
 
 # Download Command Line Tools
@@ -64,7 +64,7 @@ packages=(
 for package in "${packages[@]}"; do
     echo "Installing $package..."
     if ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "$package"; then
-        echo "✓ $package installed"
+        echo "[OK] $package installed"
     else
         echo "[WARNING]  Failed to install $package (continuing...)"
     fi

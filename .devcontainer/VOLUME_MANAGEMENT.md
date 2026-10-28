@@ -98,7 +98,7 @@ open ios/App/App.xcworkspace
 | Aspecto             | Volúmenes Docker     | Bind Mounts (Actual) |
 | ------------------- | -------------------- | -------------------- |
 | Velocidad en Linux  | Rápido               | Rápido               |
-| Velocidad en macOS  | Rápido               | Un poco más lento 🐌 |
+| Velocidad en macOS  | Rápido               | Un poco más lento |
 | Espacio en disco    | Doble (2x) [ERROR]   | Simple (1x)          |
 | Acceso desde host   | No [ERROR]           | Sí                   |
 | iOS development     | Complicado [WARNING] | Simple               |
@@ -118,7 +118,7 @@ Si el rendimiento es crítico para ti, puedes revertir a volúmenes (ver secció
 
 ---
 
-## 🔁 Revertir a Volúmenes Docker (Opcional)
+## Revertir a Volúmenes Docker (Opcional)
 
 Si prefieres la velocidad máxima sobre el ahorro de espacio, puedes volver a usar volúmenes:
 

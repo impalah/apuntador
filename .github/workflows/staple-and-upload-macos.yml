@@ -94,9 +94,9 @@ jobs:
             echo "Current status: $STATUS"
             echo ""
             if [ "$STATUS" = "In Progress" ]; then
-              echo "⏳ Apple is still processing. Please wait and try again later."
+              echo "[WAIT] Apple is still processing. Please wait and try again later."
             elif [ "$STATUS" = "Invalid" ]; then
-              echo "🚫 Notarization was REJECTED by Apple."
+              echo "[BLOCKED] Notarization was REJECTED by Apple."
               echo ""
               echo "Get detailed logs with:"
               echo "  xcrun notarytool log $SUBMISSION_ID \\"
@@ -113,7 +113,7 @@ jobs:
 
           # Wait a bit for CloudKit to sync the ticket
           echo ""
-          echo "⏳ Waiting 30 seconds for ticket to sync to CloudKit..."
+          echo "[WAIT] Waiting 30 seconds for ticket to sync to CloudKit..."
           sleep 30
 
       - name: Verify ticket availability
@@ -146,7 +146,7 @@ jobs:
         run: |
           set +e  # Don't exit immediately on error so we can capture it
 
-          echo "📀 Preparing DMG for stapling..."
+          echo "Preparing DMG for stapling..."
           DMG_PATH="${{ env.DMG_PATH }}"
 
           echo "Original DMG: $DMG_PATH"
@@ -176,7 +176,7 @@ jobs:
 
           # Mount the read-write DMG (auto-accept license)
           echo ""
-          echo "📀 Mounting read-write DMG (auto-accepting license)..."
+          echo "Mounting read-write DMG (auto-accepting license)..."
           MOUNT_OUTPUT=$(echo "Y" | hdiutil attach "$DMG_RW" -nobrowse 2>&1)
           MOUNT_EXIT=$?
 
@@ -323,7 +323,7 @@ jobs:
 
           # Unmount the read-write DMG
           echo ""
-          echo "📤 Unmounting DMG..."
+          echo "Unmounting DMG..."
           hdiutil detach "$VOLUME_PATH"
 
           if [ $? -ne 0 ]; then
@@ -333,7 +333,7 @@ jobs:
 
           # Convert back to compressed format
           echo ""
-          echo "🗜️  Converting DMG back to compressed format..."
+          echo " Converting DMG back to compressed format..."
           DMG_FINAL="${DMG_PATH%.dmg}-notarized.dmg"
           hdiutil convert "$DMG_RW" -format UDZO -o "$DMG_FINAL"
 
@@ -440,7 +440,7 @@ jobs:
             --metadata "last-updated=$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
           echo "versions.json updated successfully"
-          echo "📍 Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
+          echo "Public URL: https://${S3_BUCKET}.s3.amazonaws.com/downloads/versions.json"
 
       - name: Upload stapled DMG as artifact
         uses: actions/upload-artifact@v4

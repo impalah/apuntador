@@ -57,7 +57,7 @@ mkdir -p ${ANDROID_SDK_ROOT}/cmdline-tools
 
 # Skip Android SDK installation if SKIP_ANDROID env var is set
 if [ "${SKIP_ANDROID}" = "true" ]; then
-    echo "⏭️  Skipping Android SDK installation (SKIP_ANDROID=true)"
+    echo "[SKIP]  Skipping Android SDK installation (SKIP_ANDROID=true)"
 else
     if [ ! -d "${ANDROID_SDK_ROOT}/cmdline-tools/latest" ]; then
         echo "Downloading Android Command Line Tools..."
@@ -96,27 +96,27 @@ if [ "${SKIP_ANDROID}" != "true" ]; then
         while [ $retry -lt $max_retries ]; do
             echo "Installing $package (attempt $((retry + 1))/$max_retries)..."
             if ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager "$package" --channel=0; then
-                echo "✓ Successfully installed $package"
+                echo "[OK] Successfully installed $package"
                 return 0
             else
                 retry=$((retry + 1))
                 if [ $retry -lt $max_retries ]; then
-                    echo "⚠ Failed to install $package, retrying in 5 seconds..."
+                    echo "WARNING: Failed to install $package, retrying in 5 seconds..."
                     sleep 5
                 fi
             fi
         done
         
-        echo "⚠ Warning: Could not install $package after $max_retries attempts"
+        echo "WARNING: Could not install $package after $max_retries attempts"
         return 1
     }
 
     # Install packages individually with retries
-    install_sdk_package "platform-tools" || echo "⚠ Continuing without platform-tools..."
-    install_sdk_package "platforms;android-34" || echo "⚠ Continuing without android-34 platform..."
-    install_sdk_package "build-tools;34.0.0" || echo "⚠ Continuing without build-tools..."
-    install_sdk_package "ndk;26.1.10909125" || echo "⚠ Continuing without NDK..."
-    install_sdk_package "cmake;3.22.1" || echo "⚠ Continuing without CMake..."
+    install_sdk_package "platform-tools" || echo "WARNING: Continuing without platform-tools..."
+    install_sdk_package "platforms;android-34" || echo "WARNING: Continuing without android-34 platform..."
+    install_sdk_package "build-tools;34.0.0" || echo "WARNING: Continuing without build-tools..."
+    install_sdk_package "ndk;26.1.10909125" || echo "WARNING: Continuing without NDK..."
+    install_sdk_package "cmake;3.22.1" || echo "WARNING: Continuing without CMake..."
 fi
 
 # Add Android environment to bashrc and zshrc
@@ -137,7 +137,7 @@ fi
 } >> /home/node/.zshrc
 
 # Install Tauri CLI
-echo "🦀 Installing Tauri CLI..."
+echo "Installing Tauri CLI..."
 cargo install tauri-cli --version "^2.0" || echo "Tauri CLI already installed or failed"
 
 # Install iOS build tools (CocoaPods) - requires Ruby

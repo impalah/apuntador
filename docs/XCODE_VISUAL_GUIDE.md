@@ -7,8 +7,8 @@ This guide shows you exactly where to find each option in Xcode to configure sig
 ### Step 1: Find the App Target
 
 ```
-📁 Navigator Panel (left)
-└── 📘 App (blue project icon - CLICK HERE)
+Navigator Panel (left)
+└── App (blue project icon - CLICK HERE)
     └── [TARGET] TARGETS
         └── [MOBILE] App (select this one, NOT "App (iOS)")
 ```
@@ -16,9 +16,9 @@ This guide shows you exactly where to find each option in Xcode to configure sig
 **Visual:**
 ```
 Navigator               Main Panel
-├─ 📘 App          →   ┌─ TARGETS ─────────┐
-├─ 📂 App              │ [MOBILE] App            │ ← THIS ONE
-├─ 📂 Pods             │ [EXPERIMENT] AppTests       │
+├─ App          →   ┌─ TARGETS ─────────┐
+├─ App              │ [MOBILE] App            │ ← THIS ONE
+├─ Pods             │ [EXPERIMENT] AppTests       │
 └─ ...                 │ [MOBILE] App (iOS)      │
                        └───────────────────┘
 ```
@@ -74,9 +74,9 @@ Options:
 Product → Archive
 ```
 
-Or use shortcut: `⌘ + Shift + B`
+Or use shortcut: `Cmd + Shift + B`
 
-## 📤 App Store Upload
+## App Store Upload
 
 ### Step 1: Organizer Window
 
@@ -99,10 +99,10 @@ After archiving, Xcode automatically opens:
 **Screen 1 - Destination:**
 ```
 ┌─ Select a method of distribution ──┐
-│ ⚫ App Store Connect              │ ← SELECT THIS
-│ ⚪ Ad Hoc                         │
-│ ⚪ Enterprise                     │
-│ ⚪ Development                    │
+│ (*)App Store Connect              │ ← SELECT THIS
+│ ( )Ad Hoc                         │
+│ ( )Enterprise                     │
+│ ( )Development                    │
 │                         [Next >] │
 └───────────────────────────────────┘
 ```
@@ -110,8 +110,8 @@ After archiving, Xcode automatically opens:
 **Screen 2 - Distribution type:**
 ```
 ┌─ Select a destination ─────────────┐
-│ ⚫ Upload                         │ ← SELECT THIS
-│ ⚪ Export                         │
+│ (*)Upload                         │ ← SELECT THIS
+│ ( )Export                         │
 │                         [Next >] │
 └───────────────────────────────────┘
 ```
@@ -121,7 +121,7 @@ After archiving, Xcode automatically opens:
 ┌─ App Store Connect distribution options ─┐
 │ [OK] Upload your app's symbols             │ ← LEAVE CHECKED
 │ [OK] Automatically manage signing          │ ← LEAVE CHECKED
-│ ⚪ Manually manage signing               │
+│ ( )Manually manage signing               │
 │                                [Next >] │
 └──────────────────────────────────────────┘
 ```
@@ -137,7 +137,7 @@ After archiving, Xcode automatically opens:
 └───────────────────────────────────────────┘
 ```
 
-## 🚨 Common Errors and Solutions
+## [ALERT] Common Errors and Solutions
 
 ### [ERROR] "No signing certificate iOS Distribution found"
 
@@ -166,7 +166,7 @@ Xcode → Preferences → Accounts
 
 **Clean and rebuild:**
 ```
-Product → Clean Build Folder  (⌘ + Shift + K)
+Product → Clean Build Folder  (Cmd + Shift + K)
 Then: Product → Archive
 ```
 
@@ -174,22 +174,22 @@ Then: Product → Archive
 
 | Action | Shortcut |
 |--------|----------|
-| Build | `⌘ + B` |
-| Clean | `⌘ + Shift + K` |
-| Archive | `⌘ + Shift + B` |
-| Organizer | `⌘ + Shift + 9` |
+| Build | `Cmd + B` |
+| Clean | `Cmd + Shift + K` |
+| Archive | `Cmd + Shift + B` |
+| Organizer | `Cmd + Shift + 9` |
 
 ## [OK] Visual Checklist
 
 Before archiving, verify:
 
-- [ ] 📘 Target "**App**" selected (not "App (iOS)")
+- [ ] Target "**App**" selected (not "App (iOS)")
 - [ ] [TAG] **Signing & Capabilities** configured
 - [ ] [OK] "**Automatically manage signing**" checked
-- [ ] 👥 **Team** selected (your Apple Developer Team)
-- [ ] 🔖 **Bundle Identifier**: `io.apuntador.app`
+- [ ] **Team** selected (your Apple Developer Team)
+- [ ] **Bundle Identifier**: `io.apuntador.app`
 - [ ] [MOBILE] Device target: "**Any iOS Device (arm64)**"
-- [ ] 🟢 Build succeeds without errors
+- [ ] [ON] Build succeeds without errors
 
 ---
 

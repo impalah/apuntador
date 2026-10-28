@@ -26,10 +26,10 @@ check_command() {
     
     if command -v $cmd &> /dev/null; then
         version=$($cmd $version_arg 2>&1 | head -n1)
-        echo -e "${GREEN}✓${NC} $name: $version"
+        echo -e "${GREEN}[OK]${NC} $name: $version"
         ((PASS++))
     else
-        echo -e "${RED}✗${NC} $name: NOT FOUND"
+        echo -e "${RED}[FAIL]${NC} $name: NOT FOUND"
         ((FAIL++))
     fi
 }
@@ -53,49 +53,49 @@ echo "=== Android SDK ==="
 
 # Check architecture and amd64 support
 ARCH=$(dpkg --print-architecture 2>/dev/null || echo "unknown")
-echo -e "${GREEN}✓${NC} Architecture: $ARCH"
+echo -e "${GREEN}[OK]${NC} Architecture: $ARCH"
 
 if [ "$ARCH" = "arm64" ] || [ "$ARCH" = "aarch64" ]; then
     # Check if amd64 libraries are installed
     if dpkg -l | grep -q "libc6.*amd64"; then
-        echo -e "${GREEN}✓${NC} Multi-arch support (amd64): Enabled"
+        echo -e "${GREEN}[OK]${NC} Multi-arch support (amd64): Enabled"
         ((PASS++))
     else
-        echo -e "${RED}✗${NC} Multi-arch support (amd64): MISSING"
+        echo -e "${RED}[FAIL]${NC} Multi-arch support (amd64): MISSING"
         echo -e "${YELLOW}  → Run: sudo dpkg --add-architecture amd64 && sudo apt-get update && sudo apt-get install -y libc6:amd64${NC}"
         ((FAIL++))
     fi
 fi
 
 if [ -d "$ANDROID_SDK_ROOT" ]; then
-    echo -e "${GREEN}✓${NC} ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
+    echo -e "${GREEN}[OK]${NC} ANDROID_SDK_ROOT: $ANDROID_SDK_ROOT"
     ((PASS++))
     
     if [ -f "$ANDROID_SDK_ROOT/platform-tools/adb" ]; then
         # Try to run adb to verify it works
         if adb_version=$($ANDROID_SDK_ROOT/platform-tools/adb version 2>&1 | head -n1); then
-            echo -e "${GREEN}✓${NC} ADB: $adb_version"
+            echo -e "${GREEN}[OK]${NC} ADB: $adb_version"
             ((PASS++))
         else
-            echo -e "${RED}✗${NC} ADB: Found but cannot execute"
+            echo -e "${RED}[FAIL]${NC} ADB: Found but cannot execute"
             echo -e "${YELLOW}  → Error: $adb_version${NC}"
             echo -e "${YELLOW}  → This may indicate missing amd64 libraries on ARM64 systems${NC}"
             ((FAIL++))
         fi
     else
-        echo -e "${RED}✗${NC} ADB: NOT FOUND"
+        echo -e "${RED}[FAIL]${NC} ADB: NOT FOUND"
         ((FAIL++))
     fi
     
     if [ -f "$ANDROID_SDK_ROOT/cmdline-tools/latest/bin/sdkmanager" ]; then
-        echo -e "${GREEN}✓${NC} SDK Manager: Found"
+        echo -e "${GREEN}[OK]${NC} SDK Manager: Found"
         ((PASS++))
     else
-        echo -e "${RED}✗${NC} SDK Manager: NOT FOUND"
+        echo -e "${RED}[FAIL]${NC} SDK Manager: NOT FOUND"
         ((FAIL++))
     fi
 else
-    echo -e "${RED}✗${NC} ANDROID_SDK_ROOT: NOT SET"
+    echo -e "${RED}[FAIL]${NC} ANDROID_SDK_ROOT: NOT SET"
     ((FAIL++))
 fi
 echo ""
@@ -105,7 +105,7 @@ echo "=== Java Environment ==="
 check_command java "Java" "-version"
 check_command javac "Java Compiler" "-version"
 if [ -d "$ANDROID_SDK_ROOT/../../android" ]; then
-    cd /workspaces/apuntador/android 2>/dev/null && check_command ./gradlew "Gradle Wrapper" "--version" || echo -e "${YELLOW}⚠${NC} Gradle: android/ directory not found"
+    cd /workspaces/apuntador/android 2>/dev/null && check_command ./gradlew "Gradle Wrapper" "--version" || echo -e "${YELLOW}WARNING:${NC} Gradle: android/ directory not found"
 fi
 echo ""
 
@@ -130,18 +130,18 @@ echo ""
 # Check project dependencies
 echo "=== Project Dependencies ==="
 if [ -d "/workspaces/apuntador/node_modules" ]; then
-    echo -e "${GREEN}✓${NC} node_modules: Exists"
+    echo -e "${GREEN}[OK]${NC} node_modules: Exists"
     ((PASS++))
 else
-    echo -e "${YELLOW}⚠${NC} node_modules: Not found (run 'npm install')"
+    echo -e "${YELLOW}WARNING:${NC} node_modules: Not found (run 'npm install')"
     ((FAIL++))
 fi
 
 if [ -d "/workspaces/apuntador/src-tauri/target" ]; then
-    echo -e "${GREEN}✓${NC} Rust target: Exists"
+    echo -e "${GREEN}[OK]${NC} Rust target: Exists"
     ((PASS++))
 else
-    echo -e "${YELLOW}⚠${NC} Rust target: Not found (will be created on first build)"
+    echo -e "${YELLOW}WARNING:${NC} Rust target: Not found (will be created on first build)"
 fi
 echo ""
 
@@ -181,7 +181,7 @@ if [ $FAIL -eq 0 ]; then
     echo "Happy coding! [LAUNCH]"
     exit 0
 else
-    echo -e "${YELLOW}⚠ Some checks failed. Please review the output above.${NC}"
+    echo -e "${YELLOW}WARNING: Some checks failed. Please review the output above.${NC}"
     echo ""
     echo "Common fixes:"
     echo "  - If node_modules missing: npm install"

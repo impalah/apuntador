@@ -88,7 +88,7 @@ kill $IPAD_PID 2>/dev/null || true
 
 echo ""
 echo "Screenshot capture complete!"
-echo "📁 Screenshots saved in: screenshots/appstore/"
+echo "Screenshots saved in: screenshots/appstore/"
 echo ""
 echo "Files created:"
 ls -la screenshots/appstore/

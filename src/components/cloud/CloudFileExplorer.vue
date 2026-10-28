@@ -1,61 +1,28 @@
 <template>
-  <div
-    class="cloud-file-explorer"
-    :class="{ 'compact-mode': compactMode }"
-  >
+  <div class="cloud-file-explorer" :class="{ 'compact-mode': compactMode }">
     <!-- Header - Only show in non-compact mode -->
-    <v-card-title
-      v-if="!compactMode"
-      class="d-flex align-center"
-    >
-      <v-icon
-        color="primary"
-        class="me-2"
-      >
-        mdi-folder-open
-      </v-icon>
+    <v-card-title v-if="!compactMode" class="d-flex align-center">
+      <v-icon color="primary" class="me-2"> mdi-folder-open </v-icon>
       {{ t('cloud.files.title', 'File Explorer') }}
     </v-card-title>
 
-    <div
-      class="file-explorer-content"
-      :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }"
-    >
+    <div class="file-explorer-content" :class="{ 'pa-4': !compactMode, 'pa-2': compactMode }">
       <!-- Navegación -->
       <div class="d-flex align-center mb-4">
-        <v-btn
-          v-if="cloudStore.currentPath"
-          icon
-          variant="text"
-          size="small"
-          @click="navigateUp"
-        >
+        <v-btn v-if="cloudStore.currentPath" icon variant="text" size="small" @click="navigateUp">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
 
-        <v-chip
-          color="primary"
-          variant="tonal"
-          class="ms-2"
-        >
-          <v-icon start>
-            mdi-folder
-          </v-icon>
+        <v-chip color="primary" variant="tonal" class="ms-2">
+          <v-icon start> mdi-folder </v-icon>
           {{ currentPathDisplay }}
         </v-chip>
 
         <v-spacer />
 
         <!-- Provider indicator -->
-        <v-chip
-          v-if="cloudStore.activeProvider"
-          size="small"
-          variant="tonal"
-        >
-          <v-icon
-            start
-            size="small"
-          >
+        <v-chip v-if="cloudStore.activeProvider" size="small" variant="tonal">
+          <v-icon start size="small">
             {{ getProviderIcon(cloudStore.activeProvider.id) }}
           </v-icon>
           {{ cloudStore.activeProvider.name }}
@@ -63,15 +30,8 @@
       </div>
 
       <!-- Estado de carga -->
-      <div
-        v-if="isLoading"
-        class="text-center py-8"
-      >
-        <v-progress-circular
-          indeterminate
-          color="primary"
-          size="48"
-        />
+      <div v-if="isLoading" class="text-center py-8">
+        <v-progress-circular indeterminate color="primary" size="48" />
         <p class="text-body-medium mt-4">
           {{ t('cloud.files.loading') }}
         </p>
@@ -105,10 +65,7 @@
 
             <template #append>
               <!-- Only show action buttons in full mode -->
-              <div
-                v-if="!compactMode"
-                class="d-flex"
-              >
+              <div v-if="!compactMode" class="d-flex">
                 <!-- Abrir archivo (solo archivos .md o .txt) -->
                 <v-btn
                   v-if="!file.isFolder && isTextFile(file.name)"
@@ -150,16 +107,8 @@
       </div>
 
       <!-- Lista vacía -->
-      <div
-        v-else
-        class="text-center py-8"
-      >
-        <v-icon
-          size="64"
-          color="grey-lighten-1"
-        >
-          mdi-folder-open-outline
-        </v-icon>
+      <div v-else class="text-center py-8">
+        <v-icon size="64" color="grey-lighten-1"> mdi-folder-open-outline </v-icon>
         <p class="text-body-medium text-medium-emphasis mt-4">
           {{ t('cloud.files.empty') }}
         </p>
@@ -185,11 +134,7 @@
         class="align-center justify-center"
       >
         <div class="text-center">
-          <v-progress-circular
-            indeterminate
-            color="primary"
-            size="64"
-          />
+          <v-progress-circular indeterminate color="primary" size="64" />
           <p class="text-body-large mt-4 white--text">
             {{
               cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading')
@@ -200,10 +145,7 @@
     </div>
 
     <!-- Diálogo de confirmación para eliminar -->
-    <v-dialog
-      v-model="deleteDialog"
-      max-width="400"
-    >
+    <v-dialog v-model="deleteDialog" max-width="400">
       <v-card>
         <v-card-title>{{ t('cloud.files.deleteFile') }}</v-card-title>
         <v-card-text>
@@ -211,19 +153,10 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn
-            variant="text"
-            :disabled="cloudStore.isDeleting"
-            @click="deleteDialog = false"
-          >
+          <v-btn variant="text" :disabled="cloudStore.isDeleting" @click="deleteDialog = false">
             {{ t('common.cancel') }}
           </v-btn>
-          <v-btn
-            color="error"
-            variant="flat"
-            :loading="cloudStore.isDeleting"
-            @click="deleteFile"
-          >
+          <v-btn color="error" variant="flat" :loading="cloudStore.isDeleting" @click="deleteFile">
             {{ t('common.delete') }}
           </v-btn>
         </v-card-actions>

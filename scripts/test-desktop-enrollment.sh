@@ -29,7 +29,7 @@ sw_vers
 echo ""
 
 # 2. Compilar y ejecutar la app Tauri
-echo "🔨 Building Tauri app..."
+echo "Building Tauri app..."
 npm run tauri build --debug
 
 echo ""

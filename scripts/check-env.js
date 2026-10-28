@@ -48,7 +48,7 @@ let hasErrors = false
 let hasWarnings = false
 
 // Verificar variables requeridas
-console.log('📋 Variables requeridas:')
+console.log('Variables requeridas:')
 requiredVars.forEach((varName) => {
   const value = process.env[varName]
   if (!value) {
@@ -65,12 +65,12 @@ requiredVars.forEach((varName) => {
 })
 
 // Verificar variables opcionales
-console.log('\n📋 Variables opcionales:')
+console.log('\nVariables opcionales:')
 optionalVars.forEach((varName) => {
   const value = process.env[varName]
   if (!value) {
     console.log(
-      `   ⚠️  ${varName}: No configurada (se usará cliente web para todas las plataformas)`
+      `   WARNING:  ${varName}: No configurada (se usará cliente web para todas las plataformas)`
     )
     hasWarnings = true
   } else {
@@ -90,12 +90,12 @@ if (hasErrors) {
   console.log('   1. Copia .env.example a .env')
   console.log('   2. Edita .env con tus credenciales reales')
   console.log('   3. O configúralas en tu plataforma de hosting\n')
-  console.log('📚 Más información: docs/ENVIRONMENT_VARIABLES.md\n')
+  console.log('Más información: docs/ENVIRONMENT_VARIABLES.md\n')
   process.exit(1)
 }
 
 if (hasWarnings) {
-  console.log('\n⚠️  ADVERTENCIA: Algunas variables opcionales no están configuradas')
+  console.log('\nWARNING:  ADVERTENCIA: Algunas variables opcionales no están configuradas')
   console.log('   La aplicación funcionará pero con funcionalidad limitada.\n')
 }
 

@@ -43,7 +43,7 @@ base64 -w 0 "$KEYSTORE_PATH" > "$OUTPUT_FILE"
 
 if [ $? -eq 0 ]; then
     echo -e "${GREEN}Base64 generated successfully!${NC}"
-    echo -e "${CYAN}📁 File saved to: $OUTPUT_FILE${NC}"
+    echo -e "${CYAN}File saved to: $OUTPUT_FILE${NC}"
     
     # Show information
     echo -e "\n${MAGENTA}INFORMATION FOR GITHUB SECRETS:${NC}"

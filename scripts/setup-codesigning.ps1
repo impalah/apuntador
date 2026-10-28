@@ -48,7 +48,7 @@ if (Test-Path $createScript) {
 Write-Host ""
 
 # Paso 2: Instrucciones para GitHub
-Write-Host "🐙 Paso 2: Configuración de GitHub Actions" -ForegroundColor Cyan
+Write-Host "Paso 2: Configuración de GitHub Actions" -ForegroundColor Cyan
 Write-Host ""
 
 $base64File = "certificates\certificate-base64.txt"
@@ -114,6 +114,6 @@ Write-Host "2. Hacer commit de los cambios en tauri.conf.json" -ForegroundColor 
 Write-Host "3. Probar el workflow de GitHub Actions" -ForegroundColor White
 Write-Host "4. Distribuir aplicaciones firmadas" -ForegroundColor White
 Write-Host ""
-Write-Host "📚 Documentación completa: .\docs\SELF-SIGNED-CERTIFICATE.md" -ForegroundColor Cyan
+Write-Host "Documentación completa: .\docs\SELF-SIGNED-CERTIFICATE.md" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "¡Listo para distribución con certificado auto-firmado!" -ForegroundColor Green

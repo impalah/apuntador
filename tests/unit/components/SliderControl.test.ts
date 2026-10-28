@@ -18,11 +18,11 @@ describe('SliderControl', () => {
         label: 'Test Slider',
         min: 0,
         max: 100,
-        step: 1
+        step: 1,
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     expect(wrapper.exists()).toBe(true)
@@ -34,11 +34,11 @@ describe('SliderControl', () => {
         modelValue: 50,
         label: 'Test Slider',
         min: 0,
-        max: 100
+        max: 100,
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     // Encontrar el v-slider y emitir cambio
@@ -54,11 +54,11 @@ describe('SliderControl', () => {
       props: {
         modelValue: 50,
         label: 'Test Slider',
-        showInput: true
+        showInput: true,
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     const textField = wrapper.findComponent({ name: 'VTextField' })
@@ -70,11 +70,11 @@ describe('SliderControl', () => {
       props: {
         modelValue: 50,
         label: 'Test Slider',
-        showInput: false
+        showInput: false,
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     const textField = wrapper.findComponent({ name: 'VTextField' })
@@ -86,11 +86,11 @@ describe('SliderControl', () => {
       props: {
         modelValue: 50,
         label: 'Test Slider',
-        suffix: '%'
+        suffix: '%',
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     const slider = wrapper.findComponent({ name: 'VSlider' })
@@ -103,11 +103,11 @@ describe('SliderControl', () => {
     const wrapper = mount(SliderControl, {
       props: {
         modelValue: 50,
-        label: 'Test Slider'
+        label: 'Test Slider',
       },
       global: {
-        plugins: [vuetify]
-      }
+        plugins: [vuetify],
+      },
     })
 
     const slider = wrapper.findComponent({ name: 'VSlider' })

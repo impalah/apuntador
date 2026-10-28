@@ -1,6 +1,6 @@
 /**
  * Interfaces TypeScript para los plugins nativos de iOS
- * 
+ *
  * Secure Enclave (HSM) y Auto-Enrollment para mTLS
  */
 
@@ -29,11 +29,7 @@ export interface SecureEnclavePlugin {
   /**
    * Genera un Certificate Signing Request (CSR)
    */
-  generateCSR(options: {
-    commonName: string
-    organization?: string
-    country?: string
-  }): Promise<{
+  generateCSR(options: { commonName: string; organization?: string; country?: string }): Promise<{
     success: boolean
     csr: string // Base64 DER format
     csrSize: number
@@ -87,16 +83,14 @@ export interface AutoEnrollmentPlugin {
 
   /**
    * Realiza el enrollment automático con el backend
-   * 
+   *
    * Proceso:
    * 1. Genera par de claves en Secure Enclave
    * 2. Genera CSR
    * 3. Envía CSR al backend
    * 4. Recibe y almacena certificado firmado
    */
-  autoEnroll(options: {
-    backendUrl: string
-  }): Promise<{
+  autoEnroll(options: { backendUrl: string }): Promise<{
     success: boolean
     enrolled: boolean
     alreadyEnrolled?: boolean
@@ -108,9 +102,7 @@ export interface AutoEnrollmentPlugin {
   /**
    * Re-enrollment (elimina credenciales antiguas y hace nuevo enrollment)
    */
-  reEnroll(options: {
-    backendUrl: string
-  }): Promise<{
+  reEnroll(options: { backendUrl: string }): Promise<{
     success: boolean
     enrolled: boolean
     deviceId?: string

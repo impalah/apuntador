@@ -17,7 +17,7 @@ This implementation adds **mTLS (Mutual TLS) authentication** for OAuth token re
 ┌─────────────────────────────────────────────────────────────┐
 │              Certificate Validation (Android)                │
 │         CertificateValidator.validate()                      │
-│    ✓ Exists   ✓ Enrolled   ✓ Not Expired   ✓ Valid (>5d)  │
+│    [OK] Exists   [OK] Enrolled   [OK] Not Expired   [OK] Valid (>5d)  │
 └─────────────────────────────────────────────────────────────┘
                             ↓
                 ┌───────────┴───────────┐

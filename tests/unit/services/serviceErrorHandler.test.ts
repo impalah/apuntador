@@ -1,5 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { createServiceErrorHandler, createServiceSuccessHandler } from '@/services/serviceErrorHandler'
+import {
+  createServiceErrorHandler,
+  createServiceSuccessHandler,
+} from '@/services/serviceErrorHandler'
 
 const showError = vi.fn()
 const showSuccess = vi.fn()

@@ -52,7 +52,10 @@ export function computeCharsPerLine(containerWidthPx: number, charWidthPx: numbe
  * original paragraph boundary. Each line records the token-index range of
  * its indexable words, so "which line is token N on" is an exact lookup.
  */
-export function wrapWordStreamIntoLines(stream: WordStreamEntry[], charsPerLine: number): MonoLine[] {
+export function wrapWordStreamIntoLines(
+  stream: WordStreamEntry[],
+  charsPerLine: number
+): MonoLine[] {
   const lines: MonoLine[] = []
   let currentWords: WordStreamEntry[] = []
   let currentRenderIndices: number[] = []
@@ -68,7 +71,10 @@ export function wrapWordStreamIntoLines(stream: WordStreamEntry[], charsPerLine:
       .filter((index): index is number => index !== null)
     lines.push({
       text: currentWords.map((entry) => entry.word).join(' '),
-      words: currentWords.map((entry, i) => ({ text: entry.word, renderIndex: currentRenderIndices[i]! })),
+      words: currentWords.map((entry, i) => ({
+        text: entry.word,
+        renderIndex: currentRenderIndices[i]!,
+      })),
       startTokenIndex: indices.length > 0 ? indices[0]! : null,
       endTokenIndex: indices.length > 0 ? indices[indices.length - 1]! : null,
     })
@@ -142,8 +148,10 @@ export function tokenIndexForLine(lines: MonoLine[], lineIndex: number): number 
   for (let offset = 0; offset < lines.length; offset++) {
     const before = clamped - offset
     const after = clamped + offset
-    if (before >= 0 && lines[before]!.startTokenIndex !== null) return lines[before]!.startTokenIndex!
-    if (after < lines.length && lines[after]!.startTokenIndex !== null) return lines[after]!.startTokenIndex!
+    if (before >= 0 && lines[before]!.startTokenIndex !== null)
+      return lines[before]!.startTokenIndex!
+    if (after < lines.length && lines[after]!.startTokenIndex !== null)
+      return lines[after]!.startTokenIndex!
   }
   return 0
 }
@@ -216,16 +224,23 @@ export function useMonospaceLayout(
 
   watch([fontFamily, fontSizePx, lineHeight], measure, { immediate: true })
 
-  const wordStream: ComputedRef<WordStreamEntry[]> = computed(() => buildWordStream(scriptText.value))
+  const wordStream: ComputedRef<WordStreamEntry[]> = computed(() =>
+    buildWordStream(scriptText.value)
+  )
 
-  const charsPerLine = computed(() => computeCharsPerLine(containerWidthPx.value, charWidthPx.value))
+  const charsPerLine = computed(() =>
+    computeCharsPerLine(containerWidthPx.value, charWidthPx.value)
+  )
 
   const contentLines = computed<MonoLine[]>(() =>
     wrapWordStreamIntoLines(wordStream.value, charsPerLine.value)
   )
 
   const paddingLineCount = computed(() =>
-    Math.max(0, Math.ceil((viewportHeightPx.value * paddingViewportRatio) / measuredLineHeightPx.value))
+    Math.max(
+      0,
+      Math.ceil((viewportHeightPx.value * paddingViewportRatio) / measuredLineHeightPx.value)
+    )
   )
 
   const lines = computed<MonoLine[]>(() => [

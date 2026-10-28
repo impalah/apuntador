@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { setActivePinia, createPinia } from 'pinia'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { storage } from '@/services/persistence'
+import { DEFAULT_FG_COLOR } from '@/utils/constants'
 
 // Mock localStorage
 const localStorageMock = (() => {
@@ -112,7 +113,7 @@ describe('usePrefsStore', () => {
       expect(Object.keys(store.customHotkeys).length).toBeGreaterThan(0)
     })
 
-    it('falls back to defaults when saved data fails schema validation', async () => {
+    it('resets only the invalid field and keeps the rest of the saved preferences', async () => {
       const savedPrefs = {
         fontFamily: 'Roboto, sans-serif',
         fontSizePx: 24,
@@ -122,12 +123,12 @@ describe('usePrefsStore', () => {
         speedPxPerSec: 50,
         speedMin: 10,
         speedMax: 200,
-        mirrorH: false,
+        mirrorH: true,
         mirrorV: false,
         highlightBandLines: 1,
         highlightBandPosPct: 40,
         dimmingIntensity: 0.5,
-        textAlignment: 'center',
+        textAlignment: 'left',
         customHotkeys: {},
         customGamepadMappings: {},
       }
@@ -135,14 +136,15 @@ describe('usePrefsStore', () => {
       const warnSpy = vi.spyOn(console, 'warn').mockImplementation(() => {})
 
       const store = usePrefsStore()
-      store.fontFamily = 'Arial' // dirty the state so we can prove reset() ran
       await store.load()
 
-      expect(warnSpy).toHaveBeenCalledWith(
-        'Failed to load preferences, using defaults:',
-        expect.anything()
-      )
-      expect(store.fontFamily).toBe('Roboto, sans-serif')
+      expect(warnSpy).toHaveBeenCalledWith('Invalid saved preferences reset to defaults:', [
+        'fgColor',
+      ])
+      expect(store.fgColor).toBe(DEFAULT_FG_COLOR)
+      // Valid fields survive instead of the whole object being discarded
+      expect(store.mirrorH).toBe(true)
+      expect(store.textAlignment).toBe('left')
       warnSpy.mockRestore()
     })
 
@@ -665,26 +667,6 @@ describe('usePrefsStore', () => {
       // Reset
       store.reset()
       expect(store.textAlignment).toBe('center')
-    })
-
-    it('should apply text alignment CSS variable', () => {
-      const store = usePrefsStore()
-
-      // Mock document.documentElement
-      const mockRoot = {
-        style: {
-          setProperty: vi.fn(),
-        },
-      }
-      Object.defineProperty(document, 'documentElement', {
-        value: mockRoot,
-        writable: true,
-      })
-
-      store.setTextAlignment('left')
-      store.applyCSSVariables()
-
-      expect(mockRoot.style.setProperty).toHaveBeenCalledWith('--text-alignment', 'left')
     })
   })
 

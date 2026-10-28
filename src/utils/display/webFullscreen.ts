@@ -112,10 +112,12 @@ async function getScreenInfo(): Promise<{
 /**
  * Composable for Web Fullscreen functionality
  */
-export function useWebFullscreen(options: {
-  element?: Element
-  autoDetectPrimaryScreen?: boolean
-} = {}) {
+export function useWebFullscreen(
+  options: {
+    element?: Element
+    autoDetectPrimaryScreen?: boolean
+  } = {}
+) {
   const isFullscreen = ref(false)
   const isSupported = ref(false)
   const screenInfo = ref({
@@ -200,8 +202,13 @@ export function useWebFullscreen(options: {
       updateFullscreenState()
 
       // Listen for fullscreen changes
-      const events = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange']
-      events.forEach(event => {
+      const events = [
+        'fullscreenchange',
+        'webkitfullscreenchange',
+        'mozfullscreenchange',
+        'msfullscreenchange',
+      ]
+      events.forEach((event) => {
         document.addEventListener(event, updateFullscreenState)
       })
 
@@ -213,8 +220,13 @@ export function useWebFullscreen(options: {
   onUnmounted(() => {
     if (isSupported.value) {
       // Clean up event listeners
-      const events = ['fullscreenchange', 'webkitfullscreenchange', 'mozfullscreenchange', 'msfullscreenchange']
-      events.forEach(event => {
+      const events = [
+        'fullscreenchange',
+        'webkitfullscreenchange',
+        'mozfullscreenchange',
+        'msfullscreenchange',
+      ]
+      events.forEach((event) => {
         document.removeEventListener(event, updateFullscreenState)
       })
 

@@ -95,6 +95,24 @@ const preferencesSchema = z.object({
 
 export type PreferencesState = z.infer<typeof preferencesSchema>
 
+/**
+ * Validates saved preferences field by field: an invalid field (e.g. after a
+ * limit such as SETTINGS_MAX_FONT_SIZE is tightened) falls back to its default
+ * instead of discarding every preference, custom hotkeys included.
+ */
+function parsePreferences(saved: unknown): PreferencesState {
+  const result = preferencesSchema.safeParse(saved)
+  if (result.success) return result.data
+  if (typeof saved !== 'object' || saved === null || Array.isArray(saved)) throw result.error
+
+  const invalidKeys = new Set(result.error.issues.map((issue) => issue.path[0]))
+  console.warn('Invalid saved preferences reset to defaults:', [...invalidKeys])
+  const sanitized = Object.fromEntries(
+    Object.entries(saved).filter(([key]) => !invalidKeys.has(key))
+  )
+  return preferencesSchema.parse(sanitized)
+}
+
 export const usePrefsStore = defineStore('preferences', () => {
   // State with defaults
   const fontFamily = ref('Roboto, sans-serif')
@@ -121,7 +139,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     try {
       const saved = await storage.get(STORAGE_KEYS.PREFERENCES)
       if (saved) {
-        const validated = preferencesSchema.parse(saved)
+        const validated = parsePreferences(saved)
 
         fontFamily.value = validated.fontFamily
         fontSizePx.value = validated.fontSizePx
@@ -283,17 +301,6 @@ export const usePrefsStore = defineStore('preferences', () => {
   }
 
   // CSS custom properties for reactive styling
-  function applyCSSVariables() {
-    const root = document.documentElement
-    root.style.setProperty('--font-family', fontFamily.value)
-    root.style.setProperty('--font-size', `${fontSizePx.value}px`)
-    root.style.setProperty('--line-height', lineHeight.value.toString())
-    root.style.setProperty('--teleprompter-fg', fgColor.value)
-    root.style.setProperty('--teleprompter-bg', bgColor.value)
-    root.style.setProperty('--dimming-intensity', dimmingIntensity.value.toString())
-    root.style.setProperty('--text-alignment', textAlignment.value)
-  }
-
   // Hotkey management
   function updateHotkey(action: string, hotkey: HotkeyDefinition) {
     customHotkeys.value = {
@@ -361,7 +368,6 @@ export const usePrefsStore = defineStore('preferences', () => {
     setTextAlignment,
     setScrollMode,
     setActiveFrame,
-    applyCSSVariables,
     updateHotkey,
     resetHotkeys,
     updateGamepadMapping,

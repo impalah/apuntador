@@ -64,13 +64,12 @@ async function getDesktopScreenInfo(): Promise<{
     const screenCount = allMonitors.length || 1
     const isMultiScreen = screenCount > 1
 
-    // Check if current monitor is primary (first monitor in array or has position 0,0)
-    let isPrimary = true
-    if (currentMonitor) {
-      isPrimary = currentMonitor.position?.x === 0 && currentMonitor.position?.y === 0
-    } else if (allMonitors.length > 0) {
-      isPrimary = allMonitors[0] === currentMonitor
-    }
+    // The primary monitor sits at (0,0). If the current monitor is unknown,
+    // assume primary (the previous fallback compared against null and was
+    // always false).
+    const isPrimary = currentMonitor
+      ? currentMonitor.position?.x === 0 && currentMonitor.position?.y === 0
+      : true
 
     return {
       isPrimary,

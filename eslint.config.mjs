@@ -4,6 +4,7 @@ import * as parserVue from 'vue-eslint-parser'
 import configTypescript from '@typescript-eslint/eslint-plugin'
 import parserTypescript from '@typescript-eslint/parser'
 import globals from 'globals'
+import prettierConfig from 'eslint-config-prettier/flat'
 
 export default [
   {
@@ -94,4 +95,7 @@ export default [
       },
     },
   },
+  // Must stay last: turns off formatting rules (incl. eslint-plugin-vue template
+  // layout rules) that conflict with Prettier, which owns formatting
+  prettierConfig,
 ]

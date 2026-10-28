@@ -5,15 +5,8 @@
   and its current status - never a silently frozen script with no explanation.
 -->
 <template>
-  <div
-    class="voice-status-overlay"
-    :class="`status-${status}`"
-    data-testid="voice-status-overlay"
-  >
-    <v-icon
-      :icon="icon"
-      size="18"
-    />
+  <div class="voice-status-overlay" :class="`status-${status}`" data-testid="voice-status-overlay">
+    <v-icon :icon="icon" size="18" />
     <span data-testid="voice-status-text">{{ label }}</span>
   </div>
 </template>

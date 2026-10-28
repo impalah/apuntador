@@ -72,7 +72,13 @@ export interface TeleprompterEvents {
  */
 export type MonoDisplayPreferences = Pick<
   MonoPreferencesState,
-  'fontFamily' | 'fontSizePx' | 'lineHeight' | 'fgColor' | 'bgColor' | 'voiceReadColor' | 'textAlignment'
+  | 'fontFamily'
+  | 'fontSizePx'
+  | 'lineHeight'
+  | 'fgColor'
+  | 'bgColor'
+  | 'voiceReadColor'
+  | 'textAlignment'
 > &
   Pick<PreferencesState, 'mirrorH' | 'mirrorV'>
 

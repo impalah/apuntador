@@ -56,7 +56,7 @@ if [ -n "$cert_path" ] && [ -f "$cert_path" ]; then
         echo "Remember to add this password as IOS_CERTIFICATE_PASSWORD in GitHub"
     fi
 else
-    echo "⏭️  Skipping certificate (file not found)"
+    echo "[SKIP]  Skipping certificate (file not found)"
 fi
 
 echo ""
@@ -71,7 +71,7 @@ if [ -n "$profile_path" ] && [ -f "$profile_path" ]; then
     echo "Profile information:"
     security cms -D -i "$profile_path" | plutil -p - | grep -E "(TeamName|ApplicationIdentifierPrefix|Name)" || true
 else
-    echo "⏭️  Skipping provisioning profile (file not found)"
+    echo "[SKIP]  Skipping provisioning profile (file not found)"
 fi
 
 echo ""
@@ -89,7 +89,7 @@ if [ -n "$api_key_path" ] && [ -f "$api_key_path" ]; then
         echo "Use this for APP_STORE_CONNECT_API_KEY_ID secret"
     fi
 else
-    echo "⏭️  Skipping API key (TestFlight upload will be disabled)"
+    echo "[SKIP]  Skipping API key (TestFlight upload will be disabled)"
 fi
 
 echo ""

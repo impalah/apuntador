@@ -54,6 +54,15 @@ const START_OPTIONS = {
   maxResults: 5,
 } as const
 
+/**
+ * Single source of truth for platforms where voice mode is not offered at all
+ * (the engine's isSupported and the UI toggles in ActionsMenu/FloatingToolbar
+ * all use this). Android: see the isSupported comment below.
+ */
+export function isVoiceModeOfferedOnPlatform(): boolean {
+  return Capacitor.getPlatform() !== 'android'
+}
+
 export class CapacitorSpeechEngine implements SpeechEngine {
   // false on Android: confirmed on real hardware (Samsung tablet, One UI) that
   // the silent (popup:false) recognition path never gets microphone input
@@ -61,10 +70,9 @@ export class CapacitorSpeechEngine implements SpeechEngine {
   // recognition dialog (popup:true) - has no continuous events at all (its
   // result only arrives once the dialog closes) and would flash on/off every
   // few seconds while reading. Not worth the UX cost, so voice mode is not
-  // offered on Android at all (TeleprompterPage.vue's fallback-to-auto and the
-  // UI components that show the voice-mode toggle both key off isSupported).
+  // offered on Android at all (see isVoiceModeOfferedOnPlatform).
   // True on iOS: SFSpeechRecognizer has no such limitation.
-  readonly isSupported = Capacitor.getPlatform() !== 'android'
+  readonly isSupported = isVoiceModeOfferedOnPlatform()
 
   private _status: SpeechEngineStatus = 'idle'
   private shouldBeListening = false
@@ -119,7 +127,10 @@ export class CapacitorSpeechEngine implements SpeechEngine {
       if (permission.speechRecognition !== 'granted') {
         this.shouldBeListening = false
         this.setStatus('error')
-        this.emitError('permission-denied', 'Microphone/speech recognition permission was not granted')
+        this.emitError(
+          'permission-denied',
+          'Microphone/speech recognition permission was not granted'
+        )
         return
       }
 
@@ -229,7 +240,10 @@ export class CapacitorSpeechEngine implements SpeechEngine {
     if (this.consecutiveRestarts > SPEECH_NATIVE_MAX_CONSECUTIVE_RESTARTS) {
       this.shouldBeListening = false
       this.setStatus('error')
-      this.emitError('unknown', 'Speech recognition kept stopping unexpectedly and gave up restarting')
+      this.emitError(
+        'unknown',
+        'Speech recognition kept stopping unexpectedly and gave up restarting'
+      )
       return
     }
 
@@ -238,9 +252,11 @@ export class CapacitorSpeechEngine implements SpeechEngine {
       this.restartTimer = null
       if (!this.shouldBeListening || !this.currentLanguage) return
 
-      SpeechRecognition.start({ language: this.currentLanguage, ...START_OPTIONS }).catch((error: unknown) => {
-        this.handleStartFailure(error)
-      })
+      SpeechRecognition.start({ language: this.currentLanguage, ...START_OPTIONS }).catch(
+        (error: unknown) => {
+          this.handleStartFailure(error)
+        }
+      )
     }, SPEECH_NATIVE_RESTART_DELAY_MS)
   }
 

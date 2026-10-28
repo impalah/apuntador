@@ -188,8 +188,8 @@ Microsoft tiene bots que validan automáticamente:
 #### Success (Todo OK)
 
 ```
-✓ Azure Pipelines — All checks passed
-✓ Validation - PASS
+[OK] Azure Pipelines — All checks passed
+[OK] Validation - PASS
 ```
 
 → El PR será **aprobado y mergeado automáticamente** en 24-48h
@@ -197,8 +197,8 @@ Microsoft tiene bots que validan automáticamente:
 #### [ERROR] Failure (Hay errores)
 
 ```
-✗ Azure Pipelines — Checks failed
-✗ Validation - FAILED
+[FAIL] Azure Pipelines — Checks failed
+[FAIL] Validation - FAILED
 ```
 
 → Revisa los logs de error y corrige
@@ -326,8 +326,8 @@ Generate Winget Manifests:
 
 ### Qué debes hacer manualmente:
 
-1. ⏬ Descargar artefacto `winget-manifests-X.X.X`
-2. 📤 Subirlo al repositorio microsoft/winget-pkgs
+1. Descargar artefacto `winget-manifests-X.X.X`
+2. Subirlo al repositorio microsoft/winget-pkgs
 3. Crear Pull Request
 
 **Tiempo total:** ~5 minutos por release
@@ -403,9 +403,9 @@ Write-Host $productCode
 
 **Causas comunes:**
 
-- 🚫 Primera publicación de publisher desconocido
-- 🚫 URL sospechosa o dominio nuevo
-- 🚫 Licencia no clara
+- [BLOCKED] Primera publicación de publisher desconocido
+- [BLOCKED] URL sospechosa o dominio nuevo
+- [BLOCKED] Licencia no clara
 
 **Solución:**
 
