@@ -114,7 +114,14 @@ const showActionsMenuSettings = ref(false)
 const suggestedFileName = ref('')
 
 // Initialize content from teleprompter store
-onMounted(() => {
+onMounted(async () => {
+  // Opening /edit directly (e.g. a reload while editing) skips TeleprompterPage,
+  // which is what normally loads the saved script into the store. Load it here
+  // so the editor doesn't show (and could save over it with) the placeholder.
+  if (!teleprompterStore.contentRaw?.trim()) {
+    await teleprompterStore.loadContent()
+  }
+
   // Only update if there's content in the store
   if (teleprompterStore.contentRaw && teleprompterStore.contentRaw.trim()) {
     localContent.value = teleprompterStore.contentRaw
