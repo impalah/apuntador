@@ -1,15 +1,16 @@
-import MarkdownIt from 'markdown-it'
+import MarkdownIt, { type MarkdownIt as MarkdownItInstance } from 'markdown-it'
 import markdownItAnchor from 'markdown-it-anchor'
 import markdownItSup from 'markdown-it-sup'
 import markdownItSub from 'markdown-it-sub'
 import markdownItMark from 'markdown-it-mark'
 import markdownItFootnote from 'markdown-it-footnote'
+import DOMPurify from 'dompurify'
 import { VIEWPORT_PADDING_HEIGHT, VIEWPORT_PADDING_MIN_HEIGHT } from './constants'
 
 /**
  * Create and configure markdown-it instance with plugins
  */
-export function createMarkdownRenderer(): MarkdownIt {
+export function createMarkdownRenderer(): MarkdownItInstance {
   const md = new MarkdownIt({
     html: true,
     linkify: true,
@@ -18,10 +19,7 @@ export function createMarkdownRenderer(): MarkdownIt {
   })
 
   // Add plugins
-  md.use(markdownItAnchor, {
-    permalink: false,
-    permalinkSymbol: '#',
-  })
+  md.use(markdownItAnchor)
   md.use(markdownItSup)
   md.use(markdownItSub)
   md.use(markdownItMark)
@@ -30,12 +28,17 @@ export function createMarkdownRenderer(): MarkdownIt {
   return md
 }
 
+let sharedRenderer: MarkdownItInstance | null = null
+
 /**
  * Compile markdown to HTML with proper spacing for teleprompter
  */
 export function compileMarkdown(content: string): string {
-  const md = createMarkdownRenderer()
-  const htmlContent = md.render(content)
+  sharedRenderer ??= createMarkdownRenderer()
+  // Raw HTML is allowed in scripts (html: true) and the result is rendered with
+  // v-html, so strip anything executable. On Capacitor/Tauri injected script
+  // would otherwise reach the native bridges.
+  const htmlContent = DOMPurify.sanitize(sharedRenderer.render(content))
 
   // Add padding divs for teleprompter viewing
   // This ensures there's always space at the beginning and end

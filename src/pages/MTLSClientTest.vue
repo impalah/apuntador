@@ -4,7 +4,7 @@
     class="pa-4"
   >
     <v-card>
-      <v-card-title class="text-h5 d-flex align-center">
+      <v-card-title class="text-headline-small d-flex align-center">
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
@@ -28,11 +28,11 @@
           variant="outlined"
           class="mb-4"
         >
-          <v-card-title class="text-subtitle-1">
+          <v-card-title class="text-body-large">
             mTLS Client Status
           </v-card-title>
           <v-card-text>
-            <v-row dense>
+            <v-row density="compact">
               <v-col cols="12">
                 <v-chip
                   :color="clientStatus.isReady ? 'success' : 'error'"
@@ -62,7 +62,7 @@
                   </v-list-item>
                   <v-list-item>
                     <v-list-item-title>Serial:</v-list-item-title>
-                    <v-list-item-subtitle class="text-caption">
+                    <v-list-item-subtitle class="text-body-small">
                       {{ clientStatus.certificateInfo.serial }}
                     </v-list-item-subtitle>
                   </v-list-item>
@@ -87,7 +87,7 @@
           variant="outlined"
           class="mb-4"
         >
-          <v-card-title class="text-subtitle-1">
+          <v-card-title class="text-body-large">
             Test mTLS Request
           </v-card-title>
           <v-card-text>
@@ -153,11 +153,11 @@
               variant="tonal"
               class="mt-4"
             >
-              <v-card-title class="text-subtitle-2">
+              <v-card-title class="text-title-small">
                 Response:
               </v-card-title>
               <v-card-text>
-                <pre class="text-caption">{{ testResponse }}</pre>
+                <pre class="text-body-small">{{ testResponse }}</pre>
               </v-card-text>
             </v-card>
           </v-card-text>
@@ -168,7 +168,7 @@
           variant="outlined"
           class="mb-4"
         >
-          <v-card-title class="text-subtitle-1">
+          <v-card-title class="text-body-large">
             [RECYCLE] Certificate Renewal Service
           </v-card-title>
           <v-card-text>
@@ -180,7 +180,7 @@
               class="mb-2"
             />
 
-            <v-row dense>
+            <v-row density="compact">
               <v-col cols="6">
                 <v-btn
                   :disabled="renewalServiceRunning"
@@ -218,7 +218,7 @@
 
         <!-- Logs -->
         <v-card variant="outlined">
-          <v-card-title class="text-subtitle-1">
+          <v-card-title class="text-body-large">
             Logs
             <v-spacer />
             <v-btn
@@ -419,6 +419,6 @@ onMounted(() => {
 
 pre {
   white-space: pre-wrap;
-  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 </style>

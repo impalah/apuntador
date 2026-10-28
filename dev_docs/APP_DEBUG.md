@@ -678,7 +678,7 @@ adb logcat | grep -i "AndroidRuntime\|apuntador"
 
 **Common causes**:
 
-- Java version mismatch (need JDK 17)
+- Java version mismatch (need JDK 21)
 - Missing Android SDK components
 - Network issues downloading dependencies
 

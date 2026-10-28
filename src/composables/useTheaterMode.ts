@@ -1,5 +1,10 @@
 import { ref, onMounted, onUnmounted } from 'vue'
-import { invoke } from '@tauri-apps/api/core'
+
+// Loaded lazily so this shared module never pulls Tauri APIs into web/mobile paths
+async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  const { invoke: tauriInvoke } = await import('@tauri-apps/api/core')
+  return tauriInvoke<T>(cmd, args)
+}
 
 export function useTheaterMode() {
   const isTheaterMode = ref(false)

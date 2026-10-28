@@ -31,14 +31,24 @@ pub(super) async fn start_oauth_server(
 
   let app_handle_clone = app_handle.clone();
 
-  let server_task = tokio::spawn(async move {
-    let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
-    println!("[LINK] Attempting to bind to {}", addr);
-    let listener = TcpListener::bind(addr).await.unwrap();
-    println!("OAuth server listening on {}", addr);
+  // Bind before spawning so a busy port is reported to the frontend instead of
+  // panicking inside the task and leaving a dead handle marked as "running"
+  let addr: SocketAddr = "127.0.0.1:8080".parse().unwrap();
+  println!("[LINK] Attempting to bind to {}", addr);
+  let listener = TcpListener::bind(addr)
+    .await
+    .map_err(|e| format!("Failed to bind OAuth callback server on {}: {}", addr, e))?;
+  println!("OAuth server listening on {}", addr);
 
+  let server_task = tokio::spawn(async move {
     loop {
-      let (stream, _) = listener.accept().await.unwrap();
+      let stream = match listener.accept().await {
+        Ok((stream, _)) => stream,
+        Err(e) => {
+          eprintln!("Error accepting OAuth callback connection: {}", e);
+          continue;
+        }
+      };
       let app_handle = app_handle_clone.clone();
 
       tokio::task::spawn(async move {
@@ -50,7 +60,7 @@ pub(super) async fn start_oauth_server(
             let uri = req.uri();
 
           if uri.path() == "/oauth/callback" {
-            println!("[DOWNLOAD] Received OAuth callback request: {}", uri);
+            println!("[DOWNLOAD] Received OAuth callback request on {}", uri.path());
             if let Some(_query) = uri.query() {
               let parsed_url = format!("http://localhost:8080{}", uri);
                 if let Ok(url) = Url::parse(&parsed_url) {
@@ -58,7 +68,6 @@ pub(super) async fn start_oauth_server(
 
                   if let (Some(code), Some(state)) = (params.get("code"), params.get("state")) {
                     println!("Valid OAuth callback - emitting event to frontend");
-                    println!("Code: {}, State: {}", code, state);
 
                     // Emit event to frontend - using emit for main window
                     let emit_result = app_handle.emit("oauth-callback", serde_json::json!({

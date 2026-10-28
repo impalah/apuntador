@@ -54,7 +54,7 @@ public class AndroidKeystoreManager {
         
         // Verificar si ya existe
         if (keyStore.containsAlias(fullAlias)) {
-            Log.w(TAG, "⚠️ Key already exists with alias: " + fullAlias);
+            Log.w(TAG, "[WARNING] Key already exists with alias: " + fullAlias);
             return getKeyPair(alias);
         }
         
@@ -85,7 +85,7 @@ public class AndroidKeystoreManager {
                 return keyPair;
                 
             } catch (Exception e) {
-                Log.w(TAG, "⚠️ StrongBox not available, falling back to TEE: " + e.getMessage());
+                Log.w(TAG, "[WARNING] StrongBox not available, falling back to TEE: " + e.getMessage());
             }
         }
         
@@ -140,7 +140,7 @@ public class AndroidKeystoreManager {
         
         if (keyStore.containsAlias(fullAlias)) {
             keyStore.deleteEntry(fullAlias);
-            Log.d(TAG, "🗑️ Key deleted: " + fullAlias);
+            Log.d(TAG, "[DELETE] Key deleted: " + fullAlias);
         }
     }
     
@@ -167,7 +167,7 @@ public class AndroidKeystoreManager {
             null
         );
         
-        Log.d(TAG, "💾 Certificate chain stored for: " + fullAlias);
+        Log.d(TAG, "[SAVE] Certificate chain stored for: " + fullAlias);
         Log.d(TAG, "   Chain length: " + certChain.length);
     }
     
@@ -264,7 +264,7 @@ public class AndroidKeystoreManager {
             
             Certificate cert = keyStore.getCertificate(alias);
             if (cert != null) {
-                Log.d(TAG, "📋 Key Info:");
+                Log.d(TAG, "[INFO] Key Info:");
                 Log.d(TAG, "   Type: " + cert.getType());
                 Log.d(TAG, "   Format: " + cert.getPublicKey().getFormat());
                 Log.d(TAG, "   Algorithm: " + cert.getPublicKey().getAlgorithm());

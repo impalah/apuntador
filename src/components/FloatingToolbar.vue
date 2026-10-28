@@ -12,18 +12,25 @@
       data-testid="play-pause-button"
       @click="togglePlay"
     >
-      <v-icon 
-        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'" 
+      <v-icon
+        :icon="teleprompterStore.isPlaying ? 'mdi-pause' : 'mdi-play'"
         size="32"
       />
     </button>
 
-    <!-- Voice-mode quick toggle -->
+    <!-- Voice-mode quick toggle - hidden on Android: the native speech
+    recognizer's silent (no-popup) mode is unreliable on real hardware (One UI
+    in particular never routes mic input to it), and the only working
+    alternative (Android's own visible recognition dialog) would flash on/off
+    every few seconds while reading, which is worse than not offering it. -->
     <button
+      v-if="!isAndroid"
       class="toolbar-btn"
       :class="{ active: prefsStore.scrollMode === 'voice' }"
       :aria-label="
-        prefsStore.scrollMode === 'voice' ? t('toolbar.scrollModeVoiceOn') : t('toolbar.scrollModeVoiceOff')
+        prefsStore.scrollMode === 'voice'
+          ? t('toolbar.scrollModeVoiceOn')
+          : t('toolbar.scrollModeVoiceOff')
       "
       data-testid="scroll-mode-quick-toggle"
       @click="toggleScrollMode"
@@ -52,8 +59,8 @@
       data-testid="more-menu-button"
       @click="actionsMenuOpen = true"
     >
-      <v-icon 
-        icon="mdi-dots-vertical" 
+      <v-icon
+        icon="mdi-dots-vertical"
         size="32"
       />
     </button>
@@ -272,7 +279,7 @@ async function toggleImmersiveMode() {
 
   try {
     const { StatusBar } = await import('@capacitor/status-bar')
-    
+
     if (isImmersive.value) {
       await StatusBar.show()
       isImmersive.value = false
@@ -322,9 +329,9 @@ onUnmounted(() => {
   max-width: calc(100vw - 40px) !important;
   border-radius: 28px !important;
   background: #1a1a1a !important; /* Gris oscuro como ActionsMenu */
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
   padding: 8px 20px;
   display: flex;
   align-items: center;
@@ -358,11 +365,11 @@ onUnmounted(() => {
 }
 
 .toolbar-btn.active {
-  background: rgba(var(--v-theme-primary), 0.3);
+  background: rgb(var(--v-theme-primary), 0.3);
 }
 
 .toolbar-btn.active:hover {
-  background: rgba(var(--v-theme-primary), 0.4);
+  background: rgb(var(--v-theme-primary), 0.4);
 }
 
 /* Responsive adjustments */
@@ -373,7 +380,7 @@ onUnmounted(() => {
     gap: 10px;
     padding: 8px 14px;
   }
-  
+
   .toolbar-btn {
     width: 52px;
     height: 52px;
@@ -388,7 +395,7 @@ onUnmounted(() => {
     gap: 20px;
     padding: 10px 24px;
   }
-  
+
   .toolbar-btn {
     width: 60px;
     height: 60px;
@@ -396,4 +403,3 @@ onUnmounted(() => {
   }
 }
 </style>
-

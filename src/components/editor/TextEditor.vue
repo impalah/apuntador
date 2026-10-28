@@ -65,10 +65,8 @@ function onKeyDown(event: KeyboardEvent) {
 
     // Insert tab character
     const tabChar = '  ' // 2 spaces instead of tab
-    localContent.value = 
-      localContent.value.substring(0, start) + 
-      tabChar + 
-      localContent.value.substring(end)
+    localContent.value =
+      localContent.value.substring(0, start) + tabChar + localContent.value.substring(end)
 
     // Restore cursor position
     nextTick(() => {
@@ -87,7 +85,7 @@ function focus() {
 
 // Expose methods
 defineExpose({
-  focus
+  focus,
 })
 </script>
 
@@ -100,7 +98,7 @@ defineExpose({
 
 .editor-textarea {
   flex: 1;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+  font-family: Monaco, Menlo, 'Ubuntu Mono', monospace;
   font-size: 14px;
   line-height: 1.5;
 }
@@ -112,18 +110,18 @@ defineExpose({
 :deep(.v-field__input) {
   padding: 16px !important;
   min-height: calc(100vh - 200px) !important;
-  color: #000000 !important; /* Ensure text is visible */
+  color: #000 !important; /* Ensure text is visible */
 }
 
 :deep(.v-field__field) {
   height: 100% !important;
-  background-color: #ffffff !important; /* White background */
+  background-color: #fff !important; /* White background */
 }
 
 :deep(textarea) {
   resize: none !important;
   height: 100% !important;
-  color: #000000 !important; /* Dark text */
-  background-color: #ffffff !important; /* White background */
+  color: #000 !important; /* Dark text */
+  background-color: #fff !important; /* White background */
 }
 </style>

@@ -537,8 +537,7 @@ defineExpose({
 }
 
 .tauri-desktop .teleprompter-container {
-  overflow-y: scroll !important; /* Keep scroll functionality */
-  overflow-x: hidden !important;
+  overflow: hidden scroll !important; /* Keep scroll functionality */
   -ms-overflow-style: none !important;
   scrollbar-width: none !important;
 }
@@ -574,19 +573,20 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
+
   /* TEMPORAL: scroll-behavior: smooth; - Disabled for debugging */
 
   /* Hide scrollbar for IE, Edge and Firefox */
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
 .debug-info {
   position: fixed;
   top: 70px;
   right: 10px;
-  background: rgba(0, 0, 0, 0.9);
+  background: rgb(0 0 0 / 90%);
   color: white;
   padding: 12px;
   border-radius: 8px;
@@ -595,16 +595,16 @@ defineExpose({
   z-index: 9999;
   min-width: 200px;
   backdrop-filter: blur(4px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgb(255 255 255 / 10%);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 50%);
 }
 
 .debug-header {
   font-weight: bold;
   margin-bottom: 8px;
   text-align: center;
-  color: #00ff88;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  color: #0f8;
+  border-bottom: 1px solid rgb(255 255 255 / 20%);
   padding-bottom: 4px;
 }
 
@@ -616,19 +616,19 @@ defineExpose({
 }
 
 .debug-label {
-  color: #aaaaaa;
+  color: #aaa;
   font-weight: normal;
 }
 
 .debug-value {
-  color: #ffffff;
+  color: #fff;
   font-weight: bold;
   text-align: right;
 }
 
 .debug-value.playing {
-  color: #00ff88;
-  text-shadow: 0 0 4px rgba(0, 255, 136, 0.3);
+  color: #0f8;
+  text-shadow: 0 0 4px rgb(0 255 136 / 30%);
 }
 
 /* Responsive debug positioning */
@@ -678,6 +678,7 @@ defineExpose({
 }
 
 /* Hide scrollbar for Firefox */
+
 /* Also hide scrollbars on the transformed container */
 .transformed-container::-webkit-scrollbar {
   display: none !important;
@@ -708,6 +709,7 @@ defineExpose({
 
 .teleprompter-content {
   padding: 2rem;
+
   /* Dynamic min-height now controlled by computed contentStyle */
   display: flex;
   flex-direction: column;
@@ -719,7 +721,7 @@ defineExpose({
   left: 0;
   right: 0;
   pointer-events: none;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgb(255 255 255 / 30%);
   border-left: none;
   border-right: none;
   z-index: 2;
@@ -727,20 +729,17 @@ defineExpose({
 
 .dimming-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   pointer-events: none;
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.8)) 0%,
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.6)) var(--band-top),
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.8)) 0%,
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.6)) var(--band-top),
     transparent calc(var(--band-top) + 10px),
     transparent calc(100% - var(--band-bottom) - 10px),
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.6)) calc(100% - var(--band-bottom)),
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.8)) 100%
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.6)) calc(100% - var(--band-bottom)),
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.8)) 100%
   );
 }
 
@@ -754,7 +753,7 @@ defineExpose({
 /* High contrast mode */
 @media (prefers-contrast: high) {
   .highlight-band {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: rgb(255 255 255 / 80%);
   }
 }
 

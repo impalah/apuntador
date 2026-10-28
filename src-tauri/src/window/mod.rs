@@ -147,19 +147,19 @@ pub fn is_theater_mode(window: tauri::WebviewWindow) -> Result<bool, String> {
 // Window control commands
 #[tauri::command]
 pub fn close_window(window: tauri::WebviewWindow) -> Result<(), String> {
-  println!("🔴 Closing window via command: {}", window.label());
+  println!("Closing window via command: {}", window.label());
   window.close().map_err(|e| format!("Failed to close window: {}", e))
 }
 
 #[tauri::command]
 pub fn minimize_window(window: tauri::WebviewWindow) -> Result<(), String> {
-  println!("🔽 Minimizing window: {}", window.label());
+  println!("[DOWN] Minimizing window: {}", window.label());
   window.minimize().map_err(|e| format!("Failed to minimize window: {}", e))
 }
 
 #[tauri::command]
 pub fn maximize_window(window: tauri::WebviewWindow) -> Result<(), String> {
-  println!("🔼 Toggling maximize window: {}", window.label());
+  println!("[UP] Toggling maximize window: {}", window.label());
 
   let is_maximized = window.is_maximized().map_err(|e| e.to_string())?;
 

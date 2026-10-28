@@ -62,7 +62,7 @@ Repository → Settings → Secrets and variables → Actions → New repository
 Once all secrets are configured, the workflow should:
 
 1. Activate automatically on push to `main` or on tags `v*`
-2. Set up Android environment with Java 17
+2. Set up Android environment with Java 21
 3. Decode and create keystore temporarily
 4. Build signed APK
 5. Upload APK as artifact
@@ -120,5 +120,5 @@ git push origin v1.0.0
 
 ### Java/Gradle Error
 
-- The workflow uses Java 17 automatically
+- The workflow uses Java 21 automatically
 - If there are problems, verify that `android/build.gradle` has the correct configuration

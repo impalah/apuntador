@@ -30,7 +30,7 @@ This project adheres to a [Code of Conduct](CODE_OF_CONDUCT.md). By participatin
 - **Git**
 
 For platform-specific development:
-- **Android**: Android Studio and Java 17+
+- **Android**: Android Studio and Java 21+
 - **Desktop**: Rust toolchain for Tauri builds
 
 ### Quick Start

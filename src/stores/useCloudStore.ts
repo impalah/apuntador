@@ -160,7 +160,7 @@ export const useCloudStore = defineStore('cloud', () => {
       // Verificar si el servicio soporta restoreSession
       if (!service.restoreSession) {
         console.log('[WARNING] Store: Service does not support session restoration, starting OAuth')
-        await connect(providerId)
+        await runConnect(providerId)
         return
       }
 
@@ -179,7 +179,7 @@ export const useCloudStore = defineStore('cloud', () => {
       } else {
         // No hay credenciales o están expiradas, iniciar OAuth
         console.log('[WARNING] Store: No valid credentials found, starting OAuth flow')
-        await connect(providerId)
+        await runConnect(providerId)
       }
     } catch (err) {
       error.value = err instanceof Error ? err.message : 'Error switching cloud provider'
@@ -195,7 +195,14 @@ export const useCloudStore = defineStore('cloud', () => {
    */
   const connect = async (providerId: CloudProviderId): Promise<void> => {
     if (isConnecting.value) return
+    await runConnect(providerId)
+  }
 
+  /**
+   * Connection flow without the re-entrancy guard, so callers that already
+   * own isConnecting (setActiveProvider) can still start OAuth
+   */
+  const runConnect = async (providerId: CloudProviderId): Promise<void> => {
     isConnecting.value = true
     error.value = null
 
@@ -257,9 +264,9 @@ export const useCloudStore = defineStore('cloud', () => {
         await service.connect() // This opens browser to backend URL
 
         // STEP 4: Wait for callback from localhost:8080
-        console.log('⏳ Waiting for OAuth callback from browser...')
+        console.log('[WAIT] Waiting for OAuth callback from browser...')
         const callbackData = await callbackPromise
-        console.log('[CALL] OAuth callback received:', callbackData)
+        console.log('[CALL] OAuth callback received')
 
         // STEP 5: Exchange code for token via backend
         if ('handleOAuthCallback' in service && typeof service.handleOAuthCallback === 'function') {
@@ -344,7 +351,7 @@ export const useCloudStore = defineStore('cloud', () => {
 
       if (clearCredentials) {
         // Borrar credenciales completamente (requiere re-autenticación)
-        console.log(`🔴 Disconnecting and clearing credentials for ${providerId}`)
+        console.log(`Disconnecting and clearing credentials for ${providerId}`)
         await service.disconnect()
       } else {
         // Solo desactivar pero mantener credenciales guardadas
@@ -374,7 +381,7 @@ export const useCloudStore = defineStore('cloud', () => {
    */
   const revokeProvider = async (providerId: CloudProviderId): Promise<void> => {
     try {
-      console.log(`🔴 Revoking access for provider: ${providerId}`)
+      console.log(`Revoking access for provider: ${providerId}`)
 
       const service = services[providerId]
       await service.disconnect()

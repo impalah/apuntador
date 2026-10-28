@@ -60,7 +60,7 @@
       :is-minimal="isMinimalLayout"
       @play="onPlay"
       @pause="onPause"
-      @toggle-play="teleprompterStore.toggle"
+      @toggle-play="onTogglePlay"
       @step-lines="onStepLines"
       @go-home="onGoHome"
       @go-end="onGoEnd"
@@ -105,14 +105,17 @@ import { ref, onMounted, onUnmounted, nextTick, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useDisplay } from 'vuetify'
 import { useRouter } from 'vue-router'
-import { Capacitor } from '@capacitor/core'
+import { Capacitor, type PluginListenerHandle } from '@capacitor/core'
 import { App } from '@capacitor/app'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
 import { useMonoFramePrefsStore } from '@/stores/useMonoFramePrefsStore'
 import { useI18nStore } from '@/stores/useI18nStore'
 import { useFileStore } from '@/stores/useFileStore'
-import type { TeleprompterFrameProps, MonoTeleprompterFrameProps } from '@/types/component-interfaces'
+import type {
+  TeleprompterFrameProps,
+  MonoTeleprompterFrameProps,
+} from '@/types/component-interfaces'
 import {
   hotkeyManager,
   updateDescriptionsInMapping,
@@ -403,11 +406,13 @@ const handleOrientationChange = async () => {
 
 // Android back button handler with double-tap to exit
 let lastBackPress = 0
-let backButtonHandler: any = null
+let backButtonHandler: PluginListenerHandle | null = null
 const showExitSnackbar = ref(false)
 
-function setupBackButtonHandler() {
-  backButtonHandler = App.addListener('backButton', () => {
+async function setupBackButtonHandler() {
+  // addListener resolves to the handle; storing the Promise itself made
+  // remove() throw on unmount, leaking this listener and every cleanup after it
+  backButtonHandler = await App.addListener('backButton', () => {
     const currentRoute = router.currentRoute.value.path
     const now = Date.now()
 
@@ -460,7 +465,7 @@ onMounted(async () => {
 
   // Setup Android back button handler
   if (Capacitor.getPlatform() === 'android') {
-    setupBackButtonHandler()
+    void setupBackButtonHandler()
   }
 
   // Setup hotkeys (always enabled for Bluetooth keyboard support)
@@ -485,9 +490,8 @@ onUnmounted(() => {
   gamepadManager.stopListening()
 
   // Clean up back button handler
-  if (backButtonHandler) {
-    backButtonHandler.remove()
-  }
+  void backButtonHandler?.remove()
+  backButtonHandler = null
 
   // Clean up orientation listeners on mobile
   if (isMobile()) {
@@ -571,6 +575,16 @@ function onPlay() {
   teleprompterStore.play()
 }
 
+// Single entry point for every toggle source (toolbar, hotkeys, gamepad) so
+// voice mode starts/stops speech tracking instead of the time-based scroller
+function onTogglePlay() {
+  if (teleprompterStore.isPlaying) {
+    onPause()
+  } else {
+    onPlay()
+  }
+}
+
 function onPause() {
   console.log('[ANDROID DEBUG] TeleprompterPage onPause() called')
   if (prefsStore.scrollMode === 'voice') {
@@ -612,6 +626,17 @@ function fallbackToAutoMode() {
     teleprompterStore.play()
   }
 }
+
+// The store can pause on its own (auto-pause at the end of the text); make
+// sure the microphone is released in that case too
+watch(
+  () => teleprompterStore.isPlaying,
+  (playing) => {
+    if (playing || prefsStore.scrollMode !== 'voice') return
+    voiceScrollAnimator.cancel()
+    void stopSpeechTracking()
+  }
+)
 
 watch(voiceError, (err) => {
   if (!err || prefsStore.scrollMode !== 'voice') return
@@ -687,6 +712,18 @@ watch(
   }
 )
 
+// Keep the store's line step in sync with the active frame; otherwise
+// step-up/down (hotkeys, gamepad) always moves the 24px fallback regardless
+// of the configured font size
+watch(
+  () =>
+    prefsStore.activeFrame === 'monospace' && monoLayout.measuredLineHeightPx.value > 0
+      ? monoLayout.measuredLineHeightPx.value
+      : activeFrameAppearance.fontSizePx.value * activeFrameAppearance.lineHeight.value,
+  (px) => teleprompterStore.setLineHeight(px),
+  { immediate: true }
+)
+
 function onStepLines(lines: number) {
   teleprompterStore.stepLines(lines)
   resyncVoiceCursorToScroll()
@@ -752,7 +789,7 @@ function onMonoViewportWidthChanged(width: number) {
 }
 
 function onHighlightBandPositionChange(positionPct: number) {
-  prefsStore.highlightBandPosPct = positionPct
+  prefsStore.setHighlightBandPosPct(positionPct)
 }
 
 function onManualScroll(scrollTop: number) {
@@ -825,10 +862,7 @@ async function loadSampleContent() {
 // Hotkey setup
 function setupHotkeys() {
   const actions = {
-    'toggle-play': () => {
-      console.log('[ANDROID DEBUG] hotkey toggle-play triggered')
-      teleprompterStore.toggle()
-    },
+    'toggle-play': onTogglePlay,
     'step-up': () => onStepLines(-1),
     'step-down': () => onStepLines(1),
     'step-up-5': () => onStepLines(-5),
@@ -863,7 +897,7 @@ function setupHotkeys() {
 // Gamepad setup - same actions as hotkeys for consistent experience
 function setupGamepad() {
   const actions = {
-    'toggle-play': () => teleprompterStore.toggle(),
+    'toggle-play': onTogglePlay,
     'step-up': () => onStepLines(-1),
     'step-down': () => onStepLines(1),
     'step-up-5': () => onStepLines(-5),
@@ -903,12 +937,13 @@ function setupGamepad() {
   height: 100vh;
   height: 100dvh; /* Use dynamic viewport height when available */
   overflow: hidden;
-  background: var(--teleprompter-bg, #000000);
-  color: var(--teleprompter-fg, #ffffff);
+  background: var(--teleprompter-bg, #000);
+  color: var(--teleprompter-fg, #fff);
 
   /* Android edge-to-edge support - no top padding for full immersion */
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+
   /* Don't add bottom padding here - let FloatingToolbar handle it */
 }
 

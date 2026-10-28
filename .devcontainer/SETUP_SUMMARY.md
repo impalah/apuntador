@@ -7,7 +7,7 @@
 Se ha actualizado [.devcontainer/devcontainer.json](.devcontainer/devcontainer.json) con:
 
 - **Rust** (última versión estable)
-- **Java 17** + Gradle (para Android)
+- **Java 21** + Gradle (para Android)
 - **Android SDK** (Platform 34, Build Tools, NDK 26)
 - **Tauri CLI** (versión 2+)
 - **Ionic CLI** + Capacitor CLI

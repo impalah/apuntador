@@ -254,4 +254,26 @@ describe('WebSpeechEngine', () => {
     expect(second.lang).toBe('en-US')
     expect(second.start).toHaveBeenCalledTimes(1)
   })
+  it('does not auto-restart the replaced recognizer when its late end event arrives', async () => {
+    vi.useFakeTimers()
+    try {
+      const engine = new WebSpeechEngine()
+      await engine.start('es-ES')
+      const first = MockSpeechRecognition.instances[0]!
+      const transcriptHandler = vi.fn()
+      engine.onTranscript(transcriptHandler)
+
+      await engine.start('en-US')
+
+      // The browser delivers 'end' for the old instance after stop()
+      first.onend?.()
+      first.onresult?.(makeResultEvent('stale', true))
+      await vi.advanceTimersByTimeAsync(300)
+
+      expect(first.start).toHaveBeenCalledTimes(1) // only its own initial start()
+      expect(transcriptHandler).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
 })

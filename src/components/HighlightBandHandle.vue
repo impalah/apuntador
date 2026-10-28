@@ -183,8 +183,8 @@ function cleanup() {
   position: absolute;
   width: 32px;
   height: 32px;
-  background: rgba(0, 0, 0, 0.7);
-  border: 2px solid rgba(255, 255, 255, 0.5);
+  background: rgb(0 0 0 / 70%);
+  border: 2px solid rgb(255 255 255 / 50%);
   border-radius: 16px;
   display: flex;
   align-items: center;
@@ -196,14 +196,14 @@ function cleanup() {
     border-color 0.2s ease;
 
   &:hover {
-    background: rgba(0, 0, 0, 0.9);
-    border-color: rgba(255, 255, 255, 0.8);
+    background: rgb(0 0 0 / 90%);
+    border-color: rgb(255 255 255 / 80%);
   }
 
   &:active {
     cursor: grabbing;
-    background: rgba(0, 0, 0, 1);
-    border-color: rgba(255, 255, 255, 1);
+    background: rgb(0 0 0 / 100%);
+    border-color: rgb(255 255 255 / 100%);
   }
 }
 

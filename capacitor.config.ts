@@ -52,7 +52,8 @@ const config: CapacitorConfig = {
   android: {
     allowMixedContent: true,
     backgroundColor: '#000000',
-    webContentsDebuggingEnabled: false,
+    // webContentsDebuggingEnabled is left unset on purpose: Capacitor then enables
+    // WebView inspection only in debug builds (debuggable APK / DEBUG iOS config)
     // Configuración para edge-to-edge y safe areas
     appendUserAgent: 'Apuntador/1.1.5',
     captureInput: true,
@@ -60,7 +61,8 @@ const config: CapacitorConfig = {
   ios: {
     scheme: 'Apuntador',
     backgroundColor: '#000000',
-    webContentsDebuggingEnabled: false,
+    // webContentsDebuggingEnabled is left unset on purpose: Capacitor then enables
+    // WebView inspection only in debug builds (debuggable APK / DEBUG iOS config)
     scrollEnabled: false,
     // Configuración para orientaciones
     contentInset: 'automatic',

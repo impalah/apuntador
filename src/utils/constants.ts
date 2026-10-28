@@ -22,6 +22,7 @@ export const NORMAL_LINE_HEIGHT_MULTIPLIER = 1.2 // multiplier for 'normal' line
 // Highlight band
 export const DEFAULT_HIGHLIGHT_BAND_LINES = 2
 export const DEFAULT_HIGHLIGHT_BAND_POS = 40 // percent from top
+export const HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS = 300 // coalesce prefs writes while dragging the band
 export const DEFAULT_DIMMING_INTENSITY = 0.3
 
 // Colors
@@ -95,6 +96,11 @@ export const SPEECH_NO_MATCH_TIMEOUT_MS = 4000 // listening with no confident co
 export const SPEECH_RESTART_DELAY_MS = 250 // delay before restarting recognition on 'end' - Chrome can throw
 // InvalidStateError if start() is called synchronously within the 'end' handler, before its internal
 // teardown finishes
+export const SPEECH_NATIVE_RESTART_DELAY_MS = 400 // delay before restarting the native (Capacitor) engine
+// after an unexpected stop - Android's SpeechRecognizer can reject with "recognizer busy" if restarted
+// too soon after stop(). Placeholder value, tune after real-device testing.
+export const SPEECH_NATIVE_MAX_CONSECUTIVE_RESTARTS = 5 // circuit breaker: give up and surface an error
+// instead of restarting again if the native session keeps dying immediately after each restart
 export const SPEECH_SCROLL_ANIMATION_DURATION_MS = 700 // longer than SCROLL_SMOOTH_DURATION - commits land
 // every few words rather than every frame, so a longer glide reads as continuous motion instead of
 // discrete hops between commits

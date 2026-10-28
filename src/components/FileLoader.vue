@@ -49,10 +49,10 @@
             >
               mdi-cloud-upload
             </v-icon>
-            <p class="text-body-1 mb-2">
+            <p class="text-body-large mb-2">
               {{ t('fileLoader.dropZone') }}
             </p>
-            <p class="text-body-2 text-medium-emphasis">
+            <p class="text-body-medium text-medium-emphasis">
               {{ t('fileLoader.supportedFormats') }}
               <span
                 v-if="props.autoImport"
@@ -116,10 +116,10 @@
                     mdi-file-document
                   </v-icon>
                   <div>
-                    <div class="text-subtitle-2">
+                    <div class="text-title-small">
                       {{ fileInfo.name }}
                     </div>
-                    <div class="text-body-2 text-medium-emphasis">
+                    <div class="text-body-medium text-medium-emphasis">
                       {{ formatFileSize(fileInfo.size) }} • {{ fileInfo.type || 'text/plain' }}
                     </div>
                   </div>
@@ -241,7 +241,7 @@ async function processFile(file: File) {
       // Update file store without handle (traditional file input)
       fileStore.setFileHandle(null, file.name)
       fileStore.setContent(sanitized)
-      
+
       // Emit fileImported event
       emit('fileImported', sanitized, { name: file.name, handle: null })
       // DON'T close dialog automatically - let user decide when to exit
@@ -372,7 +372,7 @@ defineExpose({
 }
 
 .drop-zone {
-  border: 2px dashed rgba(var(--v-theme-primary), 0.3);
+  border: 2px dashed rgb(var(--v-theme-primary), 0.3);
   border-radius: 8px;
   padding: 32px;
   text-align: center;
@@ -383,19 +383,20 @@ defineExpose({
 
 .drop-zone:hover,
 .drop-zone--dragover {
-  border-color: rgba(var(--v-theme-primary), 0.6);
-  background-color: rgba(var(--v-theme-primary), 0.05);
+  border-color: rgb(var(--v-theme-primary), 0.6);
+  background-color: rgb(var(--v-theme-primary), 0.05);
 }
 
 .file-info {
-  animation: slideIn 0.3s ease;
+  animation: slide-in 0.3s ease;
 }
 
-@keyframes slideIn {
+@keyframes slide-in {
   from {
     opacity: 0;
     transform: translateY(10px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);

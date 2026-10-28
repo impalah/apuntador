@@ -62,11 +62,11 @@ function toggleFrame(): void {
 }
 
 .toolbar-btn.active {
-  background: rgba(var(--v-theme-primary), 0.3);
+  background: rgb(var(--v-theme-primary), 0.3);
 }
 
 .toolbar-btn.active:hover {
-  background: rgba(var(--v-theme-primary), 0.4);
+  background: rgb(var(--v-theme-primary), 0.4);
 }
 
 @media (max-width: 360px) {

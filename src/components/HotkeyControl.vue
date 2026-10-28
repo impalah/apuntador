@@ -161,12 +161,12 @@ function handleKeyDown(event: KeyboardEvent) {
   }
 
   &.recording .v-field {
-    background-color: rgba(var(--v-theme-error), 0.05);
+    background-color: rgb(var(--v-theme-error), 0.05);
     border-color: rgb(var(--v-theme-error)) !important;
   }
 
   &.has-key .v-field {
-    background-color: rgba(var(--v-theme-primary), 0.05);
+    background-color: rgb(var(--v-theme-primary), 0.05);
   }
 
   .v-field__input {

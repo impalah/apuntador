@@ -176,7 +176,7 @@ class SecureEnclaveWebBridge: NSObject, WKScriptMessageHandler {
                 return
             }
             certificateData = derData
-            print("📥 [SecureEnclave Bridge] Converted PEM certificate to DER (\(derData.count) bytes)")
+            print("[DOWNLOAD] [SecureEnclave Bridge] Converted PEM certificate to DER (\(derData.count) bytes)")
         } else {
             // Asumir que es base64 puro (DER)
             guard let derData = Data(base64Encoded: certificateString) else {
@@ -184,7 +184,7 @@ class SecureEnclaveWebBridge: NSObject, WKScriptMessageHandler {
                 return
             }
             certificateData = derData
-            print("📥 [SecureEnclave Bridge] Using base64 certificate as DER (\(derData.count) bytes)")
+            print("[DOWNLOAD] [SecureEnclave Bridge] Using base64 certificate as DER (\(derData.count) bytes)")
         }
         
         guard let certificate = SecCertificateCreateWithData(nil, certificateData as CFData) else {
@@ -248,7 +248,7 @@ class SecureEnclaveWebBridge: NSObject, WKScriptMessageHandler {
             kSecAttrApplicationLabel as String: keyLabel
         ]
         let keyStatus = SecItemDelete(keyQuery as CFDictionary)
-        print("🗑️  [SecureEnclave Bridge] Delete key status: \(keyStatus)")
+        print("[DELETE]  [SecureEnclave Bridge] Delete key status: \(keyStatus)")
         
         // Delete certificate
         let certQuery: [String: Any] = [
@@ -256,7 +256,7 @@ class SecureEnclaveWebBridge: NSObject, WKScriptMessageHandler {
             kSecAttrLabel as String: certificateLabel
         ]
         let certStatus = SecItemDelete(certQuery as CFDictionary)
-        print("🗑️  [SecureEnclave Bridge] Delete certificate status: \(certStatus)")
+        print("[DELETE]  [SecureEnclave Bridge] Delete certificate status: \(certStatus)")
         
         let result: [String: Any] = ["success": true]
         sendSuccess(to: webView, callId: callId, result: result)

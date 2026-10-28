@@ -184,7 +184,7 @@ class MTLSHTTPClient: NSObject {
         
         guard status == errSecSuccess,
               let identities = item as? [SecIdentity] else {
-            print("⚠️  [mTLS] No identities found in Keychain")
+            print("[WARNING]  [mTLS] No identities found in Keychain")
             return nil
         }
         
@@ -203,7 +203,7 @@ class MTLSHTTPClient: NSObject {
             }
         }
         
-        print("⚠️  [mTLS] No matching identity found for certificate")
+        print("[WARNING]  [mTLS] No matching identity found for certificate")
         return nil
     }
 }

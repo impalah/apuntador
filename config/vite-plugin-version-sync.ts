@@ -87,7 +87,7 @@ export function versionSync(options: VersionSyncOptions = {}): Plugin {
       // Write updated file only if content changed
       if (finalContent !== currentContent) {
         writeFileSync(versionFileFull, finalContent, 'utf-8')
-        console.log(`Version synced: ${version} → src/utils/version.ts`)
+        console.log(`Version synced: ${version} -> src/utils/version.ts`)
       }
     } catch (error) {
       console.error('[ERROR] Error syncing version:', error)

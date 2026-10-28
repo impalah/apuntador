@@ -101,15 +101,15 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
 
     // console.log('[ANDROID DEBUG] pause() - setting isPlaying to false')
     isPlaying.value = false
-    
+
     if (autoScroller) {
       // console.log('[ANDROID DEBUG] pause() - stopping AutoScroller')
       autoScroller.stop()
       // console.log('[ANDROID DEBUG] pause() - AutoScroller stopped')
-    // } else {
-    //   console.log('[ANDROID DEBUG] pause() - no AutoScroller to stop')
+      // } else {
+      //   console.log('[ANDROID DEBUG] pause() - no AutoScroller to stop')
     }
-    
+
     saveScrollPosition()
   }
 
@@ -131,9 +131,9 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
       contentHeightPx.value,
       viewportHeightPx.value
     )
-    
+
     // console.log('[ANDROID DEBUG] updateScrollOffset - from:', previousOffset.toFixed(1), 'to:', clampedOffset.toFixed(1), 'content height:', contentHeightPx.value, 'viewport height:', viewportHeightPx.value)
-    
+
     scrollOffset.value = clampedOffset
 
     // Auto-pause when reaching the end of text while playing
@@ -183,6 +183,12 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     } else {
       const fontSize = Number.parseFloat(computedStyle.fontSize)
       lineHeightPx.value = Number.parseFloat(lineHeight) * fontSize
+    }
+  }
+
+  function setLineHeight(px: number) {
+    if (Number.isFinite(px) && px > 0) {
+      lineHeightPx.value = px
     }
   }
 
@@ -256,12 +262,12 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
         contentHeightPx.value,
         viewportHeightPx.value
       )
-      
+
       // console.log('[SCROLL SYNC] Manual scroll detected - DOM:', domScrollTop.toFixed(1), 'clamped:', clampedOffset.toFixed(1))
-      
+
       // Update our internal state without triggering the watcher
       scrollOffset.value = clampedOffset
-      
+
       // Save the new position
       saveScrollPosition()
     }
@@ -294,6 +300,7 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     toHome,
     toEnd,
     measureLineHeight,
+    setLineHeight,
     setViewportHeight,
     setContentHeight,
     updateSpeed,

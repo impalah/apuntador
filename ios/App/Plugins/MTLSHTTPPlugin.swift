@@ -52,7 +52,7 @@ public class MTLSHttp: CAPPlugin, CAPBridgedPlugin {
         let bodyString = call.getString("body")
         let useMTLS = call.getBool("useMTLS") ?? false
         
-        CAPLog.print("🌐 [MTLSHTTPPlugin] Request: \(method) \(urlString)")
+        CAPLog.print("[NET] [MTLSHTTPPlugin] Request: \(method) \(urlString)")
         CAPLog.print("[MTLSHTTPPlugin] Certificate Pinning: ENABLED")
         CAPLog.print("[MTLSHTTPPlugin] Client Certificate (mTLS): \(useMTLS ? "ENABLED" : "DISABLED")")
         

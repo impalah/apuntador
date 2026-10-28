@@ -15,7 +15,7 @@ name = "apuntador_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
-tauri-build = { version = "2.5.3", features = [] }
+tauri-build = { version = "2.7.4", features = [] }
 dotenvy = "0.15"
 
 [dependencies]
@@ -24,20 +24,22 @@ serde = { version = "1.0", features = ["derive"] }
 log = "0.4"
 # Tauri without devtools feature in production
 # To enable devtools in development, build with: cargo build --features devtools
-tauri = { version = "2.9.5", features = [] }
-tauri-plugin-log = "2.0.0"
-tauri-plugin-http = "2.0.0"
-tauri-plugin-shell = "2.0.0"
-tauri-plugin-opener = "2.0.0"
+tauri = { version = "2.12.5", features = [] }
+tauri-plugin-log = "2.10.1"
+tauri-plugin-http = "2.8.3"
+tauri-plugin-shell = "2.6.0"
+tauri-plugin-opener = "2.7.2"
 tokio = { version = "1.0", features = ["full"] }
-reqwest = { version = "0.12", features = [
+reqwest = { version = "0.13", features = [
     "json",
-    "rustls-tls",
+    "form",
+    "query",
+    "rustls",
 ], default-features = false }
 url = "2.4"
-base64 = "0.21"
+base64 = "0.23"
 sha2 = "0.10"
-rand = "0.8"
+rand = "0.10"
 urlencoding = "2.1"
 uuid = { version = "1.0", features = ["v4"] }
 hyper = { version = "1.0", features = ["full"] }
@@ -46,23 +48,14 @@ http-body-util = "0.1"
 
 # mTLS and certificate handling
 rustls = "0.23"
-rustls-pemfile = "2.2"
 rcgen = "0.14"
-x509-parser = "0.15"
-pem = "3.0"
 chrono = "0.4"
 hex = "0.4"
-dirs = "5.0"
+dirs = "7.0"
 
 # Platform-specific secure storage
 [target.'cfg(target_os = "macos")'.dependencies]
-security-framework = "2.9"
-
-[target.'cfg(target_os = "windows")'.dependencies]
-winapi = { version = "0.3", features = ["dpapi", "wincrypt"] }
-
-[target.'cfg(target_os = "linux")'.dependencies]
-aes-gcm = "0.10"
+security-framework = "3.7"
 
 # Features configuration
 # Default: no devtools (production mode)

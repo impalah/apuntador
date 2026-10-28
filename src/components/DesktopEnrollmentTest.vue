@@ -1,6 +1,6 @@
 <template>
   <v-card class="ma-4 pa-4">
-    <v-card-title class="text-h5">
+    <v-card-title class="text-headline-small">
       Desktop mTLS Enrollment Test
     </v-card-title>
 
@@ -50,7 +50,7 @@
             :type="enrollmentStatus.enrolled ? 'success' : 'info'"
             class="mb-4"
           >
-            <div class="text-h6 mb-2">
+            <div class="text-title-large mb-2">
               {{ enrollmentStatus.enrolled ? 'Enrolled' : 'Not Enrolled' }}
             </div>
             <div v-if="enrollmentStatus.enrolled">
@@ -85,7 +85,7 @@
                   :key="index"
                   class="log-entry"
                 >
-                  <v-list-item-title class="font-monospace text-caption">
+                  <v-list-item-title class="font-monospace text-body-small">
                     {{ entry }}
                   </v-list-item-title>
                 </v-list-item>
@@ -255,12 +255,12 @@ onMounted(async () => {
 
 .log-entry {
   color: #d4d4d4;
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace;
+  font-family: Monaco, Menlo, 'Courier New', monospace;
   font-size: 12px;
   line-height: 1.4;
 }
 
 .font-monospace {
-  font-family: 'Monaco', 'Menlo', 'Courier New', monospace !important;
+  font-family: Monaco, Menlo, 'Courier New', monospace !important;
 }
 </style>

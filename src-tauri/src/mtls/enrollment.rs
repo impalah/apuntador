@@ -125,7 +125,7 @@ pub async fn enroll_device(backend_url: &str, certificate_pins: Vec<String>) -> 
     };
 
     // 5. Send enrollment request to backend
-    println!("📤 Sending enrollment request to backend...");
+    println!("[UPLOAD] Sending enrollment request to backend...");
     
     let client = create_pinned_client(certificate_pins)
         .map_err(|e| format!("Failed to create HTTP client: {}", e))?;

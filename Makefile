@@ -64,7 +64,7 @@ android-build: build
 
 android-release: android-build
 	@echo "Building signed release APK..."
-	cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@17 ./gradlew assembleRelease
+	cd android && JAVA_HOME=/opt/homebrew/opt/openjdk@21 ./gradlew assembleRelease
 	@echo "APK built: android/app/build/outputs/apk/release/app-release.apk"
 
 android-apk: android-build

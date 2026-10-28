@@ -49,7 +49,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
   }
 
   async disconnect(): Promise<void> {
-    console.log('🔴 [DropboxService] Disconnect called')
+    console.log('[DropboxService] Disconnect called')
     try {
       // Intentar revocar token en el backend
       const token = await storage.get<string>(STORAGE_KEYS.DROPBOX_TOKEN)
@@ -145,7 +145,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
       console.log('Service: Testing token with user info call...')
 
       // Small delay to ensure token is active on Dropbox servers
-      console.log('⏳ Service: Waiting 1 second for token to become active...')
+      console.log('[WAIT] Service: Waiting 1 second for token to become active...')
       await new Promise((resolve) => setTimeout(resolve, OAUTH_TOKEN_ACTIVATION_DELAY))
 
       await this.getUserInfo()
@@ -187,7 +187,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
     }
 
     try {
-      console.log('📂 Dropbox listFiles called with path:', path)
+      console.log('[FOLDER] Dropbox listFiles called with path:', path)
 
       const response = await this.dropbox.filesListFolder({
         path: path || '',
@@ -213,7 +213,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
         downloadUrl: entry['.tag'] === 'file' ? entry.path_lower : undefined,
       }))
 
-      console.log('📁 Dropbox files mapped:', {
+      console.log('[FOLDER] Dropbox files mapped:', {
         totalFiles: files.length,
         folders: files.filter((f) => f.isFolder).length,
         files: files.filter((f) => !f.isFolder).length,
@@ -312,7 +312,7 @@ export class DropboxService extends BaseOAuthService implements CloudService {
     }
 
     try {
-      console.log('🔽 Service: Downloading file:', filePath)
+      console.log('[DOWN] Service: Downloading file:', filePath)
 
       const response = await this.dropbox.filesDownload({ path: filePath })
 

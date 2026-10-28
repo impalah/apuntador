@@ -194,7 +194,7 @@ class MTLSHTTPClient: NSObject {
         
         guard status == errSecSuccess,
               let identities = item as? [SecIdentity] else {
-            print("⚠️  [mTLS] No identities found in Keychain")
+            print("[WARNING]  [mTLS] No identities found in Keychain")
             return nil
         }
         
@@ -213,7 +213,7 @@ class MTLSHTTPClient: NSObject {
             }
         }
         
-        print("⚠️  [mTLS] No matching identity found for certificate")
+        print("[WARNING]  [mTLS] No matching identity found for certificate")
         return nil
     }
 }
@@ -280,14 +280,15 @@ extension MTLSHTTPClient: URLSessionDelegate {
         // Verificar que el certificado del servidor coincide con el pin SHA-256 esperado
         
         guard let serverTrust = challenge.protectionSpace.serverTrust else {
-            print("[MTLSHTTPClient] ⚠️ No server trust available")
+            print("[MTLSHTTPClient] [WARNING] No server trust available")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
         
         // Obtener el certificado del servidor
-        guard let serverCertificate = SecTrustGetCertificateAtIndex(serverTrust, 0) else {
-            print("[MTLSHTTPClient] ⚠️ Could not get server certificate")
+        guard let chain = SecTrustCopyCertificateChain(serverTrust) as? [SecCertificate],
+              let serverCertificate = chain.first else {
+            print("[MTLSHTTPClient] [WARNING] Could not get server certificate")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
@@ -295,14 +296,14 @@ extension MTLSHTTPClient: URLSessionDelegate {
         // Extraer la clave pública del certificado
         let serverPublicKey = SecCertificateCopyKey(serverCertificate)
         guard let publicKey = serverPublicKey else {
-            print("[MTLSHTTPClient] ⚠️ Could not extract public key from certificate")
+            print("[MTLSHTTPClient] [WARNING] Could not extract public key from certificate")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
         
         // Obtener la representación de la clave pública
         guard let publicKeyData = SecKeyCopyExternalRepresentation(publicKey, nil) as Data? else {
-            print("[MTLSHTTPClient] ⚠️ Could not get public key data")
+            print("[MTLSHTTPClient] [WARNING] Could not get public key data")
             completionHandler(.cancelAuthenticationChallenge, nil)
             return
         }
@@ -331,7 +332,7 @@ extension MTLSHTTPClient: URLSessionDelegate {
                 ]
             } else {
                 // Host desconocido, no hay pins configurados
-                print("[MTLSHTTPClient] ⚠️ Unknown host: \(host), no pins configured")
+                print("[MTLSHTTPClient] [WARNING] Unknown host: \(host), no pins configured")
                 return []
             }
         }()

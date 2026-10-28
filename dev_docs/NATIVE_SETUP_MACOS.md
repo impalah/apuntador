@@ -10,7 +10,7 @@ Comprobado y ejecutado en este equipo el 2026-07-24. Arquitectura: Apple Silicon
 | --------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Node.js                     | Todo (web/Android/iOS)                  | `>=22` (`package.json` → `engines`)                                                              |
 | Homebrew                    | Instalar el resto                       | —                                                                                                |
-| JDK 17                      | Compilar Android (Gradle)               | Fijado en `npm run android:release` (`JAVA_HOME=/opt/homebrew/opt/openjdk@17`)                   |
+| JDK 21                      | Compilar Android (Gradle)               | Fijado en `npm run android:release` (`JAVA_HOME=/opt/homebrew/opt/openjdk@21`)                   |
 | Android SDK (cmdline-tools) | Compilar Android                        | `compileSdkVersion 36`, `targetSdkVersion 36`, `build-tools;35.0.0` (`android/variables.gradle`) |
 | Gradle                      | Compilar Android                        | `8.13` — se descarga solo vía `android/gradlew`, no hace falta instalarlo aparte                 |
 | Xcode + Command Line Tools  | Compilar iOS                            | Requiere macOS nativo, Xcode no funciona en Linux/devcontainer                                   |
@@ -28,13 +28,13 @@ Si no lo tienes:
 brew --version
 ```
 
-## 2. JDK 17 (para Android)
+## 2. JDK 21 (para Android)
 
 ```bash
-brew install openjdk@17
+brew install openjdk@21
 ```
 
-`openjdk@17` es "keg-only" (no se enlaza automáticamente en `/opt/homebrew`) porque puede convivir con otras versiones de Java. Lo apuntamos directamente por ruta en las variables de entorno (paso 5), no hace falta el symlink de `sudo` que sugiere Homebrew.
+`openjdk@21` es "keg-only" (no se enlaza automáticamente en `/opt/homebrew`) porque puede convivir con otras versiones de Java. Lo apuntamos directamente por ruta en las variables de entorno (paso 5), no hace falta el symlink de `sudo` que sugiere Homebrew.
 
 ## 3. Android SDK (command line tools)
 
@@ -49,7 +49,7 @@ Esto instala el SDK en `/opt/homebrew/share/android-commandlinetools` y enlaza b
 Acepta las licencias (necesita el JDK del paso 2 en el `PATH`):
 
 ```bash
-export JAVA_HOME=/opt/homebrew/opt/openjdk@17
+export JAVA_HOME=/opt/homebrew/opt/openjdk@21
 export PATH="$JAVA_HOME/bin:$PATH"
 export ANDROID_HOME=/opt/homebrew/share/android-commandlinetools
 
@@ -75,7 +75,7 @@ Añade esto a `~/.zshrc` (shell por defecto en macOS):
 
 ```bash
 # --- Apuntador: Android/iOS native build tooling ---
-export JAVA_HOME="/opt/homebrew/opt/openjdk@17"
+export JAVA_HOME="/opt/homebrew/opt/openjdk@21"
 export ANDROID_HOME="/opt/homebrew/share/android-commandlinetools"
 export ANDROID_SDK_ROOT="$ANDROID_HOME"
 export PATH="$JAVA_HOME/bin:$ANDROID_HOME/platform-tools:$ANDROID_HOME/cmdline-tools/latest/bin:$PATH"

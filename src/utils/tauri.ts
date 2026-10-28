@@ -39,20 +39,14 @@ async function getDesktopScreenInfo(): Promise<{
 }> {
   try {
     // Dynamic import to avoid loading Tauri APIs in web mode
-    const { getCurrentWindow } = await import('@tauri-apps/api/window')
+    const { currentMonitor: getCurrentMonitor } = await import('@tauri-apps/api/window')
 
     // Try to get monitor information
     let currentMonitor: any = null
     let allMonitors: any[] = []
 
     try {
-      // Try to get current monitor (API may vary by Tauri version)
-      const window = getCurrentWindow()
-      // Note: Some Tauri versions may not have currentMonitor method
-      // We'll handle this gracefully
-      if ('currentMonitor' in window && typeof window.currentMonitor === 'function') {
-        currentMonitor = await (globalThis as any).currentMonitor()
-      }
+      currentMonitor = await getCurrentMonitor()
     } catch (error) {
       console.warn('currentMonitor API not available:', error)
     }

@@ -138,7 +138,7 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
       console.log('GoogleDriveService: Testing token with user info call...')
 
       // Small delay to ensure token is active on Google servers
-      console.log('⏳ GoogleDriveService: Waiting 1 second for token to become active...')
+      console.log('[WAIT] GoogleDriveService: Waiting 1 second for token to become active...')
       await new Promise((resolve) => setTimeout(resolve, OAUTH_TOKEN_ACTIVATION_DELAY))
 
       await this.getUserInfo()
@@ -262,9 +262,9 @@ export class GoogleDriveService extends BaseOAuthService implements CloudService
 
     try {
       // Para Google Drive, el path puede ser:
-      // - Solo el nombre del archivo: "file.md" → guarda en root
-      // - ID de carpeta/nombre: "folderId/file.md" → guarda en esa carpeta
-      // - Solo ID de carpeta: "folderId" → error, necesita nombre
+      // - Solo el nombre del archivo: "file.md" -> guarda en root
+      // - ID de carpeta/nombre: "folderId/file.md" -> guarda en esa carpeta
+      // - Solo ID de carpeta: "folderId" -> error, necesita nombre
 
       const parts = path.split('/')
       const fileName = parts[parts.length - 1] || 'untitled.md'

@@ -10,7 +10,7 @@
 #
 # Requirements:
 # - Node.js 20+
-# - Java JDK 17+
+# - Java JDK 21+
 # - Android SDK
 # - Capacitor CLI
 # ====================================================================
@@ -236,7 +236,7 @@ error_handler() {
     echo ""
     print_warning "Troubleshooting tips:"
     echo -e "  ${NC}1. Make sure you have Android SDK installed${NC}"
-    echo -e "  ${NC}2. Verify Java JDK 17+ is installed${NC}"
+    echo -e "  ${NC}2. Verify Java JDK 21+ is installed${NC}"
     echo -e "  ${NC}3. Check that Capacitor is properly configured${NC}"
     echo -e "  ${NC}4. For release builds, ensure keystore is configured${NC}"
     exit 1

@@ -64,7 +64,7 @@ source scripts/set-android-env.sh
 Before running these scripts, make sure you have:
 
 - **Node.js 20+** installed
-- **Java JDK 17+** installed
+- **Java JDK 21+** installed
 - **Android SDK** configured
 - **Capacitor CLI** installed (`npm install -g @capacitor/cli`)
 - **Keystore configured** (for release builds)
@@ -127,7 +127,7 @@ Built bundles will be placed in:
    - Check if `android/key.properties` exists
 
 2. **"Java version error"**
-   - Ensure JDK 17+ is installed and in PATH
+   - Ensure JDK 21+ is installed and in PATH
    - Check with `java -version`
 
 3. **"Android SDK not found"**

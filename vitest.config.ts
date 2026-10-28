@@ -8,9 +8,9 @@ export default defineConfig({
     vue(),
     vuetify({
       autoImport: true,
-      styles: {
-        configFile: 'src/styles/variables.scss',
-      },
+      // Unit tests don't need Vuetify's Sass; compiling it through the
+      // configFile virtual modules intermittently failed to resolve under Vitest
+      styles: 'none',
     }),
   ],
   resolve: {

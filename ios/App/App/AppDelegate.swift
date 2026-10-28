@@ -40,7 +40,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                   let bridgeVC = navVC.viewControllers.first as? CAPBridgeViewController {
             setupBridgeForViewController(bridgeVC)
         } else {
-            print("⚠️  [AppDelegate] Could not find CAPBridgeViewController")
+            print("[WARNING]  [AppDelegate] Could not find CAPBridgeViewController")
         }
     }
     
@@ -70,7 +70,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         _ = MTLSHttp.self
         
         // print("[AppDelegate] Custom plugins registration initialized")
-        // print("ℹ️  Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
+        // print("[INFO] Plugins loaded: ApuntadorSecureEnclavePlugin, ApuntadorAutoEnrollmentPlugin, MTLSHttp")
     }
 
     func applicationWillResignActive(_ application: UIApplication) {

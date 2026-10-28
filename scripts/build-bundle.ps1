@@ -8,7 +8,7 @@
 #
 # Requirements:
 # - Node.js 20+
-# - Java JDK 17+
+# - Java JDK 21+
 # - Android SDK
 # - Capacitor CLI
 # ====================================================================
@@ -234,7 +234,7 @@ storeFile=$keystoreFile
     Write-Host ""
     Write-Host "Troubleshooting tips:" -ForegroundColor Yellow
     Write-Host "1. Make sure you have Android SDK installed" -ForegroundColor White
-    Write-Host "2. Verify Java JDK 17+ is installed" -ForegroundColor White
+    Write-Host "2. Verify Java JDK 21+ is installed" -ForegroundColor White
     Write-Host "3. Check that Capacitor is properly configured" -ForegroundColor White
     Write-Host "4. For release builds, ensure keystore is configured" -ForegroundColor White
     exit 1

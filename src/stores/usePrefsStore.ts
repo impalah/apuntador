@@ -2,11 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { z } from 'zod'
 import { storage } from '@/services/persistence'
-import type {
-  CustomHotkeyMapping,
-  HotkeyDefinition,
-  CustomGamepadMapping,
-} from '@/types'
+import type { CustomHotkeyMapping, HotkeyDefinition, CustomGamepadMapping } from '@/types'
 import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/input/hotkeys'
 import {
   DEFAULT_FONT_SIZE,
@@ -19,6 +15,7 @@ import {
   DEFAULT_BG_COLOR,
   DEFAULT_HIGHLIGHT_BAND_LINES,
   DEFAULT_HIGHLIGHT_BAND_POS,
+  HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS,
   DEFAULT_DIMMING_INTENSITY,
   DEFAULT_TEXT_ALIGNMENT,
   TEXT_ALIGNMENTS,
@@ -264,6 +261,18 @@ export const usePrefsStore = defineStore('preferences', () => {
     save()
   }
 
+  let highlightBandSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+  /** Dragging emits on every move, so persistence is debounced. */
+  function setHighlightBandPosPct(pct: number) {
+    highlightBandPosPct.value = pct
+    if (highlightBandSaveTimer) clearTimeout(highlightBandSaveTimer)
+    highlightBandSaveTimer = setTimeout(() => {
+      highlightBandSaveTimer = null
+      void save()
+    }, HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS)
+  }
+
   /** Leaving the monospace frame while voice mode is active drops back to 'auto' - see setScrollMode. */
   function setActiveFrame(frame: ActiveFrame) {
     activeFrame.value = frame
@@ -331,6 +340,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     mirrorV,
     highlightBandLines,
     highlightBandPosPct,
+    setHighlightBandPosPct,
     dimmingIntensity,
     textAlignment,
     scrollMode,
