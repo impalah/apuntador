@@ -107,6 +107,12 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { throttle } from '@/utils/dom'
+import {
+  SWIPE_THRESHOLD,
+  PRESS_AND_HOLD_DURATION,
+  SCROLL_SYNC_SUPPRESS_MS,
+  CONTENT_REMEASURE_DELAY_MS,
+} from '@/utils/constants'
 import { isTauri } from '@/utils/tauri'
 import HighlightBandHandle from './HighlightBandHandle.vue'
 import type { TeleprompterFrameProps, TeleprompterEvents } from '@/types/component-interfaces'
@@ -141,8 +147,6 @@ const highlightBandRef = ref<HTMLElement>()
 
 let touchStartY = 0
 let touchStartTime = 0
-const SWIPE_THRESHOLD = 50
-const PRESS_HOLD_DURATION = 500
 
 // ========================================
 // Scroll Synchronization State
@@ -318,7 +322,12 @@ onUnmounted(() => {
 watch(
   () => props.content.html,
   () => {
-    nextTick(measureDimensions)
+    // Measure as soon as the DOM updates, then once more after late layout
+    // (web fonts) has settled
+    nextTick(() => {
+      measureDimensions()
+      setTimeout(measureDimensions, CONTENT_REMEASURE_DELAY_MS)
+    })
   }
 )
 
@@ -338,7 +347,7 @@ watch(
       // Reset flag after a brief moment
       setTimeout(() => {
         isScrollingSynchronizing = false
-      }, 10)
+      }, SCROLL_SYNC_SUPPRESS_MS)
     }
   },
   { flush: 'sync' } // Force immediate execution, don't wait for Vue's batch updates
@@ -349,17 +358,6 @@ watch(
   () => [props.displayPrefs.fontSizePx, props.displayPrefs.lineHeight],
   () => {
     nextTick(measureDimensions)
-  }
-)
-
-// Watch for content changes to recalculate dimensions
-watch(
-  () => props.content.html,
-  () => {
-    // Wait for DOM to update, then measure
-    nextTick(() => {
-      setTimeout(measureDimensions, 100) // Small delay to ensure rendering is complete
-    })
   }
 )
 
@@ -431,7 +429,7 @@ function onTouchEnd(event: TouchEvent) {
   const duration = touchEndTime - touchStartTime
 
   // Check for press and hold
-  if (duration >= PRESS_HOLD_DURATION && Math.abs(deltaY) < SWIPE_THRESHOLD) {
+  if (duration >= PRESS_AND_HOLD_DURATION && Math.abs(deltaY) < SWIPE_THRESHOLD) {
     emit('press-hold')
     return
   }

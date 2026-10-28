@@ -132,6 +132,8 @@ import {
 import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import {
   SPEECH_SCROLL_ANIMATION_DURATION_MS,
+  TOOLBAR_HIDE_DELAY,
+  BACK_PRESS_EXIT_WINDOW_MS,
   MONO_FRAME_PADDING_VIEWPORT_RATIO,
   type TextAlignment,
 } from '@/utils/constants'
@@ -334,7 +336,7 @@ function showToolbar(temporary = false) {
       if (teleprompterStore.isPlaying) {
         toolbarVisible.value = false
       }
-    }, 10000)
+    }, TOOLBAR_HIDE_DELAY)
   }
 }
 
@@ -422,7 +424,7 @@ async function setupBackButtonHandler() {
     }
 
     // We're on main route - check for double tap to exit
-    if (now - lastBackPress < 2000) {
+    if (now - lastBackPress < BACK_PRESS_EXIT_WINDOW_MS) {
       // Double tap detected - exit app
       showExitSnackbar.value = false
       App.exitApp()
@@ -442,7 +444,7 @@ function showExitToast() {
   setTimeout(() => {
     showExitSnackbar.value = false
     lastBackPress = 0
-  }, 2000)
+  }, BACK_PRESS_EXIT_WINDOW_MS)
 }
 
 // Lifecycle

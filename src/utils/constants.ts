@@ -24,6 +24,7 @@ export const DEFAULT_HIGHLIGHT_BAND_LINES = 2
 export const DEFAULT_HIGHLIGHT_BAND_POS = 40 // percent from top
 export const HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS = 300 // coalesce prefs writes while dragging the band
 export const OAUTH_CALLBACK_TIMEOUT_MS = 5 * 60 * 1000 // desktop OAuth: wait for the browser callback
+export const THEATER_MODE_POLL_MS = 500 // desktop: detect theater mode toggled from the native menu
 export const DEFAULT_DIMMING_INTENSITY = 0.3
 
 // Colors
@@ -81,6 +82,7 @@ export const MONO_CHAR_MEASURE_SAMPLE_LENGTH = 100
 export const SCROLL_SYNC_DEBOUNCE_MS = 50 // debounce manual-scroll DOM events before emitting
 export const SCROLL_SYNC_SUPPRESS_MS = 10 // window during which a programmatic scrollTop write is not read back as manual
 export const RESIZE_OBSERVER_THROTTLE_MS = 100 // throttle for ResizeObserver-driven remeasurement
+export const CONTENT_REMEASURE_DELAY_MS = 100 // second measurement after new content, once late layout (fonts) settles
 
 // Speech tracking: supported recognition languages
 export const SPEECH_LANGUAGES = ['es-ES', 'en-US'] as const
@@ -112,7 +114,8 @@ export const DEFAULT_VOICE_READ_COLOR = '#FFEB3B' // monospace frame: default co
 // Animation and timing
 export const SCROLL_ANIMATION_DURATION = 200 // ms
 export const SCROLL_SMOOTH_DURATION = 300 // ms for scrollTo operations
-export const TOOLBAR_HIDE_DELAY = 3000 // ms
+export const TOOLBAR_HIDE_DELAY = 10000 // ms - toolbar shown by a tap while playing hides again after this
+export const BACK_PRESS_EXIT_WINDOW_MS = 2000 // Android: second back press within this window exits the app
 export const AUTOSCROLL_INTERVAL = 16 // ms (60fps)
 export const SNACKBAR_TIMEOUT = 3000 // ms
 export const GAMEPAD_MESSAGE_TIMEOUT = 3000 // ms
