@@ -1,42 +1,4 @@
-import {
-  DEFAULT_SCROLL_SPEED,
-  SCROLL_SMOOTH_DURATION,
-  NORMAL_LINE_HEIGHT_MULTIPLIER,
-} from './constants'
-
-/**
- * Calculate pixels per line based on element's computed line height
- */
-export function pxPerLine(el: HTMLElement): number {
-  const computedStyle = window.getComputedStyle(el)
-  const lineHeight = computedStyle.lineHeight
-
-  if (lineHeight === 'normal') {
-    // Approximate normal line height
-    const fontSize = Number.parseFloat(computedStyle.fontSize)
-    return fontSize * NORMAL_LINE_HEIGHT_MULTIPLIER
-  }
-
-  if (lineHeight.endsWith('px')) {
-    return Number.parseFloat(lineHeight)
-  }
-
-  if (lineHeight.endsWith('em') || lineHeight.endsWith('rem')) {
-    const fontSize = Number.parseFloat(computedStyle.fontSize)
-    return Number.parseFloat(lineHeight) * fontSize
-  }
-
-  // If it's a number (unitless), multiply by font size
-  const fontSize = Number.parseFloat(computedStyle.fontSize)
-  return Number.parseFloat(lineHeight) * fontSize
-}
-
-/**
- * Calculate pixel offset for a given number of lines
- */
-export function offsetForLines(n: number, lineHeightPx: number): number {
-  return n * lineHeightPx
-}
+import { DEFAULT_SCROLL_SPEED, SCROLL_SMOOTH_DURATION } from './constants'
 
 /**
  * Smooth scroll animation using requestAnimationFrame
@@ -201,16 +163,4 @@ export function clampScrollOffset(
 ): number {
   const maxOffset = Math.max(0, contentHeight - viewportHeight)
   return Math.max(0, Math.min(offset, maxOffset))
-}
-
-/**
- * Calculate scroll progress as percentage (0-100)
- */
-export function getScrollProgress(
-  offset: number,
-  contentHeight: number,
-  viewportHeight: number
-): number {
-  const maxOffset = Math.max(1, contentHeight - viewportHeight)
-  return (offset / maxOffset) * 100
 }

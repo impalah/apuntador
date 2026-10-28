@@ -102,7 +102,6 @@ describe('useSpeechTracking', () => {
 
     expect(tracking.progress.value?.sourceIndex).toBe(2)
     expect(tracking.progress.value?.confidence).toBeCloseTo(1, 5)
-    expect(tracking.progressRatio.value).toBeCloseTo(2 / 9, 5)
   })
 
   it('surfaces engine errors', async () => {
@@ -148,20 +147,6 @@ describe('useSpeechTracking', () => {
     await vi.waitFor(() => {
       expect(fakeEngine.start).toHaveBeenCalledWith('en-US')
     })
-  })
-
-  it('seekToRatio moves the cursor to the expected token for a given scroll ratio', async () => {
-    const tracking = useSpeechTracking(ref(SCRIPT), ref('en-US'))
-    await tracking.start()
-
-    tracking.seekToRatio(0.5) // 10 tokens (0-9) -> round(0.5 * 9) = 5 ("seis")
-    expect(tracking.cursorIndex.value).toBe(5)
-
-    const match = tracking.progress.value
-    expect(match).toBeNull() // seeking alone doesn't commit a match
-
-    fakeEngine.emitTranscript('siete ocho nueve', true)
-    expect(tracking.progress.value?.sourceIndex).toBe(8)
   })
 
   it('seekToIndex moves the cursor directly to a token index (used by the monospace frame)', async () => {

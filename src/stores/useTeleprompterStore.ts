@@ -171,21 +171,6 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     saveScrollPosition()
   }
 
-  function measureLineHeight(element: HTMLElement) {
-    const computedStyle = window.getComputedStyle(element)
-    const lineHeight = computedStyle.lineHeight
-
-    if (lineHeight === 'normal') {
-      const fontSize = Number.parseFloat(computedStyle.fontSize)
-      lineHeightPx.value = fontSize * 1.2
-    } else if (lineHeight.includes('px')) {
-      lineHeightPx.value = Number.parseFloat(lineHeight)
-    } else {
-      const fontSize = Number.parseFloat(computedStyle.fontSize)
-      lineHeightPx.value = Number.parseFloat(lineHeight) * fontSize
-    }
-  }
-
   function setLineHeight(px: number) {
     if (Number.isFinite(px) && px > 0) {
       lineHeightPx.value = px
@@ -299,7 +284,6 @@ export const useTeleprompterStore = defineStore('teleprompter', () => {
     stepLines,
     toHome,
     toEnd,
-    measureLineHeight,
     setLineHeight,
     setViewportHeight,
     setContentHeight,

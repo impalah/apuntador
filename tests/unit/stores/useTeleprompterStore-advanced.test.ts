@@ -107,62 +107,28 @@ describe('useTeleprompterStore - Advanced Tests', () => {
     })
   })
 
-  describe('Line Height Measurement', () => {
-    it('should measure line height from element with normal line-height', () => {
+  describe('Line Height', () => {
+    it('steps by the line height reported by the active frame', () => {
       const store = useTeleprompterStore()
-      const mockElement = document.createElement('div')
+      store.setViewportHeight(400)
+      store.setContentHeight(5000)
 
-      // Mock getComputedStyle
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-        lineHeight: 'normal',
-        fontSize: '20px',
-      } as CSSStyleDeclaration)
+      store.setLineHeight(64)
+      store.stepLines(2)
 
-      store.measureLineHeight(mockElement)
-
-      expect(store.lineHeightPx).toBe(24) // 20 * 1.2
+      expect(store.lineHeightPx).toBe(64)
+      expect(store.scrollOffset).toBe(128)
     })
 
-    it('should measure line height from element with px value', () => {
+    it('ignores invalid line heights', () => {
       const store = useTeleprompterStore()
-      const mockElement = document.createElement('div')
+      const before = store.lineHeightPx
 
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-        lineHeight: '32px',
-        fontSize: '20px',
-      } as CSSStyleDeclaration)
+      store.setLineHeight(0)
+      store.setLineHeight(Number.NaN)
+      store.setLineHeight(-10)
 
-      store.measureLineHeight(mockElement)
-
-      expect(store.lineHeightPx).toBe(32)
-    })
-
-    it('should measure line height from element with unitless value', () => {
-      const store = useTeleprompterStore()
-      const mockElement = document.createElement('div')
-
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-        lineHeight: '1.5',
-        fontSize: '20px',
-      } as CSSStyleDeclaration)
-
-      store.measureLineHeight(mockElement)
-
-      expect(store.lineHeightPx).toBe(30) // 20 * 1.5
-    })
-
-    it('should measure line height with em value', () => {
-      const store = useTeleprompterStore()
-      const mockElement = document.createElement('div')
-
-      vi.spyOn(window, 'getComputedStyle').mockReturnValue({
-        lineHeight: '1.8',
-        fontSize: '16px',
-      } as CSSStyleDeclaration)
-
-      store.measureLineHeight(mockElement)
-
-      expect(store.lineHeightPx).toBe(28.8) // 16 * 1.8
+      expect(store.lineHeightPx).toBe(before)
     })
   })
 

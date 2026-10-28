@@ -4,11 +4,6 @@ import { createPinia, setActivePinia } from 'pinia'
 import { createTestI18n, createTestVuetify } from '../setup/testPlugins'
 import FileLoader from '@/components/FileLoader.vue'
 
-// Mock markdown utils
-vi.mock('@/utils/markdown', () => ({
-  sanitizeMarkdown: vi.fn((content: string) => content),
-}))
-
 // Mock fileSystem utils (formatFileSize is kept as the real implementation
 // since it's a pure function under test below, not a browser/native API)
 vi.mock('@/utils/files/fileSystem', async (importOriginal) => {
