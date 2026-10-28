@@ -104,7 +104,7 @@ export function useGamepad() {
    */
   const notifyButtonPress = (button: GamepadButton) => {
     console.log(
-      `🎮 Gamepad button detected: ${button.buttonName} (${button.buttonIndex}) on gamepad ${button.gamepadIndex}`
+      `[GAMEPAD] Gamepad button detected: ${button.buttonName} (${button.buttonIndex}) on gamepad ${button.gamepadIndex}`
     )
 
     buttonPressCallbacks.forEach((callback) => {

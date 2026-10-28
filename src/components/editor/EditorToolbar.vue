@@ -154,9 +154,9 @@ function onMarkdownHelp() {
   max-width: calc(100vw - 40px);
   border-radius: 28px;
   background: #1a1a1a; /* Gris oscuro como FloatingToolbar */
-  backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(12px);
+  box-shadow: 0 4px 24px rgb(0 0 0 / 40%);
   padding: 8px 20px;
   display: flex;
   align-items: center;
@@ -201,7 +201,7 @@ function onMarkdownHelp() {
     gap: 8px;
     padding: 8px 16px;
   }
-  
+
   .toolbar-btn {
     width: 48px;
     height: 48px;
@@ -215,7 +215,7 @@ function onMarkdownHelp() {
     gap: 16px;
     padding: 10px 24px;
   }
-  
+
   .toolbar-btn {
     width: 56px;
     height: 56px;

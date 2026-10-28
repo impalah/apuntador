@@ -22,7 +22,7 @@ This devcontainer provides a **complete and isolated development environment** f
 
 - **Node.js 20** - Latest LTS version
 - **Rust** - Latest stable with Cargo
-- **Java 17** - For Android development with Gradle
+- **Java 21** - For Android development with Gradle
 - **Android SDK & NDK** - Platform 34, Build Tools, NDK 26
 - **Tauri CLI** - Desktop app development (macOS, Windows, Linux)
 - **Ionic CLI & Capacitor** - Mobile app development

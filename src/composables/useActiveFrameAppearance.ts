@@ -4,8 +4,8 @@
  * everything else (scroll speed, highlight band, mirror, hotkeys/gamepad
  * mappings) stays shared via usePrefsStore regardless of which frame is
  * active. Used by TeleprompterPage.vue's hotkey/gamepad closures and by
- * SettingsDialog.vue/ActionsMenu.vue's appearance controls, so the
- * "which store" branching isn't duplicated across all three.
+ * ActionsMenu.vue's appearance controls, so the "which store" branching
+ * isn't duplicated across both.
  */
 
 import { computed } from 'vue'
@@ -25,6 +25,8 @@ export function useActiveFrameAppearance() {
   const lineHeight = computed(() => (isMono.value ? monoStore.lineHeight : prefsStore.lineHeight))
   const fgColor = computed(() => (isMono.value ? monoStore.fgColor : prefsStore.fgColor))
   const bgColor = computed(() => (isMono.value ? monoStore.bgColor : prefsStore.bgColor))
+  /** Voice-tracking highlight color - monospace frame only, no markdown-frame equivalent (voice mode requires it, see usePrefsStore.setScrollMode). */
+  const voiceReadColor = computed(() => monoStore.voiceReadColor)
   const textAlignment = computed(() => (isMono.value ? monoStore.textAlignment : prefsStore.textAlignment))
 
   /** Restrict the picker to monospace choices while the mono frame is active - enforces "monospace only" in the UI, not just the schema. */
@@ -71,6 +73,10 @@ export function useActiveFrameAppearance() {
     }
   }
 
+  function setVoiceReadColor(color: string): void {
+    monoStore.setVoiceReadColor(color)
+  }
+
   function setLineHeight(value: number): void {
     if (isMono.value) {
       monoStore.lineHeight = value
@@ -98,6 +104,7 @@ export function useActiveFrameAppearance() {
     lineHeight,
     fgColor,
     bgColor,
+    voiceReadColor,
     textAlignment,
     fontFamilyOptions,
     increaseFontSize,
@@ -106,6 +113,7 @@ export function useActiveFrameAppearance() {
     setFontFamily,
     setFgColor,
     setBgColor,
+    setVoiceReadColor,
     setLineHeight,
     setFontSizePx,
   }

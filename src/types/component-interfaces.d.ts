@@ -72,7 +72,7 @@ export interface TeleprompterEvents {
  */
 export type MonoDisplayPreferences = Pick<
   MonoPreferencesState,
-  'fontFamily' | 'fontSizePx' | 'lineHeight' | 'fgColor' | 'bgColor' | 'textAlignment'
+  'fontFamily' | 'fontSizePx' | 'lineHeight' | 'fgColor' | 'bgColor' | 'voiceReadColor' | 'textAlignment'
 > &
   Pick<PreferencesState, 'mirrorH' | 'mirrorV'>
 
@@ -81,6 +81,13 @@ export interface MonoTeleprompterContent {
   /** Exact, page-measured line height (useMonospaceLayout) - the frame uses this
    *  directly for highlight-band placement rather than re-measuring itself. */
   lineHeightPx: number
+  /**
+   * Voice-tracking alignment cursor (token index) for word-level "already
+   * read" coloring, or null when voice tracking isn't the active scroll mode
+   * (no coloring). Words with `renderIndex <= readUpToIndex` render in
+   * VOICE_READ_TEXT_COLOR; the rest keep the normal fgColor.
+   */
+  readUpToIndex: number | null
 }
 
 export interface MonoTeleprompterFrameProps {

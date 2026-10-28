@@ -12,8 +12,8 @@ android {
     compileSdk rootProject.ext.compileSdkVersion
     
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     
     defaultConfig {
@@ -55,13 +55,21 @@ android {
         }
     }
     
+    packaging {
+        resources {
+            // BouncyCastle jdk18on jars all ship these files
+            excludes += ['META-INF/LICENSE.md', 'META-INF/versions/9/OSGI-INF/MANIFEST.MF']
+        }
+    }
+
     // Custom naming for output files
     applicationVariants.all { variant ->
         variant.outputs.all { output ->
             def buildType = variant.buildType.name
             def versionName = variant.versionName
-            def outputFileName = "apuntador-${buildType}-${versionName}.${output.outputFile.name.split('\\.').last()}"
-            outputFileName = outputFileName
+            // Must assign the output's property; the previous local variable shadowed it,
+            // so the custom name was never applied
+            output.outputFileName = "apuntador-${buildType}-${versionName}.${output.outputFile.name.split('\\.').last()}"
         }
     }
 }
@@ -83,9 +91,9 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
     implementation project(':capacitor-cordova-android-plugins')
     
-    // BouncyCastle para CSR y mTLS
-    implementation 'org.bouncycastle:bcpkix-jdk15on:1.70'
-    implementation 'org.bouncycastle:bcprov-jdk15on:1.70'
+    // BouncyCastle para CSR y mTLS (jdk15on line is end-of-life since 1.70)
+    implementation 'org.bouncycastle:bcpkix-jdk18on:1.86'
+    implementation 'org.bouncycastle:bcprov-jdk18on:1.86'
 }
 
 apply from: 'capacitor.build.gradle'

@@ -21,9 +21,6 @@
     "line": "riga",
     "lines": "righe",
     "navigation": "Navigazione",
-    "left": "Sinistra",
-    "center": "Centro",
-    "right": "Destra",
     "home": "Inizio",
     "end": "Fine"
   },
@@ -54,7 +51,6 @@
     "theater": "Modalità Teatro",
     "exitTheater": "Esci dal Teatro",
     "openEditor": "Apri editor",
-    "openSettings": "Apri impostazioni",
     "openFile": "Apri file",
     "more": "Altro",
     "less": "Meno",
@@ -68,7 +64,6 @@
     "title": "Impostazioni",
     "options": "Opzioni",
     "appearance": "Aspetto",
-    "behavior": "Comportamento",
     "behaviorMovedToToolbar": "Le opzioni di comportamento sono ora nella barra degli strumenti",
     "dataMovedToAbout": "Le opzioni dei dati sono state spostate nella scheda 'Informazioni'",
     "controls": "Controlli",
@@ -83,12 +78,10 @@
     "lineHeight": "Altezza riga",
     "foregroundColor": "Colore del testo",
     "backgroundColor": "Colore di sfondo",
+    "voiceReadColor": "Colore di evidenziazione vocale",
     "highlightBandHeight": "Altezza banda di evidenziazione",
     "highlightBandPosition": "Posizione banda di evidenziazione",
     "dimmingIntensity": "Intensità attenuazione",
-    "scrollSpeed": "Velocità di scorrimento",
-    "speedMin": "Velocità minima",
-    "speedMax": "Velocità massima",
     "scrollMode": "Modalità di scorrimento",
     "scrollModeAuto": "Automatica",
     "scrollModeVoice": "A voce",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Commuta specchio orizzontale",
     "mirrorVertical": "Commuta specchio verticale",
     "openEditor": "Apri editor",
-    "openSettings": "Apri impostazioni",
     "openFile": "Apri file",
     "newFile": "Nuovo file",
     "save": "Salva file",
@@ -335,13 +327,6 @@
         "renewed": "Certificato rinnovato con successo"
       }
     }
-  },
-  "desktop": {
-    "minimize": "Riduci finestra",
-    "maximize": "Massimizza finestra",
-    "close": "Chiudi finestra",
-    "alwaysOnTop": "Sempre in primo piano",
-    "fullscreen": "Commuta schermo intero"
   },
   "cloud": {
     "activeProvider": "Fornitore attivo",

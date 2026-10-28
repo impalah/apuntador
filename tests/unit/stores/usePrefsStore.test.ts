@@ -697,6 +697,8 @@ describe('usePrefsStore', () => {
     it('should set scroll mode and persist it', async () => {
       const store = usePrefsStore()
 
+      // Voice mode requires the monospace frame - see 'requires the monospace frame' tests below.
+      store.setActiveFrame('monospace')
       store.setScrollMode('voice')
       expect(store.scrollMode).toBe('voice')
 
@@ -707,6 +709,7 @@ describe('usePrefsStore', () => {
     it('should save and load scroll mode preference', async () => {
       const store = usePrefsStore()
 
+      store.setActiveFrame('monospace')
       store.setScrollMode('voice')
       await store.save()
 
@@ -721,10 +724,81 @@ describe('usePrefsStore', () => {
     it('should reset scroll mode to default', () => {
       const store = usePrefsStore()
 
+      store.setActiveFrame('monospace')
       store.setScrollMode('voice')
       expect(store.scrollMode).toBe('voice')
 
       store.reset()
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('requires the monospace frame - rejects voice mode while the markdown frame is active', () => {
+      const store = usePrefsStore()
+      expect(store.activeFrame).toBe('markdown')
+
+      store.setScrollMode('voice')
+
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('allows voice mode once the monospace frame is active', () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      store.setScrollMode('voice')
+
+      expect(store.scrollMode).toBe('voice')
+    })
+
+    it('drops back to auto when the active frame switches away from monospace while in voice mode', () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      store.setScrollMode('voice')
+      expect(store.scrollMode).toBe('voice')
+
+      store.setActiveFrame('markdown')
+
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('does not disturb scroll mode when switching frames while already in auto mode', () => {
+      const store = usePrefsStore()
+
+      store.setActiveFrame('monospace')
+      expect(store.scrollMode).toBe('auto')
+
+      store.setActiveFrame('markdown')
+      expect(store.scrollMode).toBe('auto')
+    })
+
+    it('clamps a stale persisted voice+markdown combination back to auto on load', async () => {
+      const savedPrefs = {
+        fontFamily: 'Roboto, sans-serif',
+        fontSizePx: 24,
+        lineHeight: 1.4,
+        fgColor: '#FFFFFF',
+        bgColor: '#000000',
+        speedPxPerSec: 50,
+        speedMin: 10,
+        speedMax: 200,
+        mirrorH: false,
+        mirrorV: false,
+        highlightBandLines: 1,
+        highlightBandPosPct: 40,
+        dimmingIntensity: 0.5,
+        textAlignment: 'center',
+        scrollMode: 'voice',
+        activeFrame: 'markdown',
+        customHotkeys: {},
+        customGamepadMappings: {},
+      }
+      localStorageMock.setItem('preferences', JSON.stringify(savedPrefs))
+
+      const store = usePrefsStore()
+      await store.load()
+
+      expect(store.activeFrame).toBe('markdown')
       expect(store.scrollMode).toBe('auto')
     })
 

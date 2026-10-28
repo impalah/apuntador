@@ -1,3 +1,19 @@
+// Vuetify Sass settings. This file is passed to vite-plugin-vuetify as
+// styles.configFile, so this is the only place where these take effect.
+// Keeps the Vuetify 3 breakpoints (must match display.thresholds in
+// src/app/main.ts) and uppercase buttons after the Vuetify 4 upgrade.
+@use 'vuetify/settings' with (
+  $button-text-transform: uppercase,
+  $grid-breakpoints: (
+    'xs': 0,
+    'sm': 600px,
+    'md': 960px,
+    'lg': 1280px,
+    'xl': 1920px,
+    'xxl': 2560px,
+  )
+);
+
 // Vuetify theme variables
 $primary: #2196f3 !default;
 $secondary: #424242 !default;
@@ -8,11 +24,11 @@ $info: #2196f3 !default;
 $success: #4caf50 !default;
 
 // Custom variables (used by src/styles/main.scss)
-$teleprompter-bg: #000000 !default;
-$teleprompter-fg: #ffffff !default;
-$toolbar-bg: rgba(0, 0, 0, 0.8) !default;
-$toolbar-fg: #ffffff !default;
-$highlight-band-bg: rgba(255, 255, 255, 0.1) !default;
+$teleprompter-bg: #000 !default;
+$teleprompter-fg: #fff !default;
+$toolbar-bg: rgb(0 0 0 / 80%) !default;
+$toolbar-fg: #fff !default;
+$highlight-band-bg: rgb(255 255 255 / 10%) !default;
 $dimmed-opacity: 0.3 !default;
 
 // Spacing
@@ -23,15 +39,6 @@ $safe-area-padding: 20px !default;
 // Animation
 $transition-duration: 0.3s !default;
 $transition-easing: cubic-bezier(0.4, 0, 0.2, 1) !default;
-
-// Breakpoints (matching Vuetify)
-$grid-breakpoints: (
-  xs: 0,
-  sm: 600px,
-  md: 960px,
-  lg: 1264px,
-  xl: 1904px,
-) !default;
 
 // Z-indexes
 $z-index-toolbar: 100 !default;

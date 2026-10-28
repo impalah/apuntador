@@ -154,8 +154,8 @@ export class AutoScroller {
       cancelAnimationFrame(this.animationId)
       this.animationId = null
       // console.log('[ANDROID DEBUG] AutoScroller.stop() - animation canceled')
-    // } else {
-    //   console.log('[ANDROID DEBUG] AutoScroller.stop() - no animation to cancel')
+      // } else {
+      //   console.log('[ANDROID DEBUG] AutoScroller.stop() - no animation to cancel')
     }
   }
 
@@ -184,14 +184,10 @@ export class AutoScroller {
     const currentOffset = this.getCurrentOffset()
     const newOffset = currentOffset + this.speedPxPerSec * deltaTime
 
-    // Log every few frames to avoid spam
-    // if (Math.floor(currentTime / 1000) !== Math.floor((currentTime - 16) / 1000)) {
-    //   console.log('[ANDROID DEBUG] AutoScroller.animate() - currentOffset:', currentOffset.toFixed(1), 'newOffset:', newOffset.toFixed(1), 'speed:', this.speedPxPerSec, 'deltaTime:', deltaTime.toFixed(3))
-    // }
-
-    this.onUpdate(newOffset)
-
+    // Schedule the next frame before notifying: onUpdate may call stop()
+    // (e.g. auto-pause at the end of the text), which must be able to cancel it
     this.animationId = requestAnimationFrame(this.animate)
+    this.onUpdate(newOffset)
   }
 }
 

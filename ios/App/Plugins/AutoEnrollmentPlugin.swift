@@ -68,7 +68,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 }
                 
                 // 2. Generar par de claves en Secure Enclave
-                CAPLog.print("🔑 [Auto-Enrollment] Generating key pair in Secure Enclave...")
+                CAPLog.print("[KEY] [Auto-Enrollment] Generating key pair in Secure Enclave...")
                 let privateKey = try SecureEnclaveManager.generateKeyPair(label: "io.apuntador.mtls.privatekey")
                 
                 guard let publicKey = SecKeyCopyPublicKey(privateKey) else {
@@ -76,7 +76,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 }
                 
                 // 3. Generar CSR
-                CAPLog.print("📝 [Auto-Enrollment] Generating CSR...")
+                CAPLog.print("[NOTE] [Auto-Enrollment] Generating CSR...")
                 let deviceId = getDeviceId()
                 let csr = try CSRGenerator.generateCSR(
                     publicKey: publicKey,
@@ -87,7 +87,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                 )
                 
                 let csrBase64 = csr.base64EncodedString()
-                CAPLog.print("📤 [Auto-Enrollment] Sending CSR to backend...")
+                CAPLog.print("[UPLOAD] [Auto-Enrollment] Sending CSR to backend...")
                 CAPLog.print("   - Device ID: \(deviceId)")
                 CAPLog.print("   - CSR size: \(csr.count) bytes")
                 
@@ -121,7 +121,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
                     throw EnrollmentError.invalidResponse
                 }
                 
-                CAPLog.print("📥 [Auto-Enrollment] Received certificate from backend")
+                CAPLog.print("[DOWNLOAD] [Auto-Enrollment] Received certificate from backend")
                 
                 // 6. Decodificar y almacenar certificado
                 guard let certificateData = Data(base64Encoded: certificateBase64) else {
@@ -156,7 +156,7 @@ public class ApuntadorAutoEnrollmentPlugin: CAPPlugin, CAPBridgedPlugin {
         do {
             try deleteAllCredentials()
             
-            CAPLog.print("🔄 [Auto-Enrollment] Old credentials deleted, starting re-enrollment...")
+            CAPLog.print("[SYNC] [Auto-Enrollment] Old credentials deleted, starting re-enrollment...")
             
             // Llamar a autoEnroll
             autoEnroll(call)

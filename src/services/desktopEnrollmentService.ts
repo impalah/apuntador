@@ -1,5 +1,10 @@
-import { invoke } from '@tauri-apps/api/core'
 import { BACKEND_OAUTH_URL } from '@/config/api'
+
+// Loaded lazily so this shared module never pulls Tauri APIs into web/mobile paths
+async function invoke<T>(cmd: string, args?: Record<string, unknown>): Promise<T> {
+  const { invoke: tauriInvoke } = await import('@tauri-apps/api/core')
+  return tauriInvoke<T>(cmd, args)
+}
 
 /**
  * Desktop Enrollment Service (Tauri)

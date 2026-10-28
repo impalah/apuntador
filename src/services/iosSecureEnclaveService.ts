@@ -202,7 +202,7 @@ export class IOSSecureEnclaveService {
 
     // Si ya hay un enrollment en progreso, esperar a que termine
     if (this.enrollmentPromise !== null) {
-      logger.info('⏳ [iOS Enrollment] Waiting for existing enrollment process...')
+      logger.info('[WAIT] [iOS Enrollment] Waiting for existing enrollment process...')
       return this.enrollmentPromise
     }
 
@@ -322,7 +322,7 @@ export class IOSSecureEnclaveService {
       }
 
       // 3. Enviar CSR al backend con Certificate Pinning
-      logger.info('📤 [iOS Native Enrollment] Sending CSR to backend...', {
+      logger.info('[UPLOAD] [iOS Native Enrollment] Sending CSR to backend...', {
         backendUrl: this.backendUrl,
       })
 

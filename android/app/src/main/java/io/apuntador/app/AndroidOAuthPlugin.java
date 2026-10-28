@@ -66,7 +66,7 @@ public class AndroidOAuthPlugin extends Plugin {
             requestBody.put("redirect_uri", redirectUri);
             requestBody.put("state", JSONObject.NULL);
 
-            Log.d(TAG, "📤 Sending request to backend: " + authUrl);
+            Log.d(TAG, "[UPLOAD] Sending request to backend: " + authUrl);
             
             JSONObject response = makeHttpPostRequest(authUrl, requestBody);
 
@@ -83,13 +83,13 @@ public class AndroidOAuthPlugin extends Plugin {
                     .putString("oauth_current_provider", provider)
                     .apply();
 
-            Log.d(TAG, "💾 Saved OAuth state to SharedPreferences");
+            Log.d(TAG, "[SAVE] Saved OAuth state to SharedPreferences");
 
             // 4. Abrir navegador con la URL de autorización
             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(authorizationUrl));
             getActivity().startActivity(browserIntent);
 
-            Log.d(TAG, "🌐 Opened browser for authorization");
+            Log.d(TAG, "[NET] Opened browser for authorization");
 
             // 5. Retornar información al frontend
             JSObject result = new JSObject();
@@ -122,7 +122,7 @@ public class AndroidOAuthPlugin extends Plugin {
             return;
         }
 
-        Log.d(TAG, "🔄 Exchanging authorization code for tokens...");
+        Log.d(TAG, "[SYNC] Exchanging authorization code for tokens...");
 
         try {
             // 1. Recuperar code_verifier y state guardado
@@ -151,7 +151,7 @@ public class AndroidOAuthPlugin extends Plugin {
             requestBody.put("code_verifier", codeVerifier);
             requestBody.put("state", state != null ? state : savedState);
 
-            Log.d(TAG, "📤 Sending token exchange request to backend");
+            Log.d(TAG, "[UPLOAD] Sending token exchange request to backend");
 
             JSONObject response = makeHttpPostRequest(tokenUrl, requestBody);
 
@@ -159,7 +159,7 @@ public class AndroidOAuthPlugin extends Plugin {
             String refreshToken = response.optString("refresh_token", null);
             int expiresIn = response.optInt("expires_in", 3600);
 
-            Log.d(TAG, "🔑 Received tokens from backend");
+            Log.d(TAG, "[KEY] Received tokens from backend");
 
             // 4. Limpiar SharedPreferences
             getContext().getSharedPreferences("oauth_prefs", 0)
@@ -205,7 +205,7 @@ public class AndroidOAuthPlugin extends Plugin {
             return;
         }
 
-        Log.d(TAG, "🔄 Refreshing access token for provider: " + provider);
+        Log.d(TAG, "[SYNC] Refreshing access token for provider: " + provider);
 
         try {
             String refreshUrl = backendUrl + "/oauth/token/refresh/" + provider;
@@ -246,7 +246,7 @@ public class AndroidOAuthPlugin extends Plugin {
             return;
         }
 
-        Log.d(TAG, "🚫 Revoking token for provider: " + provider);
+        Log.d(TAG, "[BLOCKED] Revoking token for provider: " + provider);
 
         try {
             String revokeUrl = backendUrl + "/oauth/revoke/" + provider;
@@ -313,7 +313,7 @@ public class AndroidOAuthPlugin extends Plugin {
 
             // Leer response
             int responseCode = connection.getResponseCode();
-            Log.d(TAG, "📥 Response code: " + responseCode);
+            Log.d(TAG, "[DOWNLOAD] Response code: " + responseCode);
 
             if (responseCode >= 200 && responseCode < 300) {
                 BufferedReader br = new BufferedReader(

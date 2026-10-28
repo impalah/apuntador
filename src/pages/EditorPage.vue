@@ -25,7 +25,7 @@
           color="primary"
           size="64"
         />
-        <p class="text-h6 mt-4">
+        <p class="text-title-large mt-4">
           {{ cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading') }}
         </p>
       </div>
@@ -60,7 +60,7 @@
       mode="open"
       @local-file="onOpenLocalFile"
       @file-selected="onCloudFileSelected"
-      @open-settings="onOpenSettingsDialog"
+      @open-settings="onOpenSettings"
     />
 
     <!-- Editor Actions Menu for Save -->
@@ -70,21 +70,14 @@
       :suggested-file-name="suggestedFileName"
       @local-file="onSaveLocalFile"
       @save-cloud="onSaveCloudFile"
-      @open-settings="onOpenSettingsDialog"
+      @open-settings="onOpenSettings"
     />
 
     <!-- Editor Actions Menu for Settings -->
     <EditorActionsMenu
       v-model="showActionsMenuSettings"
       mode="settings"
-      @open-settings="onOpenSettingsDialog"
-    />
-
-    <!-- Settings Dialog -->
-    <SettingsDialog
-      v-model="settingsOpen"
-      :initial-tab="settingsInitialTab"
-      @file-imported="onFileImported"
+      @open-settings="onOpenSettings"
     />
   </div>
 </template>
@@ -107,7 +100,6 @@ import EditorToolbar from '@/components/editor/EditorToolbar.vue'
 import TextEditor from '@/components/editor/TextEditor.vue'
 import FileLoader from '@/components/FileLoader.vue'
 import EditorActionsMenu from '@/components/editor/EditorActionsMenu.vue'
-import SettingsDialog from '@/components/SettingsDialog.vue'
 
 // Composables
 const router = useRouter()
@@ -131,10 +123,6 @@ const showActionsMenuOpen = ref(false)
 const showActionsMenuSave = ref(false)
 const showActionsMenuSettings = ref(false)
 const suggestedFileName = ref('')
-
-// Settings dialog state
-const settingsOpen = ref(false)
-const settingsInitialTab = ref<string>('cloud')
 
 // Initialize content from teleprompter store
 onMounted(() => {
@@ -205,9 +193,9 @@ async function onOpenLocalFile() {
         const content = await file.text()
         localContent.value = content
         await teleprompterStore.setContent(content)
-        fileStore.setContent(content)
         fileStore.createNew()
         fileStore.setFileHandle(null, file.name)
+        fileStore.setContent(content)
         showSuccess(t('messages.services.file.loaded'))
       } catch (error) {
         showError(t('errors.services.file.readFailed'))
@@ -228,9 +216,9 @@ async function onCloudFileSelected(file: CloudFile) {
     if (typeof content === 'string') {
       localContent.value = content
       await teleprompterStore.setContent(content)
-      fileStore.setContent(content)
       fileStore.createNew()
       fileStore.setFileHandle(null, file.name)
+      fileStore.setContent(content)
       showSuccess(t('messages.services.file.loaded'))
     }
   } catch (error) {
@@ -296,11 +284,6 @@ function onOpenSettings() {
   showActionsMenuSettings.value = true
 }
 
-function onOpenSettingsDialog() {
-  settingsInitialTab.value = 'cloud'
-  settingsOpen.value = true
-}
-
 async function onMarkdownHelp() {
   const url = 'https://www.markdownguide.org/basic-syntax/'
 
@@ -345,14 +328,14 @@ async function onFileImported(content: string, fileInfo?: { name: string; handle
   height: 100dvh; /* Use dynamic viewport height when available */
   display: flex;
   flex-direction: column;
-  background: #ffffff; /* Light background for editor */
-  color: #000000; /* Dark text for editor */
+  background: #fff; /* Light background for editor */
+  color: #000; /* Dark text for editor */
+
   /* Safe area padding to avoid system UI overlap */
-  padding-top: max(44px, env(safe-area-inset-top, 0px));
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding: max(44px, env(safe-area-inset-top, 0px)) env(safe-area-inset-right, 0)
+    calc(100px + env(safe-area-inset-bottom, 0px)) env(safe-area-inset-left, 0);
+
   /* Add bottom padding for the floating toolbar */
-  padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
 }
 
 @supports (padding: max(0px)) {

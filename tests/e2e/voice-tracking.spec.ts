@@ -112,41 +112,16 @@ async function loadPlainTextContent(page: Page, content: string) {
 }
 
 test.describe('Voice tracking mode', () => {
-  test('activates voice mode from the full Settings dialog (behavior tab, via #options deep-link) and persists it', async ({
-    page,
-  }) => {
-    await mockWebSpeechApi(page)
-
-    // SettingsDialog is reachable via the app's existing hash deep-link
-    // (see TeleprompterPage.vue's parseHashNavigation, also used for cloud
-    // provider setup).
-    await page.goto('/#options/behavior')
-
-    const behaviorTab = page.locator('[data-testid="behavior-tab"]')
-    await expect(behaviorTab).toBeVisible()
-
-    const voiceButton = page.locator('[data-testid="scroll-mode-voice-button"]')
-    await expect(voiceButton).toBeVisible()
-    await voiceButton.click()
-    await page.waitForTimeout(300)
-
-    // Close the dialog and confirm the quick toggle in the toolbar reflects
-    // the same persisted preference.
-    await page.keyboard.press('Escape')
-    const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
-    await expect(quickToggle).toHaveClass(/active/)
-    await page.waitForTimeout(1000) // Wait for the async persistence write to flush
-
-    await page.reload()
-    await expect(page.locator('[data-testid="scroll-mode-quick-toggle"]')).toHaveClass(/active/)
-  })
-
   test('activates voice mode from the visible Settings button (ActionsMenu quick toggle) and persists it', async ({
     page,
   }) => {
     await mockWebSpeechApi(page)
     await page.goto('/')
     await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    // Voice mode requires the monospace frame - switch to it first.
+    await page.locator('[data-testid="frame-picker-toggle"]').click()
+    await page.waitForTimeout(300)
 
     // This is the actual path a user reaches from the on-screen "more menu" ->
     // "Settings" button - ActionsMenu.vue keeps its own embedded mini-settings
@@ -181,6 +156,10 @@ test.describe('Voice tracking mode', () => {
     await page.goto('/')
     await page.waitForSelector('[data-testid="floating-toolbar"]')
 
+    // Voice mode requires the monospace frame - switch to it first.
+    await page.locator('[data-testid="frame-picker-toggle"]').click()
+    await page.waitForTimeout(300)
+
     const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
     const overlay = page.locator('[data-testid="voice-status-overlay"]')
 
@@ -202,6 +181,11 @@ test.describe('Voice tracking mode', () => {
     await removeWebSpeechApi(page)
     await page.goto('/')
     await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    // Voice mode requires the monospace frame - switch to it first (this test
+    // exercises the *unsupported-engine* fallback, not the frame gate).
+    await page.locator('[data-testid="frame-picker-toggle"]').click()
+    await page.waitForTimeout(300)
 
     const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
     await quickToggle.click()
@@ -225,9 +209,119 @@ test.describe('Voice tracking mode', () => {
 
     // Tap the frame to bring the (desktop-auto-hidden-during-play) toolbar
     // back, then confirm both the quick toggle and play state reflect it.
-    await page.locator('.teleprompter-frame').click()
+    await page.locator('.teleprompter-frame-mono').click()
     await expect(quickToggle).not.toHaveClass(/active/)
     await expect(playButton).toHaveAttribute('aria-label', /pause/i)
+  })
+
+  test('rejects voice mode while the markdown frame is active', async ({ page }) => {
+    await mockWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    // Default frame is markdown - the quick toggle should stay inactive.
+    const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
+    await quickToggle.click()
+    await page.waitForTimeout(300)
+
+    await expect(quickToggle).not.toHaveClass(/active/)
+    await expect(page.locator('[data-testid="voice-status-overlay"]')).toHaveCount(0)
+
+    const raw = await page.evaluate(() => localStorage.getItem('preferences'))
+    expect(raw ? JSON.parse(raw).scrollMode : undefined).not.toBe('voice')
+  })
+
+  test('drops back to auto scroll mode when switching away from the monospace frame while voice mode is active', async ({
+    page,
+  }) => {
+    await mockWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    const framePickerToggle = page.locator('[data-testid="frame-picker-toggle"]')
+    await framePickerToggle.click()
+    await page.waitForTimeout(300)
+
+    const quickToggle = page.locator('[data-testid="scroll-mode-quick-toggle"]')
+    await quickToggle.click()
+    await expect(quickToggle).toHaveClass(/active/)
+
+    // Switch back to the markdown frame while voice mode is active.
+    await framePickerToggle.click()
+    await page.waitForTimeout(300)
+
+    await expect(quickToggle).not.toHaveClass(/active/)
+    await expect(page.locator('[data-testid="voice-status-overlay"]')).toHaveCount(0)
+
+    const raw = await page.evaluate(() => localStorage.getItem('preferences'))
+    expect(JSON.parse(raw!).scrollMode).toBe('auto')
+  })
+
+  test('the voice highlight color is always visible in Settings (regardless of active frame), and controls the rendered "already read" color', async ({
+    page,
+  }) => {
+    await mockControllableWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+    await loadPlainTextContent(page, 'Uno dos tres cuatro cinco seis siete ocho.')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+    await page.waitForTimeout(300)
+
+    // Markdown frame active (default) - the control is visible and editable
+    // here too, even though it only takes visible effect on the monospace
+    // frame (voice mode requires it). Opened via the "more menu" -> Settings
+    // mini-view (ActionsMenu.vue) - the only settings surface in the app.
+    // The Appearance tab is selected by default, so no tab click is needed.
+    await page.locator('[data-testid="more-menu-button"]').click()
+    await page.waitForTimeout(300)
+    await page.locator('[data-testid="settings-button"]').click()
+    await page.waitForTimeout(300)
+
+    const colorInput = page.locator('[data-testid="voice-read-color-input"] input[type="color"]')
+    await expect(colorInput).toBeVisible()
+    await expect(colorInput).toHaveValue('#ffeb3b')
+
+    await colorInput.fill('#ff00ff')
+    await page.waitForTimeout(300)
+    await page.keyboard.press('Escape')
+
+    // Switch to the monospace frame, start voice mode, and confirm the
+    // rendered highlight matches the color set while markdown was active.
+    await page.locator('[data-testid="frame-picker-toggle"]').click()
+    await page.waitForTimeout(300)
+    await page.locator('[data-testid="scroll-mode-quick-toggle"]').click()
+    await page.locator('[data-testid="play-pause-button"]').first().click()
+    await page.waitForTimeout(300)
+
+    await emitTranscript(page, 'uno dos tres', true)
+    await page.waitForTimeout(800)
+
+    const readColor = await page
+      .locator('.mono-word-read')
+      .first()
+      .evaluate((el) => getComputedStyle(el).color)
+    expect(readColor).toBe('rgb(255, 0, 255)')
+  })
+
+  test('the voice highlight color control is also reachable from the quick "more menu" -> Settings mini-view', async ({
+    page,
+  }) => {
+    await mockWebSpeechApi(page)
+    await page.goto('/')
+    await page.waitForSelector('[data-testid="floating-toolbar"]')
+
+    // This is the only settings surface in the app: the on-screen "more menu"
+    // button opens a quick-actions sheet first (navigation, etc.), and only
+    // the nested "Settings" button inside that sheet reveals the tabbed
+    // settings view (ActionsMenu.vue).
+    await page.locator('[data-testid="more-menu-button"]').click()
+    await page.waitForTimeout(300)
+    await page.locator('[data-testid="settings-button"]').click()
+    await page.waitForTimeout(300)
+
+    const colorInput = page.locator('[data-testid="voice-read-color-input"] input[type="color"]')
+    await expect(colorInput).toBeVisible()
+    await expect(colorInput).toHaveValue('#ffeb3b')
   })
 
   test('advances the scroll offset under the monospace frame as mocked transcripts arrive', async ({

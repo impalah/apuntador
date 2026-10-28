@@ -18,9 +18,9 @@ export const SETTINGS_FONT_FAMILIES = [
 ]
 
 /**
- * Preferences/hotkeys/gamepad/data-management actions shared by ActionsMenu
- * and SettingsDialog, which both render the same settings form in different
- * layouts (bottom sheet vs dialog).
+ * Preferences/hotkeys/gamepad/data-management actions used by ActionsMenu -
+ * the app's only settings surface (embedded directly by EditorActionsMenu's
+ * mode="settings" too, so the editor page reuses the same component).
  */
 export function useSettingsActions() {
   const prefsStore = usePrefsStore()

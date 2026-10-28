@@ -96,6 +96,17 @@ describe('Scrolling Utils', () => {
     expect(scroller.isRunning).toBe(false)
   })
 
+  it('stays stopped when onUpdate stops the AutoScroller (end-of-text auto-pause)', () => {
+    let scroller: AutoScroller | null = null
+    const onUpdate = vi.fn(() => scroller?.stop())
+
+    scroller = new AutoScroller(onUpdate, () => 0, 50)
+    scroller.start()
+
+    expect(onUpdate).toHaveBeenCalledTimes(1)
+    expect(scroller.isRunning).toBe(false)
+  })
+
   it('should handle SmoothScroller', () => {
     const mockUpdate = vi.fn()
     const scroller = new SmoothScroller(mockUpdate)

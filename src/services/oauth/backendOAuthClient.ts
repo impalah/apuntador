@@ -6,11 +6,11 @@
  * Usa mTLS en Android para solicitar tokens.
  *
  * Flujo:
- * 1. POST /oauth/authorize/{provider} → Obtiene authorization_url y state firmado
+ * 1. POST /oauth/authorize/{provider} -> Obtiene authorization_url y state firmado
  * 2. Redirect al authorization_url
  * 3. Provider redirect a callback con code y state
- * 4. GET /oauth/callback/{provider}?code=X&state=Y → Obtiene tokens (CON mTLS)
- * 5. POST /oauth/token/refresh/{provider} → Refresca token expirado (CON mTLS)
+ * 4. GET /oauth/callback/{provider}?code=X&state=Y -> Obtiene tokens (CON mTLS)
+ * 5. POST /oauth/token/refresh/{provider} -> Refresca token expirado (CON mTLS)
  */
 
 import { CapacitorHttp } from '@capacitor/core'
@@ -273,7 +273,7 @@ export class BackendOAuthClient {
    * NOTA: Este endpoint SÍ requiere mTLS
    */
   async revokeToken(token: string): Promise<void> {
-    console.log(`🚫 BackendOAuthClient: Revoking token for ${this.config.provider}`)
+    console.log(`[BLOCKED] BackendOAuthClient: Revoking token for ${this.config.provider}`)
 
     try {
       console.log(`BackendOAuthClient: Using mTLS for token revocation`)

@@ -5,7 +5,6 @@
     :color="getColor(currentNotification.type)"
     :timeout="-1"
     location="top"
-    :multi-line="false"
     :vertical="false"
     class="notification-snackbar"
     @click="hideCurrent"

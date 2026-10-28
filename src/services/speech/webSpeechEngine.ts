@@ -106,7 +106,7 @@ export class WebSpeechEngine implements SpeechEngine {
     }
 
     this.shouldBeListening = true
-    this.recognition?.stop()
+    this.disposeRecognition()
     this.recognition = this.createRecognition(this.RecognitionCtor, language)
 
     try {
@@ -119,9 +119,24 @@ export class WebSpeechEngine implements SpeechEngine {
 
   async stop(): Promise<void> {
     this.shouldBeListening = false
-    this.recognition?.stop()
-    this.recognition = null
+    this.disposeRecognition()
     this.setStatus('stopped')
+  }
+
+  /**
+   * Detaches and stops the current recognizer. Its handlers are cleared first
+   * so a late 'end' event cannot auto-restart it alongside a newer instance
+   * (e.g. a language switch or a quick stop-then-start while listening).
+   */
+  private disposeRecognition(): void {
+    const recognition = this.recognition
+    if (!recognition) return
+
+    recognition.onresult = null
+    recognition.onerror = null
+    recognition.onend = null
+    recognition.stop()
+    this.recognition = null
   }
 
   onTranscript(handler: (_event: SpeechTranscriptEvent) => void): () => void {
@@ -235,7 +250,7 @@ export class WebSpeechEngine implements SpeechEngine {
       // within 'end' - its internal teardown isn't always finished yet. A
       // short delay avoids that without being perceptible to the reader.
       window.setTimeout(() => {
-        if (!this.shouldBeListening) return
+        if (!this.shouldBeListening || recognition !== this.recognition) return
         try {
           recognition.start()
         } catch (error) {

@@ -29,7 +29,17 @@
           v-for="(line, index) in content.lines"
           :key="index"
           class="mono-line"
-        >{{ line.text || blankLinePlaceholder }}</div>
+        >
+          <template v-if="line.words.length > 0">
+            <span
+              v-for="(word, wordIndex) in line.words"
+              :key="wordIndex"
+              :class="{ 'mono-word-read': isWordRead(word) }"
+            >{{ word.text }}{{ wordIndex < line.words.length - 1 ? ' ' : '' }}</span>
+          </template><template v-else>
+            {{ blankLinePlaceholder }}
+          </template>
+        </div>
       </div>
     </div>
 
@@ -74,7 +84,11 @@ import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { isTauri } from '@/utils/tauri'
 import { useTeleprompterScrollSync } from '@/composables/useTeleprompterScrollSync'
 import HighlightBandHandle from './HighlightBandHandle.vue'
-import type { MonoTeleprompterFrameProps, MonoTeleprompterEvents } from '@/types/component-interfaces'
+import type {
+  MonoTeleprompterFrameProps,
+  MonoTeleprompterEvents,
+} from '@/types/component-interfaces'
+import type { MonoWord } from '@/composables/useMonospaceLayout'
 
 interface Props {
   content: MonoTeleprompterFrameProps['content']
@@ -90,6 +104,17 @@ const emit = defineEmits<MonoTeleprompterEvents>()
 // a non-breaking space keeps blank/paragraph-separator lines at the same
 // height as text lines without showing anything visible.
 const blankLinePlaceholder = '\u00A0'
+
+/**
+ * Word-level "already read" state for voice-tracking coloring - purely a
+ * function of the current alignment cursor (props.content.readUpToIndex), so
+ * scrolling backward or re-seeking the cursor un-highlights text for free:
+ * there is no separate "highlighted so far" state to reset.
+ */
+function isWordRead(word: MonoWord): boolean {
+  const readUpToIndex = props.content.readUpToIndex
+  return readUpToIndex !== null && word.renderIndex >= 0 && word.renderIndex <= readUpToIndex
+}
 
 const containerRef = ref<HTMLElement>()
 const transformedContainerRef = ref<HTMLElement>()
@@ -188,7 +213,11 @@ watch(
 )
 
 watch(
-  () => [props.displayPrefs.fontSizePx, props.displayPrefs.lineHeight, props.displayPrefs.fontFamily],
+  () => [
+    props.displayPrefs.fontSizePx,
+    props.displayPrefs.lineHeight,
+    props.displayPrefs.fontFamily,
+  ],
   () => {
     nextTick(measureDimensions)
   }
@@ -222,8 +251,7 @@ defineExpose({
 }
 
 .tauri-desktop .teleprompter-container-mono {
-  overflow-y: scroll !important;
-  overflow-x: hidden !important;
+  overflow: hidden scroll !important;
 }
 
 .teleprompter-frame-mono::-webkit-scrollbar {
@@ -237,8 +265,7 @@ defineExpose({
   left: 0;
   width: 100%;
   height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
+  overflow: hidden auto;
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
@@ -254,6 +281,10 @@ defineExpose({
   padding: 2rem;
 }
 
+.mono-word-read {
+  color: v-bind('props.displayPrefs.voiceReadColor');
+}
+
 .mono-line {
   white-space: pre;
   overflow-x: hidden;
@@ -264,7 +295,7 @@ defineExpose({
   left: 0;
   right: 0;
   pointer-events: none;
-  border: 2px solid rgba(255, 255, 255, 0.3);
+  border: 2px solid rgb(255 255 255 / 30%);
   border-left: none;
   border-right: none;
   z-index: 2;
@@ -272,20 +303,17 @@ defineExpose({
 
 .dimming-overlay {
   position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  inset: 0;
   pointer-events: none;
   z-index: 1;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.8)) 0%,
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.6)) var(--band-top),
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.8)) 0%,
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.6)) var(--band-top),
     transparent calc(var(--band-top) + 10px),
     transparent calc(100% - var(--band-bottom) - 10px),
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.6)) calc(100% - var(--band-bottom)),
-    rgba(0, 0, 0, calc(var(--dimming-intensity) * 0.8)) 100%
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.6)) calc(100% - var(--band-bottom)),
+    rgb(0 0 0 / calc(var(--dimming-intensity) * 0.8)) 100%
   );
 }
 
@@ -314,7 +342,7 @@ defineExpose({
 
 @media (prefers-contrast: high) {
   .highlight-band {
-    border-color: rgba(255, 255, 255, 0.8);
+    border-color: rgb(255 255 255 / 80%);
   }
 }
 

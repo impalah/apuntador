@@ -33,7 +33,7 @@ class SecureEnclaveManager {
         let attributes: [String: Any] = [
             kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
             kSecAttrKeySizeInBits as String: 256,  // P-256
-            kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,  // ⭐️ CRÍTICO: almacenar en Secure Enclave
+            kSecAttrTokenID as String: kSecAttrTokenIDSecureEnclave,  // IMPORTANT: CRÍTICO: almacenar en Secure Enclave
             kSecPrivateKeyAttrs as String: [
                 kSecAttrIsPermanent as String: true,
                 kSecAttrApplicationLabel as String: label,

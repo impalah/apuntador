@@ -27,12 +27,14 @@ const mockWindow = {
 
 const mockGetCurrentWindow = vi.fn(() => mockWindow)
 const mockAvailableMonitors = vi.fn(async () => [] as any[])
+const mockCurrentMonitor = vi.fn(async () => null as any)
 
 // Mock dynamic imports (must match the exact specifier tauri.ts imports:
 // '@tauri-apps/api/window', not '@tauri-apps/window')
 vi.mock('@tauri-apps/api/window', () => ({
   getCurrentWindow: mockGetCurrentWindow,
   availableMonitors: mockAvailableMonitors,
+  currentMonitor: mockCurrentMonitor,
 }))
 
 const mockInvoke = vi.fn()
@@ -65,6 +67,7 @@ describe('Tauri Utils', () => {
     // minimize/maximize/close fall back to the getCurrentWindow() API.
     mockInvoke.mockRejectedValue(new Error('invoke not available in test env'))
     mockAvailableMonitors.mockResolvedValue([])
+    mockCurrentMonitor.mockResolvedValue(null)
   })
 
   afterEach(() => {
@@ -165,6 +168,21 @@ describe('Tauri Utils', () => {
 
         expect(screenInfo.value.isMultiScreen).toBe(true)
         expect(screenInfo.value.screenCount).toBe(2)
+      })
+
+      it('reads the current monitor to decide whether the window is on the primary screen', async () => {
+        ;(window as any).__TAURI_INTERNALS__ = {}
+        const secondary = { position: { x: 1920, y: 0 } }
+        mockAvailableMonitors.mockResolvedValue([{ position: { x: 0, y: 0 } }, secondary])
+        mockCurrentMonitor.mockResolvedValue(secondary)
+
+        const { screenInfo, init } = useTauri()
+
+        await init()
+
+        expect(mockCurrentMonitor).toHaveBeenCalled()
+        expect(screenInfo.value.currentMonitor).toEqual(secondary)
+        expect(screenInfo.value.isPrimary).toBe(false)
       })
 
       it('should warn and keep single-screen defaults when availableMonitors fails', async () => {

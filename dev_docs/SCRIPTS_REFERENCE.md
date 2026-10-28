@@ -46,14 +46,14 @@ The automated build process is handled by:
 - Node.js 20+
 - PowerShell 5.1+
 - Android SDK
-- Java 17
+- Java 21
 
 ### Linux/Unix
 
 - Node.js 20+
 - Bash shell
 - Android SDK
-- Java 17
+- Java 21
 - `base64` utility
 
 ## Quick Start
@@ -118,6 +118,6 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 
 ### Missing Dependencies
 
-- Ensure Node.js, Android SDK, and Java 17 are installed
+- Ensure Node.js, Android SDK, and Java 21 are installed
 - For Linux: Install `base64` utility if not available
 - Run `npm install` before building APKs

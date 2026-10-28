@@ -24,6 +24,16 @@ import { useCloudStore } from '@/stores/useCloudStore'
 
 // Create Vuetify instance
 const vuetify = createVuetify({
+  // Vuetify 3 breakpoints (Vuetify 4 lowered md/lg/xl/xxl). Must match
+  // $grid-breakpoints in src/styles/variables.scss.
+  display: {
+    thresholds: {
+      md: 960,
+      lg: 1280,
+      xl: 1920,
+      xxl: 2560,
+    },
+  },
   theme: {
     defaultTheme: 'dark',
     themes: {
@@ -86,6 +96,6 @@ initMobileApp()
 
 // Initialize cloud store to load saved provider
 const cloudStore = useCloudStore()
-await cloudStore.initialize().catch(err => {
+await cloudStore.initialize().catch((err) => {
   console.error('Error initializing cloud store:', err)
 })

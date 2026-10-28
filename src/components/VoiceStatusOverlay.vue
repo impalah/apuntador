@@ -88,8 +88,8 @@ function errorMessageKey(code?: SpeechEngineErrorCode): string {
   padding: 6px 14px;
   border-radius: 16px;
   background: rgb(0 0 0 / 60%);
-  backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
   color: #fff;
   font-size: 13px;
   font-weight: 500;

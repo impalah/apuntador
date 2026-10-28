@@ -61,5 +61,9 @@
 		<key>NSAllowsLocalNetworking</key>
 		<true/>
 	</dict>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Apuntador uses speech recognition to automatically scroll the script as you read it aloud.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Apuntador uses the microphone to follow your voice and automatically scroll the script as you read.</string>
 </dict>
 </plist>

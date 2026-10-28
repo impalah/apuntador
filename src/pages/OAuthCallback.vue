@@ -13,10 +13,10 @@
             size="64"
             class="mb-4"
           />
-          <h2 class="text-h5 mb-2">
+          <h2 class="text-headline-small mb-2">
             {{ $t('cloud.oauth.connecting') }}
           </h2>
-          <p class="text-body-2 text-medium-emphasis">
+          <p class="text-body-medium text-medium-emphasis">
             {{ $t('cloud.oauth.processing') }}
           </p>
         </div>
@@ -30,10 +30,10 @@
           >
             mdi-check-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">
+          <h2 class="text-headline-small mb-2">
             {{ $t('cloud.oauth.successTitle') }}
           </h2>
-          <p class="text-body-2 text-medium-emphasis mb-4">
+          <p class="text-body-medium text-medium-emphasis mb-4">
             {{ $t('cloud.oauth.successMessage') }}
           </p>
           <v-btn
@@ -54,10 +54,10 @@
           >
             mdi-alert-circle
           </v-icon>
-          <h2 class="text-h5 mb-2">
+          <h2 class="text-headline-small mb-2">
             {{ $t('cloud.oauth.errorTitle') }}
           </h2>
-          <p class="text-body-2 text-medium-emphasis mb-4">
+          <p class="text-body-medium text-medium-emphasis mb-4">
             {{ error }}
           </p>
           <div class="d-flex flex-column gap-2">
@@ -106,8 +106,8 @@ const error = ref<string | null>(null)
 const processOAuthCallback = async (): Promise<void> => {
   try {
     console.log('Processing OAuth callback...')
-    console.log('📍 Current URL:', globalThis.location.href)
-    console.log('Route query:', route.query)
+    console.log('[LOCATION] Current path:', globalThis.location.pathname)
+    console.log('Route query keys:', Object.keys(route.query))
 
     // Obtener parámetros de la URL
     const code = route.query.code as string
@@ -126,8 +126,8 @@ const processOAuthCallback = async (): Promise<void> => {
     }
 
     console.log('[KEY] Code:', code ? 'RECEIVED' : 'MISSING')
-    console.log('[TAG] State:', state || 'NONE')
-    console.log('🏢 Provider:', provider || 'NOT SPECIFIED')
+    console.log('[TAG] State:', state ? 'RECEIVED' : 'NONE')
+    console.log('[PROVIDER] Provider:', provider || 'NOT SPECIFIED')
     console.log('[ERROR] Error:', errorParam || 'NONE')
 
     // Verificar si hay error de OAuth
@@ -196,7 +196,7 @@ const redirectToApp = (): void => {
 
   // Redirigir a la ruta guardada o al prompter por defecto
   const targetPath = returnTo || '/'
-  console.log('🔙 Redirecting to:', targetPath)
+  console.log('[BACK] Redirecting to:', targetPath)
   router.push(targetPath)
 }
 

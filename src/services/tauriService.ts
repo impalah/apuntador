@@ -181,7 +181,7 @@ export class TauriService {
         .then(({ listen }) => {
           // listen() returns a Promise that resolves to the unlisten function
           return listen('oauth-callback', (event: any) => {
-            console.log('[CALL] TauriService: oauth-callback event received:', event.payload)
+            console.log('[CALL] TauriService: oauth-callback event received')
             clearTimeout(timeout)
             this.stopOAuthListener()
             resolve(event.payload)

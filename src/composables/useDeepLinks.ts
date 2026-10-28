@@ -45,7 +45,7 @@ export function useDeepLinks() {
       'state:',
       query.state
     )
-    console.log(`🧭 [${platform}] Navigating to oauth-callback with query:`, query)
+    console.log(`[NAV] [${platform}] Navigating to oauth-callback`)
 
     await router.push({ name: 'oauth-callback', query })
 
@@ -64,7 +64,7 @@ export function useDeepLinks() {
 
   const handleAppUrl = async (data: { url: string }) => {
     const platform = Capacitor.getPlatform().toUpperCase()
-    console.log(`[LINK] [${platform}] Deep link received:`, data.url)
+    console.log(`[LINK] [${platform}] Deep link received`)
 
     try {
       const urlString = data.url
@@ -79,7 +79,7 @@ export function useDeepLinks() {
       } else if (isGoogleCallback) {
         await processOAuthCallback(urlString, 'Google Drive', platform)
       } else {
-        console.log(`[${platform}] Unknown deep link format, ignoring. URL:`, urlString)
+        console.log(`[${platform}] Unknown deep link format, ignoring`)
       }
     } catch (error) {
       console.error(`[ERROR] [${platform}] Error processing deep link:`, error)
@@ -102,7 +102,7 @@ export function useDeepLinks() {
       // Verificar si la app se abrió con un deep link
       const initialUrl = await App.getLaunchUrl()
       if (initialUrl?.url) {
-        console.log('App launched with deep link:', initialUrl.url)
+        console.log('App launched with deep link')
         await handleAppUrl(initialUrl)
       }
 

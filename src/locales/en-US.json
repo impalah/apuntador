@@ -21,9 +21,6 @@
     "line": "line",
     "lines": "lines",
     "navigation": "Navigation",
-    "left": "Left",
-    "center": "Center",
-    "right": "Right",
     "home": "Home",
     "end": "End"
   },
@@ -54,7 +51,6 @@
     "theater": "Theater Mode",
     "exitTheater": "Exit Theater",
     "openEditor": "Open editor",
-    "openSettings": "Open settings",
     "openFile": "Open file",
     "more": "More",
     "less": "Less",
@@ -68,7 +64,6 @@
     "title": "Settings",
     "options": "Options",
     "appearance": "Appearance",
-    "behavior": "Behavior",
     "behaviorMovedToToolbar": "Behavior options are now in the toolbar",
     "dataMovedToAbout": "Data options have been moved to the 'About' tab",
     "controls": "Controls",
@@ -83,12 +78,10 @@
     "lineHeight": "Line height",
     "foregroundColor": "Text color",
     "backgroundColor": "Background color",
+    "voiceReadColor": "Voice highlight color",
     "highlightBandHeight": "Highlight band height",
     "highlightBandPosition": "Highlight band position",
     "dimmingIntensity": "Dimming intensity",
-    "scrollSpeed": "Scroll speed",
-    "speedMin": "Minimum speed",
-    "speedMax": "Maximum speed",
     "scrollMode": "Scroll mode",
     "scrollModeAuto": "Automatic",
     "scrollModeVoice": "Voice",
@@ -212,7 +205,6 @@
     "mirrorHorizontal": "Toggle horizontal mirror",
     "mirrorVertical": "Toggle vertical mirror",
     "openEditor": "Open editor",
-    "openSettings": "Open settings",
     "openFile": "Open file",
     "newFile": "New file",
     "save": "Save file",
@@ -382,13 +374,6 @@
       "backButton": "Back to Apuntador",
       "noAuthCode": "No authorization code received"
     }
-  },
-  "desktop": {
-    "minimize": "Minimize window",
-    "maximize": "Maximize window",
-    "close": "Close window",
-    "alwaysOnTop": "Always on top",
-    "fullscreen": "Toggle fullscreen"
   },
   "dropbox": {
     "connection": {

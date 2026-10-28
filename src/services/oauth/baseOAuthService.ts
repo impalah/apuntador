@@ -5,14 +5,17 @@ import { BackendOAuthClient } from '@/services/oauth/backendOAuthClient'
 import { getBackendUrl, getOAuthRedirectUri } from '@/services/oauth/config'
 import { isTauri } from '@/utils/tauri'
 import { tauriService } from '@/services/tauriService'
-import { createServiceErrorHandler, createServiceSuccessHandler } from '@/services/serviceErrorHandler'
+import {
+  createServiceErrorHandler,
+  createServiceSuccessHandler,
+} from '@/services/serviceErrorHandler'
 
 /**
  * Clase base abstracta para servicios OAuth
  * Implementa la lógica común de OAuth 2.0 + PKCE para todos los proveedores
  *
  * Responsabilidades:
- * - Gestión del flujo OAuth completo (connect → callback → tokens)
+ * - Gestión del flujo OAuth completo (connect -> callback -> tokens)
  * - Detección y manejo de plataforma (Web/Tauri/Mobile)
  * - Persistencia de tokens
  * - Validación de state (protección CSRF)
@@ -81,7 +84,7 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
       const { authorization_url, state } = await this.backendClient.authorize()
 
       console.log(`${this.getProviderName()}: Authorization URL received from backend`)
-      console.log(`📍 Redirect URI:`, getOAuthRedirectUri())
+      console.log(`[LOCATION] Redirect URI:`, getOAuthRedirectUri())
 
       // Guardar state para validar en el callback
       localStorage.setItem(this.getStateKey(), state)
@@ -148,12 +151,11 @@ export abstract class BaseOAuthService implements Partial<CloudService> {
     console.log(`${this.getProviderName()}: handleOAuthCallback called via backend`)
 
     try {
-      // Verificar state si está disponible
-      if (state) {
-        const savedState = localStorage.getItem(this.getStateKey())
-        if (!savedState || savedState !== state) {
-          throw new Error('Invalid OAuth state. Possible CSRF attack.')
-        }
+      // State is always saved by connect(); a callback without it must be
+      // rejected too, otherwise a forged callback skips the CSRF check
+      const savedState = localStorage.getItem(this.getStateKey())
+      if (!state || !savedState || savedState !== state) {
+        throw new Error('Invalid OAuth state. Possible CSRF attack.')
       }
 
       console.log(`[KEY] ${this.getProviderName()}: Exchanging code for tokens via backend...`)

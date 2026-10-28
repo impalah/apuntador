@@ -1,10 +1,10 @@
 <template>
-  <div 
-    class="cloud-file-explorer" 
+  <div
+    class="cloud-file-explorer"
     :class="{ 'compact-mode': compactMode }"
   >
     <!-- Header - Only show in non-compact mode -->
-    <v-card-title 
+    <v-card-title
       v-if="!compactMode"
       class="d-flex align-center"
     >
@@ -32,7 +32,7 @@
         >
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        
+
         <v-chip
           color="primary"
           variant="tonal"
@@ -72,23 +72,23 @@
           color="primary"
           size="48"
         />
-        <p class="text-body-2 mt-4">
+        <p class="text-body-medium mt-4">
           {{ t('cloud.files.loading') }}
         </p>
       </div>
 
       <!-- Lista de archivos -->
       <div v-else-if="cloudStore.currentFiles.length > 0">
-        <v-list 
+        <v-list
           :class="{ 'compact-list': compactMode }"
           :density="compactMode ? 'compact' : 'default'"
         >
           <v-list-item
             v-for="file in cloudStore.currentFiles"
             :key="file.id"
-            :class="{ 
+            :class="{
               'selected-file': compactMode && selectedFile?.id === file.id,
-              'selectable': compactMode && !file.isFolder && isTextFile(file.name)
+              selectable: compactMode && !file.isFolder && isTextFile(file.name),
             }"
             @click="handleFileClick(file)"
           >
@@ -160,7 +160,7 @@
         >
           mdi-folder-open-outline
         </v-icon>
-        <p class="text-body-2 text-medium-emphasis mt-4">
+        <p class="text-body-medium text-medium-emphasis mt-4">
           {{ t('cloud.files.empty') }}
         </p>
       </div>
@@ -190,8 +190,10 @@
             color="primary"
             size="64"
           />
-          <p class="text-body-1 mt-4 white--text">
-            {{ cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading') }}
+          <p class="text-body-large mt-4 white--text">
+            {{
+              cloudStore.isDownloading ? t('cloud.files.downloading') : t('cloud.files.uploading')
+            }}
           </p>
         </div>
       </v-overlay>
@@ -209,15 +211,15 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer />
-          <v-btn 
-            variant="text" 
+          <v-btn
+            variant="text"
             :disabled="cloudStore.isDeleting"
             @click="deleteDialog = false"
           >
             {{ t('common.cancel') }}
           </v-btn>
-          <v-btn 
-            color="error" 
+          <v-btn
+            color="error"
             variant="flat"
             :loading="cloudStore.isDeleting"
             @click="deleteFile"
@@ -265,15 +267,19 @@ const fileToDelete = ref<CloudFile | null>(null)
 const isLoading = computed(() => cloudStore.isLoadingFiles)
 
 const currentPathDisplay = computed(() => {
-  if (!cloudStore.currentPath || cloudStore.currentPath === '' || cloudStore.currentPath === 'root') {
+  if (
+    !cloudStore.currentPath ||
+    cloudStore.currentPath === '' ||
+    cloudStore.currentPath === 'root'
+  ) {
     return t('common.home', 'Home')
   }
-  
+
   // Si tenemos el nombre de la carpeta guardado, usarlo
   if (cloudStore.currentFolderName) {
     return cloudStore.currentFolderName
   }
-  
+
   // Fallback para Dropbox u otros proveedores que usan path con /
   const parts = cloudStore.currentPath.split('/')
   return parts[parts.length - 1] || t('common.home', 'Home')
@@ -283,7 +289,7 @@ const currentPathDisplay = computed(() => {
 function getProviderIcon(providerId: CloudProviderId): string {
   const icons: Record<CloudProviderId, string> = {
     dropbox: 'mdi-dropbox',
-    googledrive: 'mdi-google-drive'
+    googledrive: 'mdi-google-drive',
   }
   return icons[providerId] || 'mdi-cloud'
 }
@@ -335,7 +341,7 @@ function openFile(file: CloudFile) {
 async function downloadFile(file: CloudFile) {
   try {
     const content = await cloudStore.downloadFile(file.path, file.name)
-    
+
     // Trigger browser download
     const blob = new Blob([content], { type: 'text/markdown' })
     const url = URL.createObjectURL(blob)
@@ -397,7 +403,7 @@ onMounted(async () => {
 }
 
 .selected-file {
-  background: rgba(var(--v-theme-primary), 0.1);
+  background: rgb(var(--v-theme-primary), 0.1);
   border-left: 3px solid rgb(var(--v-theme-primary));
 }
 
@@ -406,7 +412,7 @@ onMounted(async () => {
 }
 
 .selectable:hover {
-  background: rgba(var(--v-theme-surface-variant), 0.5);
+  background: rgb(var(--v-theme-surface-variant), 0.5);
 }
 
 :deep(.v-list-item__prepend) {

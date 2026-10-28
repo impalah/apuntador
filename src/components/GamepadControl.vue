@@ -185,12 +185,12 @@ onUnmounted(() => {
   }
 
   &.listening .v-field {
-    background-color: rgba(var(--v-theme-error), 0.05);
+    background-color: rgb(var(--v-theme-error), 0.05);
     border-color: rgb(var(--v-theme-error));
   }
 
   &.has-button .v-field {
-    background-color: rgba(var(--v-theme-primary), 0.05);
+    background-color: rgb(var(--v-theme-primary), 0.05);
   }
 
   .v-field__input {

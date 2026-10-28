@@ -20,15 +20,15 @@
             {{ getProviderIcon(cloudStore.activeProvider.id) }}
           </v-icon>
           <div class="flex-grow-1">
-            <div class="text-subtitle-1 font-weight-medium">
+            <div class="text-body-large font-weight-medium">
               {{ t('cloud.activeProvider') }}
             </div>
-            <div class="text-body-2">
+            <div class="text-body-medium">
               {{ cloudStore.activeProvider.name }}
             </div>
             <div
               v-if="cloudStore.activeProvider.userInfo"
-              class="text-caption text-medium-emphasis"
+              class="text-body-small text-medium-emphasis"
             >
               {{ cloudStore.activeProvider.userInfo.email }}
             </div>
@@ -46,7 +46,7 @@
     </v-card>
 
     <!-- Available Providers -->
-    <div class="text-subtitle-2 mb-3">
+    <div class="text-title-small mb-3">
       {{ t('cloud.availableProviders') }}
     </div>
 
@@ -75,12 +75,12 @@
               </v-avatar>
 
               <div class="flex-grow-1">
-                <div class="text-subtitle-1 font-weight-medium">
+                <div class="text-body-large font-weight-medium">
                   {{ provider.name }}
                 </div>
                 <div
                   v-if="provider.isConnected"
-                  class="text-caption text-success"
+                  class="text-body-small text-success"
                 >
                   <v-icon
                     size="small"
@@ -92,7 +92,7 @@
                 </div>
                 <div
                   v-else
-                  class="text-caption text-medium-emphasis"
+                  class="text-body-small text-medium-emphasis"
                 >
                   {{ t('cloud.notConnected') }}
                 </div>
@@ -101,7 +101,7 @@
 
             <div
               v-if="provider.userInfo"
-              class="mt-3 text-caption"
+              class="mt-3 text-body-small"
             >
               <div>{{ provider.userInfo.name }}</div>
               <div class="text-medium-emphasis">
@@ -220,15 +220,15 @@ async function onConnect(providerId: CloudProviderId) {
 }
 
 async function onDisconnect() {
-  console.log('🔴 [CloudProviderSelector] Disconnect button clicked')
+  console.log('[CloudProviderSelector] Disconnect button clicked')
 
   // TODO: Fix confirm dialog in Tauri
   // if (!confirm(t('cloud.disconnectConfirm'))) {
-  //   console.log('🔴 [CloudProviderSelector] Disconnect cancelled by user')
+  //   console.log('[CloudProviderSelector] Disconnect cancelled by user')
   //   return
   // }
 
-  console.log('🔴 [CloudProviderSelector] Starting disconnect (keeping credentials)...')
+  console.log('[CloudProviderSelector] Starting disconnect (keeping credentials)...')
   isDisconnecting.value = true
 
   try {
@@ -243,7 +243,7 @@ async function onDisconnect() {
 }
 
 async function onRevokeProvider(providerId: CloudProviderId) {
-  console.log('🔴 [CloudProviderSelector] Revoke access button clicked for:', providerId)
+  console.log('[CloudProviderSelector] Revoke access button clicked for:', providerId)
 
   isRevokingProvider.value = providerId
 
@@ -265,6 +265,6 @@ async function onRevokeProvider(providerId: CloudProviderId) {
 
 .provider-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 12px rgb(0 0 0 / 10%);
 }
 </style>

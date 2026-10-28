@@ -36,7 +36,6 @@ export type HotkeyAction =
   | 'mirror-h'
   | 'mirror-v'
   | 'open-editor'
-  | 'open-settings'
   | 'open-file'
   | 'close-modal'
   | 'align-left'

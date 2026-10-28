@@ -81,8 +81,8 @@ onMounted(async () => {
 <style>
 /* Global styles for edge-to-edge support */
 .v-application {
-  background: var(--teleprompter-bg, #000000) !important;
-  color: var(--teleprompter-fg, #ffffff) !important;
+  background: var(--teleprompter-bg, #000) !important;
+  color: var(--teleprompter-fg, #fff) !important;
   height: 100vh;
   height: 100dvh; /* Use dynamic viewport height when available */
 }
@@ -90,19 +90,15 @@ onMounted(async () => {
 /* Support for devices with safe area insets */
 .edge-to-edge {
   /* Ensure body content respects safe areas */
-  padding-top: env(safe-area-inset-top, 0px);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  padding-left: env(safe-area-inset-left, 0px);
-  padding-right: env(safe-area-inset-right, 0px);
+  padding: env(safe-area-inset-top, 0) env(safe-area-inset-right, 0) env(safe-area-inset-bottom, 0)
+    env(safe-area-inset-left, 0);
 }
 
 /* Android edge-to-edge specific adjustments */
 @supports (padding: max(0px)) {
   .edge-to-edge {
-    padding-top: max(0px, env(safe-area-inset-top, 0px));
-    padding-bottom: max(0px, env(safe-area-inset-bottom, 0px));
-    padding-left: max(0px, env(safe-area-inset-left, 0px));
-    padding-right: max(0px, env(safe-area-inset-right, 0px));
+    padding: max(0px, env(safe-area-inset-top, 0px)) max(0px, env(safe-area-inset-right, 0px))
+      max(0px, env(safe-area-inset-bottom, 0px)) max(0px, env(safe-area-inset-left, 0px));
   }
 }
 

@@ -2,11 +2,7 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { z } from 'zod'
 import { storage } from '@/services/persistence'
-import type {
-  CustomHotkeyMapping,
-  HotkeyDefinition,
-  CustomGamepadMapping,
-} from '@/types'
+import type { CustomHotkeyMapping, HotkeyDefinition, CustomGamepadMapping } from '@/types'
 import { createDefaultMapping, createDefaultGamepadMapping } from '@/utils/input/hotkeys'
 import {
   DEFAULT_FONT_SIZE,
@@ -19,6 +15,7 @@ import {
   DEFAULT_BG_COLOR,
   DEFAULT_HIGHLIGHT_BAND_LINES,
   DEFAULT_HIGHLIGHT_BAND_POS,
+  HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS,
   DEFAULT_DIMMING_INTENSITY,
   DEFAULT_TEXT_ALIGNMENT,
   TEXT_ALIGNMENTS,
@@ -142,6 +139,12 @@ export const usePrefsStore = defineStore('preferences', () => {
         textAlignment.value = validated.textAlignment
         scrollMode.value = validated.scrollMode
         activeFrame.value = validated.activeFrame
+        // Voice mode requires the monospace frame (exact line-index mapping) -
+        // guard against stale persisted state from before that constraint
+        // existed, or from external edits to the storage payload.
+        if (scrollMode.value === 'voice' && activeFrame.value !== 'monospace') {
+          scrollMode.value = 'auto'
+        }
 
         // Handle custom hotkeys with fallback to defaults
         const hotkeyCount = Object.keys(validated.customHotkeys || {}).length
@@ -246,13 +249,36 @@ export const usePrefsStore = defineStore('preferences', () => {
     save()
   }
 
+  /**
+   * Voice mode requires the monospace frame - it's the only one with an
+   * exact line-index mapping (useMonospaceLayout) for the alignment cursor
+   * to target. Rejects the switch to 'voice' outright rather than falling
+   * back, so callers (buttons, hotkeys) see it simply not take effect.
+   */
   function setScrollMode(mode: ScrollMode) {
+    if (mode === 'voice' && activeFrame.value !== 'monospace') return
     scrollMode.value = mode
     save()
   }
 
+  let highlightBandSaveTimer: ReturnType<typeof setTimeout> | null = null
+
+  /** Dragging emits on every move, so persistence is debounced. */
+  function setHighlightBandPosPct(pct: number) {
+    highlightBandPosPct.value = pct
+    if (highlightBandSaveTimer) clearTimeout(highlightBandSaveTimer)
+    highlightBandSaveTimer = setTimeout(() => {
+      highlightBandSaveTimer = null
+      void save()
+    }, HIGHLIGHT_BAND_SAVE_DEBOUNCE_MS)
+  }
+
+  /** Leaving the monospace frame while voice mode is active drops back to 'auto' - see setScrollMode. */
   function setActiveFrame(frame: ActiveFrame) {
     activeFrame.value = frame
+    if (frame !== 'monospace' && scrollMode.value === 'voice') {
+      scrollMode.value = 'auto'
+    }
     save()
   }
 
@@ -314,6 +340,7 @@ export const usePrefsStore = defineStore('preferences', () => {
     mirrorV,
     highlightBandLines,
     highlightBandPosPct,
+    setHighlightBandPosPct,
     dimmingIntensity,
     textAlignment,
     scrollMode,

@@ -8,7 +8,7 @@
   >
     <v-card
       class="editor-actions-menu"
-      :class="{ 'maximized': isMaximized }"
+      :class="{ maximized: isMaximized }"
       rounded="t-xl"
     >
       <!-- Handle bar para indicar que es arrastrable -->
@@ -59,11 +59,15 @@
                   class="mr-4"
                 />
                 <div>
-                  <div class="text-h6">
+                  <div class="text-title-large">
                     {{ mode === 'open' ? t('cloud.files.openLocal') : t('cloud.files.saveLocal') }}
                   </div>
-                  <div class="text-caption text-medium-emphasis">
-                    {{ mode === 'open' ? t('cloud.files.openLocalDesc') : t('cloud.files.saveLocalDesc') }}
+                  <div class="text-body-small text-medium-emphasis">
+                    {{
+                      mode === 'open'
+                        ? t('cloud.files.openLocalDesc')
+                        : t('cloud.files.saveLocalDesc')
+                    }}
                   </div>
                 </div>
               </v-card-text>
@@ -71,8 +75,8 @@
 
             <!-- Cloud Storage Options -->
             <v-divider class="my-4" />
-            
-            <div class="text-overline mb-2">
+
+            <div class="text-label-medium text-uppercase mb-2">
               {{ t('cloud.storage') }}
             </div>
 
@@ -91,13 +95,15 @@
                   color="primary"
                 />
                 <div class="flex-grow-1">
-                  <div class="text-h6">
+                  <div class="text-title-large">
                     Google Drive
                   </div>
-                  <div class="text-caption text-medium-emphasis">
-                    {{ isGoogleDriveConnected 
-                      ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) + ' Google Drive'
-                      : t('cloud.notConnected') 
+                  <div class="text-body-small text-medium-emphasis">
+                    {{
+                      isGoogleDriveConnected
+                        ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) +
+                          ' Google Drive'
+                        : t('cloud.notConnected')
                     }}
                   </div>
                 </div>
@@ -127,13 +133,15 @@
                   color="primary"
                 />
                 <div class="flex-grow-1">
-                  <div class="text-h6">
+                  <div class="text-title-large">
                     Dropbox
                   </div>
-                  <div class="text-caption text-medium-emphasis">
-                    {{ isDropboxConnected 
-                      ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) + ' Dropbox'
-                      : t('cloud.notConnected') 
+                  <div class="text-body-small text-medium-emphasis">
+                    {{
+                      isDropboxConnected
+                        ? (mode === 'open' ? t('cloud.files.openFrom') : t('cloud.files.saveTo')) +
+                          ' Dropbox'
+                        : t('cloud.notConnected')
                     }}
                   </div>
                 </div>
@@ -255,27 +263,34 @@ const selectedProvider = ref<CloudProviderId | null>(null)
 const fileName = ref('')
 
 // Watch for suggested file name changes
-watch(() => props.suggestedFileName, (newName) => {
-  if (newName) {
-    fileName.value = newName
-  }
-}, { immediate: true })
+watch(
+  () => props.suggestedFileName,
+  (newName) => {
+    if (newName) {
+      fileName.value = newName
+    }
+  },
+  { immediate: true }
+)
 
 // Watch for modelValue changes to reset state
-watch(() => props.modelValue, (isOpen) => {
-  if (!isOpen) {
-    selectedProvider.value = null
+watch(
+  () => props.modelValue,
+  (isOpen) => {
+    if (!isOpen) {
+      selectedProvider.value = null
+    }
   }
-})
+)
 
 // Computed
 const isGoogleDriveConnected = computed(() => {
-  const provider = cloudStore.availableProviders.find(p => p.id === 'googledrive')
+  const provider = cloudStore.availableProviders.find((p) => p.id === 'googledrive')
   return provider?.isConnected || false
 })
 
 const isDropboxConnected = computed(() => {
-  const provider = cloudStore.availableProviders.find(p => p.id === 'dropbox')
+  const provider = cloudStore.availableProviders.find((p) => p.id === 'dropbox')
   return provider?.isConnected || false
 })
 
@@ -292,10 +307,10 @@ function onLocalFile() {
 function onSelectCloudProvider(provider: CloudProviderId) {
   if (provider === 'googledrive' && !isGoogleDriveConnected.value) return
   if (provider === 'dropbox' && !isDropboxConnected.value) return
-  
+
   // Set the provider as active in the store
   cloudStore.setActiveProvider(provider)
-  
+
   // Show the cloud file explorer
   selectedProvider.value = provider
 }
@@ -312,7 +327,7 @@ function onCloudFileSelected(file: CloudFile) {
 
 function onSaveToCloud() {
   if (!fileName.value) return
-  
+
   emit('save-cloud', fileName.value)
   emit('update:modelValue', false)
   selectedProvider.value = null
@@ -339,7 +354,7 @@ function onOpenCloudSettings() {
 .handle-bar {
   display: flex;
   justify-content: center;
-  padding: 12px 0 8px 0;
+  padding: 12px 0 8px;
   cursor: pointer;
   user-select: none;
 }
@@ -347,19 +362,19 @@ function onOpenCloudSettings() {
 .handle {
   width: 40px;
   height: 4px;
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(255 255 255 / 30%);
   border-radius: 2px;
   transition: background 0.2s ease;
 }
 
 .handle-bar:hover .handle {
-  background: rgba(255, 255, 255, 0.5);
+  background: rgb(255 255 255 / 50%);
 }
 
 .menu-content {
   overflow-y: auto;
   max-height: calc(85vh - 40px);
-  padding: 16px 24px 24px 24px;
+  padding: 16px 24px 24px;
 }
 
 .maximized .menu-content {
@@ -394,13 +409,13 @@ function onOpenCloudSettings() {
 .operation-card {
   cursor: pointer;
   transition: all 0.2s ease;
-  background: rgba(255, 255, 255, 0.05) !important;
-  border-color: rgba(255, 255, 255, 0.12) !important;
+  background: rgb(255 255 255 / 5%) !important;
+  border-color: rgb(255 255 255 / 12%) !important;
 }
 
 .operation-card:hover:not(:disabled) {
-  background: rgba(255, 255, 255, 0.08) !important;
-  border-color: rgba(255, 255, 255, 0.2) !important;
+  background: rgb(255 255 255 / 8%) !important;
+  border-color: rgb(255 255 255 / 20%) !important;
   transform: translateY(-2px);
 }
 
@@ -416,7 +431,7 @@ function onOpenCloudSettings() {
 /* Responsive */
 @media (max-width: 600px) {
   .menu-content {
-    padding: 12px 16px 20px 16px;
+    padding: 12px 16px 20px;
   }
 
   .operations-title {

@@ -42,7 +42,7 @@ public class CSRGenerator {
         String model
     ) throws Exception {
         
-        Log.d(TAG, "📝 Generating CSR...");
+        Log.d(TAG, "[NOTE] Generating CSR...");
         Log.d(TAG, "   Device ID: " + deviceId);
         Log.d(TAG, "   Manufacturer: " + manufacturer);
         Log.d(TAG, "   Model: " + model);

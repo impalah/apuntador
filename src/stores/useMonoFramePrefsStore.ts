@@ -9,6 +9,7 @@ import {
   SETTINGS_MAX_FONT_SIZE,
   DEFAULT_FG_COLOR,
   DEFAULT_BG_COLOR,
+  DEFAULT_VOICE_READ_COLOR,
   DEFAULT_TEXT_ALIGNMENT,
   TEXT_ALIGNMENTS,
   type TextAlignment,
@@ -40,6 +41,10 @@ const monoPreferencesSchema = z.object({
     .string()
     .regex(/^#[0-9a-fA-F]{6}$/)
     .default(DEFAULT_BG_COLOR),
+  voiceReadColor: z
+    .string()
+    .regex(/^#[0-9a-fA-F]{6}$/)
+    .default(DEFAULT_VOICE_READ_COLOR),
   textAlignment: z.enum(TEXT_ALIGNMENTS).default(DEFAULT_TEXT_ALIGNMENT as TextAlignment),
 })
 
@@ -51,6 +56,7 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
   const lineHeight = ref(DEFAULT_LINE_HEIGHT)
   const fgColor = ref(DEFAULT_FG_COLOR)
   const bgColor = ref(DEFAULT_BG_COLOR)
+  const voiceReadColor = ref(DEFAULT_VOICE_READ_COLOR)
   const textAlignment = ref<TextAlignment>(DEFAULT_TEXT_ALIGNMENT as TextAlignment)
 
   async function load() {
@@ -64,6 +70,7 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
         lineHeight.value = validated.lineHeight
         fgColor.value = validated.fgColor
         bgColor.value = validated.bgColor
+        voiceReadColor.value = validated.voiceReadColor
         textAlignment.value = validated.textAlignment
       }
     } catch (error) {
@@ -80,6 +87,7 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
         lineHeight: lineHeight.value,
         fgColor: fgColor.value,
         bgColor: bgColor.value,
+        voiceReadColor: voiceReadColor.value,
         textAlignment: textAlignment.value,
       }
 
@@ -95,6 +103,7 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
     lineHeight.value = DEFAULT_LINE_HEIGHT
     fgColor.value = DEFAULT_FG_COLOR
     bgColor.value = DEFAULT_BG_COLOR
+    voiceReadColor.value = DEFAULT_VOICE_READ_COLOR
     textAlignment.value = DEFAULT_TEXT_ALIGNMENT as TextAlignment
   }
 
@@ -128,6 +137,11 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
     save()
   }
 
+  function setVoiceReadColor(color: string) {
+    voiceReadColor.value = color
+    save()
+  }
+
   return {
     // State
     fontFamily,
@@ -135,6 +149,7 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
     lineHeight,
     fgColor,
     bgColor,
+    voiceReadColor,
     textAlignment,
 
     // Actions
@@ -147,5 +162,6 @@ export const useMonoFramePrefsStore = defineStore('monoFramePreferences', () => 
     setTextAlignment,
     setFgColor,
     setBgColor,
+    setVoiceReadColor,
   }
 })

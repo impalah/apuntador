@@ -4,7 +4,7 @@
       class="mx-auto"
       max-width="800"
     >
-      <v-card-title class="text-h5 d-flex align-center">
+      <v-card-title class="text-headline-small d-flex align-center">
         <v-btn
           icon="mdi-arrow-left"
           variant="text"
@@ -44,13 +44,13 @@
                 size="small"
                 class="mr-2"
               >
-                StrongBox: {{ deviceInfo.hasStrongBox ? '✓' : '✗' }}
+                StrongBox: {{ deviceInfo.hasStrongBox ? 'yes' : 'no' }}
               </v-chip>
               <v-chip
                 :color="deviceInfo.hasTEE ? 'success' : 'warning'"
                 size="small"
               >
-                TEE: {{ deviceInfo.hasTEE ? '✓' : '✗' }}
+                TEE: {{ deviceInfo.hasTEE ? 'yes' : 'no' }}
               </v-chip>
             </div>
             <v-btn
@@ -200,13 +200,13 @@
                 :class="['log-entry', `log-${log.type}`]"
                 class="mb-2 pa-2 rounded"
               >
-                <div class="text-caption text-grey">
+                <div class="text-body-small text-grey">
                   {{ log.timestamp }}
                 </div>
                 <div>{{ log.message }}</div>
                 <pre
                   v-if="log.data"
-                  class="text-caption mt-1"
+                  class="text-body-small mt-1"
                 >{{
                   JSON.stringify(log.data, null, 2)
                 }}</pre>
@@ -399,22 +399,22 @@ onMounted(async () => {
 }
 
 .log-info {
-  background-color: rgba(33, 150, 243, 0.1);
+  background-color: rgb(33 150 243 / 10%);
   border-left: 3px solid #2196f3;
 }
 
 .log-success {
-  background-color: rgba(76, 175, 80, 0.1);
+  background-color: rgb(76 175 80 / 10%);
   border-left: 3px solid #4caf50;
 }
 
 .log-error {
-  background-color: rgba(244, 67, 54, 0.1);
+  background-color: rgb(244 67 54 / 10%);
   border-left: 3px solid #f44336;
 }
 
 .log-warning {
-  background-color: rgba(255, 152, 0, 0.1);
+  background-color: rgb(255 152 0 / 10%);
   border-left: 3px solid #ff9800;
 }
 </style>

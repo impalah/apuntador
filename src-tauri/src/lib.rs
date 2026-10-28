@@ -61,7 +61,7 @@ pub fn run() {
     .on_window_event(|window, event| {
       #[cfg(debug_assertions)]
       if let tauri::WindowEvent::CloseRequested { .. } = event {
-        println!("🔴 Close requested for window: {}", window.label());
+        println!("Close requested for window: {}", window.label());
         println!("Debug mode: Destroying window");
         // In debug mode, destroy the window immediately
         let _ = window.destroy();
@@ -70,8 +70,8 @@ pub fn run() {
 
       #[cfg(not(debug_assertions))]
       if let tauri::WindowEvent::CloseRequested { api, .. } = event {
-        println!("🔴 Close requested for window: {}", window.label());
-        println!("🏁 Production mode: Exiting application");
+        println!("Close requested for window: {}", window.label());
+        println!("[DONE] Production mode: Exiting application");
         // En producción, prevenir cierre y salir de toda la aplicación
         api.prevent_close();
         std::process::exit(0);

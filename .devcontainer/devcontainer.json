@@ -16,7 +16,7 @@
       "upgradePackages": true
     },
     "ghcr.io/devcontainers/features/java:1": {
-      "version": "17",
+      "version": "21",
       "installGradle": true
     }
   },

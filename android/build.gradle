@@ -8,8 +8,7 @@ buildscript {
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:8.13.0'
-        classpath 'com.google.gms:google-services:4.4.2'
-        classpath 'org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.10'
+        classpath 'com.google.gms:google-services:4.4.4'
 
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
@@ -23,15 +22,6 @@ allprojects {
         google()
         mavenCentral()
     }
-    
-    // Force all Kotlin libraries to use the same version
-    configurations.all {
-        resolutionStrategy {
-            force 'org.jetbrains.kotlin:kotlin-stdlib:1.9.10'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk7:1.9.10'
-            force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.9.10'
-        }
-    }
 }
 
 // Configure Java version for all projects
@@ -41,8 +31,8 @@ subprojects {
             project.plugins.hasPlugin('com.android.library')) {
             project.android {
                 compileOptions {
-                    sourceCompatibility JavaVersion.VERSION_17
-                    targetCompatibility JavaVersion.VERSION_17
+                    sourceCompatibility JavaVersion.VERSION_21
+                    targetCompatibility JavaVersion.VERSION_21
                 }
             }
         }

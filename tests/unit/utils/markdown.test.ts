@@ -19,6 +19,25 @@ describe('Markdown Utils', () => {
     expect(html).toContain('bold')
   })
 
+  it('strips executable HTML from compiled output but keeps inline formatting', () => {
+    const markdown = [
+      '<img src=x onerror="alert(1)">',
+      '<script>',
+      'alert(2)',
+      '</script>',
+      '<a href="javascript:alert(3)">link</a>',
+      '<span style="color: red">kept</span>',
+    ].join('\n')
+
+    const html = compileMarkdown(markdown)
+
+    expect(html).not.toContain('onerror')
+    expect(html).not.toContain('<script')
+    expect(html).not.toContain('javascript:')
+    expect(html).toContain('<span style="color: red">kept</span>')
+    expect(html).toContain('teleprompter-padding-top')
+  })
+
   it('should handle special markdown features', () => {
     const markdown = `
 # Main Heading

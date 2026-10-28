@@ -44,12 +44,12 @@ pub struct OAuthResponse {
 
 // OAuth utility functions
 fn generate_code_verifier() -> String {
-  use rand::Rng;
-  let mut rng = rand::thread_rng();
+  use rand::RngExt;
+  let mut rng = rand::rng();
   let chars: String = (0..128)
     .map(|_| {
       let chars = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-      chars[rng.gen_range(0..chars.len())] as char
+      chars[rng.random_range(0..chars.len())] as char
     })
     .collect();
   chars
@@ -64,12 +64,12 @@ fn generate_code_challenge(verifier: &str) -> String {
 }
 
 fn generate_state() -> String {
-  use rand::Rng;
-  let mut rng = rand::thread_rng();
+  use rand::RngExt;
+  let mut rng = rand::rng();
   (0..32)
     .map(|_| {
       let chars = b"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-      chars[rng.gen_range(0..chars.len())] as char
+      chars[rng.random_range(0..chars.len())] as char
     })
     .collect()
 }
@@ -120,7 +120,9 @@ pub async fn backend_oauth_authorize(
 
   // 3. Create HTTP client (certificate sent in header, not TLS)
   let client = reqwest::Client::builder()
-    .danger_accept_invalid_certs(true) // For development with self-signed backend cert
+    // Self-signed backend certs are only accepted in debug builds; release
+    // builds must verify TLS (these requests carry codes, verifiers and tokens)
+    .danger_accept_invalid_certs(cfg!(debug_assertions))
     .build()
     .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
@@ -174,7 +176,7 @@ pub async fn backend_oauth_token_exchange(
   let backend_url = env!("BACKEND_OAUTH_URL");
 
   // Load certificate from Keychain
-  println!("📜 Loading client certificate from Keychain...");
+  println!("[CERT] Loading client certificate from Keychain...");
   let stored_cert = CertificateStore::retrieve()
     .map_err(|e| format!("Failed to load certificate: {}", e))?;
 
@@ -184,7 +186,9 @@ pub async fn backend_oauth_token_exchange(
 
   // Create simple HTTP client (no mTLS in transport, we send cert in header)
   let client = reqwest::Client::builder()
-    .danger_accept_invalid_certs(true) // For development with self-signed backend cert
+    // Self-signed backend certs are only accepted in debug builds; release
+    // builds must verify TLS (these requests carry codes, verifiers and tokens)
+    .danger_accept_invalid_certs(cfg!(debug_assertions))
     .build()
     .map_err(|e| format!("Failed to create HTTP client: {}", e))?;
 
@@ -212,7 +216,7 @@ pub async fn backend_oauth_token_exchange(
   let body = response.text().await
     .map_err(|e| format!("Failed to read response body: {}", e))?;
 
-  println!("Response body (first 500 chars): {}", &body.chars().take(500).collect::<String>());
+  println!("Response body length: {}", body.len());
 
   if !status.is_success() {
     return Err(format!("Backend returned error: {} - {}", status, body));
@@ -279,8 +283,6 @@ pub async fn exchange_oauth_code(
   oauth_state: State<'_, OAuthState>,
 ) -> Result<OAuthResponse, String> {
   println!("Starting code-to-token exchange...");
-  println!("Code: {}", code);
-  println!("State: {}", state);
 
   // Retrieve code_verifier
   let code_verifier = {
@@ -318,7 +320,6 @@ pub async fn exchange_oauth_code(
 
   println!("[CALL] Making token exchange request to Dropbox...");
   println!("[LINK] URL: {}", dropbox_token_url);
-  println!("Params: {:?}", params);
 
   let response = client
     .post(dropbox_token_url)
@@ -331,7 +332,7 @@ pub async fn exchange_oauth_code(
     })?;
 
   let status = response.status();
-  println!("📨 Response status: {}", status);
+  println!("[RESPONSE] Response status: {}", status);
 
   if !status.is_success() {
     let error_text = response.text().await.unwrap_or_else(|_| "Unknown error".to_string());
@@ -349,7 +350,6 @@ pub async fn exchange_oauth_code(
 
   println!("Token response received:");
   println!("Response keys: {:?}", token_response.as_object().map(|obj| obj.keys().collect::<Vec<_>>()));
-  println!("Full response: {}", serde_json::to_string_pretty(&token_response).unwrap_or_else(|_| "Failed to serialize".to_string()));
 
   let access_token = token_response["access_token"]
     .as_str()
@@ -359,7 +359,6 @@ pub async fn exchange_oauth_code(
     })?;
 
   println!("Access token extracted successfully, length: {}", access_token.len());
-  println!("[KEY] Token preview: {}...", &access_token[..access_token.len().min(20)]);
 
   Ok(OAuthResponse {
     access_token: access_token.to_string(),

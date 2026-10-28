@@ -8,7 +8,7 @@
   >
     <v-card
       class="actions-menu"
-      :class="{ 'maximized': isMaximized }"
+      :class="{ maximized: isMaximized }"
       rounded="t-xl"
     >
       <!-- Handle bar para indicar que es arrastrable -->
@@ -70,7 +70,7 @@
                 <v-form>
                   <!-- Language Settings -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('settings.language') }}
                     </h3>
                     <v-select
@@ -100,7 +100,7 @@
 
                   <!-- Font Settings -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('settings.fontFamily') }}
                     </h3>
                     <v-select
@@ -133,7 +133,7 @@
 
                   <!-- Colors -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('settings.foregroundColor') }}
                     </h3>
                     <v-row>
@@ -154,11 +154,26 @@
                         />
                       </v-col>
                     </v-row>
+
+                    <!-- Voice-tracking highlight color: only takes visible effect in the
+                         monospace frame (voice mode requires it), but always shown here so
+                         it's easy to find regardless of which frame is currently active. -->
+                    <v-row>
+                      <v-col cols="6">
+                        <v-text-field
+                          :model-value="activeAppearance.voiceReadColor.value"
+                          :label="t('settings.voiceReadColor')"
+                          type="color"
+                          data-testid="voice-read-color-input"
+                          @update:model-value="activeAppearance.setVoiceReadColor"
+                        />
+                      </v-col>
+                    </v-row>
                   </div>
 
                   <!-- Highlight Band -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('settings.highlightBandHeight') }}
                     </h3>
                     <v-select
@@ -198,7 +213,7 @@
                 <v-form>
                   <!-- Hotkeys Settings -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('hotkeys.title') }}
                     </h3>
                     <div class="hotkeys-container">
@@ -224,7 +239,7 @@
 
                   <!-- Gamepad Status -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('gamepad.status') }}
                     </h3>
                     <v-alert
@@ -257,10 +272,10 @@
 
                   <!-- Gamepad Button Mappings -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('gamepad.buttonAssignments') }}
                     </h3>
-                    <p class="text-caption text-medium-emphasis mb-4">
+                    <p class="text-body-small text-medium-emphasis mb-4">
                       {{ t('gamepad.assignmentInstructions') }}
                     </p>
 
@@ -292,7 +307,7 @@
                 <div>
                   <!-- Cloud Storage Providers -->
                   <div class="mb-6">
-                    <h3 class="text-subtitle-1 mb-3">
+                    <h3 class="text-body-large mb-3">
                       {{ t('settings.cloudProviders') }}
                     </h3>
                     <CloudProviderSelector />
@@ -305,17 +320,17 @@
                 <div class="text-center">
                   <!-- App Title and Subtitle -->
                   <div class="mb-6">
-                    <h2 class="text-h4 mb-2">
+                    <h2 class="text-headline-large mb-2">
                       {{ versionInfo.name }} - {{ t('settings.subtitle') }}
                     </h2>
-                    <p class="text-body-1 text-medium-emphasis">
+                    <p class="text-body-large text-medium-emphasis">
                       {{ t('settings.version') }}: {{ versionInfo.version }}
                     </p>
                   </div>
 
                   <!-- Copyright -->
                   <div class="mb-4">
-                    <p class="text-body-2 text-medium-emphasis">
+                    <p class="text-body-medium text-medium-emphasis">
                       {{ versionInfo.copyright }}
                     </p>
                   </div>
@@ -337,7 +352,7 @@
 
                   <!-- Data Management -->
                   <div>
-                    <h3 class="text-subtitle-1 mb-4">
+                    <h3 class="text-body-large mb-4">
                       {{ t('settings.dataManagement') }}
                     </h3>
                     <div class="d-flex flex-column gap-2">
@@ -360,6 +375,43 @@
                       </v-btn>
                     </div>
                   </div>
+
+                  <!-- Debug navigation - dev/native builds only -->
+                  <template v-if="isDevMode && (isNativePlatform || isTauriPlatform)">
+                    <v-divider class="my-6" />
+                    <div class="d-flex flex-column gap-2">
+                      <v-btn
+                        v-if="isNativePlatform"
+                        color="secondary"
+                        variant="text"
+                        prepend-icon="mdi-shield-check"
+                        block
+                        @click="goToEnrollmentTest"
+                      >
+                        Device Enrollment Test
+                      </v-btn>
+                      <v-btn
+                        v-if="isNativePlatform"
+                        color="info"
+                        variant="text"
+                        prepend-icon="mdi-lock-check"
+                        block
+                        @click="goToMTLSTest"
+                      >
+                        mTLS Client Test
+                      </v-btn>
+                      <v-btn
+                        v-if="isTauriPlatform"
+                        color="success"
+                        variant="text"
+                        prepend-icon="mdi-desktop-mac"
+                        block
+                        @click="goToDesktopMTLSTest"
+                      >
+                        Desktop mTLS Test
+                      </v-btn>
+                    </div>
+                  </template>
                 </div>
               </v-tabs-window-item>
             </v-tabs-window>
@@ -373,11 +425,11 @@
             <h3 class="section-title">
               {{ t('common.navigation') }}
             </h3>
-          
+
             <!-- Primera fila: Retroceder 5, Home, Avanzar 5 -->
             <div class="button-grid">
-              <button 
-                class="action-btn-frequent" 
+              <button
+                class="action-btn-frequent"
                 data-testid="rewind-button"
                 @click="handleAction('stepLines', -5)"
               >
@@ -397,8 +449,8 @@
                 />
                 <span class="btn-text">{{ t('toolbar.home') }}</span>
               </button>
-              <button 
-                class="action-btn-frequent" 
+              <button
+                class="action-btn-frequent"
                 data-testid="forward-button"
                 @click="handleAction('stepLines', 5)"
               >
@@ -452,11 +504,11 @@
             <h3 class="section-title">
               {{ t('settings.appearance') }}
             </h3>
-          
+
             <!-- Primera fila: Espejo H, Modo Teatro, Espejo V -->
             <div class="button-grid">
-              <button 
-                class="action-btn-frequent" 
+              <button
+                class="action-btn-frequent"
                 :class="{ active: mirrorH }"
                 data-testid="mirror-h-button"
                 @click="handleAction('mirrorToggle', 'h')"
@@ -467,7 +519,7 @@
                 />
                 <span class="btn-text">{{ t('toolbar.mirrorH') }}</span>
               </button>
-              <button 
+              <button
                 class="action-btn-frequent"
                 :class="{ active: isTheaterMode }"
                 @click="handleAction('toggleTheater')"
@@ -476,9 +528,11 @@
                   :icon="isTheaterMode ? 'mdi-fullscreen-exit' : 'mdi-television'"
                   size="32"
                 />
-                <span class="btn-text">{{ isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theaterMode') }}</span>
+                <span class="btn-text">{{
+                  isTheaterMode ? t('toolbar.exitTheater') : t('toolbar.theaterMode')
+                }}</span>
               </button>
-              <button 
+              <button
                 class="action-btn-frequent"
                 :class="{ active: mirrorV }"
                 data-testid="mirror-v-button"
@@ -555,6 +609,7 @@
                 <span class="btn-text">{{ t('settings.scrollModeAuto') }}</span>
               </button>
               <button
+                v-if="!isAndroidPlatform"
                 class="action-btn-frequent"
                 :class="{ active: prefsStore.scrollMode === 'voice' }"
                 data-testid="scroll-mode-voice-quick-button"
@@ -576,11 +631,11 @@
             <h3 class="section-title">
               {{ t('settings.options') }}
             </h3>
-          
+
             <!-- Botones opciones (grid 3 columnas con espacio en medio) -->
             <div class="options-grid">
-              <button 
-                class="action-btn-frequent" 
+              <button
+                class="action-btn-frequent"
                 data-testid="editor-button"
                 @click="handleAction('openEditor')"
               >
@@ -590,12 +645,12 @@
                 />
                 <span class="btn-text">{{ t('toolbar.openEditor') }}</span>
               </button>
-            
+
               <!-- Espacio vacío en el centro -->
               <div />
-            
-              <button 
-                class="action-btn-frequent" 
+
+              <button
+                class="action-btn-frequent"
                 data-testid="settings-button"
                 @click="handleAction('openSettings')"
               >
@@ -607,29 +662,44 @@
               </button>
             </div>
           </div>
-        </div> <!-- Cierre de v-else (Actions View) -->
+        </div>
+        <!-- Cierre de v-else (Actions View) -->
       </v-card-text>
     </v-card>
   </v-bottom-sheet>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
+import { Capacitor } from '@capacitor/core'
 import { useSettingsActions } from '@/composables/useSettingsActions'
 import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import { Z_INDEX, type ScrollMode } from '@/utils/constants'
+import { isTauri } from '@/utils/tauri'
 import HotkeyControl from './HotkeyControl.vue'
 import GamepadControl from './GamepadControl.vue'
 import CloudProviderSelector from './cloud/CloudProviderSelector.vue'
 import SliderControl from './SliderControl.vue'
 
 const { t } = useI18n()
+const router = useRouter()
 
 // Per-frame appearance (font/size/colors/alignment) - see useActiveFrameAppearance.ts
 const activeAppearance = useActiveFrameAppearance()
 
-// Shared preferences/hotkeys/gamepad/data-management actions (also used by SettingsDialog)
+// Device enrollment / mTLS debug pages must never be reachable outside development builds
+const isDevMode = import.meta.env.DEV
+const isNativePlatform = computed(() => Capacitor.isNativePlatform())
+const isTauriPlatform = computed(() => isTauri())
+// Voice scroll mode hidden on Android: the native speech recognizer's silent
+// mode is unreliable on real hardware, and the only working alternative
+// (Android's own visible recognition dialog) flashes on/off every few seconds
+// while reading, which is worse than not offering the mode at all.
+const isAndroidPlatform = computed(() => Capacitor.getPlatform() === 'android')
+
+// Shared preferences/hotkeys/gamepad/data-management actions (also used by the editor's own settings view)
 const {
   prefsStore,
   i18nStore,
@@ -680,20 +750,34 @@ const showSettings = ref(props.initialSettingsView || false)
 // Emits
 const emit = defineEmits<{
   'update:modelValue': [value: boolean]
-  'stepLines': [lines: number]
-  'goHome': []
-  'goEnd': []
-  'fontSizeChange': [size: number]
-  'mirrorToggle': [axis: 'h' | 'v']
-  'toggleImmersive': []
-  'toggleTheater': []
-  'openFile': []
-  'openEditor': []
-  'openSettings': []
-  'minimizeWindow': []
-  'maximizeWindow': []
-  'toggleFullscreen': []
+  stepLines: [lines: number]
+  goHome: []
+  goEnd: []
+  fontSizeChange: [size: number]
+  mirrorToggle: [axis: 'h' | 'v']
+  toggleImmersive: []
+  toggleTheater: []
+  openFile: []
+  openEditor: []
+  minimizeWindow: []
+  maximizeWindow: []
+  toggleFullscreen: []
 }>()
+
+function goToEnrollmentTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'device-enrollment-test' })
+}
+
+function goToMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'mtls-client-test' })
+}
+
+function goToDesktopMTLSTest() {
+  emit('update:modelValue', false)
+  router.push({ name: 'desktop-mtls-test' })
+}
 
 // Handle action and optionally close menu
 const handleAction = (action: string, ...args: any[]) => {
@@ -739,7 +823,7 @@ const handleAction = (action: string, ...args: any[]) => {
       emit('toggleFullscreen')
       break
   }
-  
+
   // Don't close menu by default (only openEditor and openSettings close it)
 }
 
@@ -765,8 +849,8 @@ function handleScrollModeChange(mode: ScrollMode) {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   transition: max-height 0.3s ease;
-  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
-  
+  box-shadow: 0 -4px 20px rgb(0 0 0 / 50%);
+
   &.maximized {
     max-height: calc(100vh - 100px);
   }
@@ -779,28 +863,28 @@ function handleScrollModeChange(mode: ScrollMode) {
   background-color: #1a1a1a; /* Mismo color que el fondo del menú */
   display: flex;
   justify-content: center;
-  padding: 12px 0 8px 0;
+  padding: 12px 0 8px;
   cursor: pointer;
   flex-shrink: 0;
-  
+
   &:hover {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(255 255 255 / 5%);
   }
-  
+
   &:active {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgb(255 255 255 / 8%);
   }
 }
 
 .handle {
   width: 40px;
   height: 4px;
-  background-color: rgba(255, 255, 255, 0.4); /* Más visible en gris oscuro */
+  background-color: rgb(255 255 255 / 40%); /* Más visible en gris oscuro */
   border-radius: 2px;
 }
 
 .menu-content {
-  padding: 16px 24px calc(180px + env(safe-area-inset-bottom)) 24px;
+  padding: 16px 24px calc(180px + env(safe-area-inset-bottom));
   max-width: 500px;
   margin: 0 auto;
   overflow-y: auto;
@@ -816,7 +900,7 @@ function handleScrollModeChange(mode: ScrollMode) {
   font-size: 13px;
   font-weight: 600;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.6); /* Más visible en gris oscuro */
+  color: rgb(255 255 255 / 60%); /* Más visible en gris oscuro */
   letter-spacing: 1px;
   margin-bottom: 16px;
   text-align: center;
@@ -864,30 +948,30 @@ function handleScrollModeChange(mode: ScrollMode) {
   border-radius: 12px;
   transition: all 0.2s ease;
   min-height: 90px;
-  
+
   &:hover {
     background: #111; /* Negro más claro al hover */
   }
-  
+
   &:active {
     transform: scale(0.95);
     background: #222;
   }
-  
+
   &.active {
-    background: rgba(var(--v-theme-primary), 0.3);
-    
+    background: rgb(var(--v-theme-primary), 0.3);
+
     &:hover {
-      background: rgba(var(--v-theme-primary), 0.4);
+      background: rgb(var(--v-theme-primary), 0.4);
     }
   }
-  
+
   .btn-text {
     font-size: 12px;
     text-align: center;
     line-height: 1.2;
     max-width: 100%;
-    word-wrap: break-word;
+    overflow-wrap: break-word;
   }
 }
 
@@ -906,20 +990,20 @@ function handleScrollModeChange(mode: ScrollMode) {
   width: 100%;
   text-align: left;
   margin-bottom: 8px;
-  
+
   &:hover {
     background: #111; /* Negro más claro al hover */
   }
-  
+
   &:active {
     transform: scale(0.98);
     background: #222;
   }
-  
+
   .extra-icon {
     flex-shrink: 0;
   }
-  
+
   .extra-text {
     font-size: 15px;
     font-weight: 500;
@@ -930,26 +1014,26 @@ function handleScrollModeChange(mode: ScrollMode) {
 /* Responsive: móviles pequeños */
 @media (max-width: 360px) {
   .menu-content {
-    padding: 12px 16px calc(160px + env(safe-area-inset-bottom)) 16px;
+    padding: 12px 16px calc(160px + env(safe-area-inset-bottom));
   }
-  
+
   .button-grid,
   .button-grid-2 {
     gap: 8px;
   }
-  
+
   .action-btn-frequent {
     padding: 12px 6px;
     min-height: 80px;
-    
+
     .btn-text {
       font-size: 11px;
     }
   }
-  
+
   .action-btn-extra {
     padding: 14px 16px;
-    
+
     .extra-text {
       font-size: 14px;
     }
@@ -959,27 +1043,27 @@ function handleScrollModeChange(mode: ScrollMode) {
 /* Tablets y desktop */
 @media (min-width: 600px) {
   .menu-content {
-    padding: 20px 32px calc(180px + env(safe-area-inset-bottom)) 32px;
+    padding: 20px 32px calc(180px + env(safe-area-inset-bottom));
     max-width: 600px;
   }
-  
+
   .button-grid,
   .button-grid-2 {
     gap: 16px;
   }
-  
+
   .action-btn-frequent {
     padding: 20px 12px;
     min-height: 100px;
-    
+
     .btn-text {
       font-size: 13px;
     }
   }
-  
+
   .action-btn-extra {
     padding: 18px 24px;
-    
+
     .extra-text {
       font-size: 16px;
     }
@@ -992,16 +1076,16 @@ function handleScrollModeChange(mode: ScrollMode) {
 }
 
 .actions-menu::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgb(255 255 255 / 5%);
 }
 
 .actions-menu::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgb(255 255 255 / 20%);
   border-radius: 3px;
 }
 
 .actions-menu::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgb(255 255 255 / 30%);
 }
 
 /* Settings container */
@@ -1040,7 +1124,7 @@ function handleScrollModeChange(mode: ScrollMode) {
 .hotkeys-container {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border: 1px solid rgb(var(--v-border-color), var(--v-border-opacity));
   border-radius: 4px;
   padding: 12px;
 }
@@ -1048,7 +1132,7 @@ function handleScrollModeChange(mode: ScrollMode) {
 .gamepad-mappings-container {
   max-height: 300px;
   overflow-y: auto;
-  border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  border: 1px solid rgb(var(--v-border-color), var(--v-border-opacity));
   border-radius: 4px;
   padding: 12px;
 }
