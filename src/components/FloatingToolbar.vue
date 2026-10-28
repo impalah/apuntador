@@ -18,13 +18,10 @@
       />
     </button>
 
-    <!-- Voice-mode quick toggle - hidden on Android: the native speech
-    recognizer's silent (no-popup) mode is unreliable on real hardware (One UI
-    in particular never routes mic input to it), and the only working
-    alternative (Android's own visible recognition dialog) would flash on/off
-    every few seconds while reading, which is worse than not offering it. -->
+    <!-- Voice-mode quick toggle - hidden where the platform can't support it
+    (Android; see isVoiceModeOfferedOnPlatform in capacitorSpeechEngine.ts) -->
     <button
-      v-if="!isAndroid"
+      v-if="isVoiceModeOffered"
       class="toolbar-btn"
       :class="{ active: prefsStore.scrollMode === 'voice' }"
       :aria-label="
@@ -76,7 +73,6 @@
     :is-immersive-supported="isImmersiveSupported"
     :is-theater-mode="isTheaterMode"
     :is-theater-loading="isTheaterLoading"
-    :is-desktop="isDesktop"
     @step-lines="$emit('stepLines', $event)"
     @go-home="$emit('goHome')"
     @go-end="$emit('goEnd')"
@@ -86,20 +82,16 @@
     @toggle-theater="toggleTheaterMode"
     @open-file="$emit('openFile')"
     @open-editor="$emit('openEditor')"
-    @minimize-window="minimizeWindow"
-    @maximize-window="maximizeWindow"
-    @toggle-fullscreen="toggleFullscreen"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch } from 'vue'
+import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useDisplay } from 'vuetify'
 import { Capacitor } from '@capacitor/core'
+import { isVoiceModeOfferedOnPlatform } from '@/services/speech/capacitorSpeechEngine'
 import { useTeleprompterStore } from '@/stores/useTeleprompterStore'
 import { usePrefsStore } from '@/stores/usePrefsStore'
-import { useFullscreen } from '@/utils/display/fullscreen'
 import { useTauri } from '@/utils/tauri'
 import { useTheaterMode } from '@/composables/useTheaterMode'
 import SpeedControl from './SpeedControl.vue'
@@ -108,9 +100,6 @@ import FramePickerControl from './FramePickerControl.vue'
 
 // I18n
 const { t } = useI18n()
-
-// Display (for responsive logic)
-const { xs, sm } = useDisplay()
 
 // Props
 interface Props {
@@ -151,7 +140,6 @@ const props = withDefaults(defineProps<Props>(), {
 const emit = defineEmits<{
   play: []
   pause: []
-  togglePlay: []
   stepLines: [lines: number]
   goHome: []
   goEnd: []
@@ -168,92 +156,20 @@ const prefsStore = usePrefsStore()
 
 // Platform detection
 const isAndroid = Capacitor.getPlatform() === 'android'
-const isNative = Capacitor.isNativePlatform()
-const isDesktop = !isNative
+const isVoiceModeOffered = isVoiceModeOfferedOnPlatform()
 
 // Immersive mode state (Android)
 const isImmersive = ref(false)
 const isImmersiveSupported = isAndroid
 
-// Fullscreen composables
-const fullscreenComposable = useFullscreen()
-const toggleFullscreen = fullscreenComposable.toggleFullscreen || (() => Promise.resolve(false))
-
 // Theater mode (Desktop)
 const { isTheaterMode, isLoading: isTheaterLoading, toggleTheaterMode } = useTheaterMode()
-
-// Toolbar visibility state (independent from props.isVisible)
-const toolbarVisible = ref(true)
-let hideTimeout: ReturnType<typeof setTimeout> | null = null
-
-// Show toolbar with optional auto-hide
-function showToolbar(autoHide = false) {
-  toolbarVisible.value = true
-
-  // Clear any existing timeout
-  if (hideTimeout) {
-    clearTimeout(hideTimeout)
-    hideTimeout = null
-  }
-
-  // Auto-hide after 3 seconds if requested
-  if (autoHide) {
-    hideTimeout = setTimeout(() => {
-      hideToolbar()
-    }, 3000)
-  }
-}
-
-// Hide toolbar
-function hideToolbar() {
-  toolbarVisible.value = false
-  if (hideTimeout) {
-    clearTimeout(hideTimeout)
-    hideTimeout = null
-  }
-}
-
-// Handle screen tap during playback
-function handleScreenTap() {
-  if (teleprompterStore.isPlaying) {
-    showToolbar(true)
-  }
-}
-
-// Watch for isVisible prop changes
-watch(
-  () => props.isVisible,
-  (newVal, oldVal) => {
-    console.log('[FloatingToolbar] isVisible changed from', oldVal, 'to', newVal)
-  }
-)
-
-// Watch for play/pause state changes
-watch(
-  () => teleprompterStore.isPlaying,
-  (isPlaying) => {
-    // console.log('[FloatingToolbar] isPlaying changed to:', isPlaying)
-    if (isPlaying) {
-      // On mobile devices, keep toolbar visible during playback for easier control
-      if (xs.value || sm.value) {
-        showToolbar()
-      } else {
-        // Hide toolbar on desktop/larger screens for clean reading experience
-        hideToolbar()
-      }
-    } else {
-      showToolbar()
-    }
-  },
-  { immediate: true }
-)
 
 // State
 const actionsMenuOpen = ref(false)
 
 // Actions
 function togglePlay() {
-  console.log('[FloatingToolbar] togglePlay() called, isPlaying:', teleprompterStore.isPlaying)
   if (teleprompterStore.isPlaying) {
     emit('pause')
   } else {
@@ -292,29 +208,10 @@ async function toggleImmersiveMode() {
   }
 }
 
-// Desktop window controls - Stubs for now
-async function minimizeWindow() {
-  console.log('minimizeWindow called - feature not yet implemented')
-}
-
-async function maximizeWindow() {
-  console.log('maximizeWindow called - feature not yet implemented')
-}
-
 // Initialize Tauri when component mounts
 onMounted(async () => {
   const { init } = useTauri()
   await init()
-
-  // Listen for screen taps
-  globalThis.addEventListener('teleprompter-tap', handleScreenTap)
-})
-
-onUnmounted(() => {
-  globalThis.removeEventListener('teleprompter-tap', handleScreenTap)
-  if (hideTimeout) {
-    clearTimeout(hideTimeout)
-  }
 })
 </script>
 

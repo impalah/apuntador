@@ -609,7 +609,7 @@
                 <span class="btn-text">{{ t('settings.scrollModeAuto') }}</span>
               </button>
               <button
-                v-if="!isAndroidPlatform"
+                v-if="isVoiceModeOffered"
                 class="action-btn-frequent"
                 :class="{ active: prefsStore.scrollMode === 'voice' }"
                 data-testid="scroll-mode-voice-quick-button"
@@ -674,6 +674,7 @@ import { ref, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { Capacitor } from '@capacitor/core'
+import { isVoiceModeOfferedOnPlatform } from '@/services/speech/capacitorSpeechEngine'
 import { useSettingsActions } from '@/composables/useSettingsActions'
 import { useActiveFrameAppearance } from '@/composables/useActiveFrameAppearance'
 import { Z_INDEX, type ScrollMode } from '@/utils/constants'
@@ -693,11 +694,8 @@ const activeAppearance = useActiveFrameAppearance()
 const isDevMode = import.meta.env.DEV
 const isNativePlatform = computed(() => Capacitor.isNativePlatform())
 const isTauriPlatform = computed(() => isTauri())
-// Voice scroll mode hidden on Android: the native speech recognizer's silent
-// mode is unreliable on real hardware, and the only working alternative
-// (Android's own visible recognition dialog) flashes on/off every few seconds
-// while reading, which is worse than not offering the mode at all.
-const isAndroidPlatform = computed(() => Capacitor.getPlatform() === 'android')
+// Voice scroll mode is hidden where the platform can't support it (Android)
+const isVoiceModeOffered = isVoiceModeOfferedOnPlatform()
 
 // Shared preferences/hotkeys/gamepad/data-management actions (also used by the editor's own settings view)
 const {
@@ -738,7 +736,6 @@ interface Props {
   isImmersiveSupported?: boolean
   isTheaterMode?: boolean
   isTheaterLoading?: boolean
-  isDesktop?: boolean
   initialSettingsView?: boolean
 }
 
@@ -759,9 +756,6 @@ const emit = defineEmits<{
   toggleTheater: []
   openFile: []
   openEditor: []
-  minimizeWindow: []
-  maximizeWindow: []
-  toggleFullscreen: []
 }>()
 
 function goToEnrollmentTest() {
@@ -812,15 +806,6 @@ const handleAction = (action: string, ...args: any[]) => {
     case 'openSettings':
       // Show settings view inside ActionsMenu instead of emitting
       showSettings.value = true
-      break
-    case 'minimizeWindow':
-      emit('minimizeWindow')
-      break
-    case 'maximizeWindow':
-      emit('maximizeWindow')
-      break
-    case 'toggleFullscreen':
-      emit('toggleFullscreen')
       break
   }
 

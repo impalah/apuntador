@@ -60,7 +60,6 @@
       :is-minimal="isMinimalLayout"
       @play="onPlay"
       @pause="onPause"
-      @toggle-play="onTogglePlay"
       @step-lines="onStepLines"
       @go-home="onGoHome"
       @go-end="onGoEnd"
